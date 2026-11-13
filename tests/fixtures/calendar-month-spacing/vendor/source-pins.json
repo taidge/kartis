@@ -1,0 +1,42 @@
+{
+  "nivoVersion": "0.99.0",
+  "nivoCommit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "lodashVersion": "4.17.21",
+  "files": {
+    "calendar.ts": {
+      "sha256": "28ea80f0cbf42e0ea8e84db11b714d6f0474db3c0dfb4a7e0381eb1c5c9085f9",
+      "bytes": 13414,
+      "source": "packages/calendar/src/compute/calendar.ts"
+    },
+    "calendar-types.ts": {
+      "sha256": "1ededfed5920677431937bdd4f099d2551335f4fde5672c4532222275bacf423",
+      "bytes": 5624,
+      "source": "packages/calendar/src/types.ts"
+    },
+    "calendar-props.ts": {
+      "sha256": "d511632c15e092cf81a17b3804c8cc9527648707e9fa3f6842a4d2926365dddc",
+      "bytes": 1561,
+      "source": "packages/calendar/src/props.ts"
+    },
+    "core-cartesian-utils.js": {
+      "sha256": "05509d03d4df3ed400f0c1a654ca072e7e1f0335db143391e8d3710c4f496b7b",
+      "bytes": 1558,
+      "source": "packages/core/src/lib/cartesian/utils.js"
+    },
+    "nivo-LICENSE": {
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+      "bytes": 1054,
+      "source": "LICENSE.md"
+    },
+    "lodash.cjs": {
+      "sha256": "4c04561befdf653aef017a42ac5addf68ea943cdfca6bdee5ce04e04e8139f54",
+      "bytes": 544098,
+      "source": "tests/fixtures/box-colors-function/vendor/lodash.cjs"
+    },
+    "lodash-LICENSE": {
+      "sha256": "f71e8ed126b46346494aad5486874cd8f0aafe95092ed67d2e3cb6110f939abc",
+      "bytes": 1952,
+      "source": "tests/fixtures/box-colors-function/vendor/lodash-LICENSE"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+# Actual Nivo 0.99 source SHA256 {"scatterplot/src/compute.ts":"db86e940f210187d13b9b43a62fc5d4887e6bed9a583e4af8359871d0ed6a10d","scales/src/compute.ts":"19f993e3dcbcdcfd889d036aabcaaf28354f6a9b4bac8452e7ce287285204b7e","scales/src/timeHelpers.ts":"05548ae042186c98dd5de1b9a071e82220d33d2f3c29907ef473ea7c83eb7a89","scales/src/linearScale.ts":"28bc1a6980e3fb0c5807ccf348e7c8ad31155f68f286fa107705a57a669c8dd3","scales/src/pointScale.ts":"2c89b8c37637ff8c82a6e9799a177b1c566bbcfc74778ae859d5294340ff8a5c","scales/src/bandScale.ts":"83f3a287bade728df3d72ea1f8fd692eacc4a5a75c7b18ffb30b7e02b883f4e6","scales/src/timeScale.ts":"43e7dafb65efe51420288c586129289111498080ff84d99436639fa89405a78d","scales/src/logScale.ts":"d64ffb08bff4619c873c16fbc91ad5653ece03f8b8f8fe0232f5d77658808de9","scales/src/symlogScale.ts":"f77ab030911311a36627db9441f63a2217276d4242dc4fb4e6c553ca58fd4e65","scatterplot/src/props.tsx":"0453248237f7485ac4830d42fc2cfacf667d438394dd4c948f56fe7375dff43d"}; d3-scale4.0.2 d3-array3.2.5 d3-time3.1.1; top-left local plot coordinates.
+profile|name|width|height|xKind|yKind|xDomain|yDomain
+0|default|400|240|linear|linear|n:0,n:9|n:0,n:8
+0|default|517|293|linear|linear|n:0,n:9|n:0,n:8
+1|dynamic|400|240|linear|linear|n:0,n:10|n:0,n:10
+1|dynamic|517|293|linear|linear|n:0,n:10|n:0,n:10
+2|constant-size-domain|400|240|linear|linear|n:0,n:10|n:0,n:10
+2|constant-size-domain|517|293|linear|linear|n:0,n:10|n:0,n:10
+3|descending-size-domain|400|240|linear|linear|n:0,n:10|n:0,n:10
+3|descending-size-domain|517|293|linear|linear|n:0,n:10|n:0,n:10
+4|constant-xy|400|240|linear|linear|n:5,n:5|n:2,n:2
+4|constant-xy|517|293|linear|linear|n:5,n:5|n:2,n:2
+5|reverse-round|400|240|linear|linear|n:10,n:0|n:10,n:0
+5|reverse-round|517|293|linear|linear|n:10,n:0|n:10,n:0
+6|point-xy|400|240|point|point|s:1,n:1,s:last|s:up,s:down
+6|point-xy|517|293|point|point|s:1,n:1,s:last|s:up,s:down
+7|utc-x|400|240|time|linear|t:1709078400000,t:1709251200000|n:0,n:10
+7|utc-x|517|293|time|linear|t:1709078400000,t:1709251200000|n:0,n:10
+8|negative-size-extension|400|240|linear|linear|n:0,n:10|n:0,n:10
+8|negative-size-extension|517|293|linear|linear|n:0,n:10|n:0,n:10

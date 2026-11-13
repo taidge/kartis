@@ -1,0 +1,161 @@
+{
+  "schema": "kartis-contour-density-original-d3-v1",
+  "bundle": {
+    "file": "contour-density-d3-oracle.js",
+    "bytes": 52180,
+    "sha256": "368973def0cbd81dd57341a5f32679182a76ba8c1c48d874c611b548b7088527"
+  },
+  "packages": [
+    {
+      "name": "d3-array",
+      "version": "3.2.4",
+      "distribution": "d3-array/dist/d3-array.js",
+      "start": 85,
+      "bytes": 39531,
+      "sha256": "3323f43e0bb7bfa56a4d0a9e06a25b24028cad8f2962d84cbbc48d6b7f095a0f"
+    },
+    {
+      "name": "d3-contour",
+      "version": "4.0.2",
+      "distribution": "d3-contour/dist/d3-contour.js",
+      "start": 39617,
+      "bytes": 12562,
+      "sha256": "9ced1c11bbc3a195b225f5161a9c7d884e27c1de14a8eea8d91ba3e13aa20416"
+    }
+  ],
+  "licenses": {
+    "file": "contour-density-d3-LICENSE.txt",
+    "sha256": "417bbff88258cc83b6dbf9b42709c3ce6f88e7e38c181398542e4aaf34c2c7d5",
+    "packages": [
+      {
+        "name": "d3-array",
+        "version": "3.2.4",
+        "originalBytes": 731,
+        "originalSha256": "3e6849627f74ff73c257a3ae1efb574015d94fc1035c05ec3c15805165efcbc4",
+        "text": "Copyright 2010-2023 Mike Bostock\n\nPermission to use, copy, modify, and/or distribute this software for any purpose\nwith or without fee is hereby granted, provided that the above copyright notice\nand this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS\nOF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER\nTORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE.\n"
+      },
+      {
+        "name": "d3-contour",
+        "version": "4.0.2",
+        "originalBytes": 731,
+        "originalSha256": "e51cba0e4fa1d8c078e15319868f2b90188f413f9ce9dac1043b62db32901e93",
+        "text": "Copyright 2012-2023 Mike Bostock\n\nPermission to use, copy, modify, and/or distribute this software for any purpose\nwith or without fee is hereby granted, provided that the above copyright notice\nand this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS\nOF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER\nTORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE.\n"
+      },
+      {
+        "name": "internmap",
+        "version": "2.0.3",
+        "originalBytes": 726,
+        "originalSha256": "9ea8903938dab5f12c4572d60725069bec2d1b0dc3bcc210b09bae946a5ebb1f",
+        "text": "Copyright 2021 Mike Bostock\n\nPermission to use, copy, modify, and/or distribute this software for any purpose\nwith or without fee is hereby granted, provided that the above copyright notice\nand this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS\nOF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER\nTORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE.\n"
+      }
+    ]
+  },
+  "sourceFiles": {
+    "d3-contour/src/contours.js": {
+      "bytes": 6973,
+      "sha256": "ea5a5a675bb64badbdf4bc0b23c28cacba38b31396f5dfc4740da7c716efc04d"
+    },
+    "d3-contour/src/density.js": {
+      "bytes": 4185,
+      "sha256": "e1239e224dadbd720871dc84009c0b8cafa37d5a2d6600fe8e235663a6a48e19"
+    },
+    "d3-contour/src/area.js": {
+      "bytes": 230,
+      "sha256": "72cbb04cb5672bc7cc3d6fa2f5d9824f29ee635e0f6f98ad6f423d2c81c3dd82"
+    },
+    "d3-contour/src/contains.js": {
+      "bytes": 871,
+      "sha256": "a116bea68ad1cf539d71dda6484882e11558f489077127a491baa7085496955d"
+    },
+    "d3-array/src/blur.js": {
+      "bytes": 4082,
+      "sha256": "924994c1536d8e196530848dd2ea3a902c93b086e60bdbc2bdddd5cbb0f65f67"
+    },
+    "d3-array/src/ticks.js": {
+      "bytes": 1958,
+      "sha256": "79eac11e378fd34364801fd59534cfb3b34f46e54693537ad65c06c93bcb9a0f"
+    },
+    "internmap/src/index.js": {
+      "bytes": 1575,
+      "sha256": "4da167a52014cf7d2f6fcd9121a5cab3484ef3bfa59055ee92f00ea5c7b33b67"
+    }
+  },
+  "fixtures": {
+    "grid-candidate.csv": {
+      "sha256": "6fadc5240bd9ee200b4225023254e89f8a3315db30cd6e62d5bd5d4cfa3aa1fc",
+      "bytes": 245108
+    },
+    "nested-ownership-candidate.csv": {
+      "sha256": "9d4c256957e59f81880e47bc1ac2ae6407692775f9cde7e3af9bf95ece1358d7",
+      "bytes": 9655
+    },
+    "density-candidate.csv": {
+      "sha256": "4778076922184669bd49b079db6ee2fe4d1c1ffad268b876d82e2dbf7308bb8a",
+      "bytes": 11193077
+    },
+    "density-small-candidate.csv": {
+      "sha256": "ece93905f0715dbb7f507c3310f6f74230c8dfbaa8acd6b850c3d1a0482d6322",
+      "bytes": 2303897
+    },
+    "negative-maximum-single-level.csv": {
+      "sha256": "c09353f0956bd2ea4af4e5fbcfebe16196c467da6bfb91643c3abb07022ee4f8",
+      "bytes": 132
+    },
+    "nested-hole-ownership.json": {
+      "sha256": "f8c2fe1b73061a9945e4ba284ce295880f8dde92dfc2ec978f8ca75b3b82e510",
+      "bytes": 68791
+    },
+    "null-boundary-diagnostic.json": {
+      "sha256": "b0cc5b87c9ce4d238a2f08391951042d35de32f2f0a3c79912673e2a0829b916",
+      "bytes": 7790
+    },
+    "signed-negative-maximum.json": {
+      "sha256": "b05195600b4d06d503035a9109298f56d7e5594ba3b8735cdf49a902ddf7105f",
+      "bytes": 4337
+    }
+  },
+  "scope": {
+    "gridRecords": 546,
+    "baseGridRecords": 540,
+    "nestedGridRecords": 6,
+    "densityRecords": 500,
+    "densitySubsetRecords": 100,
+    "densityGridEncoding": "Original Float32Array bit patterns, eight hexadecimal digits per value; exact bits, no tolerance",
+    "geometryEncoding": "Original ordered MultiPolygon components/rings/vertices; no ring canonicalization in the oracle checker",
+    "uniformMissingInput": "Compact grid fixtures use NaN for every missing value. Native D3 null-vs-NaN behavior is preserved separately, never treated as equivalent.",
+    "negativeMaximum": "Native D3 negative-maximum bulk versus field(value) behavior is preserved separately; no equality claim for their differing endpoints."
+  },
+  "profiles": [
+    {
+      "name": "uniform-missing-vs-native-null",
+      "file": "null-boundary-diagnostic.json",
+      "nativeDifferences": [
+        {
+          "threshold": -1,
+          "smooth": false
+        },
+        {
+          "threshold": -1,
+          "smooth": true
+        },
+        {
+          "threshold": 0,
+          "smooth": false
+        },
+        {
+          "threshold": 0,
+          "smooth": true
+        }
+      ]
+    },
+    {
+      "name": "signed-negative-maximum-bulk-vs-field",
+      "file": "signed-negative-maximum.json",
+      "singleFile": "negative-maximum-single-level.csv",
+      "nativeDifferentLevels": [
+        0,
+        -1
+      ]
+    }
+  ]
+}

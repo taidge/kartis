@@ -1,0 +1,697 @@
+{
+  "schema": 1,
+  "records": 24,
+  "csvSha256": "3721a17d6c3323610bea140c3773fd97c687e6d99021dba80b14ca7a0f9e520c",
+  "scope": "Actual original default/custom summary quantiles, independent endpoints, original linear/log/native-millisecond time factories. Hidden cases supply the already-visible summaries to original generateBoxPlots. Original empty/nonfinite/falsy-zero and raw-log-source differences remain explicitly recorded; native Rust intentionally retains existing finite/stable/strict-source policies. UTC Date TimeClip affects automatic endpoints only; summary/query values stay fractional.",
+  "producer": "scripts/boxplot-summary-domain-reference.mjs",
+  "command": "node scripts/boxplot-summary-domain-reference.mjs <node_modules> [--check]",
+  "dependencies": {
+    "d3-scale": "4.0.2",
+    "d3-array": "3.2.5",
+    "d3-interpolate": "3.0.1",
+    "d3-time-format": "4.1.1"
+  },
+  "sourcePins": {
+    "tests/fixtures/boxplot-domain-bounds/vendor/generation.ts": "87668853e037c1af1d0a3b4cf1710baaef9d881f6b14df53920dc2625029a663",
+    "tests/fixtures/boxplot-domain-bounds/vendor/stratification.ts": "92969d932326004057da073870965ac2bafd880f354cd5752a97773bd3dbf274",
+    "tests/fixtures/boxplot-domain-bounds/vendor/common.ts": "cbaf3f4375f805e258c45c32cc4176fe32641e85a5a1a0efcd77cc296f40ccda",
+    "tests/fixtures/boxplot-domain-bounds/vendor/linearScale.ts": "28bc1a6980e3fb0c5807ccf348e7c8ad31155f68f286fa107705a57a669c8dd3",
+    "tests/fixtures/boxplot-domain-bounds/vendor/compute.ts": "19f993e3dcbcdcfd889d036aabcaaf28354f6a9b4bac8452e7ce287285204b7e",
+    "tests/fixtures/bar-category-band/vendor/raw/nivo-bandScale.ts": "83f3a287bade728df3d72ea1f8fd692eacc4a5a75c7b18ffb30b7e02b883f4e6",
+    "tests/fixtures/bar-category-band/vendor/raw/nivo-LICENSE": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+    "tests/fixtures/bar-category-band/vendor/raw/d3-scale-LICENSE": "e008c5e25a6be382593089c29bfabbc553c6378eee02895aec46ce396cc404ee",
+    "tests/fixtures/bar-category-band/vendor/raw/d3-array-LICENSE": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3",
+    "tests/fixtures/boxplot-summary-domain/vendor/timeScale.ts": "43e7dafb65efe51420288c586129289111498080ff84d99436639fa89405a78d",
+    "tests/fixtures/boxplot-summary-domain/vendor/timeHelpers.ts": "05548ae042186c98dd5de1b9a071e82220d33d2f3c29907ef473ea7c83eb7a89",
+    "tests/fixtures/boxplot-summary-domain/vendor/logScale.ts": "d64ffb08bff4619c873c16fbc91ad5653ece03f8b8f8fe0232f5d77658808de9"
+  },
+  "runtimeSourcePins": {
+    "d3-scale/src/time.js": "666b7acd807e2ad4130097bf121ab0a38b02a25cc57de3eff9e07e043b7d8fc9",
+    "d3-scale/src/utcTime.js": "17505cdb0da21a365076d355b1746b280aa2a3bcabe7b14a10587c50781ebfbb",
+    "d3-scale/src/continuous.js": "a8bd9670abd40c813d047082a35126cb18068f1959bf78b74e6ca4c864de123a",
+    "d3-scale/src/linear.js": "6223d1339147f7a311374307451183a110912c230e62f484b4dc06914c78ac87",
+    "d3-scale/src/log.js": "a8d231005032382f02b9ce4d3ad546c3b354bdd78657f27fbd01bf8029296816",
+    "d3-interpolate/src/number.js": "ed494932c08d821136b3566e404608c79356035866a742a79585ef761d61139b",
+    "d3-time-format/dist/d3-time-format.mjs": "0504faf7bf4937188703b729513e251c3b19bf2780bfaaa236b332d84a7b97e1"
+  },
+  "originalDetails": [
+    {
+      "name": "default",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "1",
+          "4"
+        ],
+        "values": [
+          "1.3",
+          "1.75",
+          "2.5",
+          "3.25",
+          "3.7"
+        ],
+        "mean": "2.5"
+      },
+      "originalDomain": [
+        "1.3",
+        "3.7"
+      ],
+      "originalQueryPixels": [
+        "20",
+        "79.99999999999999",
+        "179.99999999999997",
+        "279.99999999999994",
+        "340"
+      ]
+    },
+    {
+      "name": "fixed-min",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "1",
+          "4"
+        ],
+        "values": [
+          "1.3",
+          "1.75",
+          "2.5",
+          "3.25",
+          "3.7"
+        ],
+        "mean": "2.5"
+      },
+      "originalDomain": [
+        "2",
+        "3.7"
+      ],
+      "originalQueryPixels": [
+        "-111.76470588235293",
+        "-27.058823529411754",
+        "114.11764705882351",
+        "255.2941176470588",
+        "340"
+      ]
+    },
+    {
+      "name": "fixed-max",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "1",
+          "4"
+        ],
+        "values": [
+          "1.3",
+          "1.75",
+          "2.5",
+          "3.25",
+          "3.7"
+        ],
+        "mean": "2.5"
+      },
+      "originalDomain": [
+        "1.3",
+        "3"
+      ],
+      "originalQueryPixels": [
+        "20",
+        "104.70588235294117",
+        "245.8823529411765",
+        "387.0588235294117",
+        "471.76470588235304"
+      ]
+    },
+    {
+      "name": "both-fixed",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "1",
+          "4"
+        ],
+        "values": [
+          "1.3",
+          "1.75",
+          "2.5",
+          "3.25",
+          "3.7"
+        ],
+        "mean": "2.5"
+      },
+      "originalDomain": [
+        "1",
+        "4"
+      ],
+      "originalQueryPixels": [
+        "52.00000000000001",
+        "100",
+        "180",
+        "260",
+        "308"
+      ]
+    },
+    {
+      "name": "custom-repeated",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "-10",
+          "20"
+        ],
+        "values": [
+          "-3.5999999999999996",
+          "-3.5999999999999996",
+          "0",
+          "8.800000000000002",
+          "8.800000000000002"
+        ],
+        "mean": "2.8"
+      },
+      "originalDomain": [
+        "-3.5999999999999996",
+        "8.800000000000002"
+      ],
+      "originalQueryPixels": [
+        "20",
+        "20",
+        "112.90322580645159",
+        "340",
+        "340"
+      ]
+    },
+    {
+      "name": "median-only",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "1",
+          "4"
+        ],
+        "values": [
+          "2.5",
+          "2.5",
+          "2.5",
+          "2.5",
+          "2.5"
+        ],
+        "mean": "2.5"
+      },
+      "originalDomain": [
+        "2.5",
+        "2.5"
+      ],
+      "originalQueryPixels": [
+        "180",
+        "180",
+        "180",
+        "180",
+        "180"
+      ]
+    },
+    {
+      "name": "constant",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "7",
+          "7"
+        ],
+        "values": [
+          "7",
+          "7",
+          "7",
+          "7",
+          "7"
+        ],
+        "mean": "7"
+      },
+      "originalDomain": [
+        "7",
+        "7"
+      ],
+      "originalQueryPixels": [
+        "180",
+        "180",
+        "180",
+        "180",
+        "180"
+      ]
+    },
+    {
+      "name": "hidden-other-series",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "1",
+          "4"
+        ],
+        "values": [
+          "1.3",
+          "1.75",
+          "2.5",
+          "3.25",
+          "3.7"
+        ],
+        "mean": "2.5"
+      },
+      "originalDomain": [
+        "1.3",
+        "3.7"
+      ],
+      "originalQueryPixels": [
+        "20",
+        "79.99999999999999",
+        "179.99999999999997",
+        "279.99999999999994",
+        "340"
+      ]
+    },
+    {
+      "name": "empty",
+      "scope": "rust-finite-fallback",
+      "summary": null,
+      "originalDomain": [
+        "inf",
+        "-inf"
+      ],
+      "originalQueryPixels": []
+    },
+    {
+      "name": "all-hidden",
+      "scope": "rust-finite-fallback",
+      "summary": null,
+      "originalDomain": [
+        "inf",
+        "-inf"
+      ],
+      "originalQueryPixels": []
+    },
+    {
+      "name": "finite-extreme",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "-1e+308",
+          "1e+308"
+        ],
+        "values": [
+          "-8e+307",
+          "-5e+307",
+          "0",
+          "5e+307",
+          "8.000000000000001e+307"
+        ],
+        "mean": "0"
+      },
+      "originalDomain": [
+        "-8e+307",
+        "8.000000000000001e+307"
+      ],
+      "originalQueryPixels": [
+        "20",
+        "80",
+        "179.99999999999997",
+        "280",
+        "340"
+      ]
+    },
+    {
+      "name": "overflow-original-quantile",
+      "scope": "rust-stable-quantile",
+      "summary": {
+        "extrema": [
+          "-1e+308",
+          "1e+308"
+        ],
+        "values": [
+          "inf",
+          "inf",
+          "inf",
+          "inf",
+          "inf"
+        ],
+        "mean": "0"
+      },
+      "originalDomain": [
+        "inf",
+        "inf"
+      ],
+      "originalQueryPixels": [
+        "nan",
+        "nan",
+        "nan",
+        "nan",
+        "nan"
+      ]
+    },
+    {
+      "name": "positive-log",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "1",
+          "8"
+        ],
+        "values": [
+          "1.3",
+          "1.75",
+          "3",
+          "5",
+          "6.800000000000001"
+        ],
+        "mean": "3.75"
+      },
+      "originalDomain": [
+        "1.3",
+        "6.800000000000001"
+      ],
+      "originalQueryPixels": [
+        "20",
+        "77.48995654406954",
+        "181.73462127451177",
+        "280.53089511454226",
+        "340"
+      ]
+    },
+    {
+      "name": "negative-log",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "-8",
+          "-1"
+        ],
+        "values": [
+          "-6.8",
+          "-5",
+          "-3",
+          "-1.75",
+          "-1.2999999999999998"
+        ],
+        "mean": "-3.75"
+      },
+      "originalDomain": [
+        "-6.8",
+        "-1.2999999999999998"
+      ],
+      "originalQueryPixels": [
+        "20",
+        "79.46910488545775",
+        "178.26537872548823",
+        "282.51004345593043",
+        "340"
+      ]
+    },
+    {
+      "name": "raw-zero-log",
+      "scope": "rust-raw-source-reject",
+      "summary": {
+        "extrema": [
+          "0",
+          "3"
+        ],
+        "values": [
+          "0.30000000000000004",
+          "0.75",
+          "1.5",
+          "2.25",
+          "2.7"
+        ],
+        "mean": "1.5"
+      },
+      "originalDomain": [
+        "0.30000000000000004",
+        "2.7"
+      ],
+      "originalQueryPixels": [
+        "20",
+        "153.44700274343518",
+        "254.39576331486836",
+        "313.4470027434352",
+        "340"
+      ]
+    },
+    {
+      "name": "utc-positive-sub-ms",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "0",
+          "1"
+        ],
+        "values": [
+          "0.1",
+          "0.25",
+          "0.5",
+          "0.75",
+          "0.9"
+        ],
+        "mean": "0.5"
+      },
+      "originalDomain": [
+        "0",
+        "0"
+      ],
+      "originalQueryPixels": [
+        "180",
+        "180",
+        "180",
+        "180",
+        "180"
+      ]
+    },
+    {
+      "name": "utc-negative-sub-ms",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "-1",
+          "0"
+        ],
+        "values": [
+          "-0.9",
+          "-0.75",
+          "-0.5",
+          "-0.25",
+          "-0.09999999999999998"
+        ],
+        "mean": "-0.5"
+      },
+      "originalDomain": [
+        "0",
+        "0"
+      ],
+      "originalQueryPixels": [
+        "180",
+        "180",
+        "180",
+        "180",
+        "180"
+      ]
+    },
+    {
+      "name": "utc-cross-sub-ms",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "-1",
+          "1"
+        ],
+        "values": [
+          "-0.8",
+          "-0.5",
+          "0",
+          "0.5",
+          "0.8"
+        ],
+        "mean": "0"
+      },
+      "originalDomain": [
+        "0",
+        "0"
+      ],
+      "originalQueryPixels": [
+        "180",
+        "180",
+        "180",
+        "180",
+        "180"
+      ]
+    },
+    {
+      "name": "utc-zero-falsy-original",
+      "scope": "rust-zero-domain",
+      "summary": {
+        "extrema": [
+          "0",
+          "0"
+        ],
+        "values": [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "mean": "0"
+      },
+      "originalDomain": [
+        "946684800000",
+        "946771200000"
+      ],
+      "originalQueryPixels": [
+        "-3506220",
+        "-3506220",
+        "-3506220",
+        "-3506220",
+        "-3506220"
+      ]
+    },
+    {
+      "name": "utc-fractional-statistics",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "0",
+          "10"
+        ],
+        "values": [
+          "1",
+          "2.5",
+          "5",
+          "7.5",
+          "9"
+        ],
+        "mean": "5"
+      },
+      "originalDomain": [
+        "1",
+        "9"
+      ],
+      "originalQueryPixels": [
+        "20",
+        "80",
+        "180",
+        "280",
+        "340"
+      ]
+    },
+    {
+      "name": "utc-fixed-min",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "0",
+          "10"
+        ],
+        "values": [
+          "1",
+          "2.5",
+          "5",
+          "7.5",
+          "9"
+        ],
+        "mean": "5"
+      },
+      "originalDomain": [
+        "2",
+        "9"
+      ],
+      "originalQueryPixels": [
+        "-25.714285714285708",
+        "42.857142857142854",
+        "157.14285714285714",
+        "271.42857142857144",
+        "340"
+      ]
+    },
+    {
+      "name": "utc-fixed-max",
+      "scope": "exact",
+      "summary": {
+        "extrema": [
+          "0",
+          "10"
+        ],
+        "values": [
+          "1",
+          "2.5",
+          "5",
+          "7.5",
+          "9"
+        ],
+        "mean": "5"
+      },
+      "originalDomain": [
+        "1",
+        "8"
+      ],
+      "originalQueryPixels": [
+        "20",
+        "88.57142857142857",
+        "202.85714285714283",
+        "317.14285714285717",
+        "385.71428571428567"
+      ]
+    },
+    {
+      "name": "utc-max-date",
+      "scope": "date-bound",
+      "summary": {
+        "extrema": [
+          "8639999999999990",
+          "8640000000000000"
+        ],
+        "values": [
+          "8639999999999991",
+          "8639999999999992",
+          "8639999999999995",
+          "8639999999999998",
+          "8639999999999999"
+        ],
+        "mean": "8639999999999995"
+      },
+      "originalDomain": [
+        "8639999999999991",
+        "8639999999999999"
+      ],
+      "originalQueryPixels": [
+        "20",
+        "60",
+        "180",
+        "300",
+        "340"
+      ]
+    },
+    {
+      "name": "utc-min-date",
+      "scope": "date-bound",
+      "summary": {
+        "extrema": [
+          "-8640000000000000",
+          "-8639999999999990"
+        ],
+        "values": [
+          "-8639999999999999",
+          "-8639999999999998",
+          "-8639999999999995",
+          "-8639999999999992",
+          "-8639999999999991"
+        ],
+        "mean": "-8639999999999995"
+      },
+      "originalDomain": [
+        "-8639999999999999",
+        "-8639999999999991"
+      ],
+      "originalQueryPixels": [
+        "20",
+        "60",
+        "180",
+        "300",
+        "340"
+      ]
+    }
+  ]
+}

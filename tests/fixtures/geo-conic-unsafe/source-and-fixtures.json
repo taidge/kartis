@@ -1,0 +1,45 @@
+{
+  "scope": "Independent supplemental unsafe-parallel native records and selected-family policy tests, no original fixture changes",
+  "packages": {
+    "geo": "3.1.1",
+    "array": "3.2.5",
+    "arrayForm": "Original UMD bridge, not original ESM"
+  },
+  "files": [
+    {
+      "path": "native.csv",
+      "bytes": 137264,
+      "sha256": "6ae15dfcf63fff017d19e70fb7daeba4f7f6c296b3e44e432b637b703d745ae7"
+    },
+    {
+      "path": "metadata.json",
+      "bytes": 21251,
+      "sha256": "64aefd248e399aa3a75a73138cf8b6f712804049d9b2a1aad8730ccc077188bd"
+    },
+    {
+      "path": "policies.csv",
+      "bytes": 3878,
+      "sha256": "ae953fc0c4a1679a512b0c29d1d73804e87e31ffdc2054f0c4c2c3c63b4e1fb4"
+    },
+    {
+      "path": "generate.mjs",
+      "bytes": 4354,
+      "sha256": "1a59c69fbaca72fef0111385125c1348137a3ff1c73f37f639ec1e42daf8c9dc"
+    },
+    {
+      "path": "../geo-inverse-d3-oracle.js",
+      "bytes": 132539,
+      "sha256": "873638c3542defc67135946f1dae3a1d0426c147989b339a8033ce39e4e92550"
+    },
+    {
+      "path": "../geo-inverse-d3-LICENSE.txt",
+      "bytes": 2777,
+      "sha256": "6c28d42e4014c126c953198f9bde4dba985d4215e5d0d33b06c7b4a1568417ce"
+    },
+    {
+      "path": "../geo-conic/reference/fixtures/conic-d3-source.json",
+      "bytes": 14252,
+      "sha256": "12cace196f9eb5b2d25a67c27e4bdc04843d03462727879db793eebeedcacb14"
+    }
+  ]
+}

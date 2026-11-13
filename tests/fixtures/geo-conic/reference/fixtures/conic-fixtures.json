@@ -1,0 +1,76 @@
+{
+  "scope": "Immutable candidate raw output of original D3 only; every record exact-crosschecked with original geo ESM. No filtering of native critical failures or nonfinite outcomes.",
+  "counts": {
+    "profiles": 138,
+    "raw": 28980,
+    "rawNonfinite": 2338,
+    "inverse": 8832,
+    "inverseNonfinite": 640,
+    "inverseOutsideOrNotRoundtripping": 4540,
+    "critical": 72,
+    "criticalBadOriginalInverse": 22,
+    "setters": 138,
+    "nativeNaNConformalFinite": 2,
+    "defaults": 4,
+    "albersExactPreset": 9,
+    "albersUSAIsolated": 14,
+    "fit": 12,
+    "fitEvents": 135687,
+    "world": 18,
+    "worldIncomplete": 4,
+    "worldNonfinite": 6,
+    "streamEvents": 228101
+  },
+  "files": [
+    {
+      "path": "fixtures/conic-albers-usa-isolated.csv",
+      "bytes": 1414,
+      "sha256": "32af65c2d5289150d2bac32c5852990d4860b829d57c6741b3e47a0b35bc122b"
+    },
+    {
+      "path": "fixtures/conic-raw.csv",
+      "bytes": 5382343,
+      "sha256": "2dc404a79585fee33f9e6420ccfeff1a93d01da5f41d04df7c5eb06650e93caa"
+    },
+    {
+      "path": "fixtures/conic-inverse.csv",
+      "bytes": 820860,
+      "sha256": "e2dcd7fd44ceab3c796e26c013f4a66d6c374c93cfc8f0222c424e14427d83b2"
+    },
+    {
+      "path": "fixtures/conic-critical.csv",
+      "bytes": 15050,
+      "sha256": "c481df573b5372a176be640c74f96573d90b8219cce94f8523df0f647ce1576a"
+    },
+    {
+      "path": "fixtures/conic-parallels.csv",
+      "bytes": 80054,
+      "sha256": "5d277f7b35f0c8ce9835ce4fb938b557a5da21c0a55a3292fb3cf9c7d05f152f"
+    },
+    {
+      "path": "fixtures/conic-defaults.csv",
+      "bytes": 7059,
+      "sha256": "6333e5b3f0b788d2336082b800da5584d67daf99da8232656c425dc27cd07d11"
+    },
+    {
+      "path": "fixtures/conic-fit.csv",
+      "bytes": 10284,
+      "sha256": "e4f5a0977c984a338474b5f7902478dff89bbbcef0b1ae8994b18b0cc0a0ac4a"
+    },
+    {
+      "path": "fixtures/conic-world.csv",
+      "bytes": 11259,
+      "sha256": "a5aa3a89ea16541a83c0ecdf5ad82da2c0badec8a8b42907c46a8666940aeccd"
+    },
+    {
+      "path": "fixtures/conic-stream.csv",
+      "bytes": 18113927,
+      "sha256": "701580179b07094bf239d9515b4419b8ce26fc78bee3971b824a1049529b27da"
+    },
+    {
+      "path": "fixtures/conic-profiles.json",
+      "bytes": 6079,
+      "sha256": "0313a95de0c9e1ee525f90a7c6d814481772fc09c3af74b1fb63406c109fa594"
+    }
+  ]
+}

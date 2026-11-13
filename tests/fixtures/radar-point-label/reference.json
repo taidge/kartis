@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "producerSHA256": "95cb9e585bf4f0524f01b32e5738a22ec2bcf617d49299854b7e038337183bcb",
+  "sourcePinsSHA256": "36cf4e0650220870ecaa23673afee745daf792dc94eccb7802272efe54168b28",
+  "memoSHA256": "02c6a9cdb0c434849e3e9a56663e75ddc05f4ad60f12fc074bae3381364f0d9b",
+  "valuesSHA256": "390623e29fd038b305064b965b206315c14c6c6a46288b6fd690656af9839785",
+  "accessorProfiles": 10,
+  "actualPointDataRecords": 60,
+  "disabledAccessorCalls": 0
+}

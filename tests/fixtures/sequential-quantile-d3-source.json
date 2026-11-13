@@ -1,0 +1,210 @@
+{
+  "schema": "kartis-sequential-quantile-original-d3-source-v1",
+  "bundle": {
+    "file": "sequential-quantile-d3-oracle.js",
+    "bytes": 150558,
+    "sha256": "6ca8534482af9cce5924336375b2f39c16b3cafba065c03cce47a64453dbeb64"
+  },
+  "packages": [
+    {
+      "name": "d3-array",
+      "version": "3.2.5",
+      "license": "ISC",
+      "distribution": "d3-array/dist/d3-array.js",
+      "start": 94,
+      "bytes": 39686,
+      "sha256": "732a6b764e842f72dc34804a5c90137f6b75e0f3e1080f2a085f8b66191b1623"
+    },
+    {
+      "name": "d3-color",
+      "version": "3.1.0",
+      "license": "ISC",
+      "distribution": "d3-color/dist/d3-color.js",
+      "start": 39781,
+      "bytes": 17087,
+      "sha256": "3794cf61e3540fcd2c7fd38c99021fa7e72d8bcd42cad4d7c34e27cb4098d81a"
+    },
+    {
+      "name": "d3-interpolate",
+      "version": "3.0.1",
+      "license": "ISC",
+      "distribution": "d3-interpolate/dist/d3-interpolate.js",
+      "start": 56869,
+      "bytes": 15659,
+      "sha256": "88465b42ce9047fb18cdbe4a045599024deb8900011b474430a721771753cca7"
+    },
+    {
+      "name": "d3-format",
+      "version": "3.1.3",
+      "license": "ISC",
+      "distribution": "d3-format/dist/d3-format.js",
+      "start": 72529,
+      "bytes": 12608,
+      "sha256": "6c3ace9031466472e75f6cb0d756d5adf4ddff6d0bfc1d325fa988d62d18a3d4"
+    },
+    {
+      "name": "d3-time",
+      "version": "3.1.1",
+      "license": "ISC",
+      "distribution": "d3-time/dist/d3-time.js",
+      "start": 85138,
+      "bytes": 13882,
+      "sha256": "c5a679cc0ae2f6fbc25de37cf04af7d90e8d91b5ae4d7f59f1b0c7762e4c2e29"
+    },
+    {
+      "name": "d3-time-format",
+      "version": "4.1.1",
+      "license": "ISC",
+      "distribution": "d3-time-format/dist/d3-time-format.js",
+      "start": 99021,
+      "bytes": 20564,
+      "sha256": "7a1a67fe86f7019f58d4c8a34076d5c8b7c8ec7d519d08e5a1ce249f5597ff67"
+    },
+    {
+      "name": "d3-scale",
+      "version": "4.0.2",
+      "license": "ISC",
+      "distribution": "d3-scale/dist/d3-scale.js",
+      "start": 119586,
+      "bytes": 30971,
+      "sha256": "b39f8c39640ff46b903a506ea1a538de3001c246b412cc648ab9089ac03140a0"
+    }
+  ],
+  "licenses": {
+    "file": "sequential-quantile-d3-LICENSE.txt",
+    "sha256": "48076dc8a15274378f7bf01f8b9fb7e0d4d1804c07ca067a288a1fe8958c251a",
+    "packages": [
+      {
+        "name": "d3-array",
+        "version": "3.2.5",
+        "license": "ISC",
+        "bytes": 731,
+        "sha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3",
+        "text": "Copyright 2010-2026 Mike Bostock\n\nPermission to use, copy, modify, and/or distribute this software for any purpose\nwith or without fee is hereby granted, provided that the above copyright notice\nand this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS\nOF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER\nTORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE.\n"
+      },
+      {
+        "name": "d3-color",
+        "version": "3.1.0",
+        "license": "ISC",
+        "bytes": 731,
+        "sha256": "faa682e3e430941f958d26180458f5934a62f58dac4d70ccdd15608c15d0f884",
+        "text": "Copyright 2010-2022 Mike Bostock\n\nPermission to use, copy, modify, and/or distribute this software for any purpose\nwith or without fee is hereby granted, provided that the above copyright notice\nand this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS\nOF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER\nTORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE.\n"
+      },
+      {
+        "name": "d3-interpolate",
+        "version": "3.0.1",
+        "license": "ISC",
+        "bytes": 731,
+        "sha256": "e008c5e25a6be382593089c29bfabbc553c6378eee02895aec46ce396cc404ee",
+        "text": "Copyright 2010-2021 Mike Bostock\n\nPermission to use, copy, modify, and/or distribute this software for any purpose\nwith or without fee is hereby granted, provided that the above copyright notice\nand this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS\nOF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER\nTORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE.\n"
+      },
+      {
+        "name": "d3-format",
+        "version": "3.1.3",
+        "license": "ISC",
+        "bytes": 731,
+        "sha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3",
+        "text": "Copyright 2010-2026 Mike Bostock\n\nPermission to use, copy, modify, and/or distribute this software for any purpose\nwith or without fee is hereby granted, provided that the above copyright notice\nand this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS\nOF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER\nTORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE.\n"
+      },
+      {
+        "name": "d3-time",
+        "version": "3.1.1",
+        "license": "ISC",
+        "bytes": 731,
+        "sha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3",
+        "text": "Copyright 2010-2026 Mike Bostock\n\nPermission to use, copy, modify, and/or distribute this software for any purpose\nwith or without fee is hereby granted, provided that the above copyright notice\nand this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS\nOF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER\nTORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE.\n"
+      },
+      {
+        "name": "d3-time-format",
+        "version": "4.1.1",
+        "license": "ISC",
+        "bytes": 731,
+        "sha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3",
+        "text": "Copyright 2010-2026 Mike Bostock\n\nPermission to use, copy, modify, and/or distribute this software for any purpose\nwith or without fee is hereby granted, provided that the above copyright notice\nand this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS\nOF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER\nTORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE.\n"
+      },
+      {
+        "name": "d3-scale",
+        "version": "4.0.2",
+        "license": "ISC",
+        "bytes": 731,
+        "sha256": "e008c5e25a6be382593089c29bfabbc553c6378eee02895aec46ce396cc404ee",
+        "text": "Copyright 2010-2021 Mike Bostock\n\nPermission to use, copy, modify, and/or distribute this software for any purpose\nwith or without fee is hereby granted, provided that the above copyright notice\nand this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS\nOF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER\nTORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE.\n"
+      },
+      {
+        "name": "internmap",
+        "version": "2.0.3",
+        "license": "ISC",
+        "bytes": 726,
+        "sha256": "9ea8903938dab5f12c4572d60725069bec2d1b0dc3bcc210b09bae946a5ebb1f",
+        "text": "Copyright 2021 Mike Bostock\n\nPermission to use, copy, modify, and/or distribute this software for any purpose\nwith or without fee is hereby granted, provided that the above copyright notice\nand this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS\nOF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER\nTORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF\nTHIS SOFTWARE.\n"
+      }
+    ]
+  },
+  "originalSources": {
+    "file": "sequential-quantile-d3-source-files.txt",
+    "bytes": 6876,
+    "sha256": "40e07697472b341de158af899192af3c48ef3f3081cdafc5db6e8a7e968ecbd1",
+    "segments": [
+      {
+        "path": "d3-scale/src/sequentialQuantile.js",
+        "start": 132,
+        "bytes": 1078,
+        "sha256": "5c282edc5c201b7cb1975169430e0727fa7faf4a394e2900271e6e2ca79db09b"
+      },
+      {
+        "path": "d3-scale/src/quantile.js",
+        "start": 1248,
+        "bytes": 1442,
+        "sha256": "1edcf3f2bd1bdcb19679616404a85c8177d65910ccd323272ab48a1e75d46ac9"
+      },
+      {
+        "path": "d3-scale/src/continuous.js",
+        "start": 2730,
+        "bytes": 3469,
+        "sha256": "a8bd9670abd40c813d047082a35126cb18068f1959bf78b74e6ca4c864de123a"
+      },
+      {
+        "path": "d3-scale/src/init.js",
+        "start": 6233,
+        "bytes": 642,
+        "sha256": "a26e806f884e046e2879d3152d23c13e1af9f1b3432d20c08af31efb186424cd"
+      }
+    ],
+    "arrayQuantileAndBisectSource": "Preserved in the complete unmodified d3-array 3.2.5 distribution segment; no separately prepared array source directory is claimed."
+  },
+  "producerSha256": "da7a0d931a2b7f757fdd5b94a2499190a531009094436031909abaefc3936ae6",
+  "fixtures": {
+    "sequential-quantile-d3.json": {
+      "bytes": 10632337,
+      "sha256": "57657d70ee1acdf74d51b8114ad3fe0af1c24ee602031788776257e76008e377"
+    },
+    "sequential-quantile-d3.csv": {
+      "bytes": 4703296,
+      "sha256": "9dfc17a4f9deab95fc7e12f0ad60d5ee4b78f10a4eaf32b923d782c0f7e83b01"
+    }
+  },
+  "counts": {
+    "cases": 124,
+    "finiteDomainNAtLeastTwo": 109,
+    "emptyDomain": 1,
+    "singletonDomain": 7,
+    "nativeDomainProfiles": 7,
+    "queries": 8481,
+    "finiteNumberQueries": 7241,
+    "finiteDomainNAtLeastTwoNumberQueries": 7021,
+    "quantileRequests": 1116,
+    "rangeValues": 41717,
+    "copyQueries": 8481,
+    "getterCases": 124,
+    "nativeExceptions": 4,
+    "nativeCountProfiles": 7
+  },
+  "profileDifferences": [
+    "Finite-number queries on finite source domains with n>=2 are the intended exact rank comparison profile; rank uses original right-bisect lo=1 and all duplicates.",
+    "Empty original domains call the interpolator with negative zero; singleton original domains call it with NaN. Neither is silently rewritten as unknown in this oracle.",
+    "Original JS domain coercion retains infinities, ignores null/undefined/NaN, and coerces strings/booleans/valueOf objects; query coercion and exceptions are preserved separately.",
+    "quantiles(0), noninteger/negative/coerced counts are retained native profiles, not proposed typed Rust contracts; unsafe unbounded requested lengths are never executed.",
+    "Finite input quantiles may produce nonfinite numeric results at extreme spans; all raw outputs remain encoded, not removed or assigned extra tolerance.",
+    "No Rust color implementation, consumer, legend, GPU/worker, or browser compatibility result is claimed by this candidate."
+  ]
+}

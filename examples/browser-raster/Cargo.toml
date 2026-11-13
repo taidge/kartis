@@ -1,0 +1,27 @@
+[package]
+name = "kartis-raster-fixture"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.95"
+publish = false
+
+[workspace]
+resolver = "3"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+kartis = { path = "../..", features = ["raster", "canvas"] }
+glory = { path = "../../../glory/crates/glory", default-features = false, features = ["web"] }
+serde_json = "1"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "=0.2.130"
+web-sys = { version = "=0.3.107", features = ["Window", "Document", "Element"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = "warn"

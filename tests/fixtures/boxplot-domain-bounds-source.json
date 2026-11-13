@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "records": 48,
+  "csvSha256": "afd4636ef2d8d137d43826473c4ff106c5c2898e1eb22281fc4a866ee3a090ff",
+  "scope": "Actual original Nivo independent minValue/maxValue and original linear/band scale factories. Quantile endpoints 0/1 isolate endpoint selection from the existing Kartis extrema versus default-Nivo-summary policy. Nivo reverse-domain normalized to Kartis reverse-range. Empty nonzero fallback is a Rust extension and is tested separately, not claimed identical.",
+  "producer": "scripts/boxplot-domain-bounds-reference.mjs",
+  "command": "node scripts/boxplot-domain-bounds-reference.mjs <node_modules> [--check]",
+  "dependencies": {
+    "d3-scale": "4.0.2",
+    "d3-array": "3.2.5",
+    "d3-interpolate": "3.0.1"
+  },
+  "sourcePins": {
+    "tests/fixtures/boxplot-domain-bounds/vendor/generation.ts": "87668853e037c1af1d0a3b4cf1710baaef9d881f6b14df53920dc2625029a663",
+    "tests/fixtures/boxplot-domain-bounds/vendor/stratification.ts": "92969d932326004057da073870965ac2bafd880f354cd5752a97773bd3dbf274",
+    "tests/fixtures/boxplot-domain-bounds/vendor/common.ts": "cbaf3f4375f805e258c45c32cc4176fe32641e85a5a1a0efcd77cc296f40ccda",
+    "tests/fixtures/boxplot-domain-bounds/vendor/linearScale.ts": "28bc1a6980e3fb0c5807ccf348e7c8ad31155f68f286fa107705a57a669c8dd3",
+    "tests/fixtures/boxplot-domain-bounds/vendor/compute.ts": "19f993e3dcbcdcfd889d036aabcaaf28354f6a9b4bac8452e7ce287285204b7e",
+    "tests/fixtures/bar-category-band/vendor/raw/nivo-bandScale.ts": "83f3a287bade728df3d72ea1f8fd692eacc4a5a75c7b18ffb30b7e02b883f4e6",
+    "tests/fixtures/bar-category-band/vendor/raw/nivo-LICENSE": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+    "tests/fixtures/bar-category-band/vendor/raw/d3-scale-LICENSE": "e008c5e25a6be382593089c29bfabbc553c6378eee02895aec46ce396cc404ee",
+    "tests/fixtures/bar-category-band/vendor/raw/d3-array-LICENSE": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+  }
+}

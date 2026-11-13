@@ -1,0 +1,65 @@
+[package]
+name = "kartis"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+license = "Apache-2.0"
+description = "Rust chart widgets and shared SVG/Canvas layouts for Glory"
+repository = "https://github.com/taidge/kartis"
+readme = "README.md"
+
+[package.metadata.docs.rs]
+all-features = true
+default-target = "wasm32-unknown-unknown"
+
+[workspace]
+resolver = "3"
+
+[features]
+default = []
+canvas = ["dep:web-sys", "dep:wasm-bindgen"]
+geojson = ["dep:serde_json"]
+timezone = ["dep:jiff", "dep:jiff-tzdb"]
+raster = ["dep:tiny-skia", "dep:rustybuzz", "dep:ttf-parser", "dep:png", "dep:base64", "dep:unicode-script", "dep:unicode-segmentation"]
+raster-bidi = ["raster", "dep:unicode-bidi"]
+web = ["canvas", "glory/web", "web-sys/Window", "web-sys/Document", "web-sys/Node", "web-sys/Element", "web-sys/HtmlElement", "web-sys/ShadowRoot", "web-sys/HtmlSlotElement", "web-sys/Event", "web-sys/EventTarget", "web-sys/PointerEvent", "web-sys/WheelEvent", "web-sys/KeyboardEvent", "web-sys/MouseEvent", "web-sys/DomRect", "web-sys/CssStyleDeclaration", "web-sys/FontFaceSet", "web-sys/FontFaceSetLoadStatus", "web-sys/ResizeObserver", "web-sys/ResizeObserverEntry", "web-sys/AddEventListenerOptions", "web-sys/Performance", "web-sys/MediaQueryList"]
+
+[dependencies]
+glory = { path = "../glory/crates/glory", version = "0.7.0", default-features = false }
+serde_json = {version="1",optional=true}
+jiff = { version = "0.2.41", default-features = false, features = ["alloc"], optional = true }
+jiff-tzdb = { version = "0.1.9", default-features = false, optional = true }
+tiny-skia = { version = "0.12.0", default-features = false, features = ["std", "simd"], optional = true }
+rustybuzz = { version = "0.20.1", optional = true }
+unicode-bidi = { version = "=0.3.18", default-features = false, features = ["hardcoded-data"], optional = true }
+unicode-script = { version = "=0.5.9", optional = true }
+unicode-segmentation = { version = "1.12", optional = true }
+ttf-parser = { version = "0.25.1", optional = true }
+png = { version = "0.18.1", optional = true }
+base64 = { version = "0.22.1", optional = true }
+spade = "=2.15.1"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = { version = "=0.2.130", optional = true }
+web-sys = { version = "=0.3.107", optional = true, features = ["HtmlCanvasElement", "CanvasRenderingContext2d", "CanvasGradient", "CanvasPattern", "CanvasWindingRule", "DomMatrix2dInit", "SvgMatrix", "Document", "TextMetrics"] }
+
+[dev-dependencies]
+glory = { path = "../glory/crates/glory", version = "0.7.0", default-features = false, features = ["ssr"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = "warn"
+
+[[example]]
+name = "geo_spherical_export"
+required-features = ["raster", "geojson"]
+
+[[example]]
+name = "bar_custom_geometry"
+required-features = ["raster"]
+
+[[example]]
+name = "heatmap_custom"
+required-features = ["raster", "geojson"]

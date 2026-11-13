@@ -1,0 +1,35 @@
+{
+  "nivoVersion": "0.99.0",
+  "nivoCommit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "files": {
+    "grouped.ts": {
+      "original": "packages/bar/src/compute/grouped.ts",
+      "sha256": "6be865efd74751a66d42206a034825b5b3c717d3a0c5a509708bc24183feab22"
+    },
+    "stacked.ts": {
+      "original": "packages/bar/src/compute/stacked.ts",
+      "sha256": "362f9db71a1f5857e3bd047f73c8bcf787358f1c93c6e17c2906195ab36d6b32"
+    },
+    "common.ts": {
+      "original": "packages/bar/src/compute/common.ts",
+      "sha256": "7a2d03a7a0e6753f1cff8a2c0df31b08d58193a5a57e000cec937db26d2781b1"
+    },
+    "legends.ts": {
+      "original": "packages/bar/src/compute/legends.ts",
+      "sha256": "7d2c73ef06da7c25f048af38324875727e89cebab0720cc3b935e3b08940f070"
+    },
+    "compute.ts": {
+      "original": "packages/scales/src/compute.ts",
+      "sha256": "19f993e3dcbcdcfd889d036aabcaaf28354f6a9b4bac8452e7ce287285204b7e"
+    },
+    "linearScale.ts": {
+      "original": "packages/scales/src/linearScale.ts",
+      "sha256": "28bc1a6980e3fb0c5807ccf348e7c8ad31155f68f286fa107705a57a669c8dd3"
+    },
+    "bandScale.ts": {
+      "original": "packages/scales/src/bandScale.ts",
+      "sha256": "83f3a287bade728df3d72ea1f8fd692eacc4a5a75c7b18ffb30b7e02b883f4e6"
+    }
+  },
+  "scope": "Unmodified original Nivo grouped/stacked/common/legends and scale source; producer removes imports/types and supplies actual released D3 plus flat-property/first-uniq adapters. No React/full lodash CSS accessor equivalence."
+}

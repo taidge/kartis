@@ -1,0 +1,8 @@
+# Unicode 16.0 DerivedGeneralCategory.txt Me ranges
+# Source https://www.unicode.org/Public/16.0.0/ucd/extracted/DerivedGeneralCategory.txt
+# SHA-256 7676ab755a41ef82108460238569e60ad65c191ddafe61b36c6765ec1353f293
+488..489;Me
+1ABE..1ABE;Me
+20DD..20E0;Me
+20E2..20E4;Me
+A670..A672;Me

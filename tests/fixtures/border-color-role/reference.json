@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "scope": "Execute original inherited-color generator/hook, original useBar plus grouped/stacked generators, original computeCells/useCellsStyle and original Canvas renderer function bodies. Immediate React hook adapters are isolated snapshots, not React lifecycle. Labels disabled and Canvas records commands only, not pixels. Numeric RGB serialization adapter decodes actual returned CSS without reparsing and losing alpha-zero hidden RGB.",
+  "upstream": {
+    "version": "0.99.0",
+    "commit": "0dae2c32052a573f9f1d66ec1b453b572119b265"
+  },
+  "counts": {
+    "sharedResolver": 42,
+    "bar": 72,
+    "heatmap": 36,
+    "nativeErrors": 4
+  },
+  "defaults": {
+    "bar": {
+      "from": "color"
+    },
+    "heatmap": {
+      "from": "color",
+      "modifiers": [
+        [
+          "darker",
+          0.8
+        ]
+      ]
+    }
+  },
+  "dependencies": {
+    "d3-scale": [
+      "scale",
+      "4.0.2"
+    ],
+    "d3-interpolate": [
+      "scale",
+      "3.0.1"
+    ],
+    "d3-array": [
+      "scale",
+      "3.2.5"
+    ],
+    "d3-color": [
+      "scale",
+      "3.1.0"
+    ],
+    "d3-shape": [
+      "shape",
+      "3.2.0"
+    ]
+  },
+  "sourcePins": {
+    "tests/fixtures/border-color-role/vendor/source-pins.json": "62b42c6bd8c82b72095e9085a882ae692897595adbb2ee491fec9cb78baded3a",
+    "tests/fixtures/bar-label-color/source-and-fixtures.json": "ef7225b55de80e940a67fc0e9027da29bfac4b597300962af2a9316c00dc998f",
+    "tests/fixtures/bar-index-legend/source-pins.json": "1040f53ad70d8e4421a94c690efe109b6104c5cb836f4a9c3202b505824ca370",
+    "tests/fixtures/bar-label-color/nivo-inheritedColor.ts": "29750da2e66afd78cc3050a2d4856b0b6195078f19f3183ea35047538b5e9f6c",
+    "tests/fixtures/bar-index-legend/vendor/linearScale.ts": "28bc1a6980e3fb0c5807ccf348e7c8ad31155f68f286fa107705a57a669c8dd3",
+    "tests/fixtures/bar-index-legend/vendor/bandScale.ts": "83f3a287bade728df3d72ea1f8fd692eacc4a5a75c7b18ffb30b7e02b883f4e6",
+    "tests/fixtures/bar-index-legend/vendor/compute.ts": "19f993e3dcbcdcfd889d036aabcaaf28354f6a9b4bac8452e7ce287285204b7e",
+    "tests/fixtures/bar-index-legend/vendor/common.ts": "7a2d03a7a0e6753f1cff8a2c0df31b08d58193a5a57e000cec937db26d2781b1",
+    "tests/fixtures/bar-index-legend/vendor/grouped.ts": "6be865efd74751a66d42206a034825b5b3c717d3a0c5a509708bc24183feab22",
+    "tests/fixtures/bar-index-legend/vendor/stacked.ts": "362f9db71a1f5857e3bd047f73c8bcf787358f1c93c6e17c2906195ab36d6b32",
+    "tests/fixtures/border-color-role/vendor/nivo-bar-totals.ts": "efa54730d1b748f700fb72a4cecbe02f7c4393a7bf84b30e791a2433402f84a2",
+    "tests/fixtures/bar-index-legend/vendor/legends.ts": "7d2c73ef06da7c25f048af38324875727e89cebab0720cc3b935e3b08940f070",
+    "tests/fixtures/border-color-role/vendor/nivo-bar-defaults.ts": "01a94adb6b36ae7c37ff98d9d2f956de5a49b82faef35946734bb8964d6a8a7a",
+    "tests/fixtures/border-color-role/vendor/nivo-heatmap-defaults.ts": "bd084092ee4331ad14001aacf899f00e194a32a3e31e2b74798547a4796d13a1",
+    "tests/fixtures/bar-label-color/nivo-bar-hooks.ts": "4c1b0201f35131299ce48eb8a92a68b8f6e311c142c27ffada4a283b442f1981",
+    "tests/fixtures/border-color-role/vendor/nivo-heatmap-compute.ts": "a199916084ce7ca82f2bc79f136a0554e8a454084d59e58beee73ab8724d9d79",
+    "tests/fixtures/border-color-role/vendor/nivo-heatmap-hooks.ts": "fd223bce917754afebf98d4375f25b5c5bd9159e409468da4b8f44973186f400",
+    "tests/fixtures/border-color-role/vendor/nivo-roundedRect.ts": "ff7dbe3ceacf008b1aa714b3e985e591c85e0874ee5e17d304002a80463ac5fd",
+    "tests/fixtures/border-color-role/vendor/nivo-renderBar.ts": "028beb94575ca2b3fd6b9235e48a6c8875ac7c7dae560798b513cdfcea37eb76",
+    "tests/fixtures/border-color-role/vendor/nivo-heatmap-canvas.tsx": "13184d9f1028a50b1ca1dfbae1c6e023c5e6882ca391fc5c157572ff7522f90c",
+    "tests/fixtures/bar-label-color/values.json": "6fff2e2487f1ab3a4a437943f5bcab109e9feac7134678737a6cc29aae2c9789"
+  },
+  "runtimePins": {
+    "d3-scale/package.json": "75f7dfe869b2e6d1cbecd380f939f218ca046a26313c4e623aa52d6352a9b51b",
+    "d3-scale/src/index.js": "0a46e423e2a6e19acce49de6ea981d46d543f0229bd9fe7a472a1d43b5ccd7e1",
+    "d3-interpolate/package.json": "3e2ce33f9d7072b6bfedbae949c1df546e187994e44b6f4b3795abeb63914613",
+    "d3-interpolate/src/index.js": "6507c8a8b50662d762f40d84863acb92e1988917ab452a2aea465499c394a6aa",
+    "d3-array/package.json": "9e3e34222710a8e0fba34884e2b3ebfd6b25546268fd4a2618168d4d77962d54",
+    "d3-array/dist/d3-array.mjs": "b219965735dbd3c8a63fdd32ad2823a8f34f421399568f1ff6ae8391ce28df41",
+    "d3-color/package.json": "3de1c3c467f09ffc0372c8b765f8981535c22e1d9f944d17a35ee37df1033516",
+    "d3-color/src/index.js": "a2922c91fa90cfded9698beffe6e2716a5bee7272b9c9930ce1fd24372bccf42",
+    "d3-shape/package.json": "c3d084a64bc3c85c407db4282be588a42484c4dc2639bb0a21424fe29ff38335",
+    "d3-shape/src/index.js": "af9cd9a1ba0f1d58d8458526ec8eb0d19b2745c9ca45248c23f889730b1c0700",
+    "d3-color/src/color.js": "9f5c2d380e278f5db98f7a2a9253bfc90313a67ab3f1ea29f80b629306cb2636",
+    "d3-scale/src/band.js": "9b6f6d65a4343c446fa3354a899b5f141a707b277ba7474acbef621c4212ec05",
+    "d3-scale/src/linear.js": "6223d1339147f7a311374307451183a110912c230e62f484b4dc06914c78ac87",
+    "d3-interpolate/src/number.js": "ed494932c08d821136b3566e404608c79356035866a742a79585ef761d61139b",
+    "d3-shape/src/stack.js": "d53a92ad2b8212cb90eb143e721a59c97a77031c9e86ee1880b3c0b7dedc6aa6"
+  },
+  "adapters": [
+    "useMemo=f=>f/useCallback identity/useState initial snapshot (setter deliberately throws)",
+    "useTheme explicit fixture theme object",
+    "flat/dotted own-data property lookup only; no bracket/lodash-wide equivalence",
+    "explicit function palette only; no built-in scheme inference recomputation",
+    "property/function accessor and String formatter for supplied inputs",
+    "bar legends empty; string-key firstuniq adapter not exercised",
+    "Canvas recording Proxy is not native canvas; font/text functions throw if called"
+  ],
+  "frozenShared42CasesReplayedWithCompleteOriginalResolver": true,
+  "valuesSHA256": "cdd135f32b0b851e0dd5b0e9aac2b4eda284784aa9e0dcbf56dc60a5fe084aa6",
+  "limitations": [
+    "Contrast is Rust-only extension and is not claimed as an original Nivo resolver branch.",
+    "Hidden/cropped/disabled-border preflight timing in checked Rust is a declared extension; original React lifecycle not simulated.",
+    "CSS parser alpha-zero RGB loss is retained in six actual native resolver cases; no shared Rust resolver change to force parity.",
+    "Original Nivo borderWidth0 avoids drawing but still computes role before renderer; Rust None border stays disabled.",
+    "Whole native Canvas function body ran with recording context, no browser/pixel/Glory rendering acceptance."
+  ]
+}

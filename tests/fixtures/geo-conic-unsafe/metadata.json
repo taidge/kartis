@@ -1,0 +1,879 @@
+{
+  "scope": "Supplement original unsafe adjacent-parallel evidence. Native outputs are not checked Rust success expectations. No original ordinary/critical tolerance changes.",
+  "profiles": [
+    {
+      "id": "adjacent-a",
+      "kind": "equalArea",
+      "parallels": [
+        -0.9585319170638371,
+        -0.9585319170638373
+      ],
+      "radians": [
+        -0.016729537938217177,
+        -0.01672953793821718
+      ],
+      "n": -0.016728757579096788,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-a",
+      "kind": "equidistant",
+      "parallels": [
+        -0.9585319170638371,
+        -0.9585319170638373
+      ],
+      "radians": [
+        -0.016729537938217177,
+        -0.01672953793821718
+      ],
+      "n": -32,
+      "g": -0.04797516495521605,
+      "fallback": false,
+      "nativeClassification": "native-multiple-turn-coefficient",
+      "rustPolicy": "selected-family-error"
+    },
+    {
+      "id": "adjacent-a",
+      "kind": "conformal",
+      "parallels": [
+        -0.9585319170638371,
+        -0.9585319170638373
+      ],
+      "radians": [
+        -0.016729537938217177,
+        -0.01672953793821718
+      ],
+      "n": "n:+Infinity",
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-nonfinite-coefficient",
+      "rustPolicy": "selected-family-error"
+    },
+    {
+      "id": "adjacent-a-reverse",
+      "kind": "equalArea",
+      "parallels": [
+        -0.9585319170638373,
+        -0.9585319170638371
+      ],
+      "radians": [
+        -0.01672953793821718,
+        -0.016729537938217177
+      ],
+      "n": -0.016728757579096788,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-a-reverse",
+      "kind": "equidistant",
+      "parallels": [
+        -0.9585319170638373,
+        -0.9585319170638371
+      ],
+      "radians": [
+        -0.01672953793821718,
+        -0.016729537938217177
+      ],
+      "n": -32,
+      "g": -0.04797516495521605,
+      "fallback": false,
+      "nativeClassification": "native-multiple-turn-coefficient",
+      "rustPolicy": "selected-family-error"
+    },
+    {
+      "id": "adjacent-a-reverse",
+      "kind": "conformal",
+      "parallels": [
+        -0.9585319170638373,
+        -0.9585319170638371
+      ],
+      "radians": [
+        -0.01672953793821718,
+        -0.016729537938217177
+      ],
+      "n": "n:-Infinity",
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-nonfinite-coefficient",
+      "rustPolicy": "selected-family-error"
+    },
+    {
+      "id": "adjacent-a-same-a",
+      "kind": "equalArea",
+      "parallels": [
+        -0.9585319170638371,
+        -0.9585319170638371
+      ],
+      "radians": [
+        -0.016729537938217177,
+        -0.016729537938217177
+      ],
+      "n": -0.016728757579096788,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-a-same-a",
+      "kind": "equidistant",
+      "parallels": [
+        -0.9585319170638371,
+        -0.9585319170638371
+      ],
+      "radians": [
+        -0.016729537938217177,
+        -0.016729537938217177
+      ],
+      "n": -0.016728757579096788,
+      "g": -59.78566693908311,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-a-same-a",
+      "kind": "conformal",
+      "parallels": [
+        -0.9585319170638371,
+        -0.9585319170638371
+      ],
+      "radians": [
+        -0.016729537938217177,
+        -0.016729537938217177
+      ],
+      "n": -0.016728757579096788,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-a-same-b",
+      "kind": "equalArea",
+      "parallels": [
+        -0.9585319170638373,
+        -0.9585319170638373
+      ],
+      "radians": [
+        -0.01672953793821718,
+        -0.01672953793821718
+      ],
+      "n": -0.01672875757909679,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-a-same-b",
+      "kind": "equidistant",
+      "parallels": [
+        -0.9585319170638373,
+        -0.9585319170638373
+      ],
+      "radians": [
+        -0.01672953793821718,
+        -0.01672953793821718
+      ],
+      "n": -0.01672875757909679,
+      "g": -59.785666939083086,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-a-same-b",
+      "kind": "conformal",
+      "parallels": [
+        -0.9585319170638373,
+        -0.9585319170638373
+      ],
+      "radians": [
+        -0.01672953793821718,
+        -0.01672953793821718
+      ],
+      "n": -0.01672875757909679,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-a-nearby",
+      "kind": "equalArea",
+      "parallels": [
+        -0.9585319170638371,
+        -0.9584319170638371
+      ],
+      "radians": [
+        -0.016729537938217177,
+        -0.016727792608965182
+      ],
+      "n": -0.016727885036574776,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-a-nearby",
+      "kind": "equidistant",
+      "parallels": [
+        -0.9585319170638371,
+        -0.9584319170638371
+      ],
+      "radians": [
+        -0.016729537938217177,
+        -0.016727792608965182
+      ],
+      "n": -0.01672788498888769,
+      "g": -59.788784714559156,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-a-nearby",
+      "kind": "conformal",
+      "parallels": [
+        -0.9585319170638371,
+        -0.9584319170638371
+      ],
+      "radians": [
+        -0.016729537938217177,
+        -0.016727792608965182
+      ],
+      "n": -0.01672788496159366,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-b",
+      "kind": "equalArea",
+      "parallels": [
+        -53.13008026016052,
+        -53.130080260160526
+      ],
+      "radians": [
+        -0.9272948323886465,
+        -0.9272948323886466
+      ],
+      "n": -0.7999997686321612,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-b",
+      "kind": "equidistant",
+      "parallels": [
+        -53.13008026016052,
+        -53.130080260160526
+      ],
+      "radians": [
+        -0.9272948323886465,
+        -0.9272948323886466
+      ],
+      "n": -1,
+      "g": -1.5272951408789743,
+      "fallback": false,
+      "nativeClassification": "native-full-latitude-radial-fold",
+      "rustPolicy": "selected-family-error"
+    },
+    {
+      "id": "adjacent-b",
+      "kind": "conformal",
+      "parallels": [
+        -53.13008026016052,
+        -53.130080260160526
+      ],
+      "radians": [
+        -0.9272948323886465,
+        -0.9272948323886466
+      ],
+      "n": -1.9999999999999998,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-multiple-turn-coefficient",
+      "rustPolicy": "selected-family-error"
+    },
+    {
+      "id": "adjacent-b-reverse",
+      "kind": "equalArea",
+      "parallels": [
+        -53.130080260160526,
+        -53.13008026016052
+      ],
+      "radians": [
+        -0.9272948323886466,
+        -0.9272948323886465
+      ],
+      "n": -0.7999997686321612,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-b-reverse",
+      "kind": "equidistant",
+      "parallels": [
+        -53.130080260160526,
+        -53.13008026016052
+      ],
+      "radians": [
+        -0.9272948323886466,
+        -0.9272948323886465
+      ],
+      "n": -1,
+      "g": -1.5272951408789743,
+      "fallback": false,
+      "nativeClassification": "native-full-latitude-radial-fold",
+      "rustPolicy": "selected-family-error"
+    },
+    {
+      "id": "adjacent-b-reverse",
+      "kind": "conformal",
+      "parallels": [
+        -53.130080260160526,
+        -53.13008026016052
+      ],
+      "radians": [
+        -0.9272948323886466,
+        -0.9272948323886465
+      ],
+      "n": -1.0000000000000004,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-multiple-turn-coefficient",
+      "rustPolicy": "selected-family-error"
+    },
+    {
+      "id": "adjacent-b-same-a",
+      "kind": "equalArea",
+      "parallels": [
+        -53.13008026016052,
+        -53.13008026016052
+      ],
+      "radians": [
+        -0.9272948323886465,
+        -0.9272948323886465
+      ],
+      "n": -0.7999997686321612,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-b-same-a",
+      "kind": "equidistant",
+      "parallels": [
+        -53.13008026016052,
+        -53.13008026016052
+      ],
+      "radians": [
+        -0.9272948323886465,
+        -0.9272948323886465
+      ],
+      "n": -0.7999997686321612,
+      "g": -1.6772954349090796,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-b-same-a",
+      "kind": "conformal",
+      "parallels": [
+        -53.13008026016052,
+        -53.13008026016052
+      ],
+      "radians": [
+        -0.9272948323886465,
+        -0.9272948323886465
+      ],
+      "n": -0.7999997686321612,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-b-same-b",
+      "kind": "equalArea",
+      "parallels": [
+        -53.130080260160526,
+        -53.130080260160526
+      ],
+      "radians": [
+        -0.9272948323886466,
+        -0.9272948323886466
+      ],
+      "n": -0.7999997686321612,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-b-same-b",
+      "kind": "equidistant",
+      "parallels": [
+        -53.130080260160526,
+        -53.130080260160526
+      ],
+      "radians": [
+        -0.9272948323886466,
+        -0.9272948323886466
+      ],
+      "n": -0.7999997686321612,
+      "g": -1.6772954349090796,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-b-same-b",
+      "kind": "conformal",
+      "parallels": [
+        -53.130080260160526,
+        -53.130080260160526
+      ],
+      "radians": [
+        -0.9272948323886466,
+        -0.9272948323886466
+      ],
+      "n": -0.7999997686321612,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-b-nearby",
+      "kind": "equalArea",
+      "parallels": [
+        -53.13008026016052,
+        -53.129980260160515
+      ],
+      "radians": [
+        -0.9272948323886465,
+        -0.9272930870593945
+      ],
+      "n": -0.7999992450325071,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-b-nearby",
+      "kind": "equidistant",
+      "parallels": [
+        -53.13008026016052,
+        -53.129980260160515
+      ],
+      "radians": [
+        -0.9272948323886465,
+        -0.9272930870593945
+      ],
+      "n": -0.7999992450380964,
+      "g": -1.677295925779373,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "adjacent-b-nearby",
+      "kind": "conformal",
+      "parallels": [
+        -53.13008026016052,
+        -53.129980260160515
+      ],
+      "radians": [
+        -0.9272948323886465,
+        -0.9272930870593945
+      ],
+      "n": -0.7999992450461073,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "standard",
+      "kind": "equalArea",
+      "parallels": [
+        0,
+        60
+      ],
+      "radians": [
+        0,
+        1.0471975511965976
+      ],
+      "n": 0.4330127018922193,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "standard",
+      "kind": "equidistant",
+      "parallels": [
+        0,
+        60
+      ],
+      "radians": [
+        0,
+        1.0471975511965976
+      ],
+      "n": 0.47746482927568595,
+      "g": 2.0943951023931957,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "standard",
+      "kind": "conformal",
+      "parallels": [
+        0,
+        60
+      ],
+      "radians": [
+        0,
+        1.0471975511965976
+      ],
+      "n": 0.526324480211926,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "standard-same",
+      "kind": "equalArea",
+      "parallels": [
+        30,
+        30
+      ],
+      "radians": [
+        0.5235987755982988,
+        0.5235987755982988
+      ],
+      "n": 0.49999999999999994,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "standard-same",
+      "kind": "equidistant",
+      "parallels": [
+        30,
+        30
+      ],
+      "radians": [
+        0.5235987755982988,
+        0.5235987755982988
+      ],
+      "n": 0.49999999999999994,
+      "g": 2.2556495831671763,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "standard-same",
+      "kind": "conformal",
+      "parallels": [
+        30,
+        30
+      ],
+      "radians": [
+        0.5235987755982988,
+        0.5235987755982988
+      ],
+      "n": 0.49999999999999994,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "subnormal-smallest",
+      "kind": "equalArea",
+      "parallels": [
+        -5e-324,
+        5e-324
+      ],
+      "radians": [
+        "n:-0",
+        0
+      ],
+      "n": 0,
+      "g": null,
+      "fallback": true,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "subnormal-smallest",
+      "kind": "equidistant",
+      "parallels": [
+        -5e-324,
+        5e-324
+      ],
+      "radians": [
+        "n:-0",
+        0
+      ],
+      "n": "n:-0",
+      "g": null,
+      "fallback": true,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "subnormal-smallest",
+      "kind": "conformal",
+      "parallels": [
+        -5e-324,
+        5e-324
+      ],
+      "radians": [
+        "n:-0",
+        0
+      ],
+      "n": "n:-0",
+      "g": null,
+      "fallback": true,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "signed-zero",
+      "kind": "equalArea",
+      "parallels": [
+        "n:-0",
+        0
+      ],
+      "radians": [
+        "n:-0",
+        0
+      ],
+      "n": 0,
+      "g": null,
+      "fallback": true,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "signed-zero",
+      "kind": "equidistant",
+      "parallels": [
+        "n:-0",
+        0
+      ],
+      "radians": [
+        "n:-0",
+        0
+      ],
+      "n": "n:-0",
+      "g": null,
+      "fallback": true,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "signed-zero",
+      "kind": "conformal",
+      "parallels": [
+        "n:-0",
+        0
+      ],
+      "radians": [
+        "n:-0",
+        0
+      ],
+      "n": "n:-0",
+      "g": null,
+      "fallback": true,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "selected-family-accept"
+    },
+    {
+      "id": "native-invalid-nan",
+      "kind": "equalArea",
+      "parallels": [
+        "n:NaN",
+        30
+      ],
+      "radians": [
+        "n:NaN",
+        0.5235987755982988
+      ],
+      "n": "n:NaN",
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-nonfinite-coefficient",
+      "rustPolicy": "invalid-parallels"
+    },
+    {
+      "id": "native-invalid-nan",
+      "kind": "equidistant",
+      "parallels": [
+        "n:NaN",
+        30
+      ],
+      "radians": [
+        "n:NaN",
+        0.5235987755982988
+      ],
+      "n": "n:NaN",
+      "g": "n:NaN",
+      "fallback": false,
+      "nativeClassification": "native-nonfinite-coefficient",
+      "rustPolicy": "invalid-parallels"
+    },
+    {
+      "id": "native-invalid-nan",
+      "kind": "conformal",
+      "parallels": [
+        "n:NaN",
+        30
+      ],
+      "radians": [
+        "n:NaN",
+        0.5235987755982988
+      ],
+      "n": "n:NaN",
+      "g": null,
+      "fallback": true,
+      "nativeClassification": "native-nonfinite-coefficient",
+      "rustPolicy": "invalid-parallels"
+    },
+    {
+      "id": "native-invalid-infinity",
+      "kind": "equalArea",
+      "parallels": [
+        "n:+Infinity",
+        30
+      ],
+      "radians": [
+        "n:+Infinity",
+        0.5235987755982988
+      ],
+      "n": "n:NaN",
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-nonfinite-coefficient",
+      "rustPolicy": "invalid-parallels"
+    },
+    {
+      "id": "native-invalid-infinity",
+      "kind": "equidistant",
+      "parallels": [
+        "n:+Infinity",
+        30
+      ],
+      "radians": [
+        "n:+Infinity",
+        0.5235987755982988
+      ],
+      "n": "n:NaN",
+      "g": "n:NaN",
+      "fallback": false,
+      "nativeClassification": "native-nonfinite-coefficient",
+      "rustPolicy": "invalid-parallels"
+    },
+    {
+      "id": "native-invalid-infinity",
+      "kind": "conformal",
+      "parallels": [
+        "n:+Infinity",
+        30
+      ],
+      "radians": [
+        "n:+Infinity",
+        0.5235987755982988
+      ],
+      "n": "n:NaN",
+      "g": null,
+      "fallback": true,
+      "nativeClassification": "native-nonfinite-coefficient",
+      "rustPolicy": "invalid-parallels"
+    },
+    {
+      "id": "native-pole-parallels",
+      "kind": "equalArea",
+      "parallels": [
+        90,
+        90
+      ],
+      "radians": [
+        1.5707963267948966,
+        1.5707963267948966
+      ],
+      "n": 1,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "invalid-parallels"
+    },
+    {
+      "id": "native-pole-parallels",
+      "kind": "equidistant",
+      "parallels": [
+        90,
+        90
+      ],
+      "radians": [
+        1.5707963267948966,
+        1.5707963267948966
+      ],
+      "n": 1,
+      "g": 1.5707963267948966,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "invalid-parallels"
+    },
+    {
+      "id": "native-pole-parallels",
+      "kind": "conformal",
+      "parallels": [
+        90,
+        90
+      ],
+      "radians": [
+        1.5707963267948966,
+        1.5707963267948966
+      ],
+      "n": 1,
+      "g": null,
+      "fallback": false,
+      "nativeClassification": "native-no-selected-guard-violation",
+      "rustPolicy": "invalid-parallels"
+    }
+  ],
+  "counts": {
+    "profiles": 51,
+    "records": 612,
+    "multipleTurnProfiles": 4,
+    "radialFoldProfiles": 2,
+    "rawResidualPassButSourceWrong": 32
+  }
+}

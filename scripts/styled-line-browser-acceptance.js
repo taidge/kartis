@@ -1,0 +1,46 @@
+(async function verifyStyledLine(page){
+  const assert=(value,message)=>{if(!value)throw Error(message);},errors=[],onError=e=>errors.push(e.message);page.on('pageerror',onError);
+  const flush=async()=>{await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));await page.evaluate(()=>window.hostFixture.styled_line_flush());};
+  const snapshot=renderer=>page.evaluate(renderer=>JSON.parse(window.hostFixture.styled_line_snapshot(renderer)),renderer);
+  const previous=await page.evaluate(()=>{const panels=document.querySelector('.panels'),old=panels.style.display;panels.style.display='none';return old;});
+  const baseline=await page.locator('body *').count(),reports=[];
+  const compare=()=>page.evaluate(async()=>{
+    const svg=document.querySelector('#styled-line-svg svg'),clone=svg.cloneNode(true),canvas=document.querySelector('#styled-line-canvas canvas');
+    let language;for(let node=svg;node;node=node.parentElement){language=node.getAttributeNS('http://www.w3.org/XML/1998/namespace','lang')??node.getAttribute('xml:lang')??node.getAttribute('lang');if(language!==null)break;}
+    clone.setAttribute('lang',language??document.documentElement.lang);clone.setAttribute('width',String(canvas.width));clone.setAttribute('height',String(canvas.height));
+    const image=new Image();image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(clone));await image.decode();
+    const copy=document.createElement('canvas');copy.width=canvas.width;copy.height=canvas.height;const ctx=copy.getContext('2d');ctx.drawImage(image,0,0);
+    const a=ctx.getImageData(0,0,copy.width,copy.height).data,b=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;let difference=0,ink=0;for(let i=0;i<a.length;i++)difference+=Math.abs(a[i]-b[i]);for(let i=0;i<b.length;i+=4)ink+=Number(Math.min(b[i],b[i+1],b[i+2])<220);
+    return{meanChannelError:difference/a.length,ink,gradients:clone.querySelectorAll('linearGradient').length};
+  });
+  try{
+    await page.mouse.move(2,2);await page.evaluate(()=>window.hostFixture.styled_line_mount());await flush();
+    await page.evaluate(()=>{const root=document.querySelector('#styled-line-svg svg');window.styledLineProbe={root,point:root.querySelector('[data-id="line-point:10:North:line:3"]')};});
+    for(const phase of [0,1,2]){
+      if(phase){await page.evaluate(phase=>window.hostFixture.styled_line_phase(phase),phase);await flush();}
+      const pixels=await compare();assert(pixels.meanChannelError<.5&&pixels.ink>1000,`Styled line phase${phase} pixel parity ${JSON.stringify(pixels)}`);assert(pixels.gradients===(phase===2?0:1),'Line retained stale area gradient');
+      const geometry=await page.evaluate(()=>{const root=document.querySelector('#styled-line-svg svg'),points=[...root.querySelectorAll('[data-id^="line-point:"]')],strokes=[...root.querySelectorAll('path[data-id^="line-stroke:10:North:line:"]')],target=root.querySelector('[data-id="line-point:10:North:line:1"]');return{points:points.length,radii:points.map(p=>p.getBBox().width/2),invisiblePaths:points.every(p=>{const coordinates=(p.getAttribute('d').match(/[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/gi)||[]).map(Number);return coordinates.length===26&&p.getTotalLength()===0&&coordinates.every((v,i)=>v===coordinates[i%2])&&p.getAttribute('fill')==='rgba(0,0,0,0)'&&(!p.hasAttribute('stroke')||p.getAttribute('stroke')==='none');}),strokes:strokes.length,widths:strokes.map(p=>Number(p.getAttribute('stroke-width'))),dashes:strokes.map(p=>p.getAttribute('stroke-dasharray')),values:[...root.querySelectorAll('text')].map(p=>p.textContent),value:Number(target.dataset.value),border:Number(target.getAttribute('stroke-width')),identity:root===window.styledLineProbe.root&&root.querySelector('[data-id="line-point:10:North:line:3"]')===window.styledLineProbe.point};});
+      assert(geometry.points===9&&geometry.identity&&geometry.value===(phase===1?7.5:6),`Stable line sites/current value ${JSON.stringify(geometry)}`);
+      if(phase===1)assert(geometry.invisiblePaths&&geometry.strokes===1&&geometry.values.includes('7.5'),'Invisible sites, connected gaps or inherited label formatter failed');
+      else assert(geometry.radii.filter(r=>r===6).length===4&&geometry.radii.filter(r=>r===5).length===5&&geometry.strokes===(phase===2?0:2),'Visible line point sizes/gaps incorrect');
+      if(phase===0)assert(geometry.widths.every(v=>v===5)&&geometry.dashes.every(v=>v==='12 7')&&geometry.border===2&&geometry.values.includes('6.0'),'Line width/dash/point border/label style absent');
+      for(const renderer of ['svg','canvas']){
+        const state=await snapshot(renderer),surface=page.locator(`#styled-line-${renderer} .kartis-surface`);assert(state.meshHit===state.target.id&&state.target.radius===(phase===1?0:6),'Current Mesh site/radius is incorrect');await surface.scrollIntoViewIfNeeded();const box=await surface.boundingBox(),target={x:box.x+state.target.x/state.width*box.width,y:box.y+state.target.y/state.height*box.height};
+        await page.mouse.move(target.x,target.y);await flush();assert((await snapshot(renderer)).hovered.includes(state.target.id),`${renderer} phase${phase}: actual Mesh hover missed`);const tooltip=await page.locator(`#styled-line-${renderer} .kartis-surface-tooltip`).textContent();assert(tooltip.includes('North:line')&&tooltip.includes(phase===1?'7.5':'6.0'),'Line tooltip kept stale formatted value');
+        await page.mouse.click(target.x,target.y);await flush();assert((await snapshot(renderer)).selected===state.target.id,'Line pointer selection missed');
+        const control=page.locator(`#styled-line-${renderer} .kartis-datum`).filter({hasText:phase===1?'North:line: 1, 7.5':'North:line: 1, 6.0'}).first();await control.focus();await page.keyboard.press('Enter');await flush();assert((await snapshot(renderer)).events.some(e=>e.type==='activated'&&e.id===state.target.id),'Line keyboard activation missed current point');
+        await surface.press('Escape');await flush();
+      }
+      await page.mouse.move(2,2);await page.evaluate(()=>document.activeElement?.blur());await flush();
+      await page.evaluate(phase=>{const p=window.styledLineProbe;p.mutations=0;p.observer=new MutationObserver(records=>p.mutations+=records.length);p.observer.observe(p.root,{subtree:true,attributes:true,childList:true,characterData:true});window.hostFixture.styled_line_phase(phase);window.hostFixture.styled_line_flush();},phase);await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));assert(await page.evaluate(()=>window.styledLineProbe.mutations===0),'Same line Scene mutated retained DOM');await page.evaluate(()=>window.styledLineProbe.observer.disconnect());
+      const before=await snapshot('svg'),markup=await page.locator('#styled-line-svg svg').first().innerHTML();assert(await page.evaluate(()=>window.hostFixture.styled_line_rejected()),'Invalid line style/Scene accepted');assert((await snapshot('svg')).revision===before.revision&&(await snapshot('svg')).pending===0,'Rejected line update queued work');await flush();assert(await page.locator('#styled-line-svg svg').first().innerHTML()===markup,'Rejected line update mutated old frame');reports.push({phase,pixels,geometry,pointer:true,keyboard:true,mesh:true,unchangedMutationZero:true,rejectedAtomic:true});
+    }
+    // Hide while point labels and zero-radius interaction sites are both present.
+    await page.evaluate(()=>window.hostFixture.styled_line_phase(1));await flush();
+    for(const renderer of ['svg','canvas']){await page.locator(`#styled-line-${renderer} .kartis-legend-item`).filter({hasText:'North:line'}).first().click();await flush();assert((await snapshot(renderer)).hidden.includes('North:line'),'Line legend did not hide owner');assert(await page.locator(`#styled-line-${renderer} .kartis-datum`).count()===5,'Hidden invisible sites retained controls');}
+    assert(await page.evaluate(()=>{const root=document.querySelector('#styled-line-svg svg');return ![...root.querySelectorAll('[data-id]')].some(p=>p.dataset.series==='North:line')&&![...root.querySelectorAll('text')].some(p=>p.textContent==='7.5');}),'Hidden line retained owned labels/sites');
+    await page.mouse.move(2,2);await page.evaluate(()=>document.activeElement?.blur());await flush();const hidden=await compare();assert(hidden.meanChannelError<.5,'Hidden line SVG/Canvas parity failed');
+    await page.evaluate(()=>{window.oldStyledLine=document.querySelector('#styled-line-svg .kartis-datum');window.hostFixture.styled_line_stop();});assert(await page.locator('body *').count()===baseline,'Line stop leaked DOM');await page.evaluate(()=>window.oldStyledLine?.click());await flush();assert(!(await snapshot('svg')).active,'Detached line control revived stopped chart');assert(!errors.length,errors.join('\n'));
+    return{passed:true,phases:reports,hiddenOwnership:true,hiddenPixels:hidden,cleanup:true,pageErrors:errors};
+  }finally{await page.evaluate(previous=>{window.styledLineProbe?.observer?.disconnect();window.hostFixture.styled_line_stop();document.querySelector('.panels').style.display=previous;delete window.styledLineProbe;delete window.oldStyledLine;},previous);page.off('pageerror',onError);}
+})

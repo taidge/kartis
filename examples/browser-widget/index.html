@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kartis Glory Widget acceptance</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:24px;color:#263244;background:#f6f8fb}main{max-width:900px;background:white;padding:20px;border:1px solid #dbe2ec}.kartis-legend,.kartis-data{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}button{padding:7px 12px;cursor:pointer;border:1px solid #aab7c9;background:white;border-radius:5px}button[aria-pressed=true]{background:#d7e8fd;border-color:#366bab}button:focus-visible{outline:3px solid #ff9e31;outline-offset:2px}.kartis-tooltip{margin-top:14px;padding:8px 12px;color:white;background:#20334e;border-radius:5px}#events{font-size:12px;max-height:150px;overflow:auto;white-space:pre-wrap}p{max-width:760px;line-height:1.5}
+</style></head><body><h1>Kartis Glory Widget</h1><p>Legend buttons control series visibility. Data buttons support hover, focus, activation and arrow navigation. Plot geometry is decorative; this fixture does not claim arbitrary plot-pointer hit testing.</p><nav aria-label="Widget examples" style="display:flex;gap:8px;margin:12px 0"><button id="standard">Standard labels</button><button id="outline">Rotated font outlines</button></nav><main id="app"></main><pre id="events" aria-live="polite"></pre>
+<script type="module">
+import init,* as fixture from './pkg/widget.js';
+try{await init();window.fixture=fixture;document.querySelector('#standard').onclick=()=>fixture.mount_fixture();document.querySelector('#outline').onclick=()=>fixture.mount_outlined_fixture();window.fixtureReady=true;document.documentElement.dataset.fixture='ready';}catch(error){document.documentElement.dataset.fixture='error';document.getElementById('events').textContent=String(error);throw error;}
+</script></body></html>

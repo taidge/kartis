@@ -1,0 +1,15 @@
+# Actual d3-brush 3.0.0 browser oracle. C case, S step, H actual handle geometry; coordinates are logical SVG units.
+# C|id|axis|extent|initial|handleSize|profile|keys. S|id|index|action|target|point|key|modifiers|programRect|selection|events. H|id|index|handle|visible|xywh
+C|center-clamped-space-outside-extent|x|-100,-80,200,180|0,-80,100,180|10|d3-safety-difference|1
+S|center-clamped-space-outside-extent|0|down|w|0,50||alt|null|0,-80,100,180|start:center:0,-80,100,180
+H|center-clamped-space-outside-extent|0|w|1|-5,-85,10,270
+H|center-clamped-space-outside-extent|0|e|1|95,-85,10,270
+S|center-clamped-space-outside-extent|1|move||-500,50|||null|-100,-80,200,180|brush:center:-100,-80,200,180
+H|center-clamped-space-outside-extent|1|w|1|-105,-85,10,270
+H|center-clamped-space-outside-extent|1|e|1|195,-85,10,270
+S|center-clamped-space-outside-extent|2|key||null|Space,1||null|-100,-80,600,180|brush:space:-100,-80,600,180
+H|center-clamped-space-outside-extent|2|w|1|-105,-85,10,270
+H|center-clamped-space-outside-extent|2|e|1|595,-85,10,270
+S|center-clamped-space-outside-extent|3|up||-500,50|||null|-100,-80,600,180|end:space:-100,-80,600,180
+H|center-clamped-space-outside-extent|3|w|1|-105,-85,10,270
+H|center-clamped-space-outside-extent|3|e|1|595,-85,10,270

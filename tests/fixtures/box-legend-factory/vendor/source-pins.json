@@ -1,0 +1,94 @@
+{
+  "nivoVersion": "0.99.0",
+  "nivoCommit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "files": {
+    "box-hooks.ts": {
+      "upstream": "packages/boxplot/src/hooks.ts",
+      "sha256": "c7a90e48985a3da9a6a41d974f7ef7d257b33a4196860c69ab25e655b1c7891f",
+      "gitBlobCanonicalSHA256": "c7a90e48985a3da9a6a41d974f7ef7d257b33a4196860c69ab25e655b1c7891f",
+      "canonicalAfterOnlyCRLFDecode": true
+    },
+    "box-props.ts": {
+      "upstream": "packages/boxplot/src/props.ts",
+      "sha256": "1b05bb6ebe7684e1369482d871f4497261d2fbab1131d512ab7111e113195ef7",
+      "gitBlobCanonicalSHA256": "1b05bb6ebe7684e1369482d871f4497261d2fbab1131d512ab7111e113195ef7",
+      "canonicalAfterOnlyCRLFDecode": true
+    },
+    "box-legends.ts": {
+      "upstream": "packages/boxplot/src/compute/legends.ts",
+      "sha256": "1d3d566a1c958ca1af5931427e3f8263ad1115b48afc72c211f9d5dbf54cf48c",
+      "gitBlobCanonicalSHA256": "1d3d566a1c958ca1af5931427e3f8263ad1115b48afc72c211f9d5dbf54cf48c",
+      "canonicalAfterOnlyCRLFDecode": true
+    },
+    "ordinal-color.ts": {
+      "upstream": "packages/colors/src/scales/ordinalColorScale.ts",
+      "sha256": "b5f826fc875ce0c99bc8cebaf4f1a7906241f8935dfb4eb34d6d898fea118fc4",
+      "gitBlobCanonicalSHA256": "b5f826fc875ce0c99bc8cebaf4f1a7906241f8935dfb4eb34d6d898fea118fc4",
+      "canonicalAfterOnlyCRLFDecode": true
+    },
+    "stratification.ts": {
+      "upstream": "packages/boxplot/src/compute/stratification.ts",
+      "sha256": "92969d932326004057da073870965ac2bafd880f354cd5752a97773bd3dbf274",
+      "gitBlobCanonicalSHA256": "92969d932326004057da073870965ac2bafd880f354cd5752a97773bd3dbf274",
+      "canonicalAfterOnlyCRLFDecode": true
+    },
+    "generation.ts": {
+      "upstream": "packages/boxplot/src/compute/generation.ts",
+      "sha256": "87668853e037c1af1d0a3b4cf1710baaef9d881f6b14df53920dc2625029a663",
+      "gitBlobCanonicalSHA256": "87668853e037c1af1d0a3b4cf1710baaef9d881f6b14df53920dc2625029a663",
+      "canonicalAfterOnlyCRLFDecode": true
+    },
+    "common.ts": {
+      "upstream": "packages/boxplot/src/compute/common.ts",
+      "sha256": "cbaf3f4375f805e258c45c32cc4176fe32641e85a5a1a0efcd77cc296f40ccda",
+      "gitBlobCanonicalSHA256": "cbaf3f4375f805e258c45c32cc4176fe32641e85a5a1a0efcd77cc296f40ccda",
+      "canonicalAfterOnlyCRLFDecode": true
+    },
+    "linearScale.ts": {
+      "upstream": "packages/scales/src/linearScale.ts",
+      "sha256": "28bc1a6980e3fb0c5807ccf348e7c8ad31155f68f286fa107705a57a669c8dd3",
+      "gitBlobCanonicalSHA256": "28bc1a6980e3fb0c5807ccf348e7c8ad31155f68f286fa107705a57a669c8dd3",
+      "canonicalAfterOnlyCRLFDecode": true
+    },
+    "compute.ts": {
+      "upstream": "packages/scales/src/compute.ts",
+      "sha256": "19f993e3dcbcdcfd889d036aabcaaf28354f6a9b4bac8452e7ce287285204b7e",
+      "gitBlobCanonicalSHA256": "19f993e3dcbcdcfd889d036aabcaaf28354f6a9b4bac8452e7ce287285204b7e",
+      "canonicalAfterOnlyCRLFDecode": true
+    },
+    "nivo-bandScale.ts": {
+      "upstream": "packages/scales/src/bandScale.ts",
+      "sha256": "83f3a287bade728df3d72ea1f8fd692eacc4a5a75c7b18ffb30b7e02b883f4e6",
+      "gitBlobCanonicalSHA256": "83f3a287bade728df3d72ea1f8fd692eacc4a5a75c7b18ffb30b7e02b883f4e6",
+      "canonicalAfterOnlyCRLFDecode": true
+    },
+    "nivo-inheritedColor.ts": {
+      "upstream": "packages/colors/src/inheritedColor.ts",
+      "sha256": "29750da2e66afd78cc3050a2d4856b0b6195078f19f3183ea35047538b5e9f6c",
+      "gitBlobCanonicalSHA256": "29750da2e66afd78cc3050a2d4856b0b6195078f19f3183ea35047538b5e9f6c",
+      "canonicalAfterOnlyCRLFDecode": true
+    },
+    "nivo-propertiesConverters.js": {
+      "upstream": "packages/core/src/lib/propertiesConverters.js",
+      "sha256": "b7d6f8d19bf0a403838de65d3015cd825e170934845c0e95015de7cd559ecc85",
+      "gitBlobSHA256": "b7d6f8d19bf0a403838de65d3015cd825e170934845c0e95015de7cd559ecc85",
+      "contentModified": false
+    },
+    "lodash.cjs": {
+      "upstreamPackage": "lodash@4.17.21",
+      "upstreamFile": "package/lodash.js",
+      "url": "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz",
+      "tarballSHA256": "6a087ac9e5702a0c9d60fbcd48696012646ec8df1491dea472b150e79fcaf804",
+      "tarballIntegrity": "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==",
+      "sha256": "4c04561befdf653aef017a42ac5addf68ea943cdfca6bdee5ce04e04e8139f54",
+      "contentModified": false,
+      "filenameOnlyRenamedForCommonJS": true
+    },
+    "lodash-LICENSE": {
+      "upstreamPackage": "lodash@4.17.21",
+      "upstreamFile": "package/LICENSE",
+      "sha256": "f71e8ed126b46346494aad5486874cd8f0aafe95092ed67d2e3cb6110f939abc"
+    }
+  },
+  "scope": "Complete frozen original Nivo functions and genuine released Lodash; only import/type erasure at runtime."
+}

@@ -1,0 +1,43 @@
+{
+  "files": {
+    "RadarDots.tsx": {
+      "source": "E:\\Repos\\nivo\\packages\\radar\\src\\RadarDots.tsx",
+      "sha256": "911f8916f51c1a8794d3a4b314624cd1fcca17a212b9f340a2464e7b96bb6f0e",
+      "bytes": 3708
+    },
+    "radar-types.ts": {
+      "source": "E:\\Repos\\nivo\\packages\\radar\\src\\types.ts",
+      "sha256": "1dac7e3d8cd38290cecfbae663e76fa649584fbb173cc93e2aa45a866c6c4807",
+      "bytes": 4243
+    },
+    "propertiesConverters.js": {
+      "source": "E:\\Repos\\nivo\\packages\\core\\src\\lib\\propertiesConverters.js",
+      "sha256": "b7d6f8d19bf0a403838de65d3015cd825e170934845c0e95015de7cd559ecc85",
+      "bytes": 707
+    },
+    "nivo-LICENSE": {
+      "source": "E:\\Repos\\nivo\\LICENSE.md",
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+      "bytes": 1054
+    },
+    "lodash.cjs": {
+      "source": "D:\\Works\\glory-rs\\kartis\\tests\\fixtures\\box-colors-function\\vendor\\lodash.cjs",
+      "sha256": "4c04561befdf653aef017a42ac5addf68ea943cdfca6bdee5ce04e04e8139f54",
+      "bytes": 544098
+    },
+    "lodash-LICENSE": {
+      "source": "D:\\Works\\glory-rs\\kartis\\tests\\fixtures\\box-colors-function\\vendor\\lodash-LICENSE",
+      "sha256": "f71e8ed126b46346494aad5486874cd8f0aafe95092ed67d2e3cb6110f939abc",
+      "bytes": 1952
+    },
+    "radar-defaults.ts": {
+      "source": "E:\\Repos\\nivo\\packages\\radar\\src\\defaults.ts",
+      "sha256": "46fc0ea53e3231d9d2c950a9363b9694cb0c709f22cd9cfd9e93655607165057",
+      "bytes": 1018
+    }
+  },
+  "scope": "Complete original getPropertyAccessor and original complete RadarDots useMemo stage; React display JSX source-pinned only.",
+  "nivoCommit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "nivoVersion": "0.99.0",
+  "lodashVersion": "4.17.21"
+}

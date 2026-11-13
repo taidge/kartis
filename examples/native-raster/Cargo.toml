@@ -1,0 +1,36 @@
+[package]
+name = "kartis-native-raster"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.95"
+publish = false
+default-run = "kartis-native-raster"
+
+[workspace]
+resolver = "3"
+
+[features]
+window = ["glory-apace/accesskit"]
+wry-window = ["window", "glory/wry"]
+
+[[bin]]
+name = "kartis-native-window"
+path = "src/bin/window.rs"
+required-features = ["window"]
+
+[dependencies]
+kartis = {path="../..",features=["raster-bidi"]}
+glory = {path="../../../glory/crates/glory",default-features=false}
+glory-apace = {path="../../../glory/crates/apace",features=["shell","raster"]}
+glory-html = {path="../../../glory/crates/html"}
+apace-dom = {path="../../../apace/packages/apace-dom",version="=0.3.0",default-features=false}
+apace-traits = {path="../../../apace/packages/apace-traits",version="=0.3.0",default-features=false}
+keyboard-types = "0.8.3"
+png = "0.18.1"
+serde_json = "1"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = "warn"

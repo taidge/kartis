@@ -1,0 +1,49 @@
+{
+  "schema": "box-colorby-hover-original-v1",
+  "nivoVersion": "0.99.0",
+  "nivoCommit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "counts": {
+    "profiles": 32,
+    "baselineAndActiveSnapshots": 64,
+    "qualificationSnapshots": 10,
+    "actualComputedBoxRecords": 272
+  },
+  "valuesSHA256": "590949bff6053001be78c2f0628b38f13c854ed9b2d5eed6388cda51e3ab086d",
+  "sourcePins": {
+    "tests/fixtures/box-colorby-hover/vendor/source-pins.json": "78d74845c1141598b7b9dc56db58fd31f4d8901fbef00703bcd9d298817b2368",
+    "tests/fixtures/box-colorby-hover/vendor/nivo-LICENSE": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+    "tests/fixtures/box-colorby-hover/vendor/d3-scale-LICENSE": "e008c5e25a6be382593089c29bfabbc553c6378eee02895aec46ce396cc404ee",
+    "tests/fixtures/box-colorby-hover/vendor/d3-array-LICENSE": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3",
+    "tests/fixtures/box-colorby-hover/vendor/d3-interpolate-LICENSE": "e008c5e25a6be382593089c29bfabbc553c6378eee02895aec46ce396cc404ee",
+    "tests/fixtures/box-colorby-hover/vendor/d3-color-LICENSE": "faa682e3e430941f958d26180458f5934a62f58dac4d70ccdd15608c15d0f884",
+    "tests/fixtures/box-colorby-hover/vendor/internmap-LICENSE": "9ea8903938dab5f12c4572d60725069bec2d1b0dc3bcc210b09bae946a5ebb1f",
+    "tests/fixtures/box-colorby-hover/vendor/box-props.ts": "1b05bb6ebe7684e1369482d871f4497261d2fbab1131d512ab7111e113195ef7",
+    "tests/fixtures/box-colorby-hover/vendor/nivo-inheritedColor.ts": "29750da2e66afd78cc3050a2d4856b0b6195078f19f3183ea35047538b5e9f6c",
+    "tests/fixtures/box-colorby-hover/vendor/ordinal-color.ts": "b5f826fc875ce0c99bc8cebaf4f1a7906241f8935dfb4eb34d6d898fea118fc4",
+    "tests/fixtures/box-colorby-hover/vendor/linearScale.ts": "28bc1a6980e3fb0c5807ccf348e7c8ad31155f68f286fa107705a57a669c8dd3",
+    "tests/fixtures/box-colorby-hover/vendor/nivo-bandScale.ts": "83f3a287bade728df3d72ea1f8fd692eacc4a5a75c7b18ffb30b7e02b883f4e6",
+    "tests/fixtures/box-colorby-hover/vendor/compute.ts": "19f993e3dcbcdcfd889d036aabcaaf28354f6a9b4bac8452e7ce287285204b7e",
+    "tests/fixtures/box-colorby-hover/vendor/common.ts": "cbaf3f4375f805e258c45c32cc4176fe32641e85a5a1a0efcd77cc296f40ccda",
+    "tests/fixtures/box-colorby-hover/vendor/stratification.ts": "92969d932326004057da073870965ac2bafd880f354cd5752a97773bd3dbf274",
+    "tests/fixtures/box-colorby-hover/vendor/generation.ts": "87668853e037c1af1d0a3b4cf1710baaef9d881f6b14df53920dc2625029a663",
+    "tests/fixtures/box-colorby-hover/vendor/box-legends.ts": "1d3d566a1c958ca1af5931427e3f8263ad1115b48afc72c211f9d5dbf54cf48c",
+    "tests/fixtures/box-colorby-hover/vendor/box-hooks.ts": "c7a90e48985a3da9a6a41d974f7ef7d257b33a4196860c69ab25e655b1c7891f"
+  },
+  "runtimePins": {
+    "d3-scale/package.json": "75f7dfe869b2e6d1cbecd380f939f218ca046a26313c4e623aa52d6352a9b51b",
+    "d3-scale/src/index.js": "0a46e423e2a6e19acce49de6ea981d46d543f0229bd9fe7a472a1d43b5ccd7e1",
+    "d3-interpolate/package.json": "3e2ce33f9d7072b6bfedbae949c1df546e187994e44b6f4b3795abeb63914613",
+    "d3-interpolate/src/index.js": "6507c8a8b50662d762f40d84863acb92e1988917ab452a2aea465499c394a6aa",
+    "d3-array/package.json": "9e3e34222710a8e0fba34884e2b3ebfd6b25546268fd4a2618168d4d77962d54",
+    "d3-array/dist/d3-array.mjs": "b219965735dbd3c8a63fdd32ad2823a8f34f421399568f1ff6ae8391ce28df41",
+    "d3-color/package.json": "3de1c3c467f09ffc0372c8b765f8981535c22e1d9f944d17a35ee37df1033516",
+    "d3-color/src/index.js": "a2922c91fa90cfded9698beffe6e2716a5bee7272b9c9930ce1fd24372bccf42"
+  },
+  "adapters": {
+    "react": "Cold useMemo executes original complete bodies and records retval/deps; useState supplies previous actual computed item. No state commits, mounted React lifecycle or event dispatch.",
+    "lodash": "Ordinary dot-word accessor and function, stable primitive-key uniqBy + numeric sortBy only; no general lodash deep path API.",
+    "scales": "Actual released D3 linear/band and array ordinal; original whole computeScale dispatch retained, other scale branches explicit unsupported.",
+    "babel": "Not used: complete original TypeScript hooks/helpers/transitions only, no TSX or original legend component/pixels claimed."
+  },
+  "scope": "Actual whole original useLevels/useBoxPlot/getLegendData/useBoxPlotTransition and original color resolver/generation/stratification; native full-domain prewarming is executed by original hooks103-109. All source/computed color, legend numeric IDs/labels and activeKeys/opacity from original functions. Rust None/legend domain/accessor/typed stale-key boundaries explicit."
+}

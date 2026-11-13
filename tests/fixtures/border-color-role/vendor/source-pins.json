@@ -1,0 +1,47 @@
+{
+  "version": "0.99.0",
+  "commit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "license": "Reused tests/fixtures/bar-label-color/nivo-LICENSE (unmodified full original MIT). Existing bar-index-legend and bar-category-band D3 licenses apply.",
+  "files": {
+    "nivo-bar-defaults.ts": {
+      "sha256": "01a94adb6b36ae7c37ff98d9d2f956de5a49b82faef35946734bb8964d6a8a7a",
+      "canonicalRepositoryPath": "packages/bar/src/defaults.ts",
+      "bytes": 2295
+    },
+    "nivo-bar-totals.ts": {
+      "sha256": "efa54730d1b748f700fb72a4cecbe02f7c4393a7bf84b30e791a2433402f84a2",
+      "canonicalRepositoryPath": "packages/bar/src/compute/totals.ts",
+      "bytes": 5952
+    },
+    "nivo-renderBar.ts": {
+      "sha256": "028beb94575ca2b3fd6b9235e48a6c8875ac7c7dae560798b513cdfcea37eb76",
+      "canonicalRepositoryPath": "packages/bar/src/renderBar.ts",
+      "bytes": 997
+    },
+    "nivo-roundedRect.ts": {
+      "sha256": "ff7dbe3ceacf008b1aa714b3e985e591c85e0874ee5e17d304002a80463ac5fd",
+      "canonicalRepositoryPath": "packages/canvas/src/roundedRect.ts",
+      "bytes": 736
+    },
+    "nivo-heatmap-hooks.ts": {
+      "sha256": "fd223bce917754afebf98d4375f25b5c5bd9159e409468da4b8f44973186f400",
+      "canonicalRepositoryPath": "packages/heatmap/src/hooks.ts",
+      "bytes": 9502
+    },
+    "nivo-heatmap-compute.ts": {
+      "sha256": "a199916084ce7ca82f2bc79f136a0554e8a454084d59e58beee73ab8724d9d79",
+      "canonicalRepositoryPath": "packages/heatmap/src/compute.ts",
+      "bytes": 4309
+    },
+    "nivo-heatmap-defaults.ts": {
+      "sha256": "bd084092ee4331ad14001aacf899f00e194a32a3e31e2b74798547a4796d13a1",
+      "canonicalRepositoryPath": "packages/heatmap/src/defaults.ts",
+      "bytes": 1687
+    },
+    "nivo-heatmap-canvas.tsx": {
+      "sha256": "13184d9f1028a50b1ca1dfbae1c6e023c5e6882ca391fc5c157572ff7522f90c",
+      "canonicalRepositoryPath": "packages/heatmap/src/canvas.tsx",
+      "bytes": 2156
+    }
+  }
+}

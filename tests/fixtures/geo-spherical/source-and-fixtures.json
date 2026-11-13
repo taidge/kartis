@@ -1,0 +1,55 @@
+{
+  "scope": "Original spherical-distance/length/algebraic-area/circle fixture candidate, no implemented feature claim",
+  "versions": {
+    "geo": "3.1.1",
+    "array": "3.2.5",
+    "arrayForm": "Original UMD exports bridged to original geo ESM"
+  },
+  "files": [
+    {
+      "path": "geometry.json",
+      "bytes": 5420755,
+      "sha256": "a4fc15b4dd667a8d3798effea3b3a05ceb4ed78c05da223c1de861f8a474b39e"
+    },
+    {
+      "path": "geometry-values.csv",
+      "bytes": 2566,
+      "sha256": "24d71558fa4d96458327a28ea0efdcb9234ac019a9aa5afb1a4c6153dec397a4"
+    },
+    {
+      "path": "distance.json",
+      "bytes": 2640,
+      "sha256": "999d8d0968ac1d4e88f91a53d22b724290d47c9ebf516ec14c99a5c04745f673"
+    },
+    {
+      "path": "circle.json",
+      "bytes": 633602,
+      "sha256": "9f0e00e0a2904ad49feb2da512c0099de5ac942d8656210581d3cb8524cfa1e8"
+    },
+    {
+      "path": "circle-values.csv",
+      "bytes": 9326,
+      "sha256": "37494bdb4222dce04a0b4cfcccefa5ef1e391e89e8fc018ab6d07d0f4eb10346"
+    },
+    {
+      "path": "generate.mjs",
+      "bytes": 6789,
+      "sha256": "8cf46d323ebe015072e8f71e1c3366faff31c039c4d0b84d081b12789ce5128f"
+    },
+    {
+      "path": "../geo-inverse-d3-oracle.js",
+      "bytes": 132539,
+      "sha256": "873638c3542defc67135946f1dae3a1d0426c147989b339a8033ce39e4e92550"
+    },
+    {
+      "path": "../geo-inverse-d3-LICENSE.txt",
+      "bytes": 2777,
+      "sha256": "6c28d42e4014c126c953198f9bde4dba985d4215e5d0d33b06c7b4a1568417ce"
+    },
+    {
+      "path": "../geo-conic/reference/fixtures/conic-d3-source.json",
+      "bytes": 14252,
+      "sha256": "12cace196f9eb5b2d25a67c27e4bdc04843d03462727879db793eebeedcacb14"
+    }
+  ]
+}

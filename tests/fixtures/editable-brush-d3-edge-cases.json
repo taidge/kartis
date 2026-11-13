@@ -1,0 +1,426 @@
+{
+  "source": {
+    "name": "d3-brush",
+    "version": "3.0.0",
+    "url": "https://github.com/d3/d3-brush/blob/v3.0.0/src/brush.js",
+    "sourceSha256": "329341c4891e1253cba6b4463782ea741f4c24bfeda0ca53253910b543f6f56e",
+    "packages": [
+      {
+        "name": "d3-dispatch",
+        "version": "3.0.2",
+        "license": "ISC",
+        "distSha256": "334d2d51f85d91c20275df294edbb351b95c8049677f470e1d39b771ee27587f",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-selection",
+        "version": "3.0.1",
+        "license": "ISC",
+        "distSha256": "1024a4ad92bcb8b890a735e6bf782ad95de9a2e3d1aa6274efb58fda2c1e9d2b",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-drag",
+        "version": "3.0.1",
+        "license": "ISC",
+        "distSha256": "fcd4253a91433d8b72a5721b9c49775fde43d1b091adb185a142d91896dc76bf",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-color",
+        "version": "3.1.1",
+        "license": "ISC",
+        "distSha256": "f7a66baea17f864e132e76a6137dbc693ed05c07f053cc3892ae71a39cb6ac62",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-interpolate",
+        "version": "3.0.2",
+        "license": "ISC",
+        "distSha256": "3ccb6cfbe9ecfe0d48e7080f89d0d3c86af02395d3d126b10d07fd7b1d03e8b0",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-timer",
+        "version": "3.0.2",
+        "license": "ISC",
+        "distSha256": "50e3364f2f5986c03dbc6971137dd23df79066a622c8e3f271444caea2bdcd5f",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-ease",
+        "version": "3.0.2",
+        "license": "BSD-3-Clause",
+        "distSha256": "7ebb789f37bf8130c4f204426b8b4db2435da950cd70c726ced390974874d04b",
+        "licenseSha256": "82f2a38e51f9013690c0cea086e901b33e51b5f0c3ba837941d7a58073c72917"
+      },
+      {
+        "name": "d3-transition",
+        "version": "3.0.2",
+        "license": "ISC",
+        "distSha256": "7a0d7b4e0dcec4c9374bf1bb2c36092ecb1a8196618d1bae51fc24cbb4a9a918",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-brush",
+        "version": "3.0.0",
+        "license": "ISC",
+        "distSha256": "20577b1b72d153b7fd85da4c546bfffc60656a44ad6d142308c68d4d8d897ced",
+        "licenseSha256": "e008c5e25a6be382593089c29bfabbc553c6378eee02895aec46ce396cc404ee"
+      }
+    ]
+  },
+  "method": "Unmodified official UMD packages; frozen from actual Chrome mouse/keyboard events. Degenerate zero-size targets explicitly use DOM MouseEvent dispatch because they have no hit area. Optional --event-exact sends mouse DOM events at explicit logical coordinates to distinguish numeric D3 behavior from native pointer quantization; it is not device acceptance.",
+  "profileDifferences": [
+    "D3 emits start/brush/end for repeated programmatic move; the checked Rust controller may suppress unchanged updates.",
+    "D3 programmatic move permits coordinates outside the configured extent and keeps zero-span rectangles; the checked Rust API rejects or explicitly constrains them.",
+    "D3 emptiness tests both dimensions even for brushX/brushY; a zero inactive extent clears on mouseup, unlike the requested Rust single-axis contract.",
+    "D3 programmatic mutation during a gesture may retain its original baseline; the Rust session contract retires that baseline.",
+    "Original D3 can escape its extent when Space follows an Alt-centered drag already clamped at both edges; the checked Rust contract preserves the current selection size and remains bounded."
+  ],
+  "cases": [
+    {
+      "id": "center-clamped-space-outside-extent",
+      "axis": "x",
+      "extent": [
+        -100,
+        -80,
+        200,
+        180
+      ],
+      "initial": [
+        0,
+        -80,
+        100,
+        180
+      ],
+      "handleSize": 10,
+      "profile": "d3-safety-difference",
+      "steps": [
+        {
+          "type": "down",
+          "target": "w",
+          "point": [
+            0,
+            50
+          ],
+          "modifiers": {
+            "alt": true
+          }
+        },
+        {
+          "type": "move",
+          "point": [
+            -500,
+            50
+          ]
+        },
+        {
+          "type": "key",
+          "key": "Space",
+          "down": true
+        },
+        {
+          "type": "up",
+          "point": [
+            -500,
+            50
+          ]
+        }
+      ],
+      "initialSnapshot": {
+        "selection": [
+          0,
+          -80,
+          100,
+          180
+        ],
+        "publicSelection": [
+          0,
+          100
+        ],
+        "events": [],
+        "cursor": "crosshair",
+        "handles": [
+          {
+            "handle": "w",
+            "visible": true,
+            "bounds": [
+              -5,
+              -85,
+              10,
+              270
+            ]
+          },
+          {
+            "handle": "e",
+            "visible": true,
+            "bounds": [
+              95,
+              -85,
+              10,
+              270
+            ]
+          }
+        ]
+      },
+      "trace": [
+        {
+          "input": {
+            "type": "down",
+            "target": "w",
+            "point": [
+              0,
+              50
+            ],
+            "modifiers": {
+              "alt": true
+            }
+          },
+          "actualTarget": "w",
+          "selection": [
+            0,
+            -80,
+            100,
+            180
+          ],
+          "publicSelection": [
+            0,
+            100
+          ],
+          "events": [
+            {
+              "type": "start",
+              "mode": "center",
+              "selection": [
+                0,
+                -80,
+                100,
+                180
+              ],
+              "publicSelection": [
+                0,
+                100
+              ],
+              "source": "mousedown",
+              "sourcePoint": [
+                0,
+                50
+              ]
+            }
+          ],
+          "cursor": "ew-resize",
+          "handles": [
+            {
+              "handle": "w",
+              "visible": true,
+              "bounds": [
+                -5,
+                -85,
+                10,
+                270
+              ]
+            },
+            {
+              "handle": "e",
+              "visible": true,
+              "bounds": [
+                95,
+                -85,
+                10,
+                270
+              ]
+            }
+          ]
+        },
+        {
+          "input": {
+            "type": "move",
+            "point": [
+              -500,
+              50
+            ]
+          },
+          "actualTarget": null,
+          "selection": [
+            -100,
+            -80,
+            200,
+            180
+          ],
+          "publicSelection": [
+            -100,
+            200
+          ],
+          "events": [
+            {
+              "type": "brush",
+              "mode": "center",
+              "selection": [
+                -100,
+                -80,
+                200,
+                180
+              ],
+              "publicSelection": [
+                -100,
+                200
+              ],
+              "source": "mousemove",
+              "sourcePoint": [
+                -500,
+                50
+              ]
+            }
+          ],
+          "cursor": "ew-resize",
+          "handles": [
+            {
+              "handle": "w",
+              "visible": true,
+              "bounds": [
+                -105,
+                -85,
+                10,
+                270
+              ]
+            },
+            {
+              "handle": "e",
+              "visible": true,
+              "bounds": [
+                195,
+                -85,
+                10,
+                270
+              ]
+            }
+          ]
+        },
+        {
+          "input": {
+            "type": "key",
+            "key": "Space",
+            "down": true
+          },
+          "actualTarget": null,
+          "selection": [
+            -100,
+            -80,
+            600,
+            180
+          ],
+          "publicSelection": [
+            -100,
+            600
+          ],
+          "events": [
+            {
+              "type": "brush",
+              "mode": "space",
+              "selection": [
+                -100,
+                -80,
+                600,
+                180
+              ],
+              "publicSelection": [
+                -100,
+                600
+              ],
+              "source": "keydown",
+              "sourcePoint": null
+            }
+          ],
+          "cursor": "move",
+          "handles": [
+            {
+              "handle": "w",
+              "visible": true,
+              "bounds": [
+                -105,
+                -85,
+                10,
+                270
+              ]
+            },
+            {
+              "handle": "e",
+              "visible": true,
+              "bounds": [
+                595,
+                -85,
+                10,
+                270
+              ]
+            }
+          ]
+        },
+        {
+          "input": {
+            "type": "up",
+            "point": [
+              -500,
+              50
+            ]
+          },
+          "actualTarget": null,
+          "selection": [
+            -100,
+            -80,
+            600,
+            180
+          ],
+          "publicSelection": [
+            -100,
+            600
+          ],
+          "events": [
+            {
+              "type": "end",
+              "mode": "space",
+              "selection": [
+                -100,
+                -80,
+                600,
+                180
+              ],
+              "publicSelection": [
+                -100,
+                600
+              ],
+              "source": "mouseup",
+              "sourcePoint": [
+                -500,
+                50
+              ]
+            }
+          ],
+          "cursor": "crosshair",
+          "handles": [
+            {
+              "handle": "w",
+              "visible": true,
+              "bounds": [
+                -105,
+                -85,
+                10,
+                270
+              ]
+            },
+            {
+              "handle": "e",
+              "visible": true,
+              "bounds": [
+                595,
+                -85,
+                10,
+                270
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

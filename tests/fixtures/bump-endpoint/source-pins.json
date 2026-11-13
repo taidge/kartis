@@ -1,0 +1,8 @@
+{
+  "nivoVersion": "0.99.0",
+  "commit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "path": "packages/bump/src/bump/hooks.ts",
+  "wholeFileSha256": "df70b3ff2868ffa12ae248a5bd69413a78e38736e4b4c3dca743f75fd8f43add",
+  "excerptSha256": "50f1d59797727a16be0c58f4b8935ad3c092c5bef91cf4cf898047051f1734d5",
+  "scope": "Original complete last exported hook, type erasure only; useTheme/useMemo/fixed-color hook adapters, not React or complete color-hook parity."
+}

@@ -1,0 +1,12 @@
+{
+  "files": [
+    {
+      "path": "source-pins.json",
+      "sha256": "d2024aa80a2c359009725d29368f0e175cd07e65fac831518b077857c5d41d91"
+    },
+    {
+      "path": "nivo-original.json",
+      "sha256": "3fa024784b9fa4a2189ebb518979eb38ba025728c7cc17ca336bfcedd9e97b48"
+    }
+  ]
+}

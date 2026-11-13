@@ -1,0 +1,197 @@
+[
+  {
+    "id": "same",
+    "a": [
+      0,
+      0
+    ],
+    "b": [
+      0,
+      0
+    ],
+    "native": 0,
+    "profile": "ordinary-finite"
+  },
+  {
+    "id": "signzero",
+    "a": [
+      "n:-0",
+      0
+    ],
+    "b": [
+      0,
+      "n:-0"
+    ],
+    "native": 0,
+    "profile": "ordinary-finite"
+  },
+  {
+    "id": "quarter",
+    "a": [
+      0,
+      0
+    ],
+    "b": [
+      90,
+      0
+    ],
+    "native": 1.5707963267948966,
+    "profile": "ordinary-finite"
+  },
+  {
+    "id": "antipodal",
+    "a": [
+      0,
+      0
+    ],
+    "b": [
+      180,
+      0
+    ],
+    "native": 3.141592653589793,
+    "profile": "ordinary-finite"
+  },
+  {
+    "id": "near-antipodal",
+    "a": [
+      0,
+      0
+    ],
+    "b": [
+      179.9999999999,
+      1e-10
+    ],
+    "native": 3.1415926535873253,
+    "profile": "ordinary-finite"
+  },
+  {
+    "id": "dateline",
+    "a": [
+      179.9,
+      20
+    ],
+    "b": [
+      -179.9,
+      20
+    ],
+    "native": 0.0032801458430765707,
+    "profile": "ordinary-finite"
+  },
+  {
+    "id": "poles",
+    "a": [
+      0,
+      90
+    ],
+    "b": [
+      180,
+      -90
+    ],
+    "native": 3.141592653589793,
+    "profile": "ordinary-finite"
+  },
+  {
+    "id": "same-pole",
+    "a": [
+      0,
+      90
+    ],
+    "b": [
+      120,
+      90
+    ],
+    "native": 1.0605752387249068e-16,
+    "profile": "ordinary-finite"
+  },
+  {
+    "id": "tiny",
+    "a": [
+      0,
+      0
+    ],
+    "b": [
+      1e-12,
+      -1e-12
+    ],
+    "native": 2.46826829897687e-14,
+    "profile": "ordinary-finite"
+  },
+  {
+    "id": "tiny-offset",
+    "a": [
+      30,
+      40
+    ],
+    "b": [
+      30.000000000001,
+      40.000000000001
+    ],
+    "native": 2.200115748089678e-14,
+    "profile": "ordinary-finite"
+  },
+  {
+    "id": "subnormal",
+    "a": [
+      0,
+      0
+    ],
+    "b": [
+      5e-324,
+      -5e-324
+    ],
+    "native": 0,
+    "profile": "ordinary-finite"
+  },
+  {
+    "id": "wrap",
+    "a": [
+      540,
+      20
+    ],
+    "b": [
+      -180,
+      20
+    ],
+    "native": 4.603166240911401e-16,
+    "profile": "ordinary-finite"
+  },
+  {
+    "id": "outside-latitude",
+    "a": [
+      0,
+      100
+    ],
+    "b": [
+      0,
+      80
+    ],
+    "native": 0.349065850398866,
+    "profile": "native-invalid-public-coordinate"
+  },
+  {
+    "id": "nan",
+    "a": [
+      "n:NaN",
+      0
+    ],
+    "b": [
+      0,
+      0
+    ],
+    "native": "n:NaN",
+    "profile": "native-invalid-public-coordinate"
+  },
+  {
+    "id": "infinity",
+    "a": [
+      "n:+Infinity",
+      0
+    ],
+    "b": [
+      0,
+      0
+    ],
+    "native": "n:NaN",
+    "profile": "native-invalid-public-coordinate"
+  }
+]

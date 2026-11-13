@@ -1,0 +1,267 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kartis SVG and Canvas controllers</title>
+<style>
+*{box-sizing:border-box}body{font-family:system-ui,sans-serif;margin:20px;color:#263244;background:#f5f8fc}h1{font-size:26px}.panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;max-width:1400px}article{padding:16px;border:1px solid #d7e1ef;border-radius:10px;background:white;min-width:0}h2{margin:0 0 14px}.kartis-legend,.kartis-data{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button{padding:7px 11px;cursor:pointer;border:1px solid #aab9ce;border-radius:5px;background:#fff}button[aria-pressed=true]{background:#d8e9ff;border-color:#3c72b6}:focus-visible{outline:3px solid #ef9b30;outline-offset:2px}pre{font-size:11px;max-height:110px;overflow:auto;white-space:pre-wrap}p{line-height:1.5;max-width:1000px}@media(max-width:760px){.panels{grid-template-columns:1fr}body{margin:12px}article{padding:12px}}
+#contour-density-charts .chart{background:white;outline:1px solid #d8e1e8;border-radius:6px}#contour-density-charts .kartis-controls{max-height:110px;overflow:auto}#contour-density-charts .kartis-data{max-height:95px;overflow:auto}#contour-density-status[data-error=true]{color:#a12720}
+#sequential-quantile-charts .kartis-controls{max-height:112px;overflow:auto}#sequential-quantile-status[data-error=true]{color:#a12720}
+#conic-charts:not([hidden]){display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}#conic-toolbar fieldset{margin:12px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}#conic-status[data-error=true]{color:#a12720}
+</style></head><body><h1>Kartis browser controllers</h1><p>Compare SVG and Canvas. Hover or tap data, use wheel or two fingers to zoom, drag to pan, Shift-drag to brush, or navigate with the plot arrow keys.</p>
+<nav aria-label="Chart examples" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+<button data-mode="transform" aria-pressed="true">Transform scene</button><button data-mode="viewport" aria-pressed="false">Keep axes fixed</button><button data-mode="category" aria-pressed="false">Category navigation</button><button data-mode="independent" aria-pressed="false">Independent axes</button><button data-mode="morph" aria-pressed="false">Shape morph</button><button data-mode="presentation" aria-pressed="false">Custom legend &amp; tooltip</button><button data-mode="avoidance" aria-pressed="false">Tooltip placement</button><button id="animate">Animate</button><button id="reset">Reset view</button>
+<button data-mode="tree" aria-pressed="false">Tree styles</button><button data-mode="parallel" aria-pressed="false">Parallel axes</button><button data-mode="parallel-vertical" aria-pressed="false">Vertical parallel axes</button><button data-mode="network" aria-pressed="false">Drag network nodes</button>
+<button data-mode="pie" aria-pressed="false">Pie styles</button><button data-mode="radar" aria-pressed="false">Radar styles</button><button data-mode="sankey" aria-pressed="false">Sankey styles</button><button data-mode="sankey-vertical" aria-pressed="false">Vertical Sankey</button><button data-mode="sankey-circular" aria-pressed="false">Circular Sankey</button><button data-mode="sankey-circular-vertical" aria-pressed="false">Vertical circular Sankey</button><button data-mode="styled-line" aria-pressed="false">Line styles</button><button id="next-style" disabled>Change styles</button>
+<button data-mode="colors" aria-pressed="false">Color scales</button><button data-mode="bar-styles" aria-pressed="false">Bar styles</button><button data-mode="bar-stacked" aria-pressed="false">Horizontal stacked bars</button><button data-mode="bar-percent" aria-pressed="false">Percent bar styles</button><button data-mode="heatmap" aria-pressed="false">HeatMap cells</button><button data-mode="heatmap-circle" aria-pressed="false">HeatMap circles</button><button data-mode="heatmap-size" aria-pressed="false">HeatMap size variation</button><button data-mode="heatmap-circle-size" aria-pressed="false">HeatMap circle sizes</button><button data-mode="stacked-radial" aria-pressed="false">Stacked radial bars</button><label>HeatMap highlight <select id="heatmap-target" disabled><option value="0">Cell</option><option value="1">Row</option><option value="2">Column</option><option value="3" selected>Row and column</option><option value="4">All</option></select></label>
+<button data-mode="calendar-compact" aria-pressed="false">Compact calendar</button><button data-mode="calendar-vertical" aria-pressed="false">Vertical time range</button><button data-mode="calendar-year" aria-pressed="false">Styled yearly calendar</button><button data-mode="calendar-year-vertical" aria-pressed="false">Vertical yearly calendar</button><button data-mode="statistics-box" aria-pressed="false">Vertical box plots</button><button data-mode="statistics-box-horizontal" aria-pressed="false">Horizontal box plots</button><button data-mode="statistics-bullet" aria-pressed="false">Horizontal bullet rows</button><button data-mode="statistics-bullet-vertical" aria-pressed="false">Vertical bullet rows</button><button data-mode="hierarchy-treemap" aria-pressed="false">Focus treemap</button><button data-mode="hierarchy-pack" aria-pressed="false">Focus circle packing</button><button data-mode="hierarchy-right" aria-pressed="false">Focus icicle right</button><button data-mode="hierarchy-left" aria-pressed="false">Focus icicle left</button><button id="hierarchy-focus" disabled>Focus branch</button><button id="hierarchy-back" disabled>Go back</button><button id="hierarchy-root" disabled>Hierarchy root</button><span id="hierarchy-path" role="status" hidden></span>
+<button data-mode="area-bump" aria-pressed="false">Area bump ranks</button><button data-mode="area-bump-smooth" aria-pressed="false">Smooth area bump</button><button data-mode="area-bump-gap" aria-pressed="false">Gapped area bump</button>
+<button data-mode="marimekko" aria-pressed="false">Independent Marimekko</button><button data-mode="marimekko-expand" aria-pressed="false">Expanded Marimekko</button><button data-mode="marimekko-signed" aria-pressed="false">Signed Marimekko</button><button data-mode="marimekko-stream" aria-pressed="false">Stream-offset Marimekko</button>
+<button data-mode="geo-stream" aria-pressed="false">Geographic streams</button><button data-mode="geo-transverse" aria-pressed="false">Transverse Mercator</button><button data-mode="geo-cap" aria-pressed="false">Clipped globe routes</button><button data-mode="delaunay" aria-pressed="false">Delaunay mesh</button><button data-mode="delaunay-duplicates" aria-pressed="false">Delaunay duplicates</button><button data-mode="delaunay-collinear" aria-pressed="false">Collinear Delaunay</button>
+<button data-mode="pie-layout" aria-pressed="false">Nivo padded donut</button><button data-mode="pie-partial" aria-pressed="false">Partial pie fit</button><button data-mode="pie-pad-radius" aria-pressed="false">Pie pad-radius profiles</button><button data-mode="pie-measured" aria-pressed="false">Measured pie link labels</button>
+<button data-mode="line-crosshair" aria-pressed="false">Line point crosshair</button><button data-mode="line-slice-x" aria-pressed="false">Line X slices</button><button data-mode="line-slice-y" aria-pressed="false">Line Y slices</button><button data-mode="radar-slices" aria-pressed="false">Radar polar slices</button><button data-mode="radar-point-slices" aria-pressed="false">Radar point slices</button><button data-mode="radar-ccw-slices" aria-pressed="false">Counterclockwise radar slices</button>
+<button data-mode="tree-relations" aria-pressed="false">Tree relationships</button><button data-mode="network-relations" aria-pressed="false">Network neighbors</button><button data-mode="chord-relations" aria-pressed="false">Chord relationships</button><button data-mode="sankey-relations" aria-pressed="false">Sankey relationships</button><button data-mode="circular-relations" aria-pressed="false">Circular Sankey relationships</button>
+<button data-mode="scale-linear" aria-pressed="false">Configured linear scales</button><button data-mode="scale-log" aria-pressed="false">Configured log and symlog scales</button><button data-mode="scale-utc" aria-pressed="false">Configured UTC scales</button><button data-mode="scale-point" aria-pressed="false">Ordinal point line</button>
+<button data-mode="brush-xy" aria-pressed="false" disabled>Editable XY brush</button><button data-mode="brush-x" aria-pressed="false" disabled>Editable X brush</button><button data-mode="brush-y" aria-pressed="false" disabled>Editable Y brush</button>
+<button data-mode="geo-inverse" aria-pressed="false" disabled>Geographic coordinate readback</button><button data-mode="nonlinear-heatmap" aria-pressed="false" disabled>Nonlinear heatmap colors</button><button data-mode="nonlinear-calendar" aria-pressed="false" disabled>Nonlinear calendar colors</button><button data-mode="nonlinear-map" aria-pressed="false" disabled>Nonlinear map colors</button>
+<button data-mode="piecewise-line" aria-pressed="false" disabled>Piecewise line axes</button><button data-mode="piecewise-scatter" aria-pressed="false" disabled>Piecewise scatter axes</button>
+<button data-mode="glyph-star" aria-pressed="false">Star glyph points</button><button data-mode="glyph-wye" aria-pressed="false">Wye glyph points</button><button data-mode="glyph-stroke" aria-pressed="false">Hollow glyph points</button><button data-mode="glyph-radar" aria-pressed="false">Radar glyph points</button><button data-mode="geo-glyph" aria-pressed="false">Geographic glyphs</button><button data-mode="geo-glyph-globe" aria-pressed="false">Clipped globe glyphs</button>
+<button data-mode="scatter-default" aria-pressed="false" disabled>Typed scatter nodes</button><button data-mode="scatter-size" aria-pressed="false" disabled>Dynamic scatter sizes</button><button data-mode="scatter-filled" aria-pressed="false" disabled>Scatter area glyphs</button><button data-mode="scatter-hollow" aria-pressed="false" disabled>Hollow scatter glyphs</button><button data-mode="scatter-utc" aria-pressed="false" disabled>UTC scatter axes</button><button data-mode="scatter-point" aria-pressed="false" disabled>Ordinal scatter axes</button>
+<button data-mode="contour-grid" aria-pressed="false" disabled>Contours with holes</button><button data-mode="contour-density" aria-pressed="false" disabled>Weighted scatter density</button>
+<button data-mode="sequential-quantile" aria-pressed="false" disabled>Observation-rank colors</button>
+<button data-mode="geo-conic" aria-pressed="false">Conic maps and Albers</button></nav><p id="mode-help" role="status">The whole scene zooms together. Try Animate to compare the two renderers.</p>
+<section id="sequential-quantile-controls" hidden aria-label="Observation-rank color settings">
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0">
+<label>Chart <select id="sequential-quantile-consumer"><option value="0">HeatMap</option><option value="1">Calendar</option><option value="2">Choropleth</option></select></label>
+<label>Observations <select id="sequential-quantile-phase"><option value="0">Repeated 0, 0, 5, 10, 10</option><option value="1">Uneven -20, 0, 0, 1, 100</option><option value="2">Two endpoints 0, 10</option><option value="3">One observation</option><option value="4">Missing observations</option><option value="5">Repeated constant 7</option></select></label>
+<label>Legend window <select id="sequential-quantile-window"><option value="0">Observed extent</option><option value="1">2 to 8</option><option value="2">-5 to 15</option></select></label>
+<label>Color space <select id="sequential-quantile-profile"><option value="0">RGB</option><option value="1">Lab</option></select></label>
+<label><input type="checkbox" id="sequential-quantile-reordered"> Reverse input order</label><label><input type="checkbox" id="sequential-quantile-added"> Add observation 2</label><label><input type="checkbox" id="sequential-quantile-hidden"> Hide recent group</label><label><input type="checkbox" id="sequential-quantile-clamp" checked> Saturate outside legend window</label>
+<button id="sequential-quantile-apply">Apply settings</button><button id="sequential-quantile-resize">Resize charts</button><button id="sequential-quantile-reject">Try invalid proposal</button><button id="sequential-quantile-stop">Stop charts</button><button id="sequential-quantile-remount">Restart charts</button>
+</div><output id="sequential-quantile-status" aria-live="polite"></output>
+</section><div id="sequential-quantile-charts" style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start"></div>
+<section id="contour-density-controls" hidden aria-label="Contour and density settings">
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0">
+<label><input type="checkbox" id="contour-density-insert"> Insert lower threshold</label>
+<label><input type="checkbox" id="contour-density-hide"> Hide contours</label>
+<label><input type="checkbox" id="contour-density-hide-source"> Hide second group</label>
+<label>Second group weight <input id="contour-density-weight" type="number" value="1" min="0" max="10" step="1" style="width:72px"></label>
+<label>Bandwidth <input id="contour-density-bandwidth" type="number" value="14" min="0" max="60" step="1" style="width:72px"></label>
+<button id="contour-density-apply">Apply weights and bandwidth</button><button id="contour-density-resize">Resize charts</button><button id="contour-density-reject">Try invalid proposal</button><button id="contour-density-stop">Stop charts</button><button id="contour-density-remount">Restart charts</button>
+</div><output id="contour-density-status" aria-live="polite"></output>
+</section>
+<div id="contour-density-charts" style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start"></div>
+<section id="conic-toolbar" hidden><fieldset><legend>Projection and source</legend>
+<label>Family <select id="conic-family"><option value="0">Conic Equal Area</option><option value="1">Conic Equidistant</option><option value="2">Conic Conformal</option><option value="3">Albers preset</option></select></label>
+<label>First parallel <input id="conic-p0" type="number" value="0"></label><label>Second parallel <input id="conic-p1" type="number" value="60"></label>
+<label>Fit <select id="conic-fit"><option value="0">World</option><option value="1">Data</option></select></label>
+<label>Camera longitude <input id="conic-cx" type="number" value="0"></label><label>Camera latitude <input id="conic-cy" type="number" value="0"></label><label>Roll <input id="conic-roll" type="number" value="0"></label>
+<label><input id="conic-hidden" type="checkbox"> Hide region 1 and its station</label><button id="conic-apply">Apply</button><select id="conic-invalid-kind" aria-label="Invalid proposal"><option value="0">Out-of-range parallels</option><option value="1">Adjacent unstable equidistant pair</option><option value="2">Adjacent unstable conformal pair</option><option value="3">Equidistant radial fold pair</option></select><button id="conic-invalid">Try invalid proposal</button><button id="conic-resize">Resize</button><button id="conic-stop">Stop</button><button id="conic-restart">Restart</button></fieldset>
+<fieldset><legend>Independent seam reference</legend><label>Reference family <select id="conic-reference-profile"><option value="0">Equal Area</option><option value="1">Equidistant</option><option value="2">Conformal</option><option value="3">Equal Area with original overridden-Albers parallels</option></select></label><label>Reference camera <select id="conic-reference-camera"><option value="0">[0,0,0]</option><option value="1">[35,20,25] original rotation</option><option value="2">[-80,30,-30] original rotation</option></select></label><button id="conic-reference">Show exterior and hole</button></fieldset>
+<output id="conic-status" aria-live="polite"></output>
+</section><div id="conic-charts" hidden></div>
+
+<div class="panels"><article><h2>SVG</h2><div id="svg-root"></div><pre id="svg-log"></pre></article><article><h2>Canvas</h2><div id="canvas-root"></div><pre id="canvas-log"></pre></article></div>
+<details style="margin-top:16px"><summary>Time zone samples</summary><pre id="date-log"></pre></details>
+<script type="module">
+import init,* as host from './pkg/host.js';
+try {
+  const initialized=await init();window.hostFixture=host;
+  for(const button of document.querySelectorAll('[data-mode^="scatter-"]'))button.disabled=typeof host.scatter_mount!=='function';
+  // Fixture-only capacity observation; never infer live Rust allocations.
+  window.hostWasmMemory=initialized.memory;
+  const help=document.querySelector('#mode-help'),animate=document.querySelector('#animate'),nextStyle=document.querySelector('#next-style');
+  const sankeyCases={'sankey':0,'sankey-vertical':1,'sankey-circular':2,'sankey-circular-vertical':3};
+  const barCases={'bar-styles':0,'bar-stacked':1,'bar-percent':2};
+  const heatmapCases={'heatmap':0,'heatmap-circle':1,'heatmap-size':2,'heatmap-circle-size':3};
+  const calendarCases={'calendar-compact':0,'calendar-vertical':1,'calendar-year':2,'calendar-year-vertical':3};
+  const statisticsCases={'statistics-box':0,'statistics-box-horizontal':1,'statistics-bullet':2,'statistics-bullet-vertical':3};
+  const hierarchyCases={'hierarchy-treemap':0,'hierarchy-pack':1,'hierarchy-right':2,'hierarchy-left':3};
+  const areaBumpCases={'area-bump':0,'area-bump-smooth':1,'area-bump-gap':2};
+  const marimekkoCases={'marimekko':0,'marimekko-expand':1,'marimekko-signed':2,'marimekko-stream':3};
+  const geoStreamCases={'geo-stream':0,'geo-transverse':1,'geo-cap':2};
+  const delaunayCases={'delaunay':0,'delaunay-duplicates':1,'delaunay-collinear':2};
+  const pieLayoutCases={'pie-layout':0,'pie-partial':1,'pie-pad-radius':2,'pie-measured':3};
+  const lineCrosshairCases={'line-crosshair':0,'line-slice-x':1,'line-slice-y':2};
+  const radarSliceCases={'radar-slices':0,'radar-point-slices':1,'radar-ccw-slices':2};
+  const relationCases={'tree-relations':0,'network-relations':1,'chord-relations':2,'sankey-relations':3,'circular-relations':4};
+  const scaleProfileCases={'scale-linear':0,'scale-log':1,'scale-utc':2,'scale-point':3};
+  const glyphCases={'glyph-star':0,'glyph-wye':1,'glyph-stroke':2,'glyph-radar':3};
+  const geoGlyphCases={'geo-glyph':0,'geo-glyph-globe':1};
+  const scatterCases={'scatter-default':0,'scatter-size':1,'scatter-filled':2,'scatter-hollow':3,'scatter-utc':4,'scatter-point':5};
+  const heatmapTarget=document.querySelector('#heatmap-target');
+  const styleModes=['pie','radar','styled-line','colors','stacked-radial',...Object.keys(sankeyCases),...Object.keys(barCases),...Object.keys(heatmapCases),...Object.keys(calendarCases),...Object.keys(statisticsCases),...Object.keys(hierarchyCases),...Object.keys(areaBumpCases),...Object.keys(marimekkoCases),...Object.keys(geoStreamCases),...Object.keys(delaunayCases),...Object.keys(pieLayoutCases),...Object.keys(lineCrosshairCases),...Object.keys(radarSliceCases),...Object.keys(relationCases),...Object.keys(scaleProfileCases),...Object.keys(glyphCases),...Object.keys(geoGlyphCases)];
+  styleModes.push(...Object.keys(scatterCases));
+  const brushCases={'brush-xy':0,'brush-x':1,'brush-y':2};
+  for(const mode of Object.keys(brushCases))document.querySelector(`[data-mode="${mode}"]`).disabled=typeof host.editable_brush_mount!=='function';
+  const nonlinearCases={'nonlinear-heatmap':0,'nonlinear-calendar':1,'nonlinear-map':2};
+  const piecewiseCases={'piecewise-line':[0,false],'piecewise-scatter':[1,true]};
+  const advancedModes=['geo-inverse',...Object.keys(nonlinearCases),...Object.keys(piecewiseCases)];
+  for(const mode of advancedModes)document.querySelector('[data-mode="'+mode+'"]').disabled=typeof host[mode==='geo-inverse'?'geo_inverse_mount':Object.hasOwn(piecewiseCases,mode)?'piecewise_scales_mount':'nonlinear_colors_mount']!=='function';
+  const contourCases={'contour-grid':0,'contour-density':1};
+  for(const mode of Object.keys(contourCases))document.querySelector('[data-mode="'+mode+'"]').disabled=typeof host.contour_density_mount!=='function';
+  const contourControl=id=>document.getElementById('contour-density-'+id);let contourNarrow=false;
+  const runContour=(action,message)=>{const status=contourControl('status');try{action();status.textContent=message;status.dataset.error='false';}catch(error){status.textContent='Proposal rejected: '+error;status.dataset.error='true';}};
+  const mountContour=mode=>{for(const id of['insert','hide','hide-source'])contourControl(id).checked=false;contourControl('weight').value=1;contourControl('bandwidth').value=14;contourNarrow=false;runContour(()=>host.contour_density_mount(mode),mode?'Weighted density ready · SVG and Canvas':'Nested contours ready · SVG and Canvas');};
+  const updateContour=()=>runContour(()=>host.contour_density_update(contourControl('insert').checked,contourControl('hide').checked,contourControl('hide-source').checked,Number(contourControl('weight').value),Number(contourControl('bandwidth').value)),'Chart settings applied');
+  for(const id of['insert','hide','hide-source'])contourControl(id).onchange=updateContour;contourControl('apply').onclick=updateContour;
+  contourControl('resize').onclick=()=>{contourNarrow=!contourNarrow;runContour(()=>host.contour_density_resize(contourNarrow?560:640),'Chart width updated');};
+  contourControl('reject').onclick=()=>runContour(()=>{if(!host.contour_density_rejected())throw Error('Unexpected acceptance');},'Invalid proposal rejected; accepted charts retained');
+  contourControl('stop').onclick=()=>runContour(()=>host.contour_density_stop(),'Charts stopped');contourControl('remount').onclick=()=>mountContour(contourCases[activeMode]??0);
+  const quantileControl=id=>document.getElementById('sequential-quantile-'+id);let quantileNarrow=false;
+  document.querySelector('[data-mode="sequential-quantile"]').disabled=typeof host.sequential_quantile_mount!=='function';
+  const runQuantile=(action,message)=>{const status=quantileControl('status');try{action();const s=JSON.parse(host.sequential_quantile_snapshot('svg'));status.textContent=message+(s.active?' · '+s.samples.length+' observations · data window '+s.domain.join(' to '):'');status.dataset.error='false';}catch(error){status.textContent='Proposal rejected: '+error;status.dataset.error='true';}};
+  const mountQuantile=()=>{quantileNarrow=false;for(const id of ['phase','window','profile'])quantileControl(id).value='0';for(const id of ['reordered','added','hidden'])quantileControl(id).checked=false;quantileControl('clamp').checked=true;runQuantile(()=>host.sequential_quantile_mount(Number(quantileControl('consumer').value)),'Observation-rank colors ready');};
+  const updateQuantile=()=>runQuantile(()=>host.sequential_quantile_update(Number(quantileControl('phase').value),quantileControl('hidden').checked,quantileControl('reordered').checked,quantileControl('added').checked,Number(quantileControl('window').value),!quantileControl('clamp').checked,Number(quantileControl('profile').value)),'Chart settings applied');
+  quantileControl('consumer').onchange=mountQuantile;for(const id of ['phase','window','profile','reordered','added','hidden','clamp'])quantileControl(id).onchange=updateQuantile;
+  quantileControl('apply').onclick=updateQuantile;quantileControl('resize').onclick=()=>{quantileNarrow=!quantileNarrow;runQuantile(()=>host.sequential_quantile_resize(quantileNarrow?560:640),'Chart width requested');};
+  quantileControl('reject').onclick=()=>runQuantile(()=>{if(!JSON.parse(host.sequential_quantile_rejected(0)).rejected)throw Error('Unexpected acceptance');},'Invalid proposal rejected; accepted charts retained');
+  quantileControl('stop').onclick=()=>runQuantile(()=>host.sequential_quantile_stop(),'Charts stopped');quantileControl('remount').onclick=mountQuantile;
+  (function installConicControls(host){
+const el=id=>document.getElementById('conic-'+id);let narrow=false;
+const run=action=>{try{action();el('status').textContent='Per-renderer settings request handled; use pointer and Enter to inspect original data.';el('status').dataset.error='false';}catch(e){el('status').textContent='Rejected: '+e;el('status').dataset.error='true';}};
+const apply=()=>run(()=>host.conic_update(+el('family').value,el('p0').valueAsNumber,el('p1').valueAsNumber,el('fit').value==='1',[el('cx').valueAsNumber,el('cy').valueAsNumber],el('roll').valueAsNumber,el('hidden').checked));
+el('family').onchange=()=>{const n=+el('family').value;[el('p0').value,el('p1').value]=n===3?[29.5,45.5]:n===2?[30,30]:[0,60];el('p0').disabled=el('p1').disabled=n===3;apply();};el('apply').onclick=apply;el('fit').onchange=apply;el('hidden').onchange=apply;
+el('invalid').onclick=()=>run(()=>{const k=+el('invalid-kind').value,tuple=k===1?[1,-.9585319170638371,-.9585319170638373]:k===2?[2,-53.13008026016052,-53.130080260160526]:k===3?[1,-53.13008026016052,-53.130080260160526]:[+el('family').value,90,90];host.conic_update(...tuple,el('fit').value==='1',[el('cx').valueAsNumber,el('cy').valueAsNumber],el('roll').valueAsNumber,el('hidden').checked);});
+el('reference').onclick=()=>run(()=>{const p=+el('reference-profile').value,c=+el('reference-camera').value;host.conic_reference_mount(p,c);el('family').value=String(p===3?0:p);[el('p0').value,el('p1').value]=p===2?[30,30]:p===3?[29.5,45.5]:[0,60];el('p0').disabled=el('p1').disabled=false;[el('cx').value,el('cy').value]=[[0,0],[-35,-20],[80,-30]][c];el('roll').value=[0,-25,30][c];el('fit').value='1';el('hidden').checked=false;});
+el('resize').onclick=()=>{narrow=!narrow;run(()=>host.conic_resize(narrow?560:640));};el('stop').onclick=()=>run(()=>host.conic_stop());el('restart').onclick=()=>{narrow=false;run(()=>{host.conic_mount();apply();});};
+})(window.hostFixture);
+
+  document.querySelector('[data-mode="geo-conic"]').disabled=typeof host.conic_mount!=='function';
+  const configuredModes=['tree','parallel','parallel-vertical','network',...styleModes,...Object.keys(brushCases),...advancedModes,...Object.keys(contourCases),'sequential-quantile','geo-conic'];
+  const stopConfigured=()=>{host.tree_stop();host.parallel_stop();host.network_drag_stop();host.pie_stop();host.radar_stop();host.sankey_styles_stop();host.styled_line_stop();host.color_stop();host.bar_style_stop();host.heatmap_stop();host.stacked_radial_stop();host.calendar_layout_stop();host.statistics_stop();host.hierarchy_stop();host.area_bump_stop();host.marimekko_stop();host.geo_stream_stop();host.delaunay_stop();host.pie_layout_stop();host.line_crosshair_stop();host.radar_slices_stop();host.relations_stop();host.scale_profiles_stop();host.glyphs_stop();host.geo_glyphs_stop();host.scatter_stop?.();host.editable_brush_stop?.();host.contour_density_stop?.();host.sequential_quantile_stop?.();host.conic_stop?.();};
+  let activeMode='transform',morphPhase=0,stylePhase=0,hierarchyFrame=null;
+  const updateHierarchy=()=>{
+    const active=Object.hasOwn(hierarchyCases,activeMode),path=document.querySelector('#hierarchy-path');
+    document.querySelector('#hierarchy-focus').disabled=!active;path.hidden=!active;
+    if(!active){document.querySelector('#hierarchy-back').disabled=true;document.querySelector('#hierarchy-root').disabled=true;path.textContent='';return;}
+    const states=['svg','canvas'].map(id=>JSON.parse(host.hierarchy_snapshot(id)));
+    document.querySelector('#hierarchy-back').disabled=states.every(s=>!s.history.length);
+    document.querySelector('#hierarchy-root').disabled=states.every(s=>s.focus==='root');
+    path.textContent=states.map((s,i)=>`${i===0?'SVG':'Canvas'}: ${[...s.ancestors,s.focus].join(' / ')}`).join(' · ');
+  };
+  const pumpHierarchy=()=>{if(!Object.hasOwn(hierarchyCases,activeMode))return;if(hierarchyFrame!==null)cancelAnimationFrame(hierarchyFrame);hierarchyFrame=requestAnimationFrame(()=>{hierarchyFrame=requestAnimationFrame(()=>{hierarchyFrame=null;if(Object.hasOwn(hierarchyCases,activeMode)){host.hierarchy_flush();updateHierarchy();}});});};
+  // Native widget handlers may stop bubbling after handling activation.
+  document.addEventListener('pointerup',pumpHierarchy,true);document.addEventListener('keyup',pumpHierarchy,true);
+  for(const button of document.querySelectorAll('[data-mode]'))button.addEventListener('click',()=>{
+    const mode=button.dataset.mode;
+    activeMode=mode;morphPhase=0;stylePhase=0;
+    if(hierarchyFrame!==null){cancelAnimationFrame(hierarchyFrame);hierarchyFrame=null;}
+    stopConfigured();
+    host.geo_inverse_stop?.();host.nonlinear_colors_stop?.();host.piecewise_scales_stop?.();
+    const configured=configuredModes.includes(mode);document.getElementById('contour-density-controls').hidden=!Object.hasOwn(contourCases,mode);quantileControl('controls').hidden=mode!=='sequential-quantile';document.getElementById('conic-toolbar').hidden=mode!=='geo-conic';document.getElementById('conic-charts').hidden=mode!=='geo-conic';
+    document.querySelector('.panels').style.display=configured?'none':'';
+    if(configured)for(const id of ['svg','canvas'])host.stop(id);
+    if(mode==='geo-conic'){for(const id of ['family','fit','cx','cy','roll','invalid-kind','reference-profile','reference-camera'])document.getElementById('conic-'+id).value='0';document.getElementById('conic-p0').value='0';document.getElementById('conic-p1').value='60';document.getElementById('conic-hidden').checked=false;document.getElementById('conic-p0').disabled=document.getElementById('conic-p1').disabled=false;host.conic_mount();document.getElementById('conic-status').textContent='Move over a map to inspect its coordinates and original observations.';document.getElementById('conic-status').dataset.error='false';}
+    else if(mode==='sequential-quantile')mountQuantile();
+    else if(Object.hasOwn(contourCases,mode))mountContour(contourCases[mode]);
+    else if(mode==='tree')host.tree_mount();
+    else if(mode==='parallel'||mode==='parallel-vertical')host.parallel_mount(mode==='parallel-vertical');
+    else if(mode==='network')host.network_drag_mount();
+    else if(mode==='pie')host.pie_mount();
+    else if(mode==='radar')host.radar_mount();
+    else if(mode==='styled-line')host.styled_line_mount();
+    else if(mode==='colors')host.color_mount();
+    else if(mode==='stacked-radial')host.stacked_radial_mount();
+    else if(Object.hasOwn(barCases,mode))host.bar_style_mount(barCases[mode]);
+    else if(Object.hasOwn(heatmapCases,mode))host.heatmap_mount(heatmapCases[mode]);
+    else if(Object.hasOwn(calendarCases,mode))host.calendar_layout_mount(calendarCases[mode]);
+    else if(Object.hasOwn(statisticsCases,mode))host.statistics_mount(statisticsCases[mode]);
+    else if(Object.hasOwn(hierarchyCases,mode))host.hierarchy_mount(hierarchyCases[mode]);
+    else if(Object.hasOwn(areaBumpCases,mode))host.area_bump_mount(areaBumpCases[mode]);
+    else if(Object.hasOwn(marimekkoCases,mode))host.marimekko_mount(marimekkoCases[mode]);
+    else if(Object.hasOwn(geoStreamCases,mode))host.geo_stream_mount(geoStreamCases[mode]);
+    else if(Object.hasOwn(delaunayCases,mode))host.delaunay_mount(delaunayCases[mode]);
+    else if(Object.hasOwn(pieLayoutCases,mode))host.pie_layout_mount(pieLayoutCases[mode]);
+    else if(Object.hasOwn(lineCrosshairCases,mode))host.line_crosshair_mount(lineCrosshairCases[mode]);
+    else if(Object.hasOwn(radarSliceCases,mode))host.radar_slices_mount(radarSliceCases[mode]);
+    else if(Object.hasOwn(relationCases,mode))host.relations_mount(relationCases[mode]);
+    else if(Object.hasOwn(scaleProfileCases,mode))host.scale_profiles_mount(scaleProfileCases[mode]);
+    else if(Object.hasOwn(brushCases,mode))host.editable_brush_mount(brushCases[mode]);
+    else if(mode==='geo-inverse')host.geo_inverse_mount(0,0);
+    else if(Object.hasOwn(nonlinearCases,mode))host.nonlinear_colors_mount(nonlinearCases[mode]);
+    else if(Object.hasOwn(piecewiseCases,mode))host.piecewise_scales_mount(...piecewiseCases[mode],0);
+    else if(Object.hasOwn(glyphCases,mode))host.glyphs_mount(glyphCases[mode]);
+    else if(Object.hasOwn(geoGlyphCases,mode))host.geo_glyphs_mount(geoGlyphCases[mode]);
+    else if(Object.hasOwn(scatterCases,mode))host.scatter_mount(scatterCases[mode]);
+    else if(Object.hasOwn(sankeyCases,mode))host.sankey_styles_mount(sankeyCases[mode]);
+    if(!configured)for(const id of ['svg','canvas']){
+      if(mode==='viewport')host.remount_viewport(id);
+      else if(mode==='category'||mode==='independent'){
+        host.remount_navigation(id,mode==='category');host.flush(id);
+        if(mode==='independent'){host.navigation_zoom(id,0,4);host.navigation_zoom(id,1,2);}
+      }else if(mode==='morph')host.remount_morph(id);
+      else if(mode==='presentation')host.remount_presentation(id);
+      else if(mode==='avoidance')host.remount_tooltip_layout(id,1);
+      else host.remount(id);
+    }
+    for(const candidate of document.querySelectorAll('[data-mode]'))candidate.setAttribute('aria-pressed',String(candidate===button));
+    animate.disabled=configured||['viewport','category','independent','avoidance'].includes(mode);
+    nextStyle.disabled=!styleModes.includes(mode)&&!advancedModes.includes(mode);
+    heatmapTarget.disabled=!Object.hasOwn(heatmapCases,mode);heatmapTarget.value='3';
+    updateHierarchy();
+    document.querySelector('#reset').disabled=configured;
+    help.textContent=({viewport:'Wheel, pinch and pan change the data range while axes stay in place.',category:'Zoom and pan through the months. Category labels and stacked bars follow the visible window.',independent:'X starts at four times zoom and Y at two times. Wheel or pan to explore both ranges.',morph:'Use Animate to move between a rectangle and a circle.',presentation:'Compare the vertical legend, labels and formatted tooltip.',avoidance:'Hover the corner markers. The tooltip stays inside the plot and avoids the reserved lower region.'})[mode]||'The whole scene zooms together. Try Animate to compare the two renderers.';
+    if(configured)help.textContent=mode==='network'?'Drag a node in either renderer. Empty space pans the view; wheel zooms. Select this example again to restart.':mode==='tree'?'Compare stepped links, leaf squares and internal diamonds. Hover or select a node in either renderer.':'Each variable has its own scale. Hover a painted line or use the data controls; the legend toggles groups in both layouts.';
+    if(styleModes.includes(mode))help.textContent=mode==='pie'?'Compare rounded donut sectors and outside leader labels. Change styles to update angles, direction, values and the hole.':mode==='radar'?'Compare Radar curves, grid lines and point symbols. Change styles to switch grid and curve settings.':mode==='styled-line'?'Compare series colors, dashed lines, gradient areas and point labels. Change styles to explore connected gaps and invisible interactive points.':'Compare stable flow widths, colored gradients and rounded nodes in both renderers. Change styles to update flow values and forward curvature. Legends hide source-owned links; return ribbons preserve their orthogonal lanes.';
+    if(Object.hasOwn(contourCases,mode))help.textContent='Inspect filled contours and their holes, or weighted density behind the original observations. Change thresholds without rebuilding the field; weights, bandwidth and source visibility rebuild the current density. Hover a shape or focus a datum and press Enter.';
+    if(mode==='colors')help.textContent='Compare sequential, diverging and quantized data colors with numeric legends. Change styles switches between maps and a calendar.';
+    if(Object.hasOwn(barCases,mode))help.textContent='Compare independent spacing, labels, borders and totals. Change styles updates values and color ownership; series legends re-layout the visible bars.';
+    if(Object.hasOwn(heatmapCases,mode))help.textContent='Hover a cell and choose which exact peers to highlight. NULL and zero stay distinct. Change styles reorders rows and columns, updates values and spacing; circle corners and gaps are not interactive.';
+    if(mode==='stacked-radial')help.textContent='Compare true ring stacks, partial sweeps and polar axes. Change styles updates values, arc direction, radii and axes. Legends re-layout visible series.';
+    if(Object.hasOwn(calendarCases,mode))help.textContent='Inspect actual civil dates, including leap days, NULL and zero. Change styles switches the week start, spacing and month labels. Year legends hide days while shared weekday and month labels remain.';
+    if(Object.hasOwn(statisticsCases,mode))help.textContent='Compare sample-derived quartiles, whiskers and outliers, or bullet ranges, measures and markers. Change styles updates real data and symbols. Legends re-layout visible series.';
+    if(Object.hasOwn(hierarchyCases,mode))help.textContent='Activate a node to focus its subtree in data space. Focus branch, Go back and Hierarchy root work in both renderers. Change styles updates values, then removes a leaf to show focus recovery.';
+    if(Object.hasOwn(areaBumpCases,mode))help.textContent='Compare ranked stacked areas, smooth crossings and gaps at empty columns. Hover or focus a painted area to highlight its series. Change styles updates values and ranks.';
+    if(Object.hasOwn(marimekkoCases,mode))help.textContent='Category widths and dimension values are independent. Compare ordinary, expanded, signed and stream-offset stacks. Change styles updates data; legends re-layout visible dimensions.';
+    if(Object.hasOwn(geoStreamCases,mode))help.textContent='Compare routes, graticules and point overlays in one projection. Change styles updates routes and the view; seams and globe boundaries split routes into visible parts.';
+    if(Object.hasOwn(delaunayCases,mode))help.textContent='Inspect sites and their neighboring links. Duplicate coordinates share one site; collinear sites form a chain. Change styles updates the actual triangulation.';
+    if(Object.hasOwn(pieLayoutCases,mode))help.textContent='Compare padded inner and outer arcs, corners and partial-sector fit. Measured link labels use actual text bounds. Change styles updates data and layout; legends hide slices.';
+    if(Object.hasOwn(lineCrosshairCases,mode))help.textContent='Hover the plot or use the data controls to inspect the current point or slice. Crosshairs and formatted tooltip rows follow the same coordinates through updates and zoom.';
+    if(Object.hasOwn(radarSliceCases,mode))help.textContent='Hover anywhere inside an axis sector, including away from its points. Compare sorted values and the current spoke; keyboard arrows navigate axes and legends hide series.';
+    if(Object.hasOwn(relationCases,mode))help.textContent='Hover or focus a node or link to reveal its actual relationships. Change styles updates topology and values; legends filter nodes and both ends of their links.';
+    if(Object.hasOwn(scaleProfileCases,mode))help.textContent='Compare rounded positions, reversed ranges, niced domains and real categorical points. Zoom, pan and Shift-brush while axes stay fixed; legends rebuild the visible series.';
+    if(Object.hasOwn(brushCases,mode))help.textContent='Drag empty space to create a selection. Drag the selection or its handles to move and resize. Alt centers, Shift locks direction, and Space moves. Focus a selection or handle and use arrow keys; Escape cancels or clears.';
+    if(Object.hasOwn(glyphCases,mode))help.textContent='Inspect the painted outline, including star notches and hollow centers. Change styles updates sizes, rotation and values; keyboard controls refer to the current data.';
+    if(Object.hasOwn(geoGlyphCases,mode))help.textContent='Compare filled and outline symbols with matching legends. Globe clipping preserves the visible silhouette. Change styles updates real data and shapes.';
+    if(Object.hasOwn(scatterCases,mode))help.textContent='Compare variable marker sizes, hollow shapes and numeric, date or category axes. Wheel, drag and Shift-brush explore the data; Change styles updates both charts.';
+    if(mode==='geo-conic')help.textContent='Compare Conic and Albers maps. Change the projection, camera or fit, inspect longitude and latitude, and select observed or missing data with pointer and Enter.';
+    if(mode==='sequential-quantile')help.textContent='Colors follow the observed ranks, and repeated values share colors. The legend places each hard color change at its data value. Reorder, add or hide observations, or change the legend window; hover data or focus a datum and press Enter.';
+    if(mode==='geo-inverse')help.textContent='Move over the map to read longitude and latitude. Zoom with the wheel; Change styles compares camera and data fitting.';
+    if(Object.hasOwn(nonlinearCases,mode))help.textContent='Change styles to compare linear, logarithmic, power and symmetric-log colors. Legends use the same scale as the data.';
+    if(Object.hasOwn(piecewiseCases,mode))help.textContent='Wheel, pan or Shift-brush to change the visible data window. All scale breakpoints follow the view while axes remain fixed; Change styles compares reversed profiles.';
+  });
+  nextStyle.addEventListener('click',()=>{
+    if(activeMode==='geo-inverse'){stylePhase=(stylePhase+1)%3;host.geo_inverse_phase(stylePhase);return;}
+    if(Object.hasOwn(nonlinearCases,activeMode)){stylePhase=(stylePhase+1)%10;host.nonlinear_colors_phase(stylePhase);return;}
+    if(Object.hasOwn(piecewiseCases,activeMode)){stylePhase=(stylePhase+1)%2;host.piecewise_scales_phase(stylePhase);return;}
+    if(!styleModes.includes(activeMode))return;
+    stylePhase=(stylePhase+1)%(['pie','styled-line','colors','stacked-radial'].includes(activeMode)||Object.hasOwn(hierarchyCases,activeMode)?3:2);
+    if(activeMode==='pie')host.pie_phase(stylePhase);
+    else if(activeMode==='radar')host.radar_phase(stylePhase);
+    else if(activeMode==='styled-line')host.styled_line_phase(stylePhase);
+    else if(activeMode==='colors')host.color_phase(stylePhase);
+    else if(activeMode==='stacked-radial')host.stacked_radial_phase(stylePhase);
+    else if(Object.hasOwn(barCases,activeMode))host.bar_style_phase(stylePhase);
+    else if(Object.hasOwn(heatmapCases,activeMode))host.heatmap_phase(stylePhase);
+    else if(Object.hasOwn(calendarCases,activeMode))host.calendar_layout_phase(stylePhase);
+    else if(Object.hasOwn(statisticsCases,activeMode))host.statistics_phase(stylePhase);
+    else if(Object.hasOwn(hierarchyCases,activeMode)){host.hierarchy_update(stylePhase);updateHierarchy();}
+    else if(Object.hasOwn(areaBumpCases,activeMode))host.area_bump_phase(stylePhase);
+    else if(Object.hasOwn(marimekkoCases,activeMode))host.marimekko_phase(stylePhase);
+    else if(Object.hasOwn(geoStreamCases,activeMode))host.geo_stream_phase(stylePhase);
+    else if(Object.hasOwn(delaunayCases,activeMode))host.delaunay_phase(stylePhase);
+    else if(Object.hasOwn(pieLayoutCases,activeMode))host.pie_layout_phase(stylePhase);
+    else if(Object.hasOwn(lineCrosshairCases,activeMode))host.line_crosshair_phase(stylePhase);
+    else if(Object.hasOwn(radarSliceCases,activeMode))host.radar_slices_phase(stylePhase);
+    else if(Object.hasOwn(relationCases,activeMode))host.relations_phase(stylePhase);
+    else if(Object.hasOwn(scaleProfileCases,activeMode))host.scale_profiles_phase(stylePhase);
+    else if(Object.hasOwn(glyphCases,activeMode))host.glyphs_phase(stylePhase);
+    else if(Object.hasOwn(geoGlyphCases,activeMode))host.geo_glyphs_phase(stylePhase);
+    else if(Object.hasOwn(scatterCases,activeMode))host.scatter_phase(stylePhase);
+    else host.sankey_styles_phase(stylePhase);
+  });
+  heatmapTarget.addEventListener('change',()=>{if(Object.hasOwn(heatmapCases,activeMode))host.heatmap_target(Number(heatmapTarget.value));});
+  for(const [id,action]of [['hierarchy-focus','group-a'],['hierarchy-back','back'],['hierarchy-root','root']])document.querySelector('#'+id).addEventListener('click',()=>{if(Object.hasOwn(hierarchyCases,activeMode)){for(const renderer of ['svg','canvas'])host.hierarchy_action(renderer,action);host.hierarchy_flush();updateHierarchy();}});
+  animate.addEventListener('click',()=>{morphPhase=1-morphPhase;for(const id of ['svg','canvas'])if(activeMode==='morph')host.morph_phase(id,morphPhase);else host.set_phase(id,JSON.parse(host.snapshot(id)).phase===0?1:0,true);});
+  document.querySelector('#reset').addEventListener('click',()=>{for(const id of ['svg','canvas'])host.reset_view(id);});
+  document.querySelector('#date-log').textContent=JSON.stringify({format:JSON.parse(host.date_time_samples()),localCalendar:JSON.parse(host.zoned_time_samples())},null,2);
+  window.hostReady=true;document.documentElement.dataset.host='ready';
+}catch(error){document.documentElement.dataset.host='error';document.querySelector('#svg-log').textContent=String(error);throw error;}
+</script></body></html>

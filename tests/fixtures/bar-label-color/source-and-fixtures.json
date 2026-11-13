@@ -1,0 +1,37 @@
+{
+  "scope": "Original d3-color3.1.0 numeric constructor vs CSS parse, original operator sequence from pinned Nivo0.99.0 source; no React or complete lodash generator execution claim",
+  "files": [
+    {
+      "path": "d3-color-LICENSE",
+      "sha256": "faa682e3e430941f958d26180458f5934a62f58dac4d70ccdd15608c15d0f884"
+    },
+    {
+      "path": "d3-color.js",
+      "sha256": "3794cf61e3540fcd2c7fd38c99021fa7e72d8bcd42cad4d7c34e27cb4098d81a"
+    },
+    {
+      "path": "nivo-bar-hooks.ts",
+      "sha256": "4c1b0201f35131299ce48eb8a92a68b8f6e311c142c27ffada4a283b442f1981"
+    },
+    {
+      "path": "nivo-Bar.tsx",
+      "sha256": "725b6be8f083c5ce10d16a034485970545f233c2d47e1a0c6dac6ba6a9ef895f"
+    },
+    {
+      "path": "nivo-inheritedColor.ts",
+      "sha256": "29750da2e66afd78cc3050a2d4856b0b6195078f19f3183ea35047538b5e9f6c"
+    },
+    {
+      "path": "nivo-LICENSE",
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31"
+    },
+    {
+      "path": "producer.mjs",
+      "sha256": "793b5257897ec7b615ab2c39df4bfa388cf2f2eff121629acfdba4a22f491ca1"
+    },
+    {
+      "path": "values.json",
+      "sha256": "6fff2e2487f1ab3a4a437943f5bcab109e9feac7134678737a6cc29aae2c9789"
+    }
+  ]
+}

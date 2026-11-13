@@ -1,0 +1,47 @@
+{
+  "source": "Original local Nivo 0.99.0 repository",
+  "records": [
+    {
+      "sourcePath": "packages/bar/src/hooks.ts",
+      "vendoredPath": "packages/bar/src/hooks.ts",
+      "sha256": "4c1b0201f35131299ce48eb8a92a68b8f6e311c142c27ffada4a283b442f1981",
+      "bytes": 5728
+    },
+    {
+      "sourcePath": "packages/bar/src/compute/common.ts",
+      "vendoredPath": "packages/bar/src/compute/common.ts",
+      "sha256": "7a2d03a7a0e6753f1cff8a2c0df31b08d58193a5a57e000cec937db26d2781b1",
+      "bytes": 3097
+    },
+    {
+      "sourcePath": "packages/bar/src/compute/grouped.ts",
+      "vendoredPath": "packages/bar/src/compute/grouped.ts",
+      "sha256": "6be865efd74751a66d42206a034825b5b3c717d3a0c5a509708bc24183feab22",
+      "bytes": 7422
+    },
+    {
+      "sourcePath": "packages/bar/src/compute/stacked.ts",
+      "vendoredPath": "packages/bar/src/compute/stacked.ts",
+      "sha256": "362f9db71a1f5857e3bd047f73c8bcf787358f1c93c6e17c2906195ab36d6b32",
+      "bytes": 7142
+    },
+    {
+      "sourcePath": "packages/bar/src/Bar.tsx",
+      "vendoredPath": "packages/bar/src/Bar.tsx",
+      "sha256": "725b6be8f083c5ce10d16a034485970545f233c2d47e1a0c6dac6ba6a9ef895f",
+      "bytes": 12558
+    },
+    {
+      "sourcePath": "packages/bar/src/BarItem.tsx",
+      "vendoredPath": "packages/bar/src/BarItem.tsx",
+      "sha256": "f45e9992e0c71d68b6666c0efe41e21a29f2b83986d651ab8f9904100465dc24",
+      "bytes": 4309
+    },
+    {
+      "sourcePath": "LICENSE.md",
+      "vendoredPath": "LICENSE.md",
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+      "bytes": 1054
+    }
+  ]
+}

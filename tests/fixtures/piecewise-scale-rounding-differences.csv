@@ -1,0 +1,7 @@
+# Explicit cross-runtime differences, not D3-equivalent rounded samples.
+# Zero-based D3 fixture record|query index|Rust rounded|observed Rust raw f64 bits|D3 rounded|original D3 raw f64 bits|input.
+# Both raw results are exactly one ULP from 207.5, on opposite sides; their distance is TWO ULPs.
+# The configuration is symlog constant=.1, source=[-.7,0,.03,.9], plateau range=[-10.5,-10.5,207.5,207.5], reverse=false, round=true, clamp=false; nice=Default (1258) or Count(3) (1266).
+# d3-interpolate 3.0.1 src/round.js calls Math.round(a*(1-t)+b*t); JS Math.log1p and native Rust ln_1p differ at this rounding boundary. Ordinary rounded samples must remain exact.
+1258|9|208|4069f00000000001|207|4069efffffffffff|1.8
+1266|9|208|4069f00000000001|207|4069efffffffffff|1.8

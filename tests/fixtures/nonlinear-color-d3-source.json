@@ -1,0 +1,23 @@
+{
+  "generator": "scripts/nonlinear-color-reference.mjs",
+  "package": "d3-scale",
+  "version": "4.0.2",
+  "sources": {
+    "d3-scale/src/sequential.js": "cee1ae8cd48b104e8bac6b585290b0929470bc83ae0fa4ed85a5d739af0a61ae",
+    "d3-scale/src/diverging.js": "ce44cef1fd9df5444342f17493c454c61007220c3a53ff007d9d0b1e34752d81",
+    "d3-scale/src/log.js": "a8d231005032382f02b9ce4d3ad546c3b354bdd78657f27fbd01bf8029296816",
+    "d3-scale/src/pow.js": "4adbc15fa1d532c46b12c0d264aa0e2cc8450c83bce9893da0c635289c5da047",
+    "d3-scale/src/symlog.js": "c012eee906c5d173631766a1c4f181ce09fc1585b04d6187e9b232eab9f0ee04"
+  },
+  "cases": 256,
+  "queries": 6400,
+  "inverses": 1792,
+  "nonfiniteParameterQueries": 498,
+  "interpolatorThrows": 436,
+  "profileDifferences": [
+    "Finite source queries are passed through original D3 transforms before clamping, including negative-power opposite-sign extrapolation and zero infinities.",
+    "Non-finite final color parameters map to Rust unknown instead of using a D3 interpolator-specific NaN color.",
+    "Rust domains reject zero/cross-zero log or negative-power branches, collapsed/non-finite transformed spans or coefficients and exponent zero.",
+    "Missing is represented by JavaScript undefined, without null numeric coercion."
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "files": {
+    "timeScale.ts": {
+      "upstream": "nivo/packages/scales/src/timeScale.ts",
+      "sha256": "43e7dafb65efe51420288c586129289111498080ff84d99436639fa89405a78d"
+    },
+    "timeHelpers.ts": {
+      "upstream": "nivo/packages/scales/src/timeHelpers.ts",
+      "sha256": "05548ae042186c98dd5de1b9a071e82220d33d2f3c29907ef473ea7c83eb7a89"
+    },
+    "logScale.ts": {
+      "upstream": "nivo/packages/scales/src/logScale.ts",
+      "sha256": "d64ffb08bff4619c873c16fbc91ad5653ece03f8b8f8fe0232f5d77658808de9"
+    }
+  },
+  "license": "tests/fixtures/bar-category-band/vendor/raw/nivo-LICENSE",
+  "scope": "Original unmodified scale factories and date normalizer. Existing BoxPlot generator/summary/linear/dispatcher and Band factory are reused by relative source pins."
+}

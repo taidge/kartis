@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>COLR v0 native font reference</title>
+<canvas id="reference" width="240" height="180"></canvas>
+<script type="module">
+const font = new FontFace('KartisColrReference', 'url(../fonts/KartisFixtureColrV0.ttf)');
+document.fonts.add(await font.load());
+const canvas = document.getElementById('reference');
+const context = canvas.getContext('2d');
+context.fillStyle = 'white'; context.fillRect(0, 0, canvas.width, canvas.height);
+context.font = '100px KartisColrReference'; context.textBaseline = 'alphabetic';
+context.fillStyle = 'rgb(0,255,0)'; context.fillText('B', 40, 140);
+window.colrNativeReference = {
+  ready: true,
+  pixel: (x, y) => [...context.getImageData(x, y, 1, 1).data],
+  pixels: () => [...context.getImageData(0, 0, canvas.width, canvas.height).data],
+};
+</script></html>

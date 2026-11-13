@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "nivoVersion": "0.99.0",
+  "nivoCommit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "files": {
+    "nivo-propertiesConverters.js": {
+      "upstream": "packages/core/src/lib/propertiesConverters.js",
+      "sha256": "b7d6f8d19bf0a403838de65d3015cd825e170934845c0e95015de7cd559ecc85",
+      "gitBlobSHA256": "b7d6f8d19bf0a403838de65d3015cd825e170934845c0e95015de7cd559ecc85",
+      "contentModified": false
+    },
+    "lodash.cjs": {
+      "upstreamPackage": "lodash@4.17.21",
+      "upstreamFile": "package/lodash.js",
+      "url": "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz",
+      "tarballSHA256": "6a087ac9e5702a0c9d60fbcd48696012646ec8df1491dea472b150e79fcaf804",
+      "tarballIntegrity": "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==",
+      "sha256": "4c04561befdf653aef017a42ac5addf68ea943cdfca6bdee5ce04e04e8139f54",
+      "contentModified": false,
+      "filenameOnlyRenamedForCommonJS": true
+    },
+    "lodash-LICENSE": {
+      "upstreamPackage": "lodash@4.17.21",
+      "upstreamFile": "package/LICENSE",
+      "sha256": "f71e8ed126b46346494aad5486874cd8f0aafe95092ed67d2e3cb6110f939abc"
+    }
+  },
+  "sharedVendor": "tests/fixtures/box-colorby-hover/vendor",
+  "licenses": {
+    "nivo": "../box-colorby-hover/vendor/nivo-LICENSE",
+    "lodash": "vendor/lodash-LICENSE"
+  }
+}

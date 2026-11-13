@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "records": 1046,
+  "utcGridRecords": 1024,
+  "utcFixedBoundRecords": 6,
+  "scalarRecords": 16,
+  "weightedValueDifferences": 1112,
+  "csvSha256": "ec2f7e6d1700d83e6ea7c58bbe63e5e50d6c5e0e27b12b7f89c343fded9e23b4",
+  "producer": "scripts/boxplot-summary-interpolation-reference.mjs",
+  "command": "node scripts/boxplot-summary-interpolation-reference.mjs <node_modules> [--check]",
+  "scope": "Actual original summarizeDistribution and generateBoxPlots/createTimeScale or linear factory. Four legal large narrow UTC regions16offsets×16widths, both supplied root witnesses with independent/both fixed endpoints, finite scalar/local duplicates/signedzero/constantMAX. Original native arithmetic and Date domains/query pixels are frozen exactly; no handwritten quantile oracle.",
+  "dependencies": {
+    "d3-scale": "4.0.2",
+    "d3-array": "3.2.5",
+    "d3-interpolate": "3.0.1",
+    "d3-time-format": "4.1.1"
+  },
+  "sourcePins": {
+    "tests/fixtures/boxplot-domain-bounds/vendor/generation.ts": "87668853e037c1af1d0a3b4cf1710baaef9d881f6b14df53920dc2625029a663",
+    "tests/fixtures/boxplot-domain-bounds/vendor/stratification.ts": "92969d932326004057da073870965ac2bafd880f354cd5752a97773bd3dbf274",
+    "tests/fixtures/boxplot-domain-bounds/vendor/common.ts": "cbaf3f4375f805e258c45c32cc4176fe32641e85a5a1a0efcd77cc296f40ccda",
+    "tests/fixtures/boxplot-domain-bounds/vendor/linearScale.ts": "28bc1a6980e3fb0c5807ccf348e7c8ad31155f68f286fa107705a57a669c8dd3",
+    "tests/fixtures/boxplot-domain-bounds/vendor/compute.ts": "19f993e3dcbcdcfd889d036aabcaaf28354f6a9b4bac8452e7ce287285204b7e",
+    "tests/fixtures/bar-category-band/vendor/raw/nivo-bandScale.ts": "83f3a287bade728df3d72ea1f8fd692eacc4a5a75c7b18ffb30b7e02b883f4e6",
+    "tests/fixtures/bar-category-band/vendor/raw/nivo-LICENSE": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+    "tests/fixtures/bar-category-band/vendor/raw/d3-scale-LICENSE": "e008c5e25a6be382593089c29bfabbc553c6378eee02895aec46ce396cc404ee",
+    "tests/fixtures/bar-category-band/vendor/raw/d3-array-LICENSE": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3",
+    "tests/fixtures/boxplot-summary-domain/vendor/timeScale.ts": "43e7dafb65efe51420288c586129289111498080ff84d99436639fa89405a78d",
+    "tests/fixtures/boxplot-summary-domain/vendor/timeHelpers.ts": "05548ae042186c98dd5de1b9a071e82220d33d2f3c29907ef473ea7c83eb7a89",
+    "tests/fixtures/boxplot-summary-domain/vendor/logScale.ts": "d64ffb08bff4619c873c16fbc91ad5653ece03f8b8f8fe0232f5d77658808de9"
+  },
+  "runtimeSourcePins": {
+    "d3-scale/src/time.js": "666b7acd807e2ad4130097bf121ab0a38b02a25cc57de3eff9e07e043b7d8fc9",
+    "d3-scale/src/utcTime.js": "17505cdb0da21a365076d355b1746b280aa2a3bcabe7b14a10587c50781ebfbb",
+    "d3-scale/src/continuous.js": "a8bd9670abd40c813d047082a35126cb18068f1959bf78b74e6ca4c864de123a",
+    "d3-scale/src/linear.js": "6223d1339147f7a311374307451183a110912c230e62f484b4dc06914c78ac87",
+    "d3-scale/src/log.js": "a8d231005032382f02b9ce4d3ad546c3b354bdd78657f27fbd01bf8029296816",
+    "d3-interpolate/src/number.js": "ed494932c08d821136b3566e404608c79356035866a742a79585ef761d61139b",
+    "d3-time-format/dist/d3-time-format.mjs": "0504faf7bf4937188703b729513e251c3b19bf2780bfaaa236b332d84a7b97e1"
+  }
+}

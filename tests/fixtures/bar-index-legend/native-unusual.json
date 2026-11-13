@@ -1,0 +1,15 @@
+{
+  "scope": "Original native fallback only: Rust Bar rejects empty category and always resolves a Color. These records are preserved, not used as checked Rust expectations.",
+  "records": [
+    {
+      "id": "",
+      "label": "",
+      "color": "#000"
+    },
+    {
+      "id": "A",
+      "label": "A",
+      "color": "#000"
+    }
+  ]
+}

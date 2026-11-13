@@ -1,0 +1,28 @@
+{
+  "scope": "Numerically stable spherical first moment and meridian crossing witnesses; original bad values retained separately from exact-binary64 arbitrary precision oracle.",
+  "mpmath": "1.4.1",
+  "originalGeo": "3.1.1",
+  "originalArray": "3.2.5",
+  "originalBundleSha256": "873638c3542defc67135946f1dae3a1d0426c147989b339a8033ce39e4e92550",
+  "precisions": [
+    80,
+    120
+  ],
+  "sourceCoordinates": "Published numbers parse to binary64; sourceBits require exact IEEE754 equality; mp.mpf(float) computes using that exact rational.",
+  "fixtures": [
+    {
+      "path": "witnesses.json",
+      "sha256": "f79d807d91b67b8be361a9e7133854a23adf2e4fa1537008ac843551628eaf6c"
+    },
+    {
+      "path": "generate.py",
+      "sha256": "866d4ecd35dc1dc7e9e4150513c92c612127e8790a6a5204eb6a44432e905dc6"
+    },
+    {
+      "path": "original-check.mjs",
+      "sha256": "0712fcbb75a7260282cd803bb3976418f0045f8e5769344bced7921b5f0cd844"
+    }
+  ],
+  "ordinaryToleranceDegrees": 1e-12,
+  "containsComparison": "Simple convex witness center and outside, not a changed general boundary inclusion contract."
+}

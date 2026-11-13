@@ -1,0 +1,356 @@
+{
+  "schema": 1,
+  "scope": "Native original outputs only; no checked inverse or Rust implementation decision. No tolerance is applied to NodeVM versus original geo ESM comparisons.",
+  "encoding": "JSON numbers preserve finite values; numeric -0/NaN/±Infinity use n:-0/n:NaN/n:+Infinity/n:-Infinity. CSV is JSON-cell pipe-delimited, one record per line.",
+  "counts": {
+    "profiles": 138,
+    "raw": 28980,
+    "rawNonfinite": 2338,
+    "inverse": 8832,
+    "inverseNonfinite": 640,
+    "inverseOutsideOrNotRoundtripping": 4540,
+    "critical": 72,
+    "criticalBadOriginalInverse": 22,
+    "setters": 138,
+    "nativeNaNConformalFinite": 2,
+    "defaults": 4,
+    "albersExactPreset": 9,
+    "albersUSAIsolated": 14,
+    "fit": 12,
+    "fitEvents": 135687,
+    "world": 18,
+    "worldIncomplete": 4,
+    "worldNonfinite": 6,
+    "streamEvents": 228101
+  },
+  "profiles": [
+    {
+      "index": 0,
+      "parallels": [
+        0,
+        60
+      ]
+    },
+    {
+      "index": 1,
+      "parallels": [
+        30,
+        30
+      ]
+    },
+    {
+      "index": 2,
+      "parallels": [
+        29.5,
+        45.5
+      ]
+    },
+    {
+      "index": 3,
+      "parallels": [
+        30,
+        60
+      ]
+    },
+    {
+      "index": 4,
+      "parallels": [
+        60,
+        30
+      ]
+    },
+    {
+      "index": 5,
+      "parallels": [
+        -45,
+        -30
+      ]
+    },
+    {
+      "index": 6,
+      "parallels": [
+        -30,
+        -30
+      ]
+    },
+    {
+      "index": 7,
+      "parallels": [
+        0,
+        0
+      ]
+    },
+    {
+      "index": 8,
+      "parallels": [
+        -30,
+        30
+      ]
+    },
+    {
+      "index": 9,
+      "parallels": [
+        30,
+        -30
+      ]
+    },
+    {
+      "index": 10,
+      "parallels": [
+        -30,
+        30.00000001
+      ]
+    },
+    {
+      "index": 11,
+      "parallels": [
+        -30,
+        30.00001
+      ]
+    },
+    {
+      "index": 12,
+      "parallels": [
+        -30,
+        30.0001
+      ]
+    },
+    {
+      "index": 13,
+      "parallels": [
+        -30,
+        30.001
+      ]
+    },
+    {
+      "index": 14,
+      "parallels": [
+        -89,
+        89
+      ]
+    },
+    {
+      "index": 15,
+      "parallels": [
+        89,
+        -89
+      ]
+    },
+    {
+      "index": 16,
+      "parallels": [
+        90,
+        90
+      ]
+    },
+    {
+      "index": 17,
+      "parallels": [
+        -90,
+        -90
+      ]
+    },
+    {
+      "index": 18,
+      "parallels": [
+        -90,
+        90
+      ]
+    },
+    {
+      "index": 19,
+      "parallels": [
+        0,
+        90
+      ]
+    },
+    {
+      "index": 20,
+      "parallels": [
+        89.999999,
+        89.999999
+      ]
+    },
+    {
+      "index": 21,
+      "parallels": [
+        -89.999999,
+        -89.999999
+      ]
+    },
+    {
+      "index": 22,
+      "parallels": [
+        "n:NaN",
+        30
+      ]
+    },
+    {
+      "index": 23,
+      "parallels": [
+        "n:+Infinity",
+        30
+      ]
+    },
+    {
+      "index": 24,
+      "parallels": [
+        -100,
+        30
+      ]
+    },
+    {
+      "index": 25,
+      "parallels": [
+        30,
+        100
+      ]
+    },
+    {
+      "index": 26,
+      "parallels": [
+        100,
+        100
+      ]
+    },
+    {
+      "index": 27,
+      "parallels": [
+        "n:-0",
+        0
+      ]
+    },
+    {
+      "index": 28,
+      "parallels": [
+        0,
+        "n:-0"
+      ]
+    },
+    {
+      "index": 29,
+      "parallels": [
+        -30,
+        29.99999999
+      ]
+    },
+    {
+      "index": 30,
+      "parallels": [
+        -30,
+        29.99999
+      ]
+    },
+    {
+      "index": 31,
+      "parallels": [
+        -30,
+        29.9999
+      ]
+    },
+    {
+      "index": 32,
+      "parallels": [
+        -30,
+        29.999
+      ]
+    },
+    {
+      "index": 33,
+      "parallels": [
+        -0.0000572957795,
+        0.0000572957795
+      ]
+    },
+    {
+      "index": 34,
+      "parallels": [
+        0.0000572957795,
+        0.0000572957795
+      ]
+    },
+    {
+      "index": 35,
+      "parallels": [
+        0.0000572957796,
+        0.0000572957796
+      ]
+    },
+    {
+      "index": 36,
+      "parallels": [
+        -0.0000572957795,
+        -0.0000572957795
+      ]
+    },
+    {
+      "index": 37,
+      "parallels": [
+        15,
+        15
+      ]
+    },
+    {
+      "index": 38,
+      "parallels": [
+        75,
+        75
+      ]
+    },
+    {
+      "index": 39,
+      "parallels": [
+        -75,
+        -75
+      ]
+    },
+    {
+      "index": 40,
+      "parallels": [
+        15,
+        75
+      ]
+    },
+    {
+      "index": 41,
+      "parallels": [
+        -75,
+        -15
+      ]
+    },
+    {
+      "index": 42,
+      "parallels": [
+        0,
+        1e-8
+      ]
+    },
+    {
+      "index": 43,
+      "parallels": [
+        0,
+        -1e-8
+      ]
+    },
+    {
+      "index": 44,
+      "parallels": [
+        "n:NaN",
+        "n:NaN"
+      ]
+    },
+    {
+      "index": 45,
+      "parallels": [
+        "n:-Infinity",
+        30
+      ]
+    }
+  ],
+  "criticalDifference": "All 72 old authored critical sources are retained, including 22 original inverse sign-zero misprojections. Do not count them as mathematically correct inverse equivalence.",
+  "nativeParallelDifference": "Nonfinite and out-of-range standards are recorded, never accepted by a future checked API merely because output is finite; NaN Conformal can fall back to Mercator.",
+  "inverseDifference": "Arbitrary raw inverse results can be finite while outside canonical lambda/phi or unable to forward-roundtrip. No safety profile has been implemented.",
+  "fit": "D3 fitExtent independent of Rust; camera values are original D3.rotate, and D3.center is projected-plane recentering, not Kartis spherical camera center.",
+  "world": "Incomplete streams explicitly retain attempted budget/error/partial events. Partial bounds are never a complete World frame. Generic Conformal Mercator fallback may contain nonfinite Sphere points.",
+  "albers": "Ordinary Albers is the exact default ConicEqualArea preset; AlbersUSA is isolated and excluded from ordinary counts."
+}

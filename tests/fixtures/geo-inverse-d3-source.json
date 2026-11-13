@@ -1,0 +1,57 @@
+{
+  "scope": "Original development-only d3-geo functions, never Rust-derived expected values.",
+  "source": "https://github.com/d3/d3-geo/tree/v3.1.1/src/projection",
+  "originalFiles": {
+    "src/projection/index.js": "1c2727b0dd8e4219aadb9bc4017575eec16394aff8b0a0000804fe1b15173f54",
+    "src/rotation.js": "1eb2bb01f3647dc3047e30876db5472bce48ac0afd023be2f1c5591d71529f91",
+    "src/math.js": "2fd787731d13e29df7f32cefc01079554d86bb87ad2c89d0d7fd5e040487ca90",
+    "src/clip/circle.js": "d61cc9efeb49302a2c7ba56c2d559dcd586208745b732f42e53bc2eb0883eb34",
+    "src/projection/equirectangular.js": "0567dad3dea186702901be8c401f0fc3ee332ef2d802bdbba92b6608faab7fd1",
+    "src/projection/mercator.js": "315102b6a64c48fa4a13c642036f8640407b96cad8d2ebe454d519259d2ad17e",
+    "src/projection/transverseMercator.js": "a1cbb97616493429f1aa079d7f23bec33771f318874a8e41136328a8e7354147",
+    "src/projection/equalEarth.js": "94c087cb66f21b12421e506ecfce4d16a163f39a85fdddee17b6ce23c99ceb04",
+    "src/projection/naturalEarth1.js": "178fe2944343025048ad74fcbc253ce9536712c1b531a55cf9c6fc6f4a855b14",
+    "src/projection/azimuthal.js": "9e4baff20c2152f8297947e7bb01ec8f8afe61f4e744d0789e5afb5ee51566cd",
+    "src/projection/orthographic.js": "7605d995232635e5c6a52440ac4d945bd5cc20aa703aae0d7d559f5be88661d1",
+    "src/projection/azimuthalEqualArea.js": "5fe92333484ca41199f742d9514037d65fe39aa965c72375d355ed68a2db1574",
+    "src/projection/azimuthalEquidistant.js": "c30d2a57baa8fa66a4f2356903869cecc2c75f0e6b48d336d50f9750c136e085",
+    "src/projection/stereographic.js": "b1504bc703aa038592a2c83c83875b98bf8d5314202769c2317412e95226fd15",
+    "src/projection/gnomonic.js": "d4a50dfab94b9c024c795ab6e839b21ab95cd5e93ec53edee362f7014007521b"
+  },
+  "packages": [
+    {
+      "name": "d3-array",
+      "version": "3.2.5",
+      "license": "ISC",
+      "provenance": "https://www.npmjs.com/package/d3-array/v/3.2.5",
+      "start": 1005,
+      "end": 40691,
+      "distSha256": "732a6b764e842f72dc34804a5c90137f6b75e0f3e1080f2a085f8b66191b1623",
+      "licenseStart": 118,
+      "licenseEnd": 849,
+      "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+    },
+    {
+      "name": "d3-geo",
+      "version": "3.1.1",
+      "license": "ISC",
+      "provenance": "https://www.npmjs.com/package/d3-geo/v/3.1.1",
+      "start": 42757,
+      "end": 132515,
+      "distSha256": "a9d50e39f65fe140a1c6d0748fb961ff3068292b726750bcce788fdd272c3420",
+      "licenseStart": 920,
+      "licenseEnd": 2777,
+      "licenseSha256": "3e3edc1224eec9c39cd26491a21304a62883c1e5b6a65c5283ccc7a6cc94baee"
+    }
+  ],
+  "bundle": {
+    "path": "tests/fixtures/geo-inverse-d3-oracle.js",
+    "sha256": "873638c3542defc67135946f1dae3a1d0426c147989b339a8033ce39e4e92550",
+    "bytes": 132539
+  },
+  "licenses": {
+    "path": "tests/fixtures/geo-inverse-d3-LICENSE.txt",
+    "sha256": "6c28d42e4014c126c953198f9bde4dba985d4215e5d0d33b06c7b4a1568417ce",
+    "bytes": 2777
+  }
+}

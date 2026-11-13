@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><link rel="icon" href="data:,">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kartis · Rust Canvas</title>
+<style>
+  *{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:#243249;font:16px system-ui,sans-serif}
+  main{max-width:1100px;margin:40px auto;padding:0 20px}h1{font-size:30px;margin-bottom:8px}.intro{color:#5c6b80;line-height:1.6}
+  section{margin-top:24px;padding:24px;background:white;border:1px solid #dfe5ed;border-radius:16px;box-shadow:0 12px 32px #24324908}
+  #plot{width:100%;overflow:hidden}canvas{display:block;max-width:100%;outline-offset:-3px}canvas:focus-visible{outline:3px solid #4e79a7}
+  #legend{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}button{padding:8px 14px;border:1px solid #cbd5e1;border-radius:8px;background:white;color:inherit;cursor:pointer;font:inherit}
+  button:before{content:'';display:inline-block;width:10px;height:10px;margin-right:8px;border-radius:3px;background:var(--swatch)}
+  button[aria-pressed=false]{opacity:.5;text-decoration:line-through}button:focus-visible{outline:3px solid #4e79a7}
+  #status{min-height:48px;padding:12px 0;color:#425570}details{margin-top:16px;color:#5c6b80}table{border-collapse:collapse;margin-top:16px;width:100%}th,td{padding:8px;text-align:right;border-bottom:1px solid #dfe5ed}th:first-child,td:first-child{text-align:left}
+  .note{font-size:14px;color:#5c6b80;line-height:1.5}@media(max-width:600px){main{margin:20px auto;padding:0 10px}section{padding:12px}h1{font-size:24px}}
+</style>
+<main>
+  <h1>Quarterly sessions by device</h1>
+  <p class="intro">Rust layouts, a shared chart scene, and browser Canvas rendering.</p>
+  <section aria-label="Interactive sessions chart">
+    <div id="legend" aria-label="Visible device series">
+      <button id="legend-0" type="button" aria-pressed="true" style="--swatch:#4e79a7">Desktop</button>
+      <button id="legend-1" type="button" aria-pressed="true" style="--swatch:#f28e2b">Mobile</button>
+      <button id="legend-2" type="button" aria-pressed="true" style="--swatch:#e15759">Tablet</button>
+    </div>
+    <div id="plot"><canvas id="chart" tabindex="0" role="img" aria-label="Quarterly sessions by device. Use arrow keys to explore each bar." aria-describedby="instructions status">The data table below contains the chart values.</canvas></div>
+    <div id="status" role="status" aria-live="polite" aria-atomic="true">Loading Rust chart…</div>
+    <p id="instructions" class="note">Hover or click a bar. Focus the chart and use arrow keys, Home, End, or Escape. Toggle a device above to filter the data. Resize the window to redraw.</p>
+    <details><summary>View chart data</summary>
+      <table><caption>Sessions by device</caption><thead><tr><th>Device</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th></tr></thead><tbody>
+        <tr><th>Desktop</th><td>64</td><td>72</td><td>81</td><td>76</td></tr>
+        <tr><th>Mobile</th><td>48</td><td>61</td><td>69</td><td>88</td></tr>
+        <tr><th>Tablet</th><td>22</td><td>27</td><td>31</td><td>35</td></tr>
+      </tbody></table>
+    </details>
+  </section>
+  <p class="note">Canvas is owned by this application. Chart geometry and interaction come from Kartis; Glory applications can use this adapter alongside their Widget tree.</p>
+</main>
+<script type="module">
+  import init from './pkg/kartis_canvas_demo.js';
+  init().catch(error => {
+    document.getElementById('status').textContent = `Unable to load the Rust chart: ${error}`;
+    console.error(error);
+  });
+</script>
+</html>

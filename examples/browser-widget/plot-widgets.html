@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kartis measured plot Widgets</title>
+<style>
+body { margin: 24px; font-family: system-ui, sans-serif; color: #263244; }
+nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+#plot-widgets-app { min-width: 380px; min-height: 220px; }
+.kartis-plot-widget-slot button { box-sizing: border-box; padding: 0; }
+.plot-alpha { background: #136251; color: white; }
+.plot-beta { background: #96451a; color: white; }
+button:focus-visible { outline: 2px solid #e58108; outline-offset: -2px; }
+</style>
+</head>
+<body>
+<!-- The shared WASM's standard start hook expects its own root. -->
+<div id="app" hidden></div>
+<h1>Measured plot Widgets</h1>
+<p>Click or focus a datum button to change its local count. Move the chart to keep the same button, or clip a button to see its visible region become inert.</p>
+<nav aria-label="Plot Widget examples">
+<button id="remount">Remount</button>
+<button data-phase="1">Move and reorder</button>
+<button data-phase="2">Clip alpha</button>
+<button data-phase="3">Reject factory</button>
+<button data-phase="4">Reject child build</button>
+<button data-phase="9">Keep accepted revision</button>
+<button data-phase="5">Replace alpha</button>
+<button data-phase="6">Reject duplicate slots</button>
+<button data-phase="7">Resize plot</button>
+<button data-phase="8">Remove alpha</button>
+<button id="stop">Stop</button>
+</nav>
+<main id="plot-widgets-app"></main>
+<pre id="plot-widgets-log" aria-live="polite"></pre>
+<script type="module">
+import init, * as fixture from './pkg/widget.js';
+await init();
+fixture.stop_fixture();
+fixture.plot_widgets_mount();
+window.plotWidgets = fixture;
+for (const button of document.querySelectorAll('[data-phase]')) {
+    button.onclick = () => fixture.plot_widgets_phase(Number(button.dataset.phase));
+}
+document.querySelector('#remount').onclick = () => fixture.plot_widgets_mount();
+document.querySelector('#stop').onclick = () => fixture.plot_widgets_stop();
+</script>
+</body>
+</html>

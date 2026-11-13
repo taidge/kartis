@@ -1,0 +1,104 @@
+{
+  "Regular": {
+    "weight": 400,
+    "units_per_em": 1000,
+    "glyphs": {
+      "A": {
+        "advance": 600,
+        "bounds": [
+          20,
+          0,
+          420,
+          700
+        ]
+      },
+      "B": {
+        "advance": 600,
+        "bounds": [
+          20,
+          0,
+          420,
+          700
+        ]
+      },
+      "A.vert": {
+        "advance": 600,
+        "bounds": [
+          20,
+          0,
+          220,
+          900
+        ]
+      },
+      "alef": {
+        "advance": 600,
+        "bounds": [
+          20,
+          0,
+          420,
+          700
+        ]
+      },
+      "bet": {
+        "advance": 600,
+        "bounds": [
+          20,
+          0,
+          420,
+          700
+        ]
+      }
+    }
+  },
+  "Bold": {
+    "weight": 700,
+    "units_per_em": 1000,
+    "glyphs": {
+      "A": {
+        "advance": 1000,
+        "bounds": [
+          20,
+          0,
+          820,
+          700
+        ]
+      },
+      "B": {
+        "advance": 1000,
+        "bounds": [
+          20,
+          0,
+          820,
+          700
+        ]
+      },
+      "A.vert": {
+        "advance": 1000,
+        "bounds": [
+          20,
+          0,
+          220,
+          900
+        ]
+      },
+      "alef": {
+        "advance": 1000,
+        "bounds": [
+          20,
+          0,
+          820,
+          700
+        ]
+      },
+      "bet": {
+        "advance": 1000,
+        "bounds": [
+          20,
+          0,
+          820,
+          700
+        ]
+      }
+    }
+  }
+}

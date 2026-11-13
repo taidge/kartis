@@ -1,0 +1,27 @@
+{
+  "version": "Nivo 0.99.0 reference checkout",
+  "files": {
+    "generation.ts": {
+      "upstream": "nivo/packages/boxplot/src/compute/generation.ts",
+      "sha256": "87668853e037c1af1d0a3b4cf1710baaef9d881f6b14df53920dc2625029a663"
+    },
+    "stratification.ts": {
+      "upstream": "nivo/packages/boxplot/src/compute/stratification.ts",
+      "sha256": "92969d932326004057da073870965ac2bafd880f354cd5752a97773bd3dbf274"
+    },
+    "common.ts": {
+      "upstream": "nivo/packages/boxplot/src/compute/common.ts",
+      "sha256": "cbaf3f4375f805e258c45c32cc4176fe32641e85a5a1a0efcd77cc296f40ccda"
+    },
+    "linearScale.ts": {
+      "upstream": "nivo/packages/scales/src/linearScale.ts",
+      "sha256": "28bc1a6980e3fb0c5807ccf348e7c8ad31155f68f286fa107705a57a669c8dd3"
+    },
+    "compute.ts": {
+      "upstream": "nivo/packages/scales/src/compute.ts",
+      "sha256": "19f993e3dcbcdcfd889d036aabcaaf28354f6a9b4bac8452e7ce287285204b7e"
+    }
+  },
+  "license": "tests/fixtures/bar-category-band/vendor/raw/nivo-LICENSE",
+  "scope": "Original files copied unmodified. Producer executes actual BoxPlot generateBoxPlots, summarizeDistribution, getIndexScale, original computeScale dispatcher and original linear factory. Other dispatcher branches are not exercised."
+}

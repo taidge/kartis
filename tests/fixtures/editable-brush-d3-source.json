@@ -1,0 +1,167 @@
+{
+  "scope": "Development-only original UMD packages; not a Kartis runtime dependency.",
+  "source": {
+    "name": "d3-brush",
+    "version": "3.0.0",
+    "url": "https://github.com/d3/d3-brush/blob/v3.0.0/src/brush.js",
+    "sourceSha256": "329341c4891e1253cba6b4463782ea741f4c24bfeda0ca53253910b543f6f56e",
+    "packages": [
+      {
+        "name": "d3-dispatch",
+        "version": "3.0.2",
+        "license": "ISC",
+        "distSha256": "334d2d51f85d91c20275df294edbb351b95c8049677f470e1d39b771ee27587f",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-selection",
+        "version": "3.0.1",
+        "license": "ISC",
+        "distSha256": "1024a4ad92bcb8b890a735e6bf782ad95de9a2e3d1aa6274efb58fda2c1e9d2b",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-drag",
+        "version": "3.0.1",
+        "license": "ISC",
+        "distSha256": "fcd4253a91433d8b72a5721b9c49775fde43d1b091adb185a142d91896dc76bf",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-color",
+        "version": "3.1.1",
+        "license": "ISC",
+        "distSha256": "f7a66baea17f864e132e76a6137dbc693ed05c07f053cc3892ae71a39cb6ac62",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-interpolate",
+        "version": "3.0.2",
+        "license": "ISC",
+        "distSha256": "3ccb6cfbe9ecfe0d48e7080f89d0d3c86af02395d3d126b10d07fd7b1d03e8b0",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-timer",
+        "version": "3.0.2",
+        "license": "ISC",
+        "distSha256": "50e3364f2f5986c03dbc6971137dd23df79066a622c8e3f271444caea2bdcd5f",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-ease",
+        "version": "3.0.2",
+        "license": "BSD-3-Clause",
+        "distSha256": "7ebb789f37bf8130c4f204426b8b4db2435da950cd70c726ced390974874d04b",
+        "licenseSha256": "82f2a38e51f9013690c0cea086e901b33e51b5f0c3ba837941d7a58073c72917"
+      },
+      {
+        "name": "d3-transition",
+        "version": "3.0.2",
+        "license": "ISC",
+        "distSha256": "7a0d7b4e0dcec4c9374bf1bb2c36092ecb1a8196618d1bae51fc24cbb4a9a918",
+        "licenseSha256": "2a6d2d5f32ba0b755ddbc1c833f766e30cdbe6ebe9a6d4e3e24427721f0b63d3"
+      },
+      {
+        "name": "d3-brush",
+        "version": "3.0.0",
+        "license": "ISC",
+        "distSha256": "20577b1b72d153b7fd85da4c546bfffc60656a44ad6d142308c68d4d8d897ced",
+        "licenseSha256": "e008c5e25a6be382593089c29bfabbc553c6378eee02895aec46ce396cc404ee"
+      }
+    ]
+  },
+  "bundle": {
+    "path": "tests/fixtures/editable-brush-d3-oracle.js",
+    "bytes": 137791,
+    "sha256": "3e2bfd5f468aa3290d1b7145417351eaf50f19c1f78c1ca57e0e5e3161a29bfd"
+  },
+  "licenses": {
+    "path": "tests/fixtures/editable-brush-d3-LICENSE.txt",
+    "bytes": 8204,
+    "sha256": "98e0d9643528c52bfbad563acb510fa0252174643e7e718f2373d6fca5655b01"
+  },
+  "parts": [
+    {
+      "name": "d3-dispatch",
+      "version": "3.0.2",
+      "provenance": "https://www.npmjs.com/package/d3-dispatch/v/3.0.2",
+      "distStart": 1110,
+      "distEnd": 4284,
+      "licenseStart": 169,
+      "licenseEnd": 900
+    },
+    {
+      "name": "d3-selection",
+      "version": "3.0.1",
+      "provenance": "https://www.npmjs.com/package/d3-selection/v/3.0.1",
+      "distStart": 5347,
+      "distEnd": 33120,
+      "licenseStart": 989,
+      "licenseEnd": 1720
+    },
+    {
+      "name": "d3-drag",
+      "version": "3.0.1",
+      "provenance": "https://www.npmjs.com/package/d3-drag/v/3.0.1",
+      "distStart": 34169,
+      "distEnd": 42325,
+      "licenseStart": 1799,
+      "licenseEnd": 2530
+    },
+    {
+      "name": "d3-color",
+      "version": "3.1.1",
+      "provenance": "https://www.npmjs.com/package/d3-color/v/3.1.1",
+      "distStart": 43372,
+      "distEnd": 60393,
+      "licenseStart": 2611,
+      "licenseEnd": 3342
+    },
+    {
+      "name": "d3-interpolate",
+      "version": "3.0.2",
+      "provenance": "https://www.npmjs.com/package/d3-interpolate/v/3.0.2",
+      "distStart": 61459,
+      "distEnd": 77100,
+      "licenseStart": 3435,
+      "licenseEnd": 4166
+    },
+    {
+      "name": "d3-timer",
+      "version": "3.0.2",
+      "provenance": "https://www.npmjs.com/package/d3-timer/v/3.0.2",
+      "distStart": 78154,
+      "distEnd": 82323,
+      "licenseStart": 4247,
+      "licenseEnd": 4978
+    },
+    {
+      "name": "d3-ease",
+      "version": "3.0.2",
+      "provenance": "https://www.npmjs.com/package/d3-ease/v/3.0.2",
+      "distStart": 84150,
+      "distEnd": 89936,
+      "licenseStart": 5066,
+      "licenseEnd": 6570
+    },
+    {
+      "name": "d3-transition",
+      "version": "3.0.2",
+      "provenance": "https://www.npmjs.com/package/d3-transition/v/3.0.2",
+      "distStart": 90998,
+      "distEnd": 117071,
+      "licenseStart": 6661,
+      "licenseEnd": 7392
+    },
+    {
+      "name": "d3-brush",
+      "version": "3.0.0",
+      "provenance": "https://www.npmjs.com/package/d3-brush/v/3.0.0",
+      "distStart": 118124,
+      "distEnd": 137759,
+      "licenseStart": 7473,
+      "licenseEnd": 8204
+    }
+  ]
+}

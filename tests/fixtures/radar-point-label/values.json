@@ -1,0 +1,1180 @@
+{
+  "schema": "original-radar-point-label-accessor-v1",
+  "data": [
+    {
+      "axis": "speed",
+      "Revenue": 7,
+      "Costs": 7
+    },
+    {
+      "axis": "cost <&> Å café",
+      "Revenue": 7,
+      "Costs": 2
+    },
+    {
+      "axis": "risk",
+      "Revenue": 3,
+      "Costs": 0
+    }
+  ],
+  "keys": [
+    "Revenue",
+    "Costs"
+  ],
+  "cases": [
+    {
+      "name": "public-default",
+      "calls": [
+        {
+          "index": "speed",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "speed",
+          "key": "Costs",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Costs",
+          "value": 2,
+          "formattedValue": "2.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "risk",
+          "key": "Revenue",
+          "value": 3,
+          "formattedValue": "3.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "risk",
+          "key": "Costs",
+          "value": 0,
+          "formattedValue": "0.0",
+          "color": "rgb(20,40,220)"
+        }
+      ],
+      "labels": [
+        {
+          "key": "Revenue.speed",
+          "label": "7.0",
+          "input": {
+            "index": "speed",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.speed",
+          "label": "7.0",
+          "input": {
+            "index": "speed",
+            "key": "Costs",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.cost <&> Å café",
+          "label": "7.0",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.cost <&> Å café",
+          "label": "2.0",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Costs",
+            "value": 2,
+            "formattedValue": "2.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.risk",
+          "label": "3.0",
+          "input": {
+            "index": "risk",
+            "key": "Revenue",
+            "value": 3,
+            "formattedValue": "3.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.risk",
+          "label": "0.0",
+          "input": {
+            "index": "risk",
+            "key": "Costs",
+            "value": 0,
+            "formattedValue": "0.0",
+            "color": "rgb(20,40,220)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "index",
+      "calls": [
+        {
+          "index": "speed",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "speed",
+          "key": "Costs",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Costs",
+          "value": 2,
+          "formattedValue": "2.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "risk",
+          "key": "Revenue",
+          "value": 3,
+          "formattedValue": "3.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "risk",
+          "key": "Costs",
+          "value": 0,
+          "formattedValue": "0.0",
+          "color": "rgb(20,40,220)"
+        }
+      ],
+      "labels": [
+        {
+          "key": "Revenue.speed",
+          "label": "speed",
+          "input": {
+            "index": "speed",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.speed",
+          "label": "speed",
+          "input": {
+            "index": "speed",
+            "key": "Costs",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.cost <&> Å café",
+          "label": "cost <&> Å café",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.cost <&> Å café",
+          "label": "cost <&> Å café",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Costs",
+            "value": 2,
+            "formattedValue": "2.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.risk",
+          "label": "risk",
+          "input": {
+            "index": "risk",
+            "key": "Revenue",
+            "value": 3,
+            "formattedValue": "3.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.risk",
+          "label": "risk",
+          "input": {
+            "index": "risk",
+            "key": "Costs",
+            "value": 0,
+            "formattedValue": "0.0",
+            "color": "rgb(20,40,220)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "key",
+      "calls": [
+        {
+          "index": "speed",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "speed",
+          "key": "Costs",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Costs",
+          "value": 2,
+          "formattedValue": "2.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "risk",
+          "key": "Revenue",
+          "value": 3,
+          "formattedValue": "3.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "risk",
+          "key": "Costs",
+          "value": 0,
+          "formattedValue": "0.0",
+          "color": "rgb(20,40,220)"
+        }
+      ],
+      "labels": [
+        {
+          "key": "Revenue.speed",
+          "label": "Revenue",
+          "input": {
+            "index": "speed",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.speed",
+          "label": "Costs",
+          "input": {
+            "index": "speed",
+            "key": "Costs",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.cost <&> Å café",
+          "label": "Revenue",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.cost <&> Å café",
+          "label": "Costs",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Costs",
+            "value": 2,
+            "formattedValue": "2.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.risk",
+          "label": "Revenue",
+          "input": {
+            "index": "risk",
+            "key": "Revenue",
+            "value": 3,
+            "formattedValue": "3.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.risk",
+          "label": "Costs",
+          "input": {
+            "index": "risk",
+            "key": "Costs",
+            "value": 0,
+            "formattedValue": "0.0",
+            "color": "rgb(20,40,220)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "value",
+      "calls": [
+        {
+          "index": "speed",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "speed",
+          "key": "Costs",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Costs",
+          "value": 2,
+          "formattedValue": "2.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "risk",
+          "key": "Revenue",
+          "value": 3,
+          "formattedValue": "3.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "risk",
+          "key": "Costs",
+          "value": 0,
+          "formattedValue": "0.0",
+          "color": "rgb(20,40,220)"
+        }
+      ],
+      "labels": [
+        {
+          "key": "Revenue.speed",
+          "label": 7,
+          "input": {
+            "index": "speed",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.speed",
+          "label": 7,
+          "input": {
+            "index": "speed",
+            "key": "Costs",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.cost <&> Å café",
+          "label": 7,
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.cost <&> Å café",
+          "label": 2,
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Costs",
+            "value": 2,
+            "formattedValue": "2.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.risk",
+          "label": 3,
+          "input": {
+            "index": "risk",
+            "key": "Revenue",
+            "value": 3,
+            "formattedValue": "3.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.risk",
+          "label": 0,
+          "input": {
+            "index": "risk",
+            "key": "Costs",
+            "value": 0,
+            "formattedValue": "0.0",
+            "color": "rgb(20,40,220)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "formattedValue",
+      "calls": [
+        {
+          "index": "speed",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "speed",
+          "key": "Costs",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Costs",
+          "value": 2,
+          "formattedValue": "2.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "risk",
+          "key": "Revenue",
+          "value": 3,
+          "formattedValue": "3.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "risk",
+          "key": "Costs",
+          "value": 0,
+          "formattedValue": "0.0",
+          "color": "rgb(20,40,220)"
+        }
+      ],
+      "labels": [
+        {
+          "key": "Revenue.speed",
+          "label": "7.0",
+          "input": {
+            "index": "speed",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.speed",
+          "label": "7.0",
+          "input": {
+            "index": "speed",
+            "key": "Costs",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.cost <&> Å café",
+          "label": "7.0",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.cost <&> Å café",
+          "label": "2.0",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Costs",
+            "value": 2,
+            "formattedValue": "2.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.risk",
+          "label": "3.0",
+          "input": {
+            "index": "risk",
+            "key": "Revenue",
+            "value": 3,
+            "formattedValue": "3.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.risk",
+          "label": "0.0",
+          "input": {
+            "index": "risk",
+            "key": "Costs",
+            "value": 0,
+            "formattedValue": "0.0",
+            "color": "rgb(20,40,220)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "color",
+      "calls": [
+        {
+          "index": "speed",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "speed",
+          "key": "Costs",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Costs",
+          "value": 2,
+          "formattedValue": "2.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "risk",
+          "key": "Revenue",
+          "value": 3,
+          "formattedValue": "3.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "risk",
+          "key": "Costs",
+          "value": 0,
+          "formattedValue": "0.0",
+          "color": "rgb(20,40,220)"
+        }
+      ],
+      "labels": [
+        {
+          "key": "Revenue.speed",
+          "label": "rgb(220,20,30)",
+          "input": {
+            "index": "speed",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.speed",
+          "label": "rgb(20,40,220)",
+          "input": {
+            "index": "speed",
+            "key": "Costs",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.cost <&> Å café",
+          "label": "rgb(220,20,30)",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.cost <&> Å café",
+          "label": "rgb(20,40,220)",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Costs",
+            "value": 2,
+            "formattedValue": "2.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.risk",
+          "label": "rgb(220,20,30)",
+          "input": {
+            "index": "risk",
+            "key": "Revenue",
+            "value": 3,
+            "formattedValue": "3.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.risk",
+          "label": "rgb(20,40,220)",
+          "input": {
+            "index": "risk",
+            "key": "Costs",
+            "value": 0,
+            "formattedValue": "0.0",
+            "color": "rgb(20,40,220)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "missing",
+      "calls": [
+        {
+          "index": "speed",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "speed",
+          "key": "Costs",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Costs",
+          "value": 2,
+          "formattedValue": "2.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "risk",
+          "key": "Revenue",
+          "value": 3,
+          "formattedValue": "3.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "risk",
+          "key": "Costs",
+          "value": 0,
+          "formattedValue": "0.0",
+          "color": "rgb(20,40,220)"
+        }
+      ],
+      "labels": [
+        {
+          "key": "Revenue.speed",
+          "label": null,
+          "input": {
+            "index": "speed",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.speed",
+          "label": null,
+          "input": {
+            "index": "speed",
+            "key": "Costs",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.cost <&> Å café",
+          "label": null,
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.cost <&> Å café",
+          "label": null,
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Costs",
+            "value": 2,
+            "formattedValue": "2.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.risk",
+          "label": null,
+          "input": {
+            "index": "risk",
+            "key": "Revenue",
+            "value": 3,
+            "formattedValue": "3.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.risk",
+          "label": null,
+          "input": {
+            "index": "risk",
+            "key": "Costs",
+            "value": 0,
+            "formattedValue": "0.0",
+            "color": "rgb(20,40,220)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "typed-function",
+      "calls": [
+        {
+          "index": "speed",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "speed",
+          "key": "Costs",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Costs",
+          "value": 2,
+          "formattedValue": "2.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "risk",
+          "key": "Revenue",
+          "value": 3,
+          "formattedValue": "3.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "risk",
+          "key": "Costs",
+          "value": 0,
+          "formattedValue": "0.0",
+          "color": "rgb(20,40,220)"
+        }
+      ],
+      "labels": [
+        {
+          "key": "Revenue.speed",
+          "label": "Revenue/speed: 7.0",
+          "input": {
+            "index": "speed",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.speed",
+          "label": "Costs/speed: 7.0",
+          "input": {
+            "index": "speed",
+            "key": "Costs",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.cost <&> Å café",
+          "label": "Revenue/cost <&> Å café: 7.0",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.cost <&> Å café",
+          "label": "Costs/cost <&> Å café: 2.0",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Costs",
+            "value": 2,
+            "formattedValue": "2.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.risk",
+          "label": "Revenue/risk: 3.0",
+          "input": {
+            "index": "risk",
+            "key": "Revenue",
+            "value": 3,
+            "formattedValue": "3.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.risk",
+          "label": "Costs/risk: 0.0",
+          "input": {
+            "index": "risk",
+            "key": "Costs",
+            "value": 0,
+            "formattedValue": "0.0",
+            "color": "rgb(20,40,220)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "empty",
+      "calls": [
+        {
+          "index": "speed",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "speed",
+          "key": "Costs",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Costs",
+          "value": 2,
+          "formattedValue": "2.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "risk",
+          "key": "Revenue",
+          "value": 3,
+          "formattedValue": "3.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "risk",
+          "key": "Costs",
+          "value": 0,
+          "formattedValue": "0.0",
+          "color": "rgb(20,40,220)"
+        }
+      ],
+      "labels": [
+        {
+          "key": "Revenue.speed",
+          "label": "",
+          "input": {
+            "index": "speed",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.speed",
+          "label": "",
+          "input": {
+            "index": "speed",
+            "key": "Costs",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.cost <&> Å café",
+          "label": "",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.cost <&> Å café",
+          "label": "",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Costs",
+            "value": 2,
+            "formattedValue": "2.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.risk",
+          "label": "",
+          "input": {
+            "index": "risk",
+            "key": "Revenue",
+            "value": 3,
+            "formattedValue": "3.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.risk",
+          "label": "",
+          "input": {
+            "index": "risk",
+            "key": "Costs",
+            "value": 0,
+            "formattedValue": "0.0",
+            "color": "rgb(20,40,220)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "unicode-escaping",
+      "calls": [
+        {
+          "index": "speed",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "speed",
+          "key": "Costs",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Revenue",
+          "value": 7,
+          "formattedValue": "7.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "cost <&> Å café",
+          "key": "Costs",
+          "value": 2,
+          "formattedValue": "2.0",
+          "color": "rgb(20,40,220)"
+        },
+        {
+          "index": "risk",
+          "key": "Revenue",
+          "value": 3,
+          "formattedValue": "3.0",
+          "color": "rgb(220,20,30)"
+        },
+        {
+          "index": "risk",
+          "key": "Costs",
+          "value": 0,
+          "formattedValue": "0.0",
+          "color": "rgb(20,40,220)"
+        }
+      ],
+      "labels": [
+        {
+          "key": "Revenue.speed",
+          "label": "<&> Å café speed",
+          "input": {
+            "index": "speed",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.speed",
+          "label": "<&> Å café speed",
+          "input": {
+            "index": "speed",
+            "key": "Costs",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.cost <&> Å café",
+          "label": "<&> Å café cost <&> Å café",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Revenue",
+            "value": 7,
+            "formattedValue": "7.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.cost <&> Å café",
+          "label": "<&> Å café cost <&> Å café",
+          "input": {
+            "index": "cost <&> Å café",
+            "key": "Costs",
+            "value": 2,
+            "formattedValue": "2.0",
+            "color": "rgb(20,40,220)"
+          }
+        },
+        {
+          "key": "Revenue.risk",
+          "label": "<&> Å café risk",
+          "input": {
+            "index": "risk",
+            "key": "Revenue",
+            "value": 3,
+            "formattedValue": "3.0",
+            "color": "rgb(220,20,30)"
+          }
+        },
+        {
+          "key": "Costs.risk",
+          "label": "<&> Å café risk",
+          "input": {
+            "index": "risk",
+            "key": "Costs",
+            "value": 0,
+            "formattedValue": "0.0",
+            "color": "rgb(20,40,220)"
+          }
+        }
+      ]
+    }
+  ],
+  "disabledCalls": 0,
+  "publicDefaultAccessor": "formattedValue",
+  "internalFallbackAccessor": "value",
+  "scope": "The complete original getPropertyAccessor executes real Lodash. The complete original RadarDots useMemo stage builds pointData and calls getLabel. The complete original public defaults object also executes with component references stubbed and unasserted. useMemo is invoked synchronously; position/color plumbing is injected and unasserted. JSX is only source-pinned, never mounted. Original point iteration axis-major differs from native series-major paint order; comparisons use typed index/key identities."
+}

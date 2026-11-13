@@ -1,0 +1,32 @@
+{
+  "scope": "Derived from preserved original D3 outputs, no Rust-authored expected values",
+  "counts": {
+    "ordinary": 8208,
+    "critical": 72,
+    "nativeBadInverse": 22,
+    "nativeForward": 28980,
+    "albers": 9
+  },
+  "files": [
+    {
+      "path": "ordinary.csv",
+      "bytes": 810900,
+      "sha256": "90fcd7ef29d0b03c99f88b1a99ffa731476f1a8c9745c2dcd40f5fbff4189931"
+    },
+    {
+      "path": "critical.csv",
+      "bytes": 8518,
+      "sha256": "0df818341da384416a0b8740e55d548b4834b85e061238e013e514ddec0f178c"
+    },
+    {
+      "path": "all-native-forward.csv",
+      "bytes": 2936088,
+      "sha256": "6b830e2eb2c29430ffa7ff6df91bd8bf13e3b7a0fe85c496ce7f6589ecdeb589"
+    },
+    {
+      "path": "albers-unit.csv",
+      "bytes": 429,
+      "sha256": "0cf7c167088e25572391c25733923b6719778ff8ea4e0d10cd1e736a1f1ded39"
+    }
+  ]
+}

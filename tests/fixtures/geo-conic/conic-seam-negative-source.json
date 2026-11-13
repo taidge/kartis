@@ -1,0 +1,13 @@
+{
+  "scope": "Historical unaccepted Rust candidate topology/extra-stroke negative. This is not an independent D3 expected geometry.",
+  "sourceSha256": "8af6a3fccd09199ed150d108ccd43a8836d7c107026eda266c7c5c38e7b21436",
+  "sourceBytes": 578832,
+  "caseIDs": [
+    2,
+    5,
+    8,
+    11
+  ],
+  "negativeSha256": "51fc3c788666f6a6c95224b01c6593001b96ed164c0b2f4da32d31ace8f75e78",
+  "derivation": "Keep original C/M/L/Z records for the four original seam-crossing camera cases, without coordinate modification."
+}

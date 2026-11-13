@@ -1,0 +1,17 @@
+# Actual RadarSlice.tsx SHA256 6daf0c9f679eadf0c220a402b030cbea0535726a66a00483646535974131fe96
+case|position|id|value
+0|0|series2|3
+0|1|series1|2
+0|2|series0|1
+1|0|series1|1
+1|1|series0|1
+1|2|series2|0
+2|0|series2|0
+2|1|series1|-0
+2|2|series0|0
+3|0|series1|2
+3|1|series2|-4
+3|2|series0|-4
+4|0|series0|1.7976931348623157e+308
+4|1|series2|1
+4|2|series1|-1.7976931348623157e+308

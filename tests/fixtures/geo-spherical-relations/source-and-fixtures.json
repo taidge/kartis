@@ -1,0 +1,50 @@
+{
+  "scope": "Original spherical-centroid/contains reference candidate, no implemented feature claim",
+  "versions": {
+    "geo": "3.1.1",
+    "array": "3.2.5",
+    "arrayForm": "Original UMD exports bridged to original geo ESM"
+  },
+  "files": [
+    {
+      "path": "geometry-centroid.json",
+      "bytes": 989472,
+      "sha256": "3e189d4eb39c08335159ab7ffe64bea88f4a07721fd36a792be7cd5ec45f8135"
+    },
+    {
+      "path": "contains.json",
+      "bytes": 48039,
+      "sha256": "fe019019c98918a99c4a46bb28f56004b35eb30f2f7ca0ddf92cb28ac24ca7f2"
+    },
+    {
+      "path": "centroid-values.csv",
+      "bytes": 3441,
+      "sha256": "9061b443e7510dde970681fa0a7e65d678eb05ff6f72957777207f49f1012549"
+    },
+    {
+      "path": "contains-values.csv",
+      "bytes": 28423,
+      "sha256": "50b7d81fac39380613019c5f44ad927c2127f651760cc84a5991d65e27c45a2b"
+    },
+    {
+      "path": "generate.mjs",
+      "bytes": 6441,
+      "sha256": "dee5296f262470a7ec0f2b6f0d61dc67a481815483ac065680ba7b9784e42386"
+    },
+    {
+      "path": "../geo-inverse-d3-oracle.js",
+      "bytes": 132539,
+      "sha256": "873638c3542defc67135946f1dae3a1d0426c147989b339a8033ce39e4e92550"
+    },
+    {
+      "path": "../geo-inverse-d3-LICENSE.txt",
+      "bytes": 2777,
+      "sha256": "6c28d42e4014c126c953198f9bde4dba985d4215e5d0d33b06c7b4a1568417ce"
+    },
+    {
+      "path": "../geo-conic/reference/fixtures/conic-d3-source.json",
+      "bytes": 14252,
+      "sha256": "12cace196f9eb5b2d25a67c27e4bdc04843d03462727879db793eebeedcacb14"
+    }
+  ]
+}
