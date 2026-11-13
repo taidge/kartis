@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tarfile
 import tomllib
 import urllib.error
 import urllib.request
@@ -34,6 +35,10 @@ def verify(tag, require_published=False):
         raise ValueError("The release checkout must be clean")
     metadata = json.loads(command("cargo", "metadata", "--no-deps", "--format-version", "1", "--locked"))
     crate = Path(metadata["target_directory"]) / "package" / f"{package['name']}-{version}.crate"
+    with tarfile.open(crate, "r:gz") as archive:
+        vcs = json.load(archive.extractfile(f"{package['name']}-{version}/.cargo_vcs_info.json"))
+    if vcs.get("git", {}).get("sha1") != head or vcs.get("git", {}).get("dirty", False):
+        raise ValueError("The packaged crate must record the clean release commit; rerun cargo package")
     checksum = hashlib.sha256(crate.read_bytes()).hexdigest()
     url = f"https://crates.io/api/v1/crates/{package['name']}/{version}"
     request = urllib.request.Request(url, headers={"User-Agent": "kartis-release-check/0.1.0"})
@@ -57,6 +62,7 @@ def verify(tag, require_published=False):
         "version": version,
         "checksum": checksum,
         "checksum_path": str(crate.parent / "SHA256SUMS"),
+        "source_commit": head,
     }
     (crate.parent / "SHA256SUMS").write_text(f"{checksum}  {crate.name}\n", encoding="utf-8")
     output = os.environ.get("GITHUB_OUTPUT")
@@ -76,7 +82,7 @@ def main():
     args = parser.parse_args()
     try:
         verify(args.tag, args.require_published)
-    except (ValueError, KeyError, OSError, subprocess.CalledProcessError) as error:
+    except (ValueError, KeyError, OSError, tarfile.TarError, subprocess.CalledProcessError) as error:
         print(f"Release verification failed: {error}", file=sys.stderr)
         return 1
     return 0

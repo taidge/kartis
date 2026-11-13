@@ -51,7 +51,7 @@ jobs:
           test "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")" = "$(git rev-parse HEAD)"
           git merge-base --is-ancestor HEAD origin/main
       - name: Build and verify release package
-        run: cargo publish --locked --dry-run --all-features
+        run: cargo package --locked --all-features
       - name: Check version and published package identity
         id: package
         run: python scripts/release.py verify --tag "$RELEASE_TAG"

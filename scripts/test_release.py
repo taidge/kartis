@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import tempfile
+import tarfile
 import unittest
 from unittest.mock import patch
 import urllib.error
@@ -22,7 +23,7 @@ class ReleaseTests(unittest.TestCase):
         self.target = self.root / "target"
         self.crate = self.target / "package" / "kartis-0.1.0.crate"
         self.crate.parent.mkdir(parents=True)
-        self.crate.write_bytes(b"deterministic test crate")
+        self.write_crate()
         self.checksum = hashlib.sha256(self.crate.read_bytes()).hexdigest()
         self.dirty = ""
         self.tagged = "abc"
@@ -45,6 +46,13 @@ class ReleaseTests(unittest.TestCase):
         if args[:2] == ("git", "status"):
             return self.dirty
         return "abc" if args[-1] == "HEAD" else self.tagged
+
+    def write_crate(self, commit="abc", dirty=False):
+        data = json.dumps({"git": {"sha1": commit, "dirty": dirty}, "path_in_vcs": ""}).encode()
+        with tarfile.open(self.crate, "w:gz") as archive:
+            entry = tarfile.TarInfo("kartis-0.1.0/.cargo_vcs_info.json")
+            entry.size = len(data)
+            archive.addfile(entry, BytesIO(data))
 
     def urlopen(self, request, **kwargs):
         if self.url_error:
@@ -72,6 +80,16 @@ class ReleaseTests(unittest.TestCase):
     def test_dirty_checkout_rejected(self):
         self.dirty = " M Cargo.toml"
         with self.assertRaisesRegex(ValueError, "clean"):
+            release.verify("v0.1.0")
+
+    def test_stale_package_rejected(self):
+        self.write_crate(commit="previous-commit")
+        with self.assertRaisesRegex(ValueError, "clean release commit"):
+            release.verify("v0.1.0")
+
+    def test_dirty_package_rejected(self):
+        self.write_crate(dirty=True)
+        with self.assertRaisesRegex(ValueError, "clean release commit"):
             release.verify("v0.1.0")
 
     def test_missing_version_allowed_before_publish(self):
