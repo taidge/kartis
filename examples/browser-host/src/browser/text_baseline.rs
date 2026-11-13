@@ -1,8 +1,12 @@
 //! Ordinary Glory Text aligned using measured HTML alphabetic baselines.
-use super::*;
-use glory::{Cage, style::Family};
+use std::collections::BTreeSet;
+use std::rc::Weak;
+
+use glory::Cage;
+use glory::style::Family;
 use kartis::browser::BrowserSemanticTextMeasurer;
-use std::{collections::BTreeSet, rc::Weak};
+
+use super::*;
 
 struct Fixture {
     charts: Vec<BrowserChart>,

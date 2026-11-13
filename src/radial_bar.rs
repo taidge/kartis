@@ -1,13 +1,15 @@
 //! Nivo-style radial bars: each input series owns a radial ring, categories
 //! accumulate along its angular value scale. Local reference: radial-bar/src/
 //! {types.ts,hooks.ts,props.ts}; the older radial_bar/polar_bar APIs are unchanged.
-use crate::{pie_layout::pie_arc, scene::ensure, *};
+use std::collections::{BTreeMap, BTreeSet};
+use std::f64::consts::TAU;
+use std::sync::Arc;
+
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    f64::consts::TAU,
-    sync::Arc,
-};
+
+use crate::pie_layout::pie_arc;
+use crate::scene::ensure;
+use crate::*;
 pub const MAX_RADIAL_BAR_CELLS: usize = 8192;
 #[derive(Clone, Debug, PartialEq)]
 pub enum RadialBarLabelText {

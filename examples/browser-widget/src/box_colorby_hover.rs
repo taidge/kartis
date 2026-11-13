@@ -2,10 +2,17 @@
 #[path = "../../shared/box_colorby_hover.rs"]
 mod model;
 
-use glory::{Cage, Widget, web::WebApp};
-use kartis::{browser::*, raster_surface::*, render::raster::*, *};
+use std::cell::RefCell;
+use std::collections::BTreeMap;
+use std::rc::Rc;
+
+use glory::web::WebApp;
+use glory::{Cage, Widget};
+use kartis::browser::*;
+use kartis::raster_surface::*;
+use kartis::render::raster::*;
+use kartis::*;
 use serde_json::{Value, json};
-use std::{cell::RefCell, collections::BTreeMap, rc::Rc};
 use wasm_bindgen::prelude::*;
 
 type Events = Rc<RefCell<Vec<Value>>>;

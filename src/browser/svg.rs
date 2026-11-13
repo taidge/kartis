@@ -1,7 +1,8 @@
 //! Retained, application-owned SVG. Marks are keyed by stable Scene IDs;
 //! labels by explicit slots, matching the public Scene identity contract.
-use super::*;
 use std::collections::BTreeMap;
+
+use super::*;
 
 const NS: &str = "http://www.w3.org/2000/svg";
 thread_local! {

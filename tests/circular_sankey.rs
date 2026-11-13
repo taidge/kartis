@@ -1,6 +1,7 @@
+use std::collections::BTreeMap;
+
 use glory::render::PathCommand as Cmd;
 use kartis::*;
-use std::collections::BTreeMap;
 fn nodes(ids: &[&str]) -> Vec<FlowNode> {
     ids.iter().map(|id| FlowNode::new(*id)).collect()
 }

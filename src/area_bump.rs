@@ -2,9 +2,12 @@
 //! bands. Reference: Nivo 0.99 bump/src/area-bump/{compute,hooks,types}.ts.
 //! Numeric and string x values remain distinct ordinal categories. Positive
 //! data uses one shared height scale, never independent column normalization.
-use crate::{scene::ensure, *};
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
 use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
+use crate::scene::ensure;
+use crate::*;
 
 mod labels;
 use labels::LabelBinding;

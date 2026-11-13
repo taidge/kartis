@@ -5,12 +5,14 @@
 //! React hooks and d3-shape generators. D3's local src/index.js identifies the
 //! shape/hierarchy modules; its aggregate checkout does not include their code.
 //! All angles are radians, clockwise from twelve o'clock.
-use crate::scene::*;
-use glory::render::{GraphicPoint as Point, GraphicStroke, PathCommand as Cmd, StrokeCap};
-use glory::style::Color;
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::f64::consts::{FRAC_PI_2, TAU};
 use std::sync::Arc;
+
+use glory::render::{GraphicPoint as Point, GraphicStroke, PathCommand as Cmd, StrokeCap};
+use glory::style::Color;
+
+use crate::scene::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct RadialDatum {

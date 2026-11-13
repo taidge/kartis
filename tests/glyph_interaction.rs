@@ -1,7 +1,9 @@
-use glory::render::{GraphicPoint as P, PathCommand as C};
-use kartis::{surface::*, *};
 use std::collections::{BTreeMap, BTreeSet};
 use std::f64::consts::{PI, TAU};
+
+use glory::render::{GraphicPoint as P, PathCommand as C};
+use kartis::surface::*;
+use kartis::*;
 
 fn scene(geometry: Geometry, value: f64) -> Scene {
     let mut scene = ChartConfig {

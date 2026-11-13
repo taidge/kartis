@@ -1,12 +1,11 @@
-use glory::{
-    App,
-    render::{Event, NodeId, Props},
-};
-use kartis::{
-    surface::{SurfaceModel, SurfaceOptions},
-    *,
-};
-use std::{cell::RefCell, collections::BTreeMap, rc::Rc};
+use std::cell::RefCell;
+use std::collections::BTreeMap;
+use std::rc::Rc;
+
+use glory::App;
+use glory::render::{Event, NodeId, Props};
+use kartis::surface::{SurfaceModel, SurfaceOptions};
+use kartis::*;
 
 fn scene() -> Scene {
     let mut scene = ChartConfig::default().scene().unwrap();

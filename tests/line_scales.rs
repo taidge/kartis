@@ -1,6 +1,8 @@
-use glory::render::PathCommand as C;
-use kartis::{surface::*, *};
 use std::collections::BTreeSet;
+
+use glory::render::PathCommand as C;
+use kartis::surface::*;
+use kartis::*;
 fn config() -> ChartConfig {
     ChartConfig {
         width: 420.5,

@@ -1,6 +1,7 @@
 //! Interpolation in the D3 color spaces. The typed RGBA endpoints preserve
 //! their authored components even at zero alpha.
-use crate::{Color, Result, scene::ensure};
+use crate::scene::ensure;
+use crate::{Color, Result};
 
 /// How a polar color space moves between two defined hues.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]

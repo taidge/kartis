@@ -1,14 +1,16 @@
 //! UAX #9 visual runs and per-run OpenType shaping. The Unicode order uses
 //! logical byte ranges, so the shaping engine still receives logical text.
+use std::ops::Range;
+
+use rustybuzz::{BufferFlags, Direction, Face, UnicodeBuffer};
+use unicode_bidi::{BidiInfo, Level};
+
 use super::text_runs::{bidi_control, clusters, normalized, shape_runs};
 use super::{
     Glyph, MAX_COORDINATE, MAX_SHAPED_GLYPHS, MissingGlyphPolicy, RasterWritingMode, Text,
 };
 use crate::Result;
 use crate::scene::ensure;
-use rustybuzz::{BufferFlags, Direction, Face, UnicodeBuffer};
-use std::ops::Range;
-use unicode_bidi::{BidiInfo, Level};
 
 /// Paragraph direction for one native raster or outlined label.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]

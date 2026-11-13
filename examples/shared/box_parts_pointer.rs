@@ -1,6 +1,7 @@
 //! Actual controlled BoxPlot sources, shared by native and four retained hosts.
 use glory::render::{GraphicStroke, PathCommand, StrokeCap};
-use kartis::{surface::SurfacePhysicalHit, *};
+use kartis::surface::SurfacePhysicalHit;
+use kartis::*;
 use serde_json::{Value, json};
 
 pub const WIDTH: f64 = 480.;

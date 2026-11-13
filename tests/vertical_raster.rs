@@ -1,7 +1,9 @@
 #![cfg(feature = "raster")]
 
-use glory::{App, render::Props};
-use kartis::{render::raster::*, *};
+use glory::App;
+use glory::render::Props;
+use kartis::render::raster::*;
+use kartis::*;
 
 fn fonts() -> FontRegistry {
     let mut fonts = FontRegistry::new().with_writing_mode(RasterWritingMode::Vertical);

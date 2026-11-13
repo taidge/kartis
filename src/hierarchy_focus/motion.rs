@@ -1,11 +1,12 @@
+use std::collections::BTreeMap;
+
 use super::HierarchyFocusController;
+use crate::crosshair::mark_center;
+use crate::motion::{PropertyMotion, PropertyMotionOptions};
 use crate::{
     ChartConfig, ChartError, HierarchyDatum, HierarchyLayout, HierarchyView, InteractionBinding,
     Result, Scene, SceneInteraction,
-    crosshair::mark_center,
-    motion::{PropertyMotion, PropertyMotionOptions},
 };
-use std::collections::BTreeMap;
 
 /// Animated data-space focus for treemap, circle packing and icicle layouts.
 /// Retargeting preserves the sampled geometry and velocity of compatible marks.

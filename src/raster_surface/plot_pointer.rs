@@ -1,7 +1,8 @@
 //! The actual Image/View coordinate channel. No display-only mark or hit rect
 //! is added; real coordinates still have to pass Surface's painted-ink picker.
-use super::*;
 use glory::render::{Event, EventKind, PlotPointer};
+
+use super::*;
 
 pub(super) fn strict(model: &SurfaceModel) -> bool {
     model

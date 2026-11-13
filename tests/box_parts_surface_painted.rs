@@ -1,5 +1,6 @@
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use kartis::{surface::*, *};
+use kartis::surface::*;
+use kartis::*;
 
 fn controller() -> (
     ChartConfig,

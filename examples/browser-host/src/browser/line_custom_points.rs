@@ -1,7 +1,8 @@
 //! Retained PointLine with caller-authored geometry and original typed keys.
-use super::*;
 use kartis::surface::{Picking, SurfaceOptions};
 use web_sys::Element;
+
+use super::*;
 
 const INK: Color = Color(174, 34, 97, 255);
 

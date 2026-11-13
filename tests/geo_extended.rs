@@ -1,6 +1,7 @@
+use std::f64::consts::{FRAC_PI_2, PI};
+
 use glory::render::PathCommand as Cmd;
 use kartis::*;
-use std::f64::consts::{FRAC_PI_2, PI};
 fn projections() -> [GeoProjection; 3] {
     [
         GeoProjection::AzimuthalEqualArea,

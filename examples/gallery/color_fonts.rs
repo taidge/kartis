@@ -1,7 +1,5 @@
-use kartis::{
-    render::raster::{ColorGlyphMode, FontRegistry},
-    *,
-};
+use kartis::render::raster::{ColorGlyphMode, FontRegistry};
+use kartis::*;
 
 pub fn scenes(c: &ChartConfig) -> Result<Vec<(&'static str, Scene)>> {
     let mut scenes = Vec::new();

@@ -1,10 +1,13 @@
 //! Independent thickness/dimensions Marimekko layout. Reference: Nivo 0.99.0
 //! `packages/marimekko/src/{types.ts,hooks.ts,defaults.ts}`. The old
 //! `advanced::marimekko` remains a separate area-conserving, expanded model.
-use crate::stack::{StackOptions, StackResult};
-use crate::{scene::ensure, *};
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
 use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
+use crate::scene::ensure;
+use crate::stack::{StackOptions, StackResult};
+use crate::*;
 pub const MAX_MARIMEKKO_CELLS: usize = 20_000;
 #[derive(Clone, Debug, PartialEq)]
 pub struct MarimekkoCategory {

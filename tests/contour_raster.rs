@@ -27,7 +27,8 @@ fn controls(app: &glory::App) -> Vec<glory::render::NodeId> {
 
 #[test]
 fn actual_raster_host_uses_typed_threshold_controls_and_rolls_back_failed_image_publication() {
-    use std::{cell::Cell, rc::Rc};
+    use std::cell::Cell;
+    use std::rc::Rc;
     let c = frame(340., 340.);
     let values = nested();
     let first = contour_layout(&c, grid(&values), &compute(vec![1.]), &teal()).unwrap();

@@ -1,7 +1,8 @@
-use kartis::layers::*;
-use kartis::*;
 use std::cell::Cell;
 use std::collections::BTreeSet;
+
+use kartis::layers::*;
+use kartis::*;
 
 fn label(text: &str) -> Label {
     Label {

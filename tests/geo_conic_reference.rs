@@ -1,6 +1,7 @@
 //! Original-function conic reference; native fixtures remain unfiltered.
-use kartis::*;
 use std::collections::BTreeMap;
+
+use kartis::*;
 const ORDINARY: &str = include_str!("fixtures/geo-conic/fixtures/ordinary.csv");
 const CRITICAL: &str = include_str!("fixtures/geo-conic/fixtures/critical.csv");
 const ALBERS: &str = include_str!("fixtures/geo-conic/fixtures/albers-unit.csv");

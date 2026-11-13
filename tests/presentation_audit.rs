@@ -1,6 +1,11 @@
-use glory::{App, render::NodeId, style::Display};
+use std::cell::Cell;
+use std::collections::BTreeMap;
+use std::rc::Rc;
+
+use glory::App;
+use glory::render::NodeId;
+use glory::style::Display;
 use kartis::*;
-use std::{cell::Cell, collections::BTreeMap, rc::Rc};
 
 fn labels(app: &App) -> Vec<NodeId> {
     let tree = app.tree();

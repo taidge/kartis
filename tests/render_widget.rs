@@ -1,9 +1,9 @@
+use std::cell::Cell;
+use std::rc::Rc;
+
 use glory::render::{Event, GraphicStroke, NodeId, Props};
-use kartis::{
-    render::{self, Canvas},
-    *,
-};
-use std::{cell::Cell, rc::Rc};
+use kartis::render::{self, Canvas};
+use kartis::*;
 
 fn scene() -> Scene {
     let mut scene = ChartConfig::default().scene().unwrap();

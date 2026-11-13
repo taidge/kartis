@@ -1,4 +1,5 @@
-use kartis::{motion::*, *};
+use kartis::motion::*;
+use kartis::*;
 fn scene() -> Scene {
     let mut s = ChartConfig::default().scene().unwrap();
     let mut m = Mark::new(

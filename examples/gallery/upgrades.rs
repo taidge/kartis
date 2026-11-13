@@ -1,4 +1,5 @@
-use kartis::{motion::*, *};
+use kartis::motion::*;
+use kartis::*;
 fn ring(radius: f64, reverse: bool) -> Vec<glory::render::PathCommand> {
     use glory::render::PathCommand as C;
     let path = Geometry::Circle {

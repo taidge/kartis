@@ -1,5 +1,6 @@
-use kartis::*;
 use std::f64::consts::{FRAC_PI_4, TAU};
+
+use kartis::*;
 
 fn config() -> ChartConfig {
     ChartConfig {

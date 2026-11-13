@@ -1,16 +1,13 @@
 #![cfg(feature = "raster")]
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use glory::{
-    App,
-    render::{NodeId, Props},
-};
-use kartis::{
-    render::raster::FontRegistry,
-    stack::StackOptions,
-    surface::{Picking, SurfaceInput},
-    *,
-};
-use std::{cell::Cell, rc::Rc};
+use std::cell::Cell;
+use std::rc::Rc;
+
+use glory::App;
+use glory::render::{GraphicPoint as P, GraphicStroke, NodeId, PathCommand as C, Props, StrokeCap};
+use kartis::render::raster::FontRegistry;
+use kartis::stack::StackOptions;
+use kartis::surface::{Picking, SurfaceInput};
+use kartis::*;
 
 fn stream(value: f64, second: bool) -> StreamLayout {
     let c = ChartConfig {

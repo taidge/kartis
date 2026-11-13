@@ -4,13 +4,15 @@
 //! domain; it never writes those constraints back into physical spring state.
 //! Data values, text, anchors and legends are target metadata. Text/path/style
 //! topology changes crossfade instead of inventing interpolation between them.
+use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint, GraphicStroke, PathCommand};
+use glory::style::Color;
+
 use super::geometry::{self, ContourBindings, GeometryTransitions};
 use super::{SpringConfig, SpringValue};
 use crate::scene::{ensure, *};
 use crate::{BlendMode, MarkBlends};
-use glory::render::{GraphicPoint, GraphicStroke, PathCommand};
-use glory::style::Color;
-use std::collections::{BTreeMap, BTreeSet};
 
 const COORDINATE: f64 = 1_000_000.;
 const COMMANDS: usize = 200_000;

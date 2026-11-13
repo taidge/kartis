@@ -1,7 +1,8 @@
-use super::*;
-use crate::blend::{BlendMode, MarkBlends};
 use wasm_bindgen::JsCast;
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
+
+use super::*;
+use crate::blend::{BlendMode, MarkBlends};
 mod blend_layer;
 #[wasm_bindgen::prelude::wasm_bindgen]
 extern "C" {

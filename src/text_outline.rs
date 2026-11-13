@@ -2,11 +2,13 @@
 //! original Scene and label slots, metadata, owner series and paint strata.
 //! Text uses the raster font registry's writing mode and shaping profile
 //! with application-supplied outline fonts.
+use std::collections::BTreeMap;
+
 use crate::render::raster::{
     FontRegistry, MissingGlyphPolicy, RasterPaintedText, RasterTextOutline,
 };
-use crate::{Result, Scene, scene::ensure};
-use std::collections::BTreeMap;
+use crate::scene::ensure;
+use crate::{Result, Scene};
 #[derive(Clone, Debug, PartialEq)]
 pub struct PaintedLabelOptions {
     /// Convert every label by default. Set `true` to convert only rotated

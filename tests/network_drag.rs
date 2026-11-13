@@ -1,5 +1,7 @@
-use kartis::{network::*, *};
 use std::collections::BTreeSet;
+
+use kartis::network::*;
+use kartis::*;
 fn simulation() -> ForceSimulation {
     let mut s = ForceSimulation::new(
         &[

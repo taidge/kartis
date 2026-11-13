@@ -1,6 +1,8 @@
 //! Padded D3/Nivo arcs, exact partial fit and actual Canvas text measurements.
+use std::collections::BTreeSet;
+use std::f64::consts::FRAC_PI_2;
+
 use super::*;
-use std::{collections::BTreeSet, f64::consts::FRAC_PI_2};
 struct Fixture {
     chart: BrowserChart,
     root: web_sys::Element,

@@ -1,8 +1,6 @@
 use glory::render::GraphicStroke;
-use kartis::{
-    render::{self, Canvas},
-    *,
-};
+use kartis::render::{self, Canvas};
+use kartis::*;
 #[test]
 fn rounded_bar_styles_keep_metadata_and_use_real_curved_geometry() {
     let c = ChartConfig::default();
@@ -362,8 +360,9 @@ fn paint_only_marks_participate_in_hit_and_explicit_style_changes_fade() {
 }
 #[cfg(feature = "raster")]
 mod raster {
-    use super::*;
     use render::raster::*;
+
+    use super::*;
     fn pixel(im: &RenderedImage, x: u32, y: u32) -> [u8; 4] {
         im.rgba[((y * im.width + x) * 4) as usize..((y * im.width + x) * 4 + 4) as usize]
             .try_into()

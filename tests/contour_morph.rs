@@ -1,5 +1,6 @@
 use glory::render::{GraphicPoint as P, PathCommand as C};
-use kartis::{motion::*, *};
+use kartis::motion::*;
+use kartis::*;
 
 fn scene(geometry: Geometry) -> Scene {
     let mut scene = ChartConfig {
@@ -487,7 +488,8 @@ fn shader_only_marks_retain_paint_and_fade_instead_of_interpolating_shader_style
 #[cfg(feature = "raster")]
 #[test]
 fn donut_holes_survive_cpu_pixels_and_export_real_svg_browser_fixtures() {
-    use kartis::render::{raster::*, to_svg};
+    use kartis::render::raster::*;
+    use kartis::render::to_svg;
     let mut motion = PropertyMotion::new(scene(donut(60., Some(25.), false)), options()).unwrap();
     let initial = motion.scene().clone();
     let target = scene(donut(80., Some(35.), true));

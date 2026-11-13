@@ -1,5 +1,6 @@
-use kartis::*;
 use std::cell::RefCell;
+
+use kartis::*;
 
 fn config() -> ChartConfig {
     ChartConfig {

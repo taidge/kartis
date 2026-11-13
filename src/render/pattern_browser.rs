@@ -1,8 +1,10 @@
 //! Typed application-owned CanvasPattern construction. No eval, global document,
 //! SVG serialization, system I/O or application-provided JavaScript is involved.
-use crate::{ChartError, Geometry, PatternFill, Result};
-use wasm_bindgen::{JsCast, JsValue, prelude::wasm_bindgen};
+use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{CanvasPattern, CanvasRenderingContext2d, DomMatrix2dInit, HtmlCanvasElement};
+
+use crate::{ChartError, Geometry, PatternFill, Result};
 
 // The pinned web-sys 0.3.107 CanvasPattern.set_transform takes legacy SvgMatrix
 // and omits `catch`. The actual HTML API accepts a DOMMatrix2DInit dictionary.

@@ -1,5 +1,6 @@
-use super::*;
 use web_sys::js_sys::{Function, Reflect};
+
+use super::*;
 
 pub(super) fn ratio(dpr: f64, scene: &Scene) -> f64 {
     dpr.clamp(0.25, 4.)

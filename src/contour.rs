@@ -6,12 +6,12 @@ mod density;
 mod layout;
 mod scatter;
 
-use crate::{ChartError, Result};
 pub use core::{
     Grid as ContourGrid, Level as ContourLevel, Limits as ContourLimits, Options as ContourOptions,
     Point as ContourPoint, Polygon as ContourPolygon, Ring as ContourRing,
     Thresholds as ContourThresholds,
 };
+
 pub use density::{
     DensityField, DensityOptions, DensityPoint, DensityThresholds, estimate_density,
 };
@@ -23,6 +23,8 @@ pub use scatter::{
     DensityObservation, DensityWeights, ScatterDensityLayout, ScatterDensityOptions,
     scatter_density_layout,
 };
+
+use crate::{ChartError, Result};
 
 pub(crate) fn checked(ok: bool, message: &str) -> Result<()> {
     if ok {

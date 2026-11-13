@@ -1,6 +1,9 @@
-use glory::render::PathCommand;
-use kartis::{mesh::SliceAxis, surface::*, *};
 use std::collections::BTreeSet;
+
+use glory::render::PathCommand;
+use kartis::mesh::SliceAxis;
+use kartis::surface::*;
+use kartis::*;
 
 fn config() -> ChartConfig {
     ChartConfig {

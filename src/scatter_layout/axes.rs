@@ -1,5 +1,6 @@
-use super::*;
 use glory::render::{GraphicPoint as P, PathCommand as C, StrokeCap};
+
+use super::*;
 
 impl ScatterAxisScale {
     pub fn validate(&self) -> Result<()> {

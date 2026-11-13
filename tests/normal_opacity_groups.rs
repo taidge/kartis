@@ -1,8 +1,8 @@
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use kartis::{
-    render::{self, Canvas, CanvasScriptFallback, CanvasScriptOptions, CanvasScriptSurface},
-    *,
+use kartis::render::{
+    self, Canvas, CanvasScriptFallback, CanvasScriptOptions, CanvasScriptSurface,
 };
+use kartis::*;
 
 fn fixture() -> Scene {
     let mut scene = ChartConfig {
@@ -272,8 +272,9 @@ fn paint_server_and_stroke_use_the_same_normal_group_protocol() -> Result<()> {
 
 #[cfg(feature = "raster")]
 mod cpu {
-    use super::*;
     use render::raster::*;
+
+    use super::*;
     fn pixel(image: &RenderedImage, x: usize, y: usize) -> [u8; 4] {
         image.rgba[(y * image.width as usize + x) * 4..(y * image.width as usize + x) * 4 + 4]
             .try_into()

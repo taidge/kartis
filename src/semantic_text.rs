@@ -3,7 +3,8 @@
 //! The host measures its real font, line box and alphabetic baseline. This
 //! module only binds those results to their inputs and places them; it does not
 //! infer font ascent, descent or glyph widths from the font size.
-use crate::{Label, LayoutRect, MAX_LABEL_BYTES, ResolvedFont, Result, TextAnchor, scene::ensure};
+use crate::scene::ensure;
+use crate::{Label, LayoutRect, MAX_LABEL_BYTES, ResolvedFont, Result, TextAnchor};
 
 /// Resource identity and requested single-line line height. Bump `revision`
 /// when a host font resource changes, even if its family and weight stay equal.

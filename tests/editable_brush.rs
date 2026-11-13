@@ -1,4 +1,5 @@
-use kartis::{Brush, brush::*};
+use kartis::Brush;
+use kartis::brush::*;
 
 fn rect(a: [f64; 4]) -> Brush {
     Brush {

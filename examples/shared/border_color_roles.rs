@@ -1,8 +1,9 @@
 //! Shared native/WASM application model for ordinary inherited border roles.
+use std::cell::RefCell;
+
 use glory::render::{GraphicStroke, PathCommand, StrokeCap};
 use kartis::*;
 use serde_json::{Value, json};
-use std::cell::RefCell;
 
 pub const CASE_COUNT: u32 = 10;
 pub const CASE_NAMES: [&str; 10] = [

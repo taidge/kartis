@@ -1,5 +1,6 @@
-use kartis::*;
 use std::f64::consts::{FRAC_PI_2, PI};
+
+use kartis::*;
 fn feature(id: &str, rings: Vec<Vec<[f64; 2]>>) -> GeoFeature {
     GeoFeature {
         id: id.into(),

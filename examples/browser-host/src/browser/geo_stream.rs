@@ -160,7 +160,7 @@ fn source(
 }
 #[wasm_bindgen]
 pub fn geo_stream_mount(case: u8) -> std::result::Result<(), JsValue> {
-    let (map, _, _) = source(case, 0, false).map_err(js)?;
+    let (map, ..) = source(case, 0, false).map_err(js)?;
     geo_stream_stop();
     let d = web_sys::window().unwrap().document().unwrap();
     for (name, renderer) in [
@@ -220,7 +220,7 @@ pub fn geo_stream_mount(case: u8) -> std::result::Result<(), JsValue> {
 pub fn geo_stream_phase(phase: u8) -> std::result::Result<(), JsValue> {
     GEO_STREAMS.with(|slot| {
         for f in slot.borrow_mut().iter_mut() {
-            let (m, _, _) = source(f.case, phase, false).map_err(js)?;
+            let (m, ..) = source(f.case, phase, false).map_err(js)?;
             f.chart.set_scene(m.scene).map_err(js)?;
             f.phase = phase;
         }
@@ -268,7 +268,7 @@ pub fn geo_stream_rejected() -> bool {
             if source(f.case, f.phase, true).is_ok() {
                 return false;
             }
-            let Ok((mut map, _, _)) = source(f.case, f.phase, false) else {
+            let Ok((mut map, ..)) = source(f.case, f.phase, false) else {
                 return false;
             };
             let before = map.clone();

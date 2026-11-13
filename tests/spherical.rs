@@ -1,5 +1,6 @@
-use kartis::*;
 use std::f64::consts::{FRAC_PI_2, PI};
+
+use kartis::*;
 #[test]
 fn angular_distance_and_oriented_area_have_known_units() {
     assert!((geo_spherical_distance([0., 0.], [90., 0.]).unwrap() - FRAC_PI_2).abs() < 1e-12);

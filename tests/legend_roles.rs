@@ -1,6 +1,7 @@
+use std::collections::BTreeSet;
+
 use kartis::surface::{SurfaceModel, SurfaceOptions};
 use kartis::*;
-use std::collections::BTreeSet;
 
 fn source() -> Scene {
     let mut scene = ChartConfig::default().scene().unwrap();

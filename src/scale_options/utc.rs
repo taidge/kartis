@@ -68,7 +68,7 @@ fn floor(t: i64, i: Interval) -> i64 {
             days_from_civil(s.div_euclid(12), s.rem_euclid(12) + 1, 1) * DAY
         }
         Interval::Years(step) => {
-            let (y, _, _) = civil_from_days(t.div_euclid(DAY));
+            let (y, ..) = civil_from_days(t.div_euclid(DAY));
             days_from_civil(y.div_euclid(step) * step, 1, 1) * DAY
         }
     }
@@ -82,7 +82,7 @@ fn next(t: i64, i: Interval) -> i64 {
             days_from_civil(s.div_euclid(12), s.rem_euclid(12) + 1, 1) * DAY
         }
         Interval::Years(step) => {
-            let (y, _, _) = civil_from_days(t.div_euclid(DAY));
+            let (y, ..) = civil_from_days(t.div_euclid(DAY));
             days_from_civil(y + step, 1, 1) * DAY
         }
     }

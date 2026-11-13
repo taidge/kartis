@@ -1,8 +1,6 @@
-use glory::{
-    App,
-    render::{GraphicProps, GraphicStroke, Props, StrokeCap},
-    style::Display,
-};
+use glory::App;
+use glory::render::{GraphicProps, GraphicStroke, Props, StrokeCap};
+use glory::style::Display;
 use kartis::*;
 
 #[test]

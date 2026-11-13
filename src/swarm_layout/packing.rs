@@ -1,4 +1,5 @@
-use crate::{ChartError, Result, scene::ensure};
+use crate::scene::ensure;
+use crate::{ChartError, Result};
 
 #[derive(Clone, Copy)]
 pub(super) struct Placed {

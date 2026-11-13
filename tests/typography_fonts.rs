@@ -1,6 +1,7 @@
 #![cfg(feature = "raster")]
 
-use kartis::{render::raster::*, *};
+use kartis::render::raster::*;
+use kartis::*;
 
 const REGULAR: &[u8] = include_bytes!("fonts/KartisFixtureTypography-Regular.ttf");
 const BOLD: &[u8] = include_bytes!("fonts/KartisFixtureTypography-Bold.ttf");

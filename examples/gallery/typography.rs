@@ -1,7 +1,5 @@
-use kartis::{
-    render::raster::{FaceDescriptor, FontRegistry, MissingGlyphPolicy},
-    *,
-};
+use kartis::render::raster::{FaceDescriptor, FontRegistry, MissingGlyphPolicy};
+use kartis::*;
 
 fn fixture_family() -> FontFamily {
     FontFamily::Named("Kartis authored geometric symbols".into())

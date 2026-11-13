@@ -1,10 +1,9 @@
 //! Shared data-driven styles, using the public typed layout APIs.
+use std::collections::BTreeMap;
+use std::f64::consts::{FRAC_PI_2, PI, TAU};
+
 use glory::render::{GraphicStroke, StrokeCap};
 use kartis::*;
-use std::{
-    collections::BTreeMap,
-    f64::consts::{FRAC_PI_2, PI, TAU},
-};
 fn note(scene: &mut Scene, c: &ChartConfig, text: &str) {
     if !scene.draw_order.is_empty() {
         scene.draw_order.push(DrawItem::Label(scene.labels.len()));

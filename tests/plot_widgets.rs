@@ -1,11 +1,10 @@
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
 use glory::render::{Event, EventKind, NodeId, Props};
 use glory::style::{Display, Length, PointerEvents, Style};
 use glory::{App, Widget};
 use kartis::*;
-use std::{
-    cell::{Cell, RefCell},
-    rc::Rc,
-};
 
 fn datum_scene() -> Scene {
     let mut s = ChartConfig {

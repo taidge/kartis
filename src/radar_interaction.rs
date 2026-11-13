@@ -1,15 +1,16 @@
 //! Typed radar sectors. References: Nivo 0.99 RadarSlices.tsx/RadarSlice.tsx:
 //! rotation-halfStep, one sector per input axis, and stable ascending sort
 //! followed by reverse (including reversed source order for equal values).
+use std::collections::{BTreeMap, BTreeSet};
+use std::f64::consts::TAU;
+
+use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
+
 use crate::radial::{
     RadarPointFactory, RadarPointLabelFactory, radar_paint_angle, radar_scene_with_factories,
 };
-use crate::{scene::ensure, *};
-use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    f64::consts::TAU,
-};
+use crate::scene::ensure;
+use crate::*;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum PolarSliceDirection {

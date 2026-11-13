@@ -1,8 +1,9 @@
 //! Checked, allocation-free spherical measurement over borrowed typed geometry.
 //! Equations and compensated addition follow d3-geo3.1.1 / d3-array3.2.5 (ISC,
 //! Mike Bostock); complete original notices: tests/fixtures/geo-inverse-d3-LICENSE.txt.
-use super::{GeoFeature, Result, ensure, valid_position};
 use std::f64::consts::{FRAC_PI_4, PI, TAU};
+
+use super::{GeoFeature, Result, ensure, valid_position};
 const MAX_SOURCE: usize = 100_000;
 const MAX_PARTS: usize = 4096;
 /// Borrowed spherical geometry. Rings must be exactly closed with >=4 positions.
@@ -281,8 +282,8 @@ impl Default for GeoCircleOptions {
 }
 /// Return D3 circle samples in degrees with exact closure. When the last
 /// native sample is within1e-12 radians of the first, canonicalize that sample
-/// to the first to avoid a tiny duplicate closing edge; otherwise append it. Degenerate radius0/180 retain native
-/// samples; no nondegenerate renderer/GeoJSON-ingestion guarantee is implied.
+/// to the first to avoid a tiny duplicate closing edge; otherwise append it. Degenerate radius0/180
+/// retain native samples; no nondegenerate renderer/GeoJSON-ingestion guarantee is implied.
 pub fn geo_circle(o: &GeoCircleOptions) -> Result<Vec<[f64; 2]>> {
     valid_position(o.center)?;
     ensure(

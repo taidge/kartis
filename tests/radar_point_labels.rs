@@ -1,5 +1,7 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use kartis::*;
-use std::{cell::RefCell, rc::Rc};
 
 fn axes() -> [String; 3] {
     ["speed", "cost <&> Å café", "risk"].map(str::to_owned)

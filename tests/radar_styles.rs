@@ -1,6 +1,7 @@
+use std::collections::{BTreeMap, BTreeSet};
+
 use glory::render::{GraphicPoint as P, PathCommand as C};
 use kartis::*;
-use std::collections::{BTreeMap, BTreeSet};
 fn config() -> ChartConfig {
     ChartConfig {
         width: 200.,

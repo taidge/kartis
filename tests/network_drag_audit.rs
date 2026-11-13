@@ -1,6 +1,7 @@
 //! Independent audit of a real late force failure, rather than an input-limit
 //! rejection. The simulation's first tick can commit; the drag batch cannot.
-use kartis::{network::*, *};
+use kartis::network::*;
+use kartis::*;
 fn simulation() -> ForceSimulation {
     let mut simulation = ForceSimulation::new(
         &[NetworkNode::new("drag"), NetworkNode::new("edge")],

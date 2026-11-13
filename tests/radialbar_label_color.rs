@@ -1,7 +1,8 @@
-use kartis::surface::{SurfaceInput, SurfaceModel};
-use kartis::*;
 use std::collections::BTreeMap;
 use std::f64::consts::TAU;
+
+use kartis::surface::{SurfaceInput, SurfaceModel};
+use kartis::*;
 
 fn config() -> ChartConfig {
     ChartConfig {

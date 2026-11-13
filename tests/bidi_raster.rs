@@ -1,9 +1,12 @@
 #![cfg(feature = "raster-bidi")]
 
-use glory::{App, render::Props};
-use kartis::{render::raster::*, *};
 use std::cell::Cell;
 use std::rc::Rc;
+
+use glory::App;
+use glory::render::Props;
+use kartis::render::raster::*;
+use kartis::*;
 
 fn fonts(base: BidiBaseDirection) -> FontRegistry {
     let mut fonts = FontRegistry::new().with_bidi(base);

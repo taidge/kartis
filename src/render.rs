@@ -4,10 +4,12 @@
 use crate::{ClipPath, ClipRule, FillPaint, ResolvedFont, StrokeDash};
 #[cfg(all(feature = "canvas", target_arch = "wasm32"))]
 mod pattern_browser;
-use crate::scene::*;
+use std::fmt::Write;
+
 use glory::render::{GraphicStroke, PathCommand, StrokeCap};
 use glory::style::Color;
-use std::fmt::Write;
+
+use crate::scene::*;
 #[cfg(feature = "raster")]
 pub mod raster;
 

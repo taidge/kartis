@@ -1,5 +1,6 @@
-use super::*;
 use std::fmt::Write;
+
+use super::*;
 
 /// SVG object-box masks are scoped to one browser chart. The normalized
 /// coordinates follow the CSS surface independently of either axis's resize.

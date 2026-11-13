@@ -4,13 +4,14 @@
 //! outer <= R sin(halfAngle)/(1+sin(halfAngle)), inner analogous with minus.
 //! Fillets are actual tangent circular arcs, represented by bounded cubics;
 //! no masks or radius metadata substitute for their geometry.
-use super::{RadialDatum, arc_segment, point, sector};
-use crate::{Color, ValueFormat, scene::*};
+use std::collections::{BTreeMap, BTreeSet};
+use std::f64::consts::{FRAC_PI_2, PI, TAU};
+
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    f64::consts::{FRAC_PI_2, PI, TAU},
-};
+
+use super::{RadialDatum, arc_segment, point, sector};
+use crate::scene::*;
+use crate::{Color, ValueFormat};
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub enum PieLabelText {

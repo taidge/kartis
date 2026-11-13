@@ -1,6 +1,7 @@
 //! Single-line HTML baseline measurements for ordinary Glory Text labels.
-use super::*;
 use wasm_bindgen::JsValue;
+
+use super::*;
 
 #[wasm_bindgen::prelude::wasm_bindgen]
 extern "C" {

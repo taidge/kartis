@@ -1,9 +1,8 @@
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use kartis::{
-    surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions},
-    *,
-};
 use std::collections::BTreeSet;
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+use kartis::surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions};
+use kartis::*;
 
 fn frame() -> ChartConfig {
     ChartConfig {

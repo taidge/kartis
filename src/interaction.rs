@@ -1,6 +1,7 @@
 //! Renderer-independent selection, legends and pointer coordinate conversion.
-use crate::{ChartError, Result, Scene};
 use std::collections::BTreeSet;
+
+use crate::{ChartError, Result, Scene};
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Interaction {

@@ -1,7 +1,9 @@
 //! Bounded COLR v0 solid-layer collection before any destination is painted.
-use super::{Color, ColorGlyphMode, Outline};
-use crate::{ChartError, Result, scene::ensure};
 use ttf_parser::{Face, GlyphId, Rect, RgbaColor, Tag, colr};
+
+use super::{Color, ColorGlyphMode, Outline};
+use crate::scene::ensure;
+use crate::{ChartError, Result};
 
 const MAX_GLYPH_LAYERS: usize = 256;
 

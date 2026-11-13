@@ -1,10 +1,9 @@
-use glory::render::{GraphicPoint as P, PathCommand as C};
-use kartis::{
-    stack::{StackOffset, StackOptions, StackOrder, stack},
-    surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions},
-    *,
-};
 use std::collections::BTreeSet;
+
+use glory::render::{GraphicPoint as P, PathCommand as C};
+use kartis::stack::{StackOffset, StackOptions, StackOrder, stack};
+use kartis::surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions};
+use kartis::*;
 
 const LEFT: f64 = 11.;
 const TOP: f64 = 13.;

@@ -1,9 +1,12 @@
 //! Configurable parallel coordinates. Nivo references: parallel-coordinates/
 //! src/{defaults,types,hooks}.ts. Each variable is scaled independently before
 //! the existing curve engine receives the shared screen-coordinate geometry.
-use crate::{scene::ensure, *};
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
 use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
+use crate::scene::ensure;
+use crate::*;
 
 pub const MAX_PARALLEL_DIMENSIONS: usize = 64;
 pub const MAX_PARALLEL_RECORDS: usize = 2048;

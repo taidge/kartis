@@ -1,9 +1,10 @@
 #![cfg(feature = "geojson")]
 //! The expected rows are actual original Nivo hook/helper output. Caption-based
 //! native deduplication and Rust's full legacy subgroup legend remain distinct.
+use std::collections::{BTreeMap, BTreeSet};
+
 use kartis::*;
 use serde_json::Value;
-use std::collections::{BTreeMap, BTreeSet};
 
 fn reference() -> Value {
     serde_json::from_str(include_str!("fixtures/box-legend-labels/values.json")).unwrap()

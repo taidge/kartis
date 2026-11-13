@@ -4,10 +4,12 @@
 //! Topology decoding follows the TopoJSON specification: only transformed arcs
 //! are delta encoded; a negative reference is one's-complement and reverses the
 //! complete decoded arc. Stitching validates endpoints before removing duplicates.
+use std::collections::BTreeSet;
+
+use serde_json::{Map, Value};
+
 use crate::scene::{MAX_LABEL_BYTES, ensure};
 use crate::{ChartError, GeoFeature, Result};
-use serde_json::{Map, Value};
-use std::collections::BTreeSet;
 
 pub const MAX_GEO_JSON_BYTES: usize = 8 * 1024 * 1024;
 pub const MAX_GEO_FEATURES: usize = 20_000;

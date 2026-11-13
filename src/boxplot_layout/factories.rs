@@ -56,12 +56,21 @@ pub struct BoxPlotFactories<'a> {
 /// let c = ChartConfig::default();
 /// let data = [BoxObservation::new("a", "A", "x", Some(2.))];
 /// let mut color = |ctx: &BoxPlotColorContext<'_>| {
-///     Ok(if ctx.computed_box.mean > 1. { Color(20, 90, 140, 255) }
-///        else { ctx.default_color })
+///     Ok(if ctx.computed_box.mean > 1. {
+///         Color(20, 90, 140, 255)
+///     } else {
+///         ctx.default_color
+///     })
 /// };
-/// let layout = boxplot_layout_with_factories(&c, &data,
+/// let layout = boxplot_layout_with_factories(
+///     &c,
+///     &data,
 ///     &BoxPlotLayoutOptions::default(),
-///     BoxPlotFactories { color: Some(&mut color), legend_label: None })?;
+///     BoxPlotFactories {
+///         color: Some(&mut color),
+///         legend_label: None,
+///     },
+/// )?;
 /// # Ok::<(), ChartError>(())
 /// ```
 pub fn boxplot_layout_with_factories(

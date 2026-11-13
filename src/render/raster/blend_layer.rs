@@ -1,11 +1,10 @@
-use crate::{
-    ChartError, Result,
-    blend::{BlendMode, BlendPlan, BlendRegion},
-    scene::ensure,
-};
 use tiny_skia::{
     BlendMode as Mode, FilterQuality, Mask, Pixmap, PixmapMut, PixmapPaint, PixmapRef, Transform,
 };
+
+use crate::blend::{BlendMode, BlendPlan, BlendRegion};
+use crate::scene::ensure;
+use crate::{ChartError, Result};
 
 pub(super) struct Layers {
     plan: BlendPlan,

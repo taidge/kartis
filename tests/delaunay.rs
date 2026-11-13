@@ -1,5 +1,6 @@
-use kartis::*;
 use std::collections::BTreeSet;
+
+use kartis::*;
 
 struct Oracle {
     points: &'static [[f64; 2]],

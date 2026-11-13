@@ -1,6 +1,7 @@
+use std::collections::BTreeMap;
+
 use glory::render::{GraphicStroke, StrokeCap};
 use kartis::*;
-use std::collections::BTreeMap;
 
 fn config() -> ChartConfig {
     ChartConfig {

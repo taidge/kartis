@@ -5,7 +5,8 @@
 //! Quantize boundaries use right-bisect, as d3-scale/quantize.js;
 //! equality belongs to the following bin. Descending domains reverse the
 //! direction explicitly. Non-finite queries and missing values use `unknown`.
-use crate::{Color, Result, scene::ensure};
+use crate::scene::ensure;
+use crate::{Color, Result};
 
 mod interpolation;
 mod schemes;

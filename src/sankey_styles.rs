@@ -4,6 +4,10 @@
 //! Visibility never changes the solved topology, ports, or common flow scale.
 //! Links belong to their source series; `hidden` additionally hides links
 //! incident to a hidden target. Re-layout with that set for two-ended legends.
+use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd};
+
 use crate::scene::ensure;
 use crate::{
     ChartConfig, ChartError, CircularFlowLink, CircularLinkRoute, CircularSankeyMetrics,
@@ -11,8 +15,6 @@ use crate::{
     Label, LegendItem, Mark, Result, ReturnSide, SankeyLayoutOptions, Scene, TextAnchor,
     layout_sankey_circular, sankey_with_layout,
 };
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd};
-use std::collections::{BTreeMap, BTreeSet};
 
 /// Both solvers use the same explicit-ID link input. Parallel links need
 /// distinct IDs; input reordering does not change their identity or palette.

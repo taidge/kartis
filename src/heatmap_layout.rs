@@ -1,15 +1,17 @@
 //! Nullable HeatMap cells with independent band padding and exact identities.
 //! References: nivo/packages/heatmap/src/{compute,hooks,types}.ts. Existing
 //! `heatmap` defaults are unchanged. Sparse, absent pairs are not synthesized.
+use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
+use crate::axes::{CategoryAxisOptions, ValueFormat};
+use crate::scene::ensure;
 use crate::{
     ChartConfig, ChartError, ClipRect, Color, ColorInterpolation, ColorScale, ColorScaleOptions,
     ColorScaleProfile, Geometry, HeatCell, Label, LegendItem, Mark, Result, Scene, TextAnchor,
     TooltipDatum,
-    axes::{CategoryAxisOptions, ValueFormat},
-    scene::ensure,
 };
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use std::collections::{BTreeMap, BTreeSet};
 
 mod custom;
 pub use custom::{

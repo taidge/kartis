@@ -1,14 +1,18 @@
 //! Discrete rank lines with the shoulder construction used by Nivo Bump.
+use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
+use crate::cartesian::path;
+use crate::line_scales::category_text;
+use crate::scene::ensure;
 use crate::{
     AxisOptions, CategoryKey, ChartConfig, ChartError, ClipRect, Color, Curve, Geometry,
     GlyphOptions, GlyphPaintMode, InheritedColor, InheritedColorContext, InteractionAnchor,
     InteractionBinding, InteractionSite, Label, LegendItem, LinePointGeometry, Mark,
     OrdinalColorOptions, PointScale, PointScaleOptions, Result, Scene, SceneInteraction,
-    StrokeDash, TextAnchor, ValueFormat, cartesian::path, glyph_geometry, glyph_mark,
-    line_scales::category_text, scene::ensure,
+    StrokeDash, TextAnchor, ValueFormat, glyph_geometry, glyph_mark,
 };
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use std::collections::{BTreeMap, BTreeSet};
 
 pub const MAX_BUMP_POINTS: usize = 8192;
 

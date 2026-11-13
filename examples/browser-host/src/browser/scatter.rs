@@ -1,7 +1,9 @@
 //! Actual typed ScatterLayout with shared domain navigation and native input.
-use super::*;
-use kartis::surface::{Picking, SurfaceModel, SurfaceOptions};
 use std::collections::BTreeSet;
+
+use kartis::surface::{Picking, SurfaceModel, SurfaceOptions};
+
+use super::*;
 
 struct Fixture {
     chart: BrowserChart,

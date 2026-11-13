@@ -52,8 +52,8 @@ fn checked_n(n: f64) -> Result<f64, &'static str> {
     Ok(n)
 }
 // Cauchy mean-value theorem: EQD/CC n must lie between the sines
-// of the authored standard latitudes. Eight adjacent binary64 values at each endpoint are an explicit
-// engineering endpoint allowance for binary64/libm, not a separation cutoff.
+// of the authored standard latitudes. Eight adjacent binary64 values at each endpoint are an
+// explicit engineering endpoint allowance for binary64/libm, not a separation cutoff.
 fn checked_standard_interval(n: f64, a: f64, b: f64) -> Result<(), &'static str> {
     let sa = a.sin();
     let sb = b.sin();

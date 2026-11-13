@@ -5,6 +5,10 @@
 //! decisions; its axes/legends are discarded. Nullable categorical gaps remain
 //! gaps. Numeric series retain irregular sampling. Source row order does not
 //! change identities, colors, legend order or bar placement.
+use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
+
 use crate::scales::BandScale;
 use crate::scene::ensure;
 use crate::{
@@ -13,8 +17,6 @@ use crate::{
     LineOptions, Mark, Point, ResolvedContinuousScale, Result, ScaleKind, Scene, Series,
     TextAnchor, ValueFormat, YAxisOptions, YAxisSide,
 };
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
-use std::collections::{BTreeMap, BTreeSet};
 
 mod configured;
 mod intervals;

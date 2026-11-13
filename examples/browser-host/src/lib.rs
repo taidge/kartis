@@ -57,21 +57,18 @@ mod browser {
     mod text_baseline;
     mod tree;
     mod typography;
+    use std::cell::{Cell, RefCell};
+    use std::collections::BTreeMap;
+    use std::rc::Rc;
+
     use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
-    use kartis::{
-        browser::{
-            BrowserAnimation, BrowserChart, BrowserEvent, BrowserHandle, BrowserOptions,
-            BrowserRenderer, BrowserViewportLayout,
-        },
-        surface::{SurfaceEvent, SurfaceInput},
-        *,
+    use kartis::browser::{
+        BrowserAnimation, BrowserChart, BrowserEvent, BrowserHandle, BrowserOptions,
+        BrowserRenderer, BrowserViewportLayout,
     };
+    use kartis::surface::{SurfaceEvent, SurfaceInput};
+    use kartis::*;
     use serde_json::{Value, json};
-    use std::{
-        cell::{Cell, RefCell},
-        collections::BTreeMap,
-        rc::Rc,
-    };
     use wasm_bindgen::prelude::*;
     struct Entry {
         chart: Option<BrowserChart>,

@@ -1,18 +1,21 @@
 //! Typed undirected chord layout following Nivo 0.99 and d3-chord 1.0.6.
 //! Angles are radians clockwise from twelve o'clock. Ribbon sides are exact
 //! quadratic-to-cubic conversions. Circular boundaries use the shared kernel.
+use std::collections::{BTreeMap, BTreeSet};
+use std::f64::consts::TAU;
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
+use crate::pie_layout::pie_arc;
+use crate::polar_axes::arc_commands;
+use crate::presentation::tooltip_data_text;
+use crate::scene::ensure;
 use crate::{
     CategoryKey, ChartConfig, ChartError, ClipRect, Color, ColorModifier, Geometry, InheritedColor,
     InheritedColorContext, InteractionAnchor, InteractionBinding, InteractionSite, Label,
     LegendItem, Mark, OrdinalColorOptions, OrdinalColorScale, RelationEdge, RelationGraph,
     RelationLayout, RelationNode, RelationOptions, Result, Scene, SceneInteraction, TextAnchor,
-    TooltipDatum, TooltipOptions, ValueFormat, chord_relation_edge_id, pie_layout::pie_arc,
-    polar_axes::arc_commands, presentation::tooltip_data_text, scene::ensure,
-};
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    f64::consts::TAU,
+    TooltipDatum, TooltipOptions, ValueFormat, chord_relation_edge_id,
 };
 
 pub const MAX_CHORD_GROUPS: usize = 64;

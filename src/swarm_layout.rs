@@ -2,9 +2,12 @@
 //! uses a pair of positional forces plus forceCollide, so both coordinates can
 //! move. This layout fixes the scale coordinate and packs conservative ink
 //! discs across disjoint group bands. It rejects an infeasible greedy packing.
-use crate::{scene::ensure, *};
-use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
 use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
+
+use crate::scene::ensure;
+use crate::*;
 
 mod group_axis;
 mod packing;

@@ -1,6 +1,9 @@
 //! Retained consumers of empirical-rank colors with an exact data-axis legend.
+use std::cell::Cell;
+use std::collections::BTreeSet;
+use std::rc::Weak;
+
 use super::*;
-use std::{cell::Cell, collections::BTreeSet, rc::Weak};
 
 #[derive(Clone, Debug, Default)]
 struct Settings {

@@ -1,17 +1,20 @@
 //! Waffle allocation, grid traversal, and group areas. The legacy `waffle`
 //! retains its largest-remainder policy and original mark IDs.
 
+use std::collections::{BTreeMap, BTreeSet};
+use std::ops::Range;
+
+use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
+
+use crate::cartesian::round_bar;
+use crate::crosshair::mark_center;
+use crate::radial::validate_data;
+use crate::scene::ensure;
 use crate::{
     CategoryKey, ChartConfig, ChartError, ClipRect, Color, ColorModifier, Geometry, InheritedColor,
     InheritedColorContext, InteractionAnchor, InteractionBinding, InteractionSite, LegendItem,
     MAX_MARKS, Mark, OrdinalColorOptions, RadialDatum, Result, Scene, SceneInteraction,
-    ValueFormat, cartesian::round_bar, crosshair::mark_center, radial::validate_data,
-    scene::ensure,
-};
-use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    ops::Range,
+    ValueFormat,
 };
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]

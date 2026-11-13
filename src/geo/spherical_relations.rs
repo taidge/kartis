@@ -1,8 +1,9 @@
 //! Checked spherical centroid and containment over borrowed typed geometry.
 //! Equations follow pinned d3-geo3.1.1 / d3-array3.2.5 (ISC, Mike Bostock).
 //! Complete notices: tests/fixtures/geo-inverse-d3-LICENSE.txt.
-use super::{GeoSphericalGeometry as G, Result, ensure, valid_position};
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_4, PI, TAU};
+
+use super::{GeoSphericalGeometry as G, Result, ensure, valid_position};
 const RADIANS: f64 = PI / 180.;
 const EPS: f64 = 1e-6;
 const EPS2: f64 = 1e-12;

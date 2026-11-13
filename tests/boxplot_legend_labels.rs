@@ -1,7 +1,8 @@
 //! Key-stable caption overrides; no arbitrary legend callback or label-based
 //! row deduplication is implied. Original-function fixture boundaries stay intact.
-use kartis::*;
 use std::collections::{BTreeMap, BTreeSet};
+
+use kartis::*;
 
 fn config() -> ChartConfig {
     let mut c = ChartConfig {

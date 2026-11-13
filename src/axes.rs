@@ -1,11 +1,12 @@
 //! Shared chart scales, numeric formatting and configurable Cartesian axes.
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
 use crate::scales::{LinearScale, LogScale, PiecewiseScale, PowScale, SymLogScale};
 use crate::scene::ensure;
 use crate::{
     ChartConfig, Geometry, Label, MAX_LABEL_BYTES, MAX_TIMESTAMP_MS, Mark, Result, Scene,
     TextAnchor, UtcTimeScale,
 };
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub enum ScaleKind {

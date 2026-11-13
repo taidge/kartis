@@ -1,8 +1,8 @@
-use super::{ContourLevel, ContourLimits, algorithm_error, core};
-use crate::Result;
+pub use core::{DensityOptions, DensityThresholds, WeightedPoint as DensityPoint};
 use std::sync::Arc;
 
-pub use core::{DensityOptions, DensityThresholds, WeightedPoint as DensityPoint};
+use super::{ContourLevel, ContourLimits, algorithm_error, core};
+use crate::Result;
 
 /// Immutable, shareable aggregate. No business samples or historical fields are
 /// retained. Raw cells preserve the original Float32 accumulation; thresholds

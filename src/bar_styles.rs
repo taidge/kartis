@@ -3,12 +3,11 @@
 //! compute/grouped.ts,compute/stacked.ts,compute/totals.ts} (0.99.0).
 //! Bands, stacks, totals and labels are solved together in data coordinates;
 //! clipping never replaces a true rounded endpoint with a new rounded cap.
-use crate::{
-    scales::{BandScale, BandScaleOptions},
-    scene::ensure,
-    *,
-};
 use std::collections::{BTreeMap, BTreeSet};
+
+use crate::scales::{BandScale, BandScaleOptions};
+use crate::scene::ensure;
+use crate::*;
 mod custom;
 pub use custom::{
     BarDatumContext, BarDatumGeometry, BarFactories, BarGeometryFactory, BarLabelContext,

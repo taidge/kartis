@@ -1,4 +1,5 @@
-use kartis::{surface::*, *};
+use kartis::surface::*;
+use kartis::*;
 
 fn frame() -> ChartConfig {
     ChartConfig {

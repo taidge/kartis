@@ -1,9 +1,10 @@
-use super::{ScatterDatum, ScatterSizeUnit};
-use crate::{
-    ClipRect, Color, FillPaint, Geometry, InteractionAnchor, Mark, PatternShape, Result,
-    StrokeDash, scene::ensure,
-};
 use glory::render::{GraphicPoint, GraphicStroke, PathCommand};
+
+use super::{ScatterDatum, ScatterSizeUnit};
+use crate::scene::ensure;
+use crate::{
+    ClipRect, Color, FillPaint, Geometry, InteractionAnchor, Mark, PatternShape, Result, StrokeDash,
+};
 
 /// Source and resolved layout data supplied to a custom scatter node factory.
 #[derive(Clone, Copy, Debug)]

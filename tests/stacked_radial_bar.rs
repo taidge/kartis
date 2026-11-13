@@ -1,10 +1,9 @@
-use kartis::*;
 #[cfg(feature = "raster")]
 use std::collections::BTreeMap;
-use std::{
-    collections::BTreeSet,
-    f64::consts::{PI, TAU},
-};
+use std::collections::BTreeSet;
+use std::f64::consts::{PI, TAU};
+
+use kartis::*;
 fn config() -> ChartConfig {
     ChartConfig {
         width: 420.,

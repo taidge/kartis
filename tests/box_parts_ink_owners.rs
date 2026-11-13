@@ -1,6 +1,8 @@
-use glory::render::GraphicStroke;
-use kartis::{surface::SurfaceModel, *};
 use std::collections::BTreeMap;
+
+use glory::render::GraphicStroke;
+use kartis::surface::SurfaceModel;
+use kartis::*;
 
 fn source() -> (Scene, InteractionBinding) {
     let mut scene = ChartConfig::default().scene().unwrap();

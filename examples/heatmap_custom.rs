@@ -1,10 +1,11 @@
 //! Export custom HeatMap cells with --features raster,geojson and an output directory.
+use std::fmt::Write;
+use std::path::PathBuf;
+
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use kartis::{
-    render::{self, raster::*},
-    *,
-};
-use std::{fmt::Write, path::PathBuf};
+use kartis::render::raster::*;
+use kartis::render::{self};
+use kartis::*;
 
 fn diamond(x: f64, y: f64) -> Geometry {
     Geometry::Path(vec![

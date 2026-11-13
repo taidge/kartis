@@ -1,9 +1,10 @@
 //! `cargo run --release --example network_bench`
 //! Informational timings; correctness is asserted in tests/network.rs.
-use kartis::network::{ForceOptions, ForceSimulation, many_body_forces};
-use kartis::{NetworkLink, NetworkNode};
 use std::hint::black_box;
 use std::time::Instant;
+
+use kartis::network::{ForceOptions, ForceSimulation, many_body_forces};
+use kartis::{NetworkLink, NetworkNode};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let count = 4096;

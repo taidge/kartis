@@ -6,11 +6,13 @@
 //! Spade's predicate profile (2^-142 ..= 2^201). Wider dynamic ranges are rejected.
 //! Co-circular inputs have more than one valid triangulation: the sorted input
 //! and pinned backend choose a deterministic one, not necessarily D3's diagonal.
-use crate::scene::ensure;
-use crate::{ChartConfig, Color, Geometry, Label, LegendItem, Mark, Result, Scene, TextAnchor};
+use std::collections::BTreeMap;
+
 use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
 use spade::{DelaunayTriangulation, Point2, Triangulation};
-use std::collections::BTreeMap;
+
+use crate::scene::ensure;
+use crate::{ChartConfig, Color, Geometry, Label, LegendItem, Mark, Result, Scene, TextAnchor};
 
 /// Maximum raw sites, including duplicates, in one triangulation.
 pub const MAX_DELAUNAY_SITES: usize = 20_000;

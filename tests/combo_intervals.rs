@@ -1,6 +1,7 @@
+use std::collections::BTreeSet;
+
 use glory::render::{GraphicStroke, PathCommand, StrokeCap};
 use kartis::*;
-use std::collections::BTreeSet;
 
 fn config() -> ChartConfig {
     ChartConfig {

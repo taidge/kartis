@@ -1,7 +1,8 @@
 //! Shared data-color scales consumed by geographic and calendar layouts.
 //! Original entry points keep their earlier profiles and palettes.
-use crate::*;
 use std::collections::BTreeMap;
+
+use crate::*;
 #[derive(Clone, Debug, PartialEq)]
 pub struct ColorMappedGeoLayout {
     pub scene: Scene,

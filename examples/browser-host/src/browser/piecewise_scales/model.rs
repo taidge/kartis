@@ -1,5 +1,6 @@
-use super::*;
 use std::collections::BTreeSet;
+
+use super::*;
 
 #[derive(Clone)]
 pub(super) enum Layout {

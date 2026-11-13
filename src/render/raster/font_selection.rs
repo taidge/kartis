@@ -1,7 +1,8 @@
 //! Explicit aliases for statically instantiated, application-supplied faces.
+use glory::style::Family;
+
 use super::*;
 use crate::{FontOptions, ResolvedFont};
-use glory::style::Family;
 
 /// Bind an application font-family alias and exact CSS weight to supplied bytes.
 /// Family aliases need not equal the font's embedded name. The weight must

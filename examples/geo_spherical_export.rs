@@ -1,8 +1,11 @@
 //! Standalone example: --features raster,geojson and an explicit output directory.
 #[path = "shared/geo_spherical.rs"]
 mod geo_spherical;
-use kartis::{render::raster::*, *};
-use std::{fmt::Write, path::PathBuf};
+use std::fmt::Write;
+use std::path::PathBuf;
+
+use kartis::render::raster::*;
+use kartis::*;
 fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let mut args = std::env::args().skip(1);
     let out = PathBuf::from(args.next().ok_or("provide output directory")?);

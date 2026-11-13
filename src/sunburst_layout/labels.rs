@@ -1,12 +1,15 @@
 //! Optional measured Sunburst label placement, extending its Nivo-style labels.
+use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::PathCommand;
+
 use super::{SunburstArc, SunburstLayout, SunburstLayoutNode};
+use crate::clip_path::RectCoverage;
+use crate::scene::ensure;
 use crate::{
     ChartError, ClipPath, ClipRule, DrawItem, Geometry, Label, LabelCandidate,
-    LabelCollisionOptions, LayoutRect, MAX_LABEL_BYTES, Result, Scene, clip_path::RectCoverage,
-    layout_labels, scene::ensure,
+    LabelCollisionOptions, LayoutRect, MAX_LABEL_BYTES, Result, Scene, layout_labels,
 };
-use glory::render::PathCommand;
-use std::collections::{BTreeMap, BTreeSet};
 
 pub const MAX_SUNBURST_LABEL_MASK_WORK: usize = 16_000_000;
 

@@ -1,7 +1,9 @@
 //! Independent actual-Nivo fixtures plus geometric/Surface/CPU contracts.
-use glory::render::{GraphicStroke, PathCommand as C, StrokeCap};
-use kartis::{surface::*, *};
 use std::collections::BTreeMap;
+
+use glory::render::{GraphicStroke, PathCommand as C, StrokeCap};
+use kartis::surface::*;
+use kartis::*;
 fn frame(width: f64, height: f64) -> ChartConfig {
     ChartConfig {
         width: width + 60.,

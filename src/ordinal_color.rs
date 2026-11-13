@@ -1,12 +1,12 @@
 //! Typed ordinal color scales with explicit range, domain and unknown handling.
 
+use std::collections::BTreeMap;
+use std::collections::btree_map::Entry;
+use std::fmt;
+use std::str::FromStr;
+
 use crate::scene::{MAX_MARKS, ensure};
 use crate::{CategoryKey, ChartError, Color, ColorScheme, Result};
-use std::{
-    collections::{BTreeMap, btree_map::Entry},
-    fmt,
-    str::FromStr,
-};
 
 const MAX_ORDINAL_COLORS: usize = 256;
 const MAX_DOMAIN_TEXT_BYTES: usize = 4 * 1024 * 1024;

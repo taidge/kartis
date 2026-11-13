@@ -1,8 +1,10 @@
 //! Actual browser font selection and font-aware semantic measurements.
-use super::*;
+use std::collections::BTreeSet;
+
 use glory::Cage;
 use glory::style::Family;
-use std::collections::BTreeSet;
+
+use super::*;
 
 const FAMILY: &str = "Kartis Fixture Typography";
 const QUOTED_FAMILY: &str = "Chart \"Quoted\"";

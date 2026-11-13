@@ -1,9 +1,10 @@
 //! Public presentation APIs: actual geometry, no SVG-only decoration overrides.
+use std::collections::{BTreeMap, BTreeSet};
+use std::f64::consts::{PI, TAU};
+
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
 use kartis::mesh::PointMesh;
 use kartis::*;
-use std::collections::{BTreeMap, BTreeSet};
-use std::f64::consts::{PI, TAU};
 
 fn caption(scene: &mut Scene, c: &ChartConfig, text: &str) {
     scene.labels.push(Label {

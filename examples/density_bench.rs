@@ -1,11 +1,13 @@
 //! Bounded, deterministic native throughput baseline; not a browser FPS test.
 //! Run release with --report <absolute-path>, optionally --features raster.
-use kartis::{
-    mesh::{MeshPoint, PointMesh},
-    render::to_svg,
-    *,
-};
-use std::{fmt::Write as _, hint::black_box, path::PathBuf, time::Instant};
+use std::fmt::Write as _;
+use std::hint::black_box;
+use std::path::PathBuf;
+use std::time::Instant;
+
+use kartis::mesh::{MeshPoint, PointMesh};
+use kartis::render::to_svg;
+use kartis::*;
 
 type BenchResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 

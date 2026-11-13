@@ -1,7 +1,9 @@
 //! The retained force driver owns the rendered glyph, datum and drag target.
-use super::*;
-use kartis::browser::{BrowserNetwork, BrowserNetworkOptions};
 use std::collections::BTreeSet;
+
+use kartis::browser::{BrowserNetwork, BrowserNetworkOptions};
+
+use super::*;
 
 struct Fixture {
     network: BrowserNetwork,

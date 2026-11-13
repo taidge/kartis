@@ -12,18 +12,21 @@ mod font_selection;
 mod text_runs;
 mod vertical;
 mod vertical_data;
-use super::Canvas;
-use crate::blend::{BlendMode, BlendPlan, MarkBlends};
-use crate::scene::ensure;
-use crate::{ChartError, ClipRect, Color, Label, Result, Scene, TextAnchor, ZoomTransform};
+use std::collections::BTreeMap;
+use std::sync::Arc;
+
 use base64::Engine as _;
 #[cfg(feature = "raster-bidi")]
 pub use bidi::BidiBaseDirection;
 pub use font_selection::FaceDescriptor;
 use glory::render::{GraphicStroke, StrokeCap};
-use std::{collections::BTreeMap, sync::Arc};
 use tiny_skia::{FillRule, Mask, Paint, Path, PathBuilder, Pixmap, Rect, Stroke, Transform};
 pub use vertical::{RasterGlyphOrientation, RasterVerticalColumns, RasterVerticalLayout};
+
+use super::Canvas;
+use crate::blend::{BlendMode, BlendPlan, MarkBlends};
+use crate::scene::ensure;
+use crate::{ChartError, ClipRect, Color, Label, Result, Scene, TextAnchor, ZoomTransform};
 
 pub const MAX_RASTER_PIXELS: u64 = 67_108_864;
 pub const MAX_RASTER_OPERATIONS: usize = 1_000_000_000;

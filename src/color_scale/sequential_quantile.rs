@@ -1,6 +1,8 @@
 //! Empirical right-rank colors and their exact, bounded data-axis legends.
 use super::{ColorScale, ColorScaleStop, color_fraction};
-use crate::{Color, Result, paint::MAX_GRADIENT_STOPS, scene::ensure};
+use crate::paint::MAX_GRADIENT_STOPS;
+use crate::scene::ensure;
+use crate::{Color, Result};
 
 impl ColorScale {
     /// Complete sorted sample distribution for SequentialQuantile only.

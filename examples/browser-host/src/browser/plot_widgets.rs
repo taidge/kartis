@@ -1,8 +1,9 @@
 //! Real Glory plot Widget slots over both application-owned browser surfaces.
-use super::*;
 use glory::Widget;
 use glory::render::EventKind;
 use glory::style::{Length, Style};
+
+use super::*;
 
 #[derive(Default)]
 struct Counts {

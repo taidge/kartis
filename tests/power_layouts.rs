@@ -1,9 +1,8 @@
-use glory::render::PathCommand;
-use kartis::{
-    surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions},
-    *,
-};
 use std::collections::BTreeMap;
+
+use glory::render::PathCommand;
+use kartis::surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions};
+use kartis::*;
 
 fn frame() -> ChartConfig {
     ChartConfig {

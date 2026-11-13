@@ -5,11 +5,13 @@
 //! radius-dependent angular bound keeps Scene's 24-step cubic hit tessellation
 //! within 0.004 px of the curve. This is a bounded approximation, not rational
 //! circular-arc boolean geometry.
+use std::f64::consts::{PI, TAU};
+
+use glory::render::{GraphicPoint as P, PathCommand as Cmd};
+
 use super::GeoSymbolShape;
 use crate::scene::ensure;
 use crate::{ChartError, GeoProjectionDisk, Geometry, Result};
-use glory::render::{GraphicPoint as P, PathCommand as Cmd};
-use std::f64::consts::{PI, TAU};
 
 pub(super) fn validate(disk: GeoProjectionDisk) -> Result<()> {
     ensure(

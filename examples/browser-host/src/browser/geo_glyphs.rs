@@ -1,7 +1,9 @@
 //! Real projected glyphs, original origins, and azimuthal paint masks.
-use super::*;
-use kartis::surface::{Picking, SurfaceModel, SurfaceOptions};
 use std::collections::BTreeSet;
+
+use kartis::surface::{Picking, SurfaceModel, SurfaceOptions};
+
+use super::*;
 struct Entry {
     chart: BrowserChart,
     root: web_sys::Element,

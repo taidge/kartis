@@ -2,16 +2,19 @@
 //! {hooks.ts,defaults.ts,RadarGridLevels.tsx,RadarDots.tsx,RadarLayer.tsx}.
 //! Closed interpolation reuses the independently tested D3-shape implementation
 //! in cartesian.rs; it does not close an open spline with a straight segment.
+use std::collections::{BTreeMap, BTreeSet};
+use std::f64::consts::{PI, TAU};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
 use super::{RadarSeries, center, point, polygon, valid_key};
+use crate::scatter_layout::PreparedNode;
 use crate::scene::{ensure, *};
 use crate::{
     Color, Curve, GlyphOptions, GlyphPaintMode, InheritedColor, InheritedColorContext,
     InteractionAnchor, MAX_SCENE_GRADIENT_STOPS, StrokeDash, ValueFormat, glyph_geometry,
-    glyph_mark, scatter_layout::PreparedNode,
+    glyph_mark,
 };
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use std::collections::{BTreeMap, BTreeSet};
-use std::f64::consts::{PI, TAU};
 
 #[path = "radar_value_scale.rs"]
 mod radar_value_scale;

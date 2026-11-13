@@ -1,10 +1,12 @@
+use std::collections::BTreeSet;
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
 use super::{Coordinates, SwarmGroupLayout};
+use crate::scene::ensure;
 use crate::{
     CategoryAxisOptions, ChartConfig, Color, Geometry, Label, Mark, Result, Scene, TextAnchor,
-    scene::ensure,
 };
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use std::collections::BTreeSet;
 
 fn line(scene: &mut Scene, id: impl Into<String>, color: Color, from: [f64; 2], to: [f64; 2]) {
     let mut mark = Mark::new(

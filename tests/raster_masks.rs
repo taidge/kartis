@@ -1,9 +1,8 @@
 #![cfg(feature = "raster")]
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use kartis::{
-    render::{Canvas, raster::*},
-    *,
-};
+use kartis::render::Canvas;
+use kartis::render::raster::*;
+use kartis::*;
 const RED: Color = Color(220, 30, 40, 255);
 fn scene() -> Scene {
     ChartConfig {

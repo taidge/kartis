@@ -4,9 +4,11 @@
 //! Staggered point patterns use the same two diagonal motifs in a 2*pitch tile.
 //! Unlike angle-dependent rectangular stripe tiles, rotation transforms the
 //! entire periodic lattice, including the background, without a 0/90° singularity.
-use crate::{ChartError, Color, Geometry, Result, scene::ensure};
 use std::f64::consts::PI;
 use std::fmt::Write;
+
+use crate::scene::ensure;
+use crate::{ChartError, Color, Geometry, Result};
 
 pub const MAX_PATTERN_TILE_SIDE: u32 = 4096;
 pub const MAX_PATTERN_TILE_PIXELS: u64 = 4_194_304;

@@ -4,13 +4,14 @@
 //! packages/pie/src/hooks.ts:105..159,349..395 and arcs/src/boundingBox.ts.
 //! Angles are radians clockwise from twelve o'clock. Legacy `pie` is unchanged.
 pub(crate) mod pie_arc;
-use crate::{scene::ensure, *};
+use std::collections::{BTreeMap, BTreeSet};
+use std::f64::consts::{FRAC_PI_2, TAU};
+use std::sync::Arc;
+
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    f64::consts::{FRAC_PI_2, TAU},
-    sync::Arc,
-};
+
+use crate::scene::ensure;
+use crate::*;
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub enum PiePadRadius {
     #[default]

@@ -5,8 +5,9 @@
 //! geometry and text, and is validated together with the final scene before
 //! publication. Callbacks run only when the application explicitly calls
 //! `CustomLayer::compute`; no callback is retained or scheduled by this module.
-use crate::scene::{ensure, *};
 use std::collections::BTreeSet;
+
+use crate::scene::{ensure, *};
 
 pub const MAX_CHART_LAYERS: usize = 128;
 fn name_valid(name: &str) -> bool {

@@ -1,4 +1,6 @@
-use kartis::{annotations::ZoomTransform, surface::*, *};
+use kartis::annotations::ZoomTransform;
+use kartis::surface::*;
+use kartis::*;
 #[test]
 fn captured_brush_is_bounded_to_the_visible_viewport_after_zoom() {
     let mut m = SurfaceModel::new(scene(), SurfaceOptions::default()).unwrap();

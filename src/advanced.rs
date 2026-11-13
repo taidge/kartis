@@ -5,15 +5,17 @@
 //! forces), polar-bar/src/hooks.ts (angular bands and stacked radial scales).
 //! Beeswarm packing here solves tangent intervals directly and deterministically,
 //! rather than running D3's iterative force simulation.
+use std::collections::{BTreeMap, BTreeSet};
+use std::f64::consts::{FRAC_PI_2, TAU};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
+
 use crate::scales::LinearScale;
 use crate::scene::{MAX_MARKS, ensure};
 use crate::{
     BarLayout, BarSeries, ChartConfig, ChartError, Geometry, Label, LegendItem, Mark, Result,
     Scene, TextAnchor,
 };
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
-use std::collections::{BTreeMap, BTreeSet};
-use std::f64::consts::{FRAC_PI_2, TAU};
 
 fn key(id: &str) -> Result<()> {
     ensure(

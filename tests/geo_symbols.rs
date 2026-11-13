@@ -1,7 +1,8 @@
+use std::collections::BTreeMap;
+
 use glory::render::{GraphicPoint, PathCommand};
 use kartis::interaction::Interaction;
 use kartis::*;
-use std::collections::BTreeMap;
 
 fn land() -> Vec<GeoFeature> {
     vec![GeoFeature {

@@ -1,5 +1,6 @@
-use kartis::*;
 use std::cell::Cell;
+
+use kartis::*;
 
 fn legacy_rejection_message(shared: bool) {
     let c = ChartConfig::default();

@@ -1,5 +1,6 @@
-use kartis::*;
 use std::f64::consts::TAU;
+
+use kartis::*;
 
 fn values() -> Vec<RadialDatum> {
     vec![

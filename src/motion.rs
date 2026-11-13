@@ -4,11 +4,13 @@
 //! topology crossfade, with every intermediate frame validated before commit.
 //! Departing items keep their position around surviving paint-order anchors.
 //! If those anchors themselves reorder, complete ordered snapshots crossfade.
-use crate::MarkBlends;
-use crate::scene::*;
+use std::collections::{BTreeMap, BTreeSet};
+
 use glory::render::PathCommand;
 use glory::style::Color;
-use std::collections::{BTreeMap, BTreeSet};
+
+use crate::MarkBlends;
+use crate::scene::*;
 pub mod geometry;
 pub mod tracks;
 pub use geometry::{

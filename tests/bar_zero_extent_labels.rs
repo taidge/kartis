@@ -1,5 +1,6 @@
-use kartis::*;
 use std::collections::BTreeMap;
+
+use kartis::*;
 
 #[cfg(feature = "geojson")]
 #[test]

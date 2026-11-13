@@ -1,12 +1,11 @@
 //! Renderer-independent plot interaction with transactional pointer/zoom/brush state.
+use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
+
 use crate::annotations::{Brush, ZoomConstraints, ZoomTransform};
 use crate::mesh::{PointMesh, SliceAxis, SliceIndex};
 use crate::scene::ensure;
 use crate::{ClipRect, Mark, Result, Scene};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    rc::Rc,
-};
 mod editable_brush;
 mod painted_geometry;
 

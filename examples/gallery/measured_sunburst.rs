@@ -1,8 +1,6 @@
 use glory::render::{GraphicStroke, StrokeCap};
-use kartis::{
-    render::raster::{ColorGlyphMode, FontRegistry, MissingGlyphPolicy},
-    *,
-};
+use kartis::render::raster::{ColorGlyphMode, FontRegistry, MissingGlyphPolicy};
+use kartis::*;
 
 fn measurements(
     layout: &SunburstLayout,

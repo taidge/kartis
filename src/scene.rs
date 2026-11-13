@@ -1,6 +1,7 @@
+use std::fmt;
+
 use glory::render::{GraphicPoint, GraphicStroke, PathCommand};
 use glory::style::Color;
-use std::fmt;
 mod opacity_groups;
 pub use opacity_groups::MarkOpacityGroup;
 
@@ -1151,7 +1152,8 @@ fn dashed_path_hit(geometry: &Geometry, stroke: GraphicStroke, x: f64, y: f64) -
                 }
                 points.clear();
             }
-            PathCommand::Cubic { .. } => return false, // Only adaptive dash centerlines reach this helper.
+            PathCommand::Cubic { .. } => return false, /* Only adaptive dash centerlines reach
+                                                        * this helper. */
         }
     }
     dash_run_hit(&points, false, stroke, query)

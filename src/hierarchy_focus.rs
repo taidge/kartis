@@ -1,11 +1,10 @@
 //! Bounded data-space hierarchy navigation. Every transition computes and
 //! validates the actual proposed layout before committing data/focus/history.
-use crate::{
-    hierarchy_layout::{HierarchyModel, circle_packing_model, icicle_model},
-    scene::ensure,
-    *,
-};
 use std::sync::Arc;
+
+use crate::hierarchy_layout::{HierarchyModel, circle_packing_model, icicle_model};
+use crate::scene::ensure;
+use crate::*;
 
 mod motion;
 pub use motion::HierarchyFocusMotion;

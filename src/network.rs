@@ -7,11 +7,13 @@
 //! tick loop, drag events, and repaint scheduling.
 //! Exact evaluation (`theta=0`) and fully coincident leaf buckets can require
 //! quadratic pair work. Ordinary distributed data uses aggregate cell visits.
-use crate::scene::{ensure, *};
-use crate::{NetworkLink, NetworkNode};
-use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
 use std::collections::BTreeMap;
 use std::f64::consts::TAU;
+
+use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
+
+use crate::scene::{ensure, *};
+use crate::{NetworkLink, NetworkNode};
 #[path = "network_drag.rs"]
 mod drag;
 pub use drag::*;

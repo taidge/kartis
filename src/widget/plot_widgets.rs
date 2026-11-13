@@ -1,13 +1,17 @@
-use super::WidgetRenderer;
-use crate::{
-    ChartError, ClipPath, ClipRect, Geometry, LayoutRect, Mark, Result, Scene, TextSize,
-    ZoomTransform, clip_path::RectCoverage, scene::ensure,
-};
+use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
+
 use glory::render::Semantics;
 use glory::style::{Display, Length, Overflow, PointerEvents, Position, Profile, Style};
 use glory::{Bond, Cage, Scope, Vary, Widget};
-use std::collections::{BTreeMap, BTreeSet};
-use std::rc::Rc;
+
+use super::WidgetRenderer;
+use crate::clip_path::RectCoverage;
+use crate::scene::ensure;
+use crate::{
+    ChartError, ClipPath, ClipRect, Geometry, LayoutRect, Mark, Result, Scene, TextSize,
+    ZoomTransform,
+};
 
 /// Maximum simultaneous measured slots for a semantic chart.
 pub const MAX_PLOT_WIDGET_SLOTS: usize = 128;

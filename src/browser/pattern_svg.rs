@@ -1,7 +1,8 @@
 //! Retained SVG pattern construction using typed DOM calls, never innerHTML.
-use crate::{ChartError, Geometry, PatternFill, Result};
 use wasm_bindgen::JsValue;
 use web_sys::{Document, Element};
+
+use crate::{ChartError, Geometry, PatternFill, Result};
 fn host(value: JsValue) -> ChartError {
     ChartError(format!("pattern SVG host call failed: {value:?}"))
 }

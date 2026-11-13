@@ -2,14 +2,17 @@
 //! node style after simulation; SVG and Canvas use half the visual node size
 //! as their circle radius. These options likewise leave force radii, link
 //! endpoints, and the simulation's coordinates independent of node paint.
+use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::GraphicStroke;
+
 use crate::network::{ForceSimulation, NetworkDragController, NetworkDragMapping};
+use crate::scene::ensure;
 use crate::{
     ChartConfig, ClipRect, Color, Geometry, GlyphOptions, GlyphPaintMode, InteractionAnchor,
     InteractionBinding, InteractionSite, RelationLayout, RelationOptions, Result, Scene,
-    SceneInteraction, glyph_geometry, glyph_mark, network_relation_layout, scene::ensure,
+    SceneInteraction, glyph_geometry, glyph_mark, network_relation_layout,
 };
-use glory::render::GraphicStroke;
-use std::collections::{BTreeMap, BTreeSet};
 
 /// Visual geometry and paint for one stable raw simulation node ID.
 #[derive(Clone, Debug, Default, PartialEq)]

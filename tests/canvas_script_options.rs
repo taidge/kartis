@@ -1,4 +1,5 @@
-use kartis::{render::*, *};
+use kartis::render::*;
+use kartis::*;
 fn scene() -> Scene {
     line(
         &ChartConfig::default(),

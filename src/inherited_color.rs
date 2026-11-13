@@ -1,5 +1,6 @@
 //! Resolve typed inherited paint using the ordered color modifiers used by Nivo.
-use crate::{Color, Result, scene::ensure};
+use crate::scene::ensure;
+use crate::{Color, Result};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ColorModifier {

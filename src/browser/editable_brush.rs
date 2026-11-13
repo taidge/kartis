@@ -296,7 +296,7 @@ fn focused_target(event: &Event, surface: &HtmlElement) -> Option<BrushTarget> {
         value => HANDLES
             .iter()
             .find(|(_, short, _)| *short == value)
-            .map(|(handle, _, _)| BrushTarget::Handle(*handle)),
+            .map(|(handle, ..)| BrushTarget::Handle(*handle)),
     }
 }
 

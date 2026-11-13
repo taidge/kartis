@@ -1,6 +1,9 @@
 #![cfg(feature = "raster")]
-use kartis::{render::raster::*, *};
-use std::{cell::Cell, rc::Rc};
+use std::cell::Cell;
+use std::rc::Rc;
+
+use kartis::render::raster::*;
+use kartis::*;
 
 #[test]
 fn initial_publisher_may_retire_the_build_owner_without_panicking_or_leaking() {

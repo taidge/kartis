@@ -1,8 +1,10 @@
 //! Explicit graph identities and transactional, topology-based highlighting.
 //! Tree/Chord/Sankey predicates follow local Nivo 0.99 hooks.ts/Sankey.tsx.
 //! Network neighbor queries are an explicit extension; no series-name inference.
-use crate::{scene::ensure, *};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
+
+use crate::scene::ensure;
+use crate::*;
 
 mod charts;
 pub use charts::*;

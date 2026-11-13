@@ -1,10 +1,9 @@
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use kartis::{
-    stack::StackOptions,
-    surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions},
-    *,
-};
 use std::collections::BTreeSet;
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+use kartis::stack::StackOptions;
+use kartis::surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions};
+use kartis::*;
 
 const INK: Color = Color(165, 30, 91, 255);
 const BORDER: Color = Color(19, 91, 137, 255);

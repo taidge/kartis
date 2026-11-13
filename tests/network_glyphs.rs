@@ -1,6 +1,8 @@
-use glory::render::{GraphicStroke, StrokeCap};
-use kartis::{surface::*, *};
 use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicStroke, StrokeCap};
+use kartis::surface::*;
+use kartis::*;
 
 fn frame() -> ChartConfig {
     ChartConfig {

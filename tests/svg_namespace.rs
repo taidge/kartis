@@ -1,5 +1,6 @@
-use kartis::*;
 use std::collections::BTreeSet;
+
+use kartis::*;
 fn scene() -> Scene {
     let mut scene = ChartConfig::default().scene().unwrap();
     let clip = ClipPath {

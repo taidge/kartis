@@ -1,8 +1,9 @@
+use std::collections::BTreeSet;
+
 use glory::render::GraphicStroke;
 use kartis::interaction::Interaction;
 use kartis::surface::{SurfaceModel, SurfaceOptions};
 use kartis::{render, *};
-use std::collections::BTreeSet;
 
 #[derive(Default)]
 struct DestinationProbe {

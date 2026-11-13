@@ -1,6 +1,7 @@
 //! Application-owned AreaBump re-layout and controlled series focus.
-use super::*;
 use std::collections::BTreeSet;
+
+use super::*;
 struct Fixture {
     chart: BrowserChart,
     root: web_sys::Element,

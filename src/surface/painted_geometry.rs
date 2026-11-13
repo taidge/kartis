@@ -2,9 +2,10 @@
 //! Lines/rectangles/circles use actual dimensions; cubic centerlines reuse the
 //! bounded dash flattener (0.0001 logical positional tolerance). Existing clip
 //! paths retain their separately admitted ClipPath picking error profile.
+use glory::render::{GraphicPoint as P, GraphicStroke, StrokeCap};
+
 use super::*;
 use crate::{ChartError, Color, Geometry, InteractionBinding, StrokeDashLimits};
-use glory::render::{GraphicPoint as P, GraphicStroke, StrokeCap};
 
 const TOLERANCE: f64 = 0.0001;
 const LENGTH_ERROR: f64 = 0.000001;

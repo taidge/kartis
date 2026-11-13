@@ -1,6 +1,7 @@
+use std::collections::{BTreeMap, BTreeSet, HashSet};
+
 use kartis::surface::{SurfaceModel, SurfaceOptions};
 use kartis::*;
-use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 fn item(id: &str) -> LegendItem {
     LegendItem {

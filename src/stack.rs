@@ -4,9 +4,10 @@
 //! recurrence and inside-out peak balancing here follow the documented D3
 //! algorithms (d3-shape/src/offset/wiggle.js, src/order/insideOut.js), using
 //! normalized weights to avoid overflowing intermediate value products.
+use std::collections::BTreeSet;
+
 use crate::scene::ensure;
 use crate::{BarSeries, Result};
-use std::collections::BTreeSet;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum StackOrder {

@@ -1,5 +1,6 @@
-use kartis::*;
 use std::f64::consts::TAU;
+
+use kartis::*;
 fn config() -> ChartConfig {
     ChartConfig {
         width: 400.,
@@ -358,8 +359,9 @@ fn zero_sites_do_not_paint_and_spoke_is_true_shared_geometry() {
 
 #[test]
 fn shared_surface_polar_membership_keyboard_hidden_zoom_and_atomic_target() {
-    use kartis::surface::*;
     use std::collections::BTreeSet;
+
+    use kartis::surface::*;
     let mut o = options();
     o.points.enabled = false;
     let layout = radar_layout(&config(), &axes(4), &data(), &o, &Default::default()).unwrap();

@@ -2,10 +2,12 @@
 //!
 //! A named family is a CSS string, distinct from a generic family. Font data and
 //! native face selection remain explicit application resources.
+use std::collections::BTreeMap;
+
+pub use glory::style::Family as FontFamily;
+
 use crate::scene::ensure;
 use crate::{MAX_MARKS, Result};
-pub use glory::style::Family as FontFamily;
-use std::collections::BTreeMap;
 
 /// Optional declarations, inherited independently for family and weight.
 #[derive(Clone, Debug, Default, PartialEq)]

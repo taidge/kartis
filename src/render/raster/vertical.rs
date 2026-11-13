@@ -1,14 +1,17 @@
 //! Logical top-to-bottom OpenType shaping, columns and Unicode orientation.
+use std::ops::Range;
+
+use rustybuzz::{BufferFlags, Direction, Face, GlyphBuffer, UnicodeBuffer};
+use unicode_segmentation::UnicodeSegmentation;
+
 use super::text_runs::{ShapeRun, bidi_control, clusters, normalized, shape_runs};
 use super::vertical_data::{self, VerticalOrientation};
 use super::{
     Glyph, MAX_COORDINATE, MAX_SHAPED_GLYPHS, MissingGlyphPolicy, RasterTextColumn,
     RasterWritingMode, Text,
 };
-use crate::{Result, scene::ensure};
-use rustybuzz::{BufferFlags, Direction, Face, GlyphBuffer, UnicodeBuffer};
-use std::ops::Range;
-use unicode_segmentation::UnicodeSegmentation;
+use crate::Result;
+use crate::scene::ensure;
 
 /// Orientation policy for complete extended grapheme clusters.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]

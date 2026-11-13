@@ -2,14 +2,16 @@
 //! Area encoding interpolates squared radii, i.e. circle area, rather than
 //! radius. See local D3 docs/d3-shape/symbol.md and d3-scale/pow.md. Discrete
 //! numeric colors use uniform, left-closed bins (D3 d3-scale/quantize.md).
+use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicStroke, StrokeCap};
+
 use super::{GeoMapLayout, GeoProjectionContext, valid_position};
 use crate::scene::ensure;
 use crate::{
     Color, DrawItem, Geometry, Label, LegendItem, MAX_MARKS, Mark, Result, Scene, TextAnchor,
     Theme, ValueFormat,
 };
-use glory::render::{GraphicStroke, StrokeCap};
-use std::collections::{BTreeMap, BTreeSet};
 
 #[path = "geo/symbol_clip.rs"]
 mod disk_clip;

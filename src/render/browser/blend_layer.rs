@@ -1,11 +1,11 @@
-use super::{CanvasRenderingContext2d, HtmlCanvasElement, JsCast, host_error};
-use crate::{
-    ChartError, Result, Scene, ZoomTransform,
-    blend::{BlendMode, BlendPlan, BlendRegion, MarkBlends},
-    scene::ensure,
-};
 use std::collections::BTreeSet;
+
 use web_sys::js_sys::{Function, Reflect};
+
+use super::{CanvasRenderingContext2d, HtmlCanvasElement, JsCast, host_error};
+use crate::blend::{BlendMode, BlendPlan, BlendRegion, MarkBlends};
+use crate::scene::ensure;
+use crate::{ChartError, Result, Scene, ZoomTransform};
 
 pub(super) struct Layers {
     plan: BlendPlan,

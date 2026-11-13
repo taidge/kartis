@@ -1,14 +1,11 @@
-use glory::{
-    App,
-    render::{Event, Navigation, NodeId, PointerPhase, Props},
-    style::{Display, Length},
-};
+use std::cell::{Cell, RefCell};
+use std::collections::BTreeSet;
+use std::rc::Rc;
+
+use glory::App;
+use glory::render::{Event, Navigation, NodeId, PointerPhase, Props};
+use glory::style::{Display, Length};
 use kartis::*;
-use std::{
-    cell::{Cell, RefCell},
-    collections::BTreeSet,
-    rc::Rc,
-};
 fn scene() -> Scene {
     let mut s = ChartConfig::default().scene().unwrap();
     for (i, series) in ["alpha", "beta"].into_iter().enumerate() {

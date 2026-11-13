@@ -1,7 +1,8 @@
 //! Static public-API profiles; captions describe authored state, not live input.
+use std::f64::consts::{FRAC_PI_4, PI};
+
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
 use kartis::*;
-use std::f64::consts::{FRAC_PI_4, PI};
 fn text(scene: &mut Scene, x: f64, y: f64, value: &str, size: f64) {
     if !scene.draw_order.is_empty() {
         scene.draw_order.push(DrawItem::Label(scene.labels.len()));

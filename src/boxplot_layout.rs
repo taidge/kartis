@@ -3,9 +3,12 @@
 //! compute/generation.ts}`. R-7 quantiles default to 10/25/50/75/90 percent.
 //! Nullable observations are omitted, never coerced to zero. Empty cells retain
 //! their category slot and produce no fabricated statistics.
-use crate::{scene::ensure, *};
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
 use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
+use crate::scene::ensure;
+use crate::*;
 
 mod factories;
 mod legend;

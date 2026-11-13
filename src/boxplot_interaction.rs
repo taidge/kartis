@@ -1,8 +1,10 @@
 //! Controlled BoxPlot association, following Nivo 0.99 `useBoxPlot`:
 //! the active summary's group OR subgroup selects the related summaries.
 //! This is explicit application state, not automatic device-hover registration.
+use std::collections::BTreeMap;
+use std::sync::Arc;
+
 use crate::*;
-use std::{collections::BTreeMap, sync::Arc};
 
 /// Original hierarchy-free business identity. An empty subgroup is valid.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]

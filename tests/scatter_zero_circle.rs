@@ -1,5 +1,7 @@
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use kartis::{render::Canvas, surface::*, *};
+use kartis::render::Canvas;
+use kartis::surface::*;
+use kartis::*;
 
 fn scene(cap: StrokeCap, width: f64, offset: Option<f64>, translucent: bool, path: u8) -> Scene {
     let mut s = ChartConfig {

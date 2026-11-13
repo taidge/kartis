@@ -1,7 +1,10 @@
 //! Application-owned geographic inverse picking and marker round trips.
-use super::*;
 use std::rc::Weak;
-use wasm_bindgen::{JsCast, closure::Closure};
+
+use wasm_bindgen::JsCast;
+use wasm_bindgen::closure::Closure;
+
+use super::*;
 
 #[wasm_bindgen]
 extern "C" {

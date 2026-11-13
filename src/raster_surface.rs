@@ -2,18 +2,16 @@
 //! This has no window, clock, filesystem, font lookup or implicit image loader.
 //! Hosts supply pointer rectangles in the same coordinate system as their input,
 //! then call `dispatch_host`; Glory data/legend controls bridge automatically.
-use crate::{
-    render::raster::{FontRegistry, RasterOptions, RenderedImage, render_raster},
-    surface::{SurfaceEvent, SurfaceInput, SurfaceModel, SurfaceOptions},
-    *,
-};
+use std::cell::{Cell, RefCell};
+use std::collections::{BTreeMap, BTreeSet};
+use std::rc::{Rc, Weak};
+
 use glory::style::{Length, Position, Style};
 use glory::{Cage, Scope, Widget};
-use std::{
-    cell::{Cell, RefCell},
-    collections::{BTreeMap, BTreeSet},
-    rc::{Rc, Weak},
-};
+
+use crate::render::raster::{FontRegistry, RasterOptions, RenderedImage, render_raster};
+use crate::surface::{SurfaceEvent, SurfaceInput, SurfaceModel, SurfaceOptions};
+use crate::*;
 mod editable_brush;
 mod geo_coordinates;
 mod plot_pointer;

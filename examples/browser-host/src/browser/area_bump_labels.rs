@@ -1,7 +1,9 @@
 //! Retained AreaBump labels placed from actual Canvas text metrics.
-use super::*;
 use std::collections::BTreeSet;
+
 use web_sys::{CanvasRenderingContext2d, Element, HtmlCanvasElement};
+
+use super::*;
 
 const WIDTH: f64 = 520.;
 const HEIGHT: f64 = 238.;

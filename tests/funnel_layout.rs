@@ -1,7 +1,8 @@
+use std::collections::BTreeSet;
+
 use glory::render::{GraphicPoint as P, PathCommand as C};
 use kartis::surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions};
 use kartis::*;
-use std::collections::BTreeSet;
 
 const LEFT: f64 = 11.;
 const TOP: f64 = 13.;

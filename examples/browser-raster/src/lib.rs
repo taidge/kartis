@@ -7,14 +7,15 @@ mod raster_overlays;
 mod typed_surface;
 #[cfg(target_arch = "wasm32")]
 mod browser {
-    use glory::{Cage, web::WebApp};
-    use kartis::{render::raster::*, *};
+    use std::cell::{Cell, RefCell};
+    use std::collections::BTreeSet;
+    use std::rc::Rc;
+
+    use glory::Cage;
+    use glory::web::WebApp;
+    use kartis::render::raster::*;
+    use kartis::*;
     use serde_json::json;
-    use std::{
-        cell::{Cell, RefCell},
-        collections::BTreeSet,
-        rc::Rc,
-    };
     use wasm_bindgen::prelude::*;
     struct Fixture {
         web: WebApp,

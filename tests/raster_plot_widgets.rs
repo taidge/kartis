@@ -1,16 +1,14 @@
 #![cfg(feature = "raster")]
+use std::cell::{Cell, RefCell};
+use std::io::Cursor;
+use std::rc::Rc;
+
 use base64::Engine;
-use glory::{
-    App, Widget,
-    render::{Event, EventKind, NodeId, Props},
-    style::{Display, Length, PointerEvents, Style},
-};
-use kartis::{render::raster::*, *};
-use std::{
-    cell::{Cell, RefCell},
-    io::Cursor,
-    rc::Rc,
-};
+use glory::render::{Event, EventKind, NodeId, Props};
+use glory::style::{Display, Length, PointerEvents, Style};
+use glory::{App, Widget};
+use kartis::render::raster::*;
+use kartis::*;
 
 fn scene() -> Scene {
     let mut scene = ChartConfig {

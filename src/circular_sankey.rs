@@ -8,13 +8,15 @@
 //! Return horizontal bands and column-gap vertical strips are disjoint.
 //! Ribbons can cross other ribbons at junction approaches; no global minimum
 //! crossing or planar embedding is claimed. All paths retain true flow width.
+use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint as P, PathCommand as Cmd};
+
 use crate::scene::ensure;
 use crate::{
     ChartConfig, ChartError, ClipRect, FlowNode, Geometry, Label, LegendItem, Mark, Result,
     SankeyAlignment, SankeyOptions, Scene, TextAnchor,
 };
-use glory::render::{GraphicPoint as P, PathCommand as Cmd};
-use std::collections::{BTreeMap, BTreeSet};
 
 pub const MAX_CIRCULAR_NODES: usize = 256;
 pub const MAX_CIRCULAR_LINKS: usize = 1024;

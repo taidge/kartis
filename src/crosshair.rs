@@ -1,8 +1,11 @@
 //! Typed current-datum bindings and renderer-independent Nivo crosshairs.
 //! Crosshair geometry follows @nivo/tooltip/src/Crosshair.tsx's eleven types.
-use crate::{scene::ensure, *};
-use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
 use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
+
+use crate::scene::ensure;
+use crate::*;
 
 pub const CROSSHAIR_X_ID: &str = "kartis-crosshair:x";
 pub const CROSSHAIR_Y_ID: &str = "kartis-crosshair:y";

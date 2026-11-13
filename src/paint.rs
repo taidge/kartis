@@ -1,5 +1,6 @@
 //! Explicit logical-coordinate fill paints shared by SVG and Canvas backends.
-use crate::{Color, Result, scene::ensure};
+use crate::scene::ensure;
+use crate::{Color, Result};
 mod pattern;
 pub use pattern::*;
 #[derive(Clone, Copy, Debug, PartialEq)]

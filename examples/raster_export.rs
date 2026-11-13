@@ -1,6 +1,7 @@
 #[cfg(feature = "raster")]
 fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
-    use kartis::{render::raster::*, *};
+    use kartis::render::raster::*;
+    use kartis::*;
     let destination = std::env::args()
         .nth(1)
         .ok_or("provide an output PNG path")?;

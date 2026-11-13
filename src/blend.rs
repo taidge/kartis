@@ -2,9 +2,12 @@
 //! the Scene background and earlier draws in paint order. A mark's fill and
 //! stroke form one transparent source. Its opacity and clips apply to that
 //! source once, before it composites over the backdrop.
-use crate::{Geometry, Mark, Result, Scene, scene::ensure};
-use glory::render::{GraphicPoint, PathCommand};
 use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint, PathCommand};
+
+use crate::scene::ensure;
+use crate::{Geometry, Mark, Result, Scene};
 
 /// The CSS artistic modes also exposed by Nivo. Normal uses source-over.
 /// Destination-replacing Porter–Duff operations are outside this profile.

@@ -1,14 +1,11 @@
-use glory::{
-    App,
-    render::{Event, NodeId, Props},
-    style::{Display, Length, Position},
-};
+use std::cell::{Cell, RefCell};
+use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
+
+use glory::App;
+use glory::render::{Event, NodeId, Props};
+use glory::style::{Display, Length, Position};
 use kartis::*;
-use std::{
-    cell::{Cell, RefCell},
-    collections::{BTreeMap, BTreeSet},
-    rc::Rc,
-};
 fn rect(x: f64, y: f64, w: f64, h: f64) -> LayoutRect {
     LayoutRect {
         x,

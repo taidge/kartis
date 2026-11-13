@@ -1,9 +1,10 @@
 #![cfg(feature = "geojson")]
 //! Expected colors, legends, active keys and opacity come from complete original
 //! Nivo hooks, not a Rust copy of their algorithms. Native boundaries stay explicit.
+use std::collections::BTreeSet;
+
 use kartis::*;
 use serde_json::Value;
-use std::collections::BTreeSet;
 
 fn reference() -> Value {
     serde_json::from_str(include_str!("fixtures/box-colorby-hover/values.json")).unwrap()

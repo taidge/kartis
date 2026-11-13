@@ -2,7 +2,8 @@
 //! log.js, pow.js and symlog.js (Copyright 2010–2021 Mike Bostock, ISC).
 //! The complete notice is included in docs/third-party-notices.md.
 use super::{ColorScaleKind, color_fraction};
-use crate::{Result, scene::ensure};
+use crate::Result;
+use crate::scene::ensure;
 
 /// Continuous input transforms, independent of RGB gamma or interpolation space.
 /// Domains must remain finite and invertible. Log and negative powers require

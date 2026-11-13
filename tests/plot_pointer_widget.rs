@@ -1,13 +1,15 @@
-use glory::{
-    App,
-    render::{
-        Event, GraphicPoint as P, GraphicStroke, NodeId, PathCommand as C, PlotPointer,
-        PlotPointerDevice, PlotPointerPhase, PointerPhase, Props, Rect, StrokeCap,
-    },
-    style::PointerEvents,
+use std::cell::RefCell;
+use std::collections::BTreeSet;
+use std::rc::Rc;
+
+use glory::App;
+use glory::render::{
+    Event, GraphicPoint as P, GraphicStroke, NodeId, PathCommand as C, PlotPointer,
+    PlotPointerDevice, PlotPointerPhase, PointerPhase, Props, Rect, StrokeCap,
 };
-use kartis::{widget::chart_layout, *};
-use std::{cell::RefCell, collections::BTreeSet, rc::Rc};
+use glory::style::PointerEvents;
+use kartis::widget::chart_layout;
+use kartis::*;
 
 fn frame() -> SceneInteraction {
     let mut scene = ChartConfig {
@@ -463,10 +465,13 @@ fn interactive_host_without_finite_coordinates_rejects_before_mount() {
 
 #[cfg(feature = "raster")]
 mod raster {
-    use super::*;
-    use glory::Widget;
-    use kartis::{render::raster::FontRegistry, surface::SurfaceEvent};
     use std::cell::Cell;
+
+    use glory::Widget;
+    use kartis::render::raster::FontRegistry;
+    use kartis::surface::SurfaceEvent;
+
+    use super::*;
 
     fn mount(app: &App) -> RasterSurface {
         let installed = Rc::new(RefCell::new(None));

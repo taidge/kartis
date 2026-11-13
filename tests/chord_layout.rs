@@ -1,9 +1,8 @@
-use glory::render::{GraphicPoint as P, PathCommand as C};
-use kartis::{
-    surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions},
-    *,
-};
 use std::f64::consts::{FRAC_PI_2, TAU};
+
+use glory::render::{GraphicPoint as P, PathCommand as C};
+use kartis::surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions};
+use kartis::*;
 
 fn config() -> ChartConfig {
     ChartConfig {

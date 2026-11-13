@@ -1,9 +1,10 @@
 //! Key-stable BoxPlot legend captions shared by native exports and real web hosts.
 //! Captions are plain text from a bounded raw-key map, never callbacks or IDs.
+use std::collections::BTreeMap;
+
 use glory::render::{GraphicStroke, PathCommand, StrokeCap};
 use kartis::*;
 use serde_json::{Value, json};
-use std::collections::BTreeMap;
 
 pub const WIDTH: f64 = 480.;
 pub const HEIGHT: f64 = 300.;

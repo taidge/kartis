@@ -2,12 +2,13 @@
 //! packages/polar-axes/src/{RadialAxis,CircularAxis,RadialGrid,CircularGrid}.tsx.
 //! Angles are unwrapped radians, clockwise from twelve o'clock; either winding
 //! is accepted. Radial ticks carry radii; circular ticks carry angles.
-use crate::{scene::ensure, *};
+use std::collections::{BTreeMap, BTreeSet};
+use std::f64::consts::{FRAC_PI_2, TAU};
+
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    f64::consts::{FRAC_PI_2, TAU},
-};
+
+use crate::scene::ensure;
+use crate::*;
 pub const MAX_POLAR_TICKS: usize = 1000;
 #[derive(Clone, Debug, PartialEq)]
 pub struct PolarFrame {

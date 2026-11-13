@@ -2,9 +2,10 @@
 //! filtering and numeric property labels have explicit qualification tests.
 //! No JS accessor/React lifecycle, geometry or physical-render parity is implied.
 #![cfg(feature = "geojson")]
+use std::collections::BTreeSet;
+
 use kartis::*;
 use serde_json::Value;
-use std::collections::BTreeSet;
 
 fn fixture() -> Value {
     serde_json::from_str(include_str!("fixtures/box-legend-factory/values.json")).unwrap()

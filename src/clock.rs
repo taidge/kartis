@@ -2,12 +2,13 @@
 //! A host queues a ticket, then delivers its monotonic timestamp through
 //! advance_frame. Retain the driver in the owning component/resource; Drop
 //! cancels outstanding work. Scheduler callbacks should hold only weak owners.
+use std::cell::RefCell;
+use std::collections::VecDeque;
+use std::rc::Rc;
+
+use crate::motion::{SpringConfig, SpringMotion};
 use crate::scene::ensure;
-use crate::{
-    ChartError, Result, Scene,
-    motion::{SpringConfig, SpringMotion},
-};
-use std::{cell::RefCell, collections::VecDeque, rc::Rc};
+use crate::{ChartError, Result, Scene};
 
 /// Request only queues work; it must not synchronously reenter the driver.
 /// Tickets must distinguish requests while cancelled callbacks can still arrive.

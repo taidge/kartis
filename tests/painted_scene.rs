@@ -1,9 +1,11 @@
 #![cfg(feature = "raster")]
 
+use std::collections::BTreeSet;
+
 use glory::render::{GraphicPoint as P, PathCommand as C};
 use kartis::interaction::Interaction;
-use kartis::{render::raster::*, *};
-use std::collections::BTreeSet;
+use kartis::render::raster::*;
+use kartis::*;
 
 const FONT: &[u8] = include_bytes!("fonts/KartisFixtureColrV0.ttf");
 fn fonts() -> FontRegistry {

@@ -1,6 +1,7 @@
+use std::f64::consts::{PI, TAU};
+
 use glory::render::{GraphicPoint, GraphicStroke, PathCommand as C, StrokeCap};
 use kartis::*;
-use std::f64::consts::{PI, TAU};
 
 fn config() -> ChartConfig {
     ChartConfig {

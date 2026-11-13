@@ -1,5 +1,7 @@
+use std::cell::RefCell;
+use std::f64::consts::TAU;
+
 use kartis::*;
-use std::{cell::RefCell, f64::consts::TAU};
 
 fn config() -> ChartConfig {
     ChartConfig {

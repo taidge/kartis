@@ -1,23 +1,20 @@
 //! Ordinary Apace Text measured from its actual Parley line baseline.
 //! No font-size heuristic or glyph Graphic supplies the baseline.
-use super::{AnyResult, Provider, bounds, nodes, sample, save, settle};
+use std::cell::{Cell, RefCell};
+use std::path::Path;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use glory::Cage;
+use glory::render::{NodeId, Props};
 use glory::style::{Align, Display, Length, Position, Style, WhiteSpace};
-use glory::{
-    Cage,
-    render::{NodeId, Props},
-};
-use glory_apace::{
-    Config, Raster,
-    assets::{Bytes, Url},
-    shell::WindowApp,
-};
-use kartis::{render::raster::*, *};
-use std::{
-    cell::{Cell, RefCell},
-    path::Path,
-    rc::Rc,
-    sync::Arc,
-};
+use glory_apace::assets::{Bytes, Url};
+use glory_apace::shell::WindowApp;
+use glory_apace::{Config, Raster};
+use kartis::render::raster::*;
+use kartis::*;
+
+use super::{AnyResult, Provider, bounds, nodes, sample, save, settle};
 
 const FAMILY: &str = "KartisNativeBaseline";
 const BEE: &str = "KartisNativeBaselineBee";

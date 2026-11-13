@@ -443,7 +443,7 @@ pub fn nonlinear_colors_snapshot(renderer: &str) -> std::result::Result<String, 
 pub fn nonlinear_colors_rejected() -> bool {
     NONLINEAR_COLORS.with(|slot| {
         slot.borrow().iter().all(|f| {
-            let Ok((mut options, _, _)) = profile(f.phase) else {
+            let Ok((mut options, ..)) = profile(f.phase) else {
                 return false;
             };
             options.transform = ColorScaleTransform::Pow { exponent: f64::NAN };

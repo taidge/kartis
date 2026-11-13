@@ -1,12 +1,14 @@
 //! Run the same reactive chart through two Glory desktop hosts.
-use glory::{
-    Widget,
-    ui::{button, events::activate, text, view, widget},
-};
+use std::cell::RefCell;
+use std::path::Path;
+use std::rc::Rc;
+
+use glory::Widget;
+use glory::ui::events::activate;
+use glory::ui::{button, text, view, widget};
 use kartis::render::raster::{FontRegistry, RasterOptions};
 use kartis::{ChartConfig, Geometry, Label, LegendItem, Mark, Scene, TextAnchor, chart};
 use serde_json::{Value, json};
-use std::{cell::RefCell, path::Path, rc::Rc};
 
 type Report = Rc<RefCell<Vec<Value>>>;
 type AnyResult<T = ()> = Result<T, Box<dyn std::error::Error>>;

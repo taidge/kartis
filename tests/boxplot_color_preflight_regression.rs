@@ -1,6 +1,7 @@
-use kartis::*;
 use std::cell::Cell;
 use std::collections::BTreeMap;
+
+use kartis::*;
 
 fn combined_factory_uses_final_legend_budget(shared_scale: bool) {
     let chart = ChartConfig {

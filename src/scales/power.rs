@@ -1,6 +1,7 @@
 //! Checked D3-style signed power scales, including same-branch reciprocals.
 use super::{LinearScale, ticks};
-use crate::{Result, scene::ensure};
+use crate::Result;
+use crate::scene::ensure;
 
 pub(crate) fn validate_power_exponent(exponent: f64) -> Result<()> {
     ensure(

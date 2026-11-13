@@ -1,6 +1,7 @@
+use std::f64::consts::{FRAC_PI_2, PI, TAU};
+
 use glory::render::{GraphicStroke, PathCommand as C, StrokeCap};
 use kartis::*;
-use std::f64::consts::{FRAC_PI_2, PI, TAU};
 fn config() -> ChartConfig {
     ChartConfig {
         width: 400.,

@@ -1,8 +1,6 @@
-use kartis::{
-    clock::ExplicitClock,
-    motion::{PropertyMotion, PropertyMotionOptions},
-    *,
-};
+use kartis::clock::ExplicitClock;
+use kartis::motion::{PropertyMotion, PropertyMotionOptions};
+use kartis::*;
 
 fn scene(x: f64, y: f64) -> Scene {
     let mut scene = ChartConfig::default().scene().unwrap();

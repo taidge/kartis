@@ -1,11 +1,11 @@
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
 use glory::render::{Error, EventKind};
 use glory::style::{Length, Style};
-use glory::{Cage, Widget, web::WebApp};
+use glory::web::WebApp;
+use glory::{Cage, Widget};
 use kartis::*;
-use std::{
-    cell::{Cell, RefCell},
-    rc::Rc,
-};
 use wasm_bindgen::prelude::*;
 
 #[derive(Default)]

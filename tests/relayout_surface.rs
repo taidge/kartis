@@ -1,4 +1,5 @@
-use kartis::{surface::*, *};
+use kartis::surface::*;
+use kartis::*;
 fn scene(x: f64) -> Scene {
     let mut s = ChartConfig {
         width: 400.,

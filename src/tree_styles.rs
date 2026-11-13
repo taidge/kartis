@@ -1,9 +1,11 @@
 //! Typed tree presentation, following local Nivo tree/src/types.ts, defaults.ts,
 //! hooks.ts::useLinkGenerator and labelsHooks.ts. Radial links and labels extend
 //! Nivo's four Cartesian layouts; this module emits real shared Scene geometry.
-use super::{TreeOrientation, arc_segment, point};
-use crate::{scene::ensure, *};
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
+use super::{TreeOrientation, arc_segment, point};
+use crate::scene::ensure;
+use crate::*;
 
 /// Bump keeps the earlier default. Step variants route along layout depth
 /// (including vertical layouts); radial steps use circular polar elbows.

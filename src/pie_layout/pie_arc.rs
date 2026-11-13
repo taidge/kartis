@@ -1,9 +1,12 @@
 //! D3-shape 3.2.0 `src/arc.js` construction, including distinct inner/outer
 //! asin padding and tangent-circle intersections after padding. Circular arcs
 //! are lowered to <=90 degree cubics (radial error <=0.000273 * radius).
-use crate::{Geometry, Result, scene::ensure};
-use glory::render::{GraphicPoint as P, PathCommand as C};
 use std::f64::consts::{FRAC_PI_2, PI, TAU};
+
+use glory::render::{GraphicPoint as P, PathCommand as C};
+
+use crate::scene::ensure;
+use crate::{Geometry, Result};
 const EPS: f64 = 1e-12;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) struct ArcInput {

@@ -1,5 +1,6 @@
 use glory::render::{GraphicStroke, StrokeCap};
-use kartis::{motion::*, *};
+use kartis::motion::*;
+use kartis::*;
 fn initial() -> Scene {
     let mut scene = ChartConfig::default().scene().unwrap();
     let mut mark = Mark::new(

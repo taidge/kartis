@@ -1,6 +1,7 @@
+use std::cell::{Cell, RefCell};
+
 use glory::render::{GraphicStroke, StrokeCap};
 use kartis::*;
-use std::cell::{Cell, RefCell};
 
 fn config() -> ChartConfig {
     ChartConfig {

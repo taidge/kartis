@@ -1,12 +1,12 @@
 #![cfg(feature = "raster")]
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
 use glory::App;
 use glory::render::{Event, Props};
+use kartis::render::raster::*;
 use kartis::surface::{SurfaceEvent, SurfaceInput};
-use kartis::{render::raster::*, *};
-use std::{
-    cell::{Cell, RefCell},
-    rc::Rc,
-};
+use kartis::*;
 
 fn scene() -> Scene {
     let mut scene = ChartConfig {

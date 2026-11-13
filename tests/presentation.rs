@@ -1,14 +1,11 @@
-use glory::{
-    App,
-    render::{Event, NodeId, Props},
-    style::{Display, FlexDirection, FlexWrap, Justify, Length, WhiteSpace},
-};
+use std::cell::{Cell, RefCell};
+use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
+
+use glory::App;
+use glory::render::{Event, NodeId, Props};
+use glory::style::{Display, FlexDirection, FlexWrap, Justify, Length, WhiteSpace};
 use kartis::*;
-use std::{
-    cell::{Cell, RefCell},
-    collections::{BTreeMap, BTreeSet},
-    rc::Rc,
-};
 
 fn scene() -> Scene {
     let mut scene = ChartConfig::default().scene().unwrap();

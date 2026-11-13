@@ -1,15 +1,12 @@
+use std::cell::{Cell, RefCell};
+use std::collections::BTreeSet;
+use std::rc::Rc;
+
+use glory::App;
 #[cfg(feature = "raster")]
 use glory::Widget;
-use glory::{
-    App,
-    render::{Event, NodeId, Props},
-};
+use glory::render::{Event, NodeId, Props};
 use kartis::*;
-use std::{
-    cell::{Cell, RefCell},
-    collections::BTreeSet,
-    rc::Rc,
-};
 
 fn scene(category: bool) -> Scene {
     let mut scene = ChartConfig {

@@ -2,14 +2,10 @@
 //! applications that need axis reflow accept the proposal and recompute layout.
 //! Legacy pointer/focus interaction belongs to accessible data buttons. The
 //! explicit chart_layout entry binds finite plot coordinates to painted ink.
-use crate::presentation::{
-    LegendActivation, LegendOptions, TooltipOptions, legend_control_label, legend_item_style,
-    legend_label, legend_style, legend_symbol_style, tooltip_style, tooltip_text,
-};
-use crate::presentation::{LegendRenderContext, PresentationText, TooltipRenderContext};
-use crate::presentation_layout::*;
-use crate::scene::*;
-use crate::{SceneInteraction, SurfacePhysicalHit, ZoomTransform};
+use std::cell::{Cell, RefCell};
+use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
+
 use glory::render::{
     Action, Event, EventKind, FocusMode, GraphicProps, MAX_GRAPHIC_COMMANDS, Navigation, NodeId,
     Orientation, PointerPhase, Semantics,
@@ -18,11 +14,15 @@ use glory::style::{
     Display, Justify, Length, Overflow, PointerEvents, Position, Style, WhiteSpace,
 };
 use glory::{Bond, Cage, Scope, Vary, Widget};
-use std::{
-    cell::{Cell, RefCell},
-    collections::{BTreeMap, BTreeSet},
-    rc::Rc,
+
+use crate::presentation::{
+    LegendActivation, LegendOptions, LegendRenderContext, PresentationText, TooltipOptions,
+    TooltipRenderContext, legend_control_label, legend_item_style, legend_label, legend_style,
+    legend_symbol_style, tooltip_style, tooltip_text,
 };
+use crate::presentation_layout::*;
+use crate::scene::*;
+use crate::{SceneInteraction, SurfacePhysicalHit, ZoomTransform};
 pub(crate) mod plot_widgets;
 pub use plot_widgets::{
     MAX_PLOT_WIDGET_SLOTS, PlotWidgetContext, PlotWidgetFrame, PlotWidgetPlacement, PlotWidgetSlot,

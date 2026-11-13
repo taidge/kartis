@@ -324,8 +324,9 @@ fn invalid_measurements_and_profiles_never_construct_an_accepted_capability() {
 
 #[cfg(feature = "raster")]
 mod font_ink {
-    use super::*;
     use kartis::render::raster::{FaceDescriptor, FontRegistry, MissingGlyphPolicy};
+
+    use super::*;
 
     fn registry() -> (FontRegistry, ResolvedFont) {
         let mut fonts = FontRegistry::new();

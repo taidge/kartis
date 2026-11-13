@@ -1,11 +1,11 @@
 #![cfg(feature = "raster")]
 
-use glory::App;
-use kartis::{
-    render::{Canvas, raster::*},
-    *,
-};
 use std::rc::Rc;
+
+use glory::App;
+use kartis::render::Canvas;
+use kartis::render::raster::*;
+use kartis::*;
 
 const FONT: &[u8] = include_bytes!("fonts/KartisFixtureColrV0.ttf");
 fn fonts(palette: u16) -> FontRegistry {

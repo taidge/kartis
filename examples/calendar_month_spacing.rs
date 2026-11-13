@@ -1,7 +1,9 @@
+use std::fs;
+use std::path::PathBuf;
+
 #[cfg(feature = "raster")]
 use kartis::render::raster::{FaceDescriptor, FontRegistry, RasterOptions, render_raster};
 use kartis::*;
-use std::{fs, path::PathBuf};
 
 fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let data = [

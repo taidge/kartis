@@ -1,13 +1,14 @@
 //! Independent typed scatter layouts. Nivo 0.99.0 references:
 //! `scatterplot/src/{props.tsx,compute.ts,hooks.ts,Node.tsx}`. Default size is
 //! a nine-pixel circle diameter. Glyph area/nominal size are explicit units.
-use crate::scales::LinearScale;
-use crate::{scene::ensure, *};
+use std::collections::{BTreeMap, BTreeSet};
+use std::f64::consts::PI;
+
 use glory::render::GraphicStroke;
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    f64::consts::PI,
-};
+
+use crate::scales::LinearScale;
+use crate::scene::ensure;
+use crate::*;
 mod axes;
 mod custom;
 pub(crate) use custom::PreparedNode;

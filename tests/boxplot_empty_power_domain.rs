@@ -1,7 +1,5 @@
-use kartis::{
-    surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions},
-    *,
-};
+use kartis::surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions};
+use kartis::*;
 
 fn frame() -> ChartConfig {
     ChartConfig {

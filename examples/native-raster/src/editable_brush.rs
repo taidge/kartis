@@ -1,30 +1,24 @@
 //! Actual Apace drag-capture and intrinsic-button keyboard bridge. These tests
 //! send real host UiEvents; no caller manually dispatches brush pointer input.
-use super::{AnyResult, Provider, bounds, key, nodes, pointer, save, settle};
+use std::cell::{Cell, RefCell};
+use std::collections::BTreeSet;
+use std::path::Path;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use apace_dom::Document;
 use apace_traits::events::UiEvent;
-use glory::{
-    Widget,
-    render::{DragCapture, NodeId},
-};
-use glory_apace::{
-    Config, Raster,
-    assets::{Bytes, Url},
-    shell::WindowApp,
-};
-use kartis::{
-    render::raster::*,
-    surface::{SurfaceEvent, SurfaceInput},
-    *,
-};
+use glory::Widget;
+use glory::render::{DragCapture, NodeId};
+use glory_apace::assets::{Bytes, Url};
+use glory_apace::shell::WindowApp;
+use glory_apace::{Config, Raster};
+use kartis::render::raster::*;
+use kartis::surface::{SurfaceEvent, SurfaceInput};
+use kartis::*;
 use keyboard_types::NamedKey;
-use std::{
-    cell::{Cell, RefCell},
-    collections::BTreeSet,
-    path::Path,
-    rc::Rc,
-    sync::Arc,
-};
+
+use super::{AnyResult, Provider, bounds, key, nodes, pointer, save, settle};
 
 fn scene() -> Scene {
     let mut scene = ChartConfig {

@@ -1,7 +1,10 @@
 //! Real persistent brush editing on independently owned SVG and Canvas charts.
-use super::*;
+use std::collections::BTreeSet;
+use std::rc::Weak;
+
 use kartis::brush::{BrushAxis, BrushPhase, BrushReconfigure, BrushSource, EditableBrushOptions};
-use std::{collections::BTreeSet, rc::Weak};
+
+use super::*;
 mod viewport;
 
 struct Fixture {

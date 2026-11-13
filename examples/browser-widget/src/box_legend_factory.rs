@@ -2,20 +2,18 @@
 #[path = "../../shared/box_legend_factory.rs"]
 mod model;
 
-use glory::{Cage, Widget, web::WebApp};
-use kartis::{
-    browser::*,
-    raster_surface::*,
-    render::raster::*,
-    surface::{SurfaceEvent, SurfaceFrameToken, SurfacePhysicalHit},
-    *,
-};
+use std::cell::{Cell, RefCell};
+use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
+
+use glory::web::WebApp;
+use glory::{Cage, Widget};
+use kartis::browser::*;
+use kartis::raster_surface::*;
+use kartis::render::raster::*;
+use kartis::surface::{SurfaceEvent, SurfaceFrameToken, SurfacePhysicalHit};
+use kartis::*;
 use serde_json::{Value, json};
-use std::{
-    cell::{Cell, RefCell},
-    collections::{BTreeMap, BTreeSet},
-    rc::Rc,
-};
 use wasm_bindgen::prelude::*;
 
 type Events = Rc<RefCell<Vec<Value>>>;

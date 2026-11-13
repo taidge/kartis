@@ -1,7 +1,9 @@
 //! Independent category thickness and dimension stacks on both real backends.
-use super::*;
-use kartis::stack::{StackOffset, StackOptions};
 use std::collections::BTreeSet;
+
+use kartis::stack::{StackOffset, StackOptions};
+
+use super::*;
 struct Fixture {
     chart: BrowserChart,
     root: web_sys::Element,

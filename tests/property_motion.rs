@@ -1,8 +1,6 @@
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
-use kartis::{
-    motion::{FadeMode, PropertyMotion, PropertyMotionOptions, SpringConfig},
-    *,
-};
+use kartis::motion::{FadeMode, PropertyMotion, PropertyMotionOptions, SpringConfig};
+use kartis::*;
 fn label(text: &str, x: f64, rotation: f64) -> Label {
     Label {
         x,

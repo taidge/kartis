@@ -1,6 +1,8 @@
 //! cargo run --example gallery -- target/gallery
+use std::fmt::Write;
+use std::path::PathBuf;
+
 use kartis::*;
-use std::{fmt::Write, path::PathBuf};
 #[path = "gallery/advanced_numeric.rs"]
 mod advanced_numeric;
 #[path = "gallery/blend_demo.rs"]

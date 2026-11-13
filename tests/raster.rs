@@ -1,6 +1,7 @@
 #![cfg(feature = "raster")]
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
-use kartis::render::{Canvas, raster::*};
+use kartis::render::Canvas;
+use kartis::render::raster::*;
 use kartis::*;
 
 fn fonts() -> FontRegistry {

@@ -1,5 +1,6 @@
-use kartis::*;
 use std::collections::BTreeSet;
+
+use kartis::*;
 fn set(ids: &[&str]) -> BTreeSet<String> {
     ids.iter().map(|s| (*s).into()).collect()
 }

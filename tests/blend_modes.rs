@@ -109,11 +109,12 @@ fn svg_layers_wrap_both_clips_and_canvas_prepares_before_resizing() {
 
 #[cfg(feature = "raster")]
 mod cpu {
-    use super::*;
     use render::raster::{
         FontRegistry, RasterCanvas, RasterOptions, RenderedImage, render_raster,
         render_raster_with_blends,
     };
+
+    use super::*;
 
     fn pixel(image: &RenderedImage, x: usize, y: usize) -> [u8; 4] {
         let offset = (y * image.width as usize + x) * 4;

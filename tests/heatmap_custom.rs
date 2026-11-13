@@ -405,10 +405,8 @@ fn aggregate_path_and_gradient_stop_budgets_reject_before_accepting_a_frame() {
 #[cfg(feature = "raster")]
 #[test]
 fn actual_custom_geometry_gradient_pattern_and_hollow_stroke_render_in_cpu_svg_canvas() {
-    use kartis::render::{
-        self,
-        raster::{FontRegistry, RasterOptions, render_raster},
-    };
+    use kartis::render::raster::{FontRegistry, RasterOptions, render_raster};
+    use kartis::render::{self};
     let l = heatmap_layout_with_cell_factory(&config(), &data(), &options(), |ctx| {
         let [x, y] = ctx.position;
         let mut cell = ctx.inherit(diamond(x, y));

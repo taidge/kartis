@@ -1,5 +1,6 @@
-use kartis::*;
 use std::collections::BTreeMap;
+
+use kartis::*;
 fn frame() -> ChartConfig {
     ChartConfig {
         width: 400.,

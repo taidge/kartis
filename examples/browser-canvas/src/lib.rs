@@ -1,10 +1,13 @@
 //! Application-owned Canvas: Rust computes layout, draws, and handles interaction.
 #![cfg(target_arch = "wasm32")]
-use kartis::interaction::{Interaction, pointer_coordinates};
-use kartis::{BarOptions, BarSeries, ChartConfig, Color, Scene, bar};
 use std::cell::RefCell;
 use std::rc::Rc;
-use wasm_bindgen::{JsCast, JsValue, closure::Closure, prelude::wasm_bindgen};
+
+use kartis::interaction::{Interaction, pointer_coordinates};
+use kartis::{BarOptions, BarSeries, ChartConfig, Color, Scene, bar};
+use wasm_bindgen::closure::Closure;
+use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{
     Document, Element, Event, EventTarget, HtmlCanvasElement, KeyboardEvent, MouseEvent, Window,
 };

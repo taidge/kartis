@@ -1,7 +1,8 @@
 #![cfg(feature = "geojson")]
+use std::cell::OnceCell;
+
 use kartis::*;
 use serde_json::Value;
-use std::cell::OnceCell;
 fn n(v: &Value) -> f64 {
     if let Some(n) = v.as_f64() {
         return n;

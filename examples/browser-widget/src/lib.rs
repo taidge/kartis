@@ -18,13 +18,13 @@ mod radial_box_stroke_roles;
 
 #[cfg(target_arch = "wasm32")]
 mod browser {
-    use glory::{Cage, web::WebApp};
+    use std::cell::{Cell, RefCell};
+    use std::collections::BTreeSet;
+    use std::rc::Rc;
+
+    use glory::Cage;
+    use glory::web::WebApp;
     use kartis::*;
-    use std::{
-        cell::{Cell, RefCell},
-        collections::BTreeSet,
-        rc::Rc,
-    };
     use wasm_bindgen::prelude::*;
     struct WidgetRoot(web_sys::Element);
     impl Drop for WidgetRoot {

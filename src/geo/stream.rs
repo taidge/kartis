@@ -1,7 +1,8 @@
 //! Geographic line streams and major/minor graticules. Primary references:
 //! d3-geo 3.1.1 graticule.js, clip/{circle,antimeridian}.js and
 //! projection/{transverseMercator,resample}.js; ISC, Mike Bostock 2010-2024.
-use super::{path::Sampler, *};
+use super::path::Sampler;
+use super::*;
 use crate::{ClipPath, ClipRule, DrawItem, StrokeDash, ValueFormat};
 
 #[derive(Clone, Debug, PartialEq)]

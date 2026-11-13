@@ -1,10 +1,11 @@
-use glory::{
-    App,
-    render::{NodeId, Props},
-    style::Style,
-};
-use kartis::{motion::*, *};
-use std::{cell::RefCell, rc::Rc};
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use glory::App;
+use glory::render::{NodeId, Props};
+use glory::style::Style;
+use kartis::motion::*;
+use kartis::*;
 
 fn font(name: &str, weight: f64) -> FontOptions {
     FontOptions {

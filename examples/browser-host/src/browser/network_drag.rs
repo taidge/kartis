@@ -1,7 +1,8 @@
 //! Actual BrowserNetwork fixtures; all pointer input is driven by the browser.
-use super::*;
 use kartis::browser::{BrowserNetwork, BrowserNetworkHandle, BrowserNetworkOptions};
 use kartis::network::{ForceOptions, ForceSimulation};
+
+use super::*;
 struct NetworkEntry {
     owner: Option<BrowserNetwork>,
     handle: BrowserNetworkHandle,

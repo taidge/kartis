@@ -1,7 +1,8 @@
 //! UNAPPLIED fixture candidate for the next SVG structure transaction wave.
 //! Mount one SVG only; accepted source commits after actual successful flush.
-use super::*;
 use std::cell::Cell;
+
+use super::*;
 
 #[derive(Clone)]
 struct Proposal {

@@ -1,12 +1,15 @@
 //! Retained Conic map controls with independent per-surface publication.
-use crate::conic_model::*;
-use kartis::{browser::*, *};
+use std::cell::{Cell, RefCell};
+use std::rc::{Rc, Weak};
+
+use kartis::browser::*;
+use kartis::*;
 use serde_json::{Value, json};
-use std::{
-    cell::{Cell, RefCell},
-    rc::{Rc, Weak},
-};
-use wasm_bindgen::{JsCast, closure::Closure, prelude::*};
+use wasm_bindgen::JsCast;
+use wasm_bindgen::closure::Closure;
+use wasm_bindgen::prelude::*;
+
+use crate::conic_model::*;
 fn js(e: impl ToString) -> JsValue {
     JsValue::from_str(&e.to_string())
 }
@@ -330,7 +333,7 @@ pub fn conic_update(
     });
     let next = entries
         .iter()
-        .map(|(_, source, _, _, _)| {
+        .map(|(_, source, ..)| {
             let mut s = source.borrow().settings.clone();
             s.family = family;
             s.parallels = [p0, p1];

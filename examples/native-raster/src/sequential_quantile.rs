@@ -1,26 +1,23 @@
 //! Headless Apace consumer paint, explicit PNG decode and host input bridge.
-use super::{AnyResult, Provider, bounds, host_pointer, key, nodes, pointer, sample, save, settle};
+use std::cell::{Cell, RefCell};
+use std::collections::{BTreeMap, BTreeSet};
+use std::path::Path;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use apace_dom::Document;
 use apace_traits::events::UiEvent;
-use glory::{
-    Widget,
-    render::{NodeId, PathCommand, Props},
-};
-use glory_apace::{
-    Config, Raster,
-    assets::{Bytes, Url},
-    shell::WindowApp,
-};
-use kartis::{render::raster::*, *};
+use glory::Widget;
+use glory::render::{NodeId, PathCommand, Props};
+use glory_apace::assets::{Bytes, Url};
+use glory_apace::shell::WindowApp;
+use glory_apace::{Config, Raster};
+use kartis::render::raster::*;
+use kartis::*;
 use keyboard_types::NamedKey;
 use serde_json::{Value, json};
-use std::{
-    cell::{Cell, RefCell},
-    collections::{BTreeMap, BTreeSet},
-    path::Path,
-    rc::Rc,
-    sync::Arc,
-};
+
+use super::{AnyResult, Provider, bounds, host_pointer, key, nodes, pointer, sample, save, settle};
 
 const LOW: Color = Color(20, 80, 150, 255);
 const HIGH: Color = Color(240, 150, 40, 255);

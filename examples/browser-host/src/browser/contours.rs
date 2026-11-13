@@ -1,10 +1,9 @@
-use super::*;
-use kartis::{
-    browser::MotionPreference,
-    motion::{
-        ClosedAlignment, ContourBindings, ContourMorphOptions, MorphContour, PathMorphOptions,
-    },
+use kartis::browser::MotionPreference;
+use kartis::motion::{
+    ClosedAlignment, ContourBindings, ContourMorphOptions, MorphContour, PathMorphOptions,
 };
+
+use super::*;
 
 struct ContourEntry {
     chart: Option<BrowserChart>,

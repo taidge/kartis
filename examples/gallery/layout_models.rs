@@ -1,5 +1,6 @@
-use kartis::*;
 use std::collections::BTreeMap;
+
+use kartis::*;
 
 pub fn scenes(c: &ChartConfig) -> Result<Vec<(&'static str, Scene)>> {
     let funnel = funnel_layout(

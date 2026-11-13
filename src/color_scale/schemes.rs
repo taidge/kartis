@@ -9,9 +9,13 @@ mod data;
 #[path = "schemes/trig.rs"]
 mod trig;
 
+use std::f64::consts::PI;
+use std::fmt;
+use std::ops::RangeInclusive;
+use std::str::FromStr;
+
 use crate::scene::ensure;
 use crate::{ChartError, Color, Result};
-use std::{f64::consts::PI, fmt, ops::RangeInclusive, str::FromStr};
 
 enum Profile {
     Brewer(&'static [&'static [u32]]),

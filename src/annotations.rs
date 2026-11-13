@@ -3,10 +3,12 @@
 //! Applications convert browser pointer coordinates with
 //! `interaction::pointer_coordinates`, update their transform or brush, and
 //! publish the resulting scene through a Cage. No global listeners are installed.
-use crate::scene::*;
+use std::collections::BTreeSet;
+
 use glory::render::{GraphicPoint, GraphicStroke, PathCommand};
 use glory::style::Color;
-use std::collections::BTreeSet;
+
+use crate::scene::*;
 
 pub const MAX_ANNOTATIONS: usize = 1024;
 

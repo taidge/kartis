@@ -2,9 +2,12 @@
 //! Filled sizes are area in logical px². Stroked sizes are D3's perceptually
 //! calibrated parameter (designed for 1.5px strokes with round caps), not ink
 //! area. No font, DOM, random source, or renderer-specific surrogate is used.
-use crate::{scene::ensure, *};
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C};
 use std::f64::consts::{PI, TAU};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C};
+
+use crate::scene::ensure;
+use crate::*;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum FilledGlyph {

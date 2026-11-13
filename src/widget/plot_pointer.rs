@@ -1,9 +1,10 @@
 //! Atomic semantic plot state. The paint Scene is never replaced by the
 //! controls-only projection, and physical hit data always comes from Surface.
+use glory::render::{PlotPointer, PlotPointerDevice, PlotPointerPhase};
+
 use super::*;
 use crate::surface::{SurfaceEvent, SurfaceInput, SurfaceModel, SurfaceOptions};
 use crate::{PickingProfile, SceneInteraction, SurfacePhysicalHit};
-use glory::render::{PlotPointer, PlotPointerDevice, PlotPointerPhase};
 
 #[derive(Clone)]
 pub(super) struct BoundPlot {

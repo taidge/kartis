@@ -1,5 +1,6 @@
-use kartis::*;
 use std::f64::consts::PI;
+
+use kartis::*;
 fn close(a: [f64; 2], b: [f64; 2]) {
     for (a, b) in a.into_iter().zip(b) {
         assert!((a - b).abs() <= 1e-12, "{a} != {b}");

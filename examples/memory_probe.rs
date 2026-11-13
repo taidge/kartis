@@ -1,7 +1,9 @@
 //! Paused, process-owned memory checkpoints. Run through scripts/native-memory.ps1.
 //! The parent samples OS process counters while each real output remains alive.
-use kartis::{mesh::PointMesh, *};
 use std::io::{BufRead, Write};
+
+use kartis::mesh::PointMesh;
+use kartis::*;
 
 type ProbeResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 struct OutputSizes {

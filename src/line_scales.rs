@@ -1,8 +1,11 @@
 //! Line layouts with shared, explicitly resolved D3 scale profiles.
-use crate::line_styles::{LinePointFactory, LinePointRender};
-use crate::{scene::ensure, *};
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
 use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
+use crate::line_styles::{LinePointFactory, LinePointRender};
+use crate::scene::ensure;
+use crate::*;
 mod piecewise;
 pub(crate) use piecewise::resolve_plot_piecewise;
 pub use piecewise::{

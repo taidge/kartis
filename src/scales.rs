@@ -1,7 +1,8 @@
 //! Checked numeric and categorical scales. Architecture reference:
 //! nivo/packages/scales/src/linearScale.ts and d3/src/index.js (d3-scale).
-use crate::scene::{Result, ensure};
 use std::collections::{BTreeMap, BTreeSet};
+
+use crate::scene::{Result, ensure};
 mod piecewise;
 mod power;
 pub use piecewise::PiecewiseScale;

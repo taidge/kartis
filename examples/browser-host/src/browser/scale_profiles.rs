@@ -1,6 +1,7 @@
 //! Actual D3 scale options shared by line ink, axes and typed input sites.
-use super::*;
 use std::collections::BTreeSet;
+
+use super::*;
 mod point;
 struct Fixture {
     chart: BrowserChart,

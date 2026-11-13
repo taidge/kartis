@@ -1,5 +1,9 @@
-use kartis::{clock::*, motion::*, *};
-use std::{cell::Cell, rc::Rc};
+use std::cell::Cell;
+use std::rc::Rc;
+
+use kartis::clock::*;
+use kartis::motion::*;
+use kartis::*;
 fn scene(x: f64) -> Scene {
     let mut s = ChartConfig::default().scene().unwrap();
     s.marks.push(Mark::new(

@@ -1,11 +1,12 @@
 //! Explicit hierarchy label placement with application-measured ink bounds.
+use std::collections::{BTreeMap, BTreeSet};
+
 use super::HierarchyLayout;
+use crate::scene::ensure;
 use crate::{
     ChartError, ClipPath, ClipRect, DrawItem, Geometry, Label, LabelCandidate,
     LabelCollisionOptions, LayoutRect, MAX_LABEL_BYTES, Result, Scene, layout_labels,
-    scene::ensure,
 };
-use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct HierarchyLabelCandidate {

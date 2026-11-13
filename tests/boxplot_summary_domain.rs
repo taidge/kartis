@@ -222,7 +222,8 @@ fn summary_bounds_feed_same_nice_reverse_round_clamp_geometry_path() {
                             let mut full = o.clone();
                             full.domain_bounds = None;
                             full.domain = Some(l.value_scale.source_domain());
-                            // Full domains bypass inference, but keep the selected native summary arithmetic.
+                            // Full domains bypass inference, but keep the selected native summary
+                            // arithmetic.
                             let expected =
                                 boxplot_layout_with_scale_options(&frame(), &data, &full, &p)
                                     .unwrap();

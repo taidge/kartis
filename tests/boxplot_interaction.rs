@@ -1,11 +1,10 @@
-use glory::render::{GraphicStroke, StrokeCap};
-use glory::{
-    App,
-    render::{Event, NodeId, PointerPhase},
-    style::Length,
-};
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use glory::App;
+use glory::render::{Event, GraphicStroke, NodeId, PointerPhase, StrokeCap};
+use glory::style::Length;
 use kartis::*;
-use std::{cell::RefCell, rc::Rc};
 fn config() -> ChartConfig {
     ChartConfig {
         width: 420.,

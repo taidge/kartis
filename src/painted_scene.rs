@@ -1,10 +1,9 @@
 //! Explicit text-to-path conversion for standalone SVG, Canvas and CPU Scenes.
-use crate::{
-    ClipPath, DrawItem, Geometry, Mark, PaintedLabelOptions, Result, Scene,
-    render::raster::FontRegistry,
-    scene::{MAX_MARKS, ensure},
-};
 use std::collections::{BTreeMap, BTreeSet};
+
+use crate::render::raster::FontRegistry;
+use crate::scene::{MAX_MARKS, ensure};
+use crate::{ClipPath, DrawItem, Geometry, Mark, PaintedLabelOptions, Result, Scene};
 
 // Match Scene::validate admission limits before multiplying owned clip paths.
 const MAX_COMMANDS: usize = 200_000;

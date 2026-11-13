@@ -1,6 +1,7 @@
 //! Real typed graph relations on Tree/ForceNetwork/Chord/DAG/circular Sankey.
-use super::*;
 use std::collections::BTreeSet;
+
+use super::*;
 struct Fixture {
     chart: BrowserChart,
     root: web_sys::Element,

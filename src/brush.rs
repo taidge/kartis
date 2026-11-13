@@ -9,8 +9,9 @@
 //! Mike Bostock, ISC; full notice in
 //! `tests/fixtures/editable-brush-d3-LICENSE.txt` and
 //! `docs/third-party-notices.md`.
-use crate::{Brush, ChartError, Result};
 use std::sync::atomic::{AtomicU64, Ordering};
+
+use crate::{Brush, ChartError, Result};
 
 static NEXT_OWNER: AtomicU64 = AtomicU64::new(1);
 

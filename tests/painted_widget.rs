@@ -1,11 +1,13 @@
 #![cfg(feature = "raster")]
-use glory::{
-    App,
-    render::{NodeId, Props},
-    style::Display,
-};
-use kartis::{render::raster::*, *};
-use std::{cell::RefCell, collections::BTreeSet, rc::Rc};
+use std::cell::RefCell;
+use std::collections::BTreeSet;
+use std::rc::Rc;
+
+use glory::App;
+use glory::render::{NodeId, Props};
+use glory::style::Display;
+use kartis::render::raster::*;
+use kartis::*;
 
 fn fonts() -> FontRegistry {
     let mut fonts = FontRegistry::new();

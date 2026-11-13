@@ -1,6 +1,7 @@
+use std::collections::BTreeMap;
+
 use super::*;
 use crate::zoned_time::{FoldPolicy, GapPolicy, TimeCalendar, resolve_local};
-use std::collections::BTreeMap;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum ParseGap {

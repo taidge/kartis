@@ -3,12 +3,14 @@
 //! References inspected locally: nivo/packages/bar/src/compute/{grouped,stacked}.ts,
 //! nivo/packages/line/src/hooks.ts, scatterplot/src/compute.ts and heatmap/src/compute.ts.
 //! Rust algorithms are independent implementations; no JavaScript runtime is required.
+use std::collections::BTreeSet;
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
+use glory::style::Color;
+
 use crate::axes::{CartesianAxes, ChartScale, ScaleKind, ValueFormat, cartesian_axes};
 use crate::scales::{BandScale, LinearScale};
 use crate::scene::*;
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
-use glory::style::Color;
-use std::collections::BTreeSet;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Point {

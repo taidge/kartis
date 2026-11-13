@@ -1,8 +1,10 @@
 //! Bounded presentation placement with application-supplied text measurements.
 //! No font lookup, DOM reads or approximate character-width heuristics occur.
-use crate::presentation::{LegendDirection, PresentationAlign};
-use crate::{ChartError, MAX_LABEL_BYTES, Result, scene::ensure};
 use std::collections::BTreeSet;
+
+use crate::presentation::{LegendDirection, PresentationAlign};
+use crate::scene::ensure;
+use crate::{ChartError, MAX_LABEL_BYTES, Result};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct TextSize {

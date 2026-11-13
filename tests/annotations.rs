@@ -1,5 +1,6 @@
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
-use kartis::{annotations::*, *};
+use kartis::annotations::*;
+use kartis::*;
 
 fn scene() -> Scene {
     let mut scene = ChartConfig::default().scene().unwrap();

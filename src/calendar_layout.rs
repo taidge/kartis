@@ -1,9 +1,12 @@
 //! Compact inclusive TimeRange and styled full-year civil calendars.
 //! Nivo reference: packages/calendar/src/{compute/timeRange,types,props}.ts.
 //! Dates use the existing Gregorian and explicit-zone calendar authorities.
-use crate::{scene::ensure, *};
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
 use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
+use crate::scene::ensure;
+use crate::*;
 pub type CalendarCivilDate = (i32, u8, u8);
 pub const MAX_CALENDAR_LAYOUT_DAYS: usize = 12_000;
 #[derive(Clone, Debug, PartialEq)]
@@ -772,8 +775,8 @@ pub fn calendar_layout_with_color_profile(
                 ch + o.day_spacing,
                 o.month_outline_padding,
             )?;
-            let min_x = cells.iter().map(|(w, _, _)| *w).min().unwrap() as f64;
-            let max_x = cells.iter().map(|(w, _, _)| *w).max().unwrap() as f64;
+            let min_x = cells.iter().map(|(w, ..)| *w).min().unwrap() as f64;
+            let max_x = cells.iter().map(|(w, ..)| *w).max().unwrap() as f64;
             let min_y = cells.iter().map(|(_, d, _)| *d).min().unwrap() as f64;
             let max_y = cells.iter().map(|(_, d, _)| *d).max().unwrap() as f64;
             let bounds = ClipRect {

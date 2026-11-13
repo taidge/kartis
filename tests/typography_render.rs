@@ -1,8 +1,7 @@
-use glory::{render::GraphicStroke, style::Family};
-use kartis::{
-    render::{self, Canvas},
-    *,
-};
+use glory::render::GraphicStroke;
+use glory::style::Family;
+use kartis::render::{self, Canvas};
+use kartis::*;
 
 fn scene() -> Scene {
     let mut scene = ChartConfig::default().scene().unwrap();

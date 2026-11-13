@@ -2,10 +2,12 @@
 //! Primary algorithm: SVG 2 painting, stroke-dasharray/dashoffset and dash
 //! positions: <https://www.w3.org/TR/SVG2/painting.html#StrokeDashing>.
 //! Lengths are logical user units (no percentages or pathLength normalization).
-use crate::{ChartError, Geometry, Result, scene::ensure};
-use glory::render::StrokeCap;
-use glory::render::{GraphicPoint as P, PathCommand as C};
 use std::borrow::Cow;
+
+use glory::render::{GraphicPoint as P, PathCommand as C, StrokeCap};
+
+use crate::scene::ensure;
+use crate::{ChartError, Geometry, Result};
 
 pub const MAX_DASH_SEGMENTS: usize = 64;
 pub const MAX_DASH_COMMANDS: usize = 200_000;

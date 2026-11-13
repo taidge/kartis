@@ -1,11 +1,13 @@
 //! Additional deterministic layouts. Design references: local Nivo network/src/hooks.ts
 //! (link, charge and centering forces), chord/src/compute.ts, geo/src/hooks.js,
 //! boxplot/src and parallel-coordinates/src. Algorithms are independent Rust implementations.
-use crate::scales::LinearScale;
-use crate::scene::*;
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
 use std::collections::{BTreeMap, BTreeSet};
 use std::f64::consts::{PI, TAU};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
+use crate::scales::LinearScale;
+use crate::scene::*;
 
 fn stroke(color: crate::Color, width: f64) -> GraphicStroke {
     GraphicStroke {

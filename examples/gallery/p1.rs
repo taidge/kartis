@@ -1,7 +1,8 @@
 //! Configurable rank bands, civil calendars, statistical samples and hierarchy focus.
+use std::collections::BTreeSet;
+
 use glory::render::{GraphicStroke, StrokeCap};
 use kartis::*;
-use std::collections::BTreeSet;
 fn stroke(color: Color, width: f64) -> GraphicStroke {
     GraphicStroke {
         color,

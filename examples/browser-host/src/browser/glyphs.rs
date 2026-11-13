@@ -1,6 +1,7 @@
 //! Actual Line/Radar factory glyphs and explicit physical-frame anchors.
-use super::*;
 use kartis::surface::{Picking, SurfaceModel, SurfaceOptions};
+
+use super::*;
 struct Entry {
     chart: BrowserChart,
     root: web_sys::Element,

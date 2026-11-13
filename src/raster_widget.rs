@@ -8,14 +8,15 @@
 //! observations; they cannot roll back the accepted application model.
 //! This module does not install plot-coordinate pointer listeners. Applications
 //! can use `SurfaceModel` with their host's explicitly supplied coordinates.
-use crate::render::raster::{FontRegistry, RasterOptions, RenderedImage, render_raster};
-use crate::{Chart, ChartError, Result, Scene, chart, scene::ensure};
+use std::cell::{Cell, RefCell};
+use std::collections::BTreeSet;
+use std::rc::Rc;
+
 use glory::{Cage, Scope, Vary};
-use std::{
-    cell::{Cell, RefCell},
-    collections::BTreeSet,
-    rc::Rc,
-};
+
+use crate::render::raster::{FontRegistry, RasterOptions, RenderedImage, render_raster};
+use crate::scene::ensure;
+use crate::{Chart, ChartError, Result, Scene, chart};
 
 /// Maximum encoded image-source bytes retained by one widget frame.
 pub const MAX_RASTER_IMAGE_SOURCE_BYTES: usize = 32 * 1024 * 1024;

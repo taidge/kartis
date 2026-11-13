@@ -1,5 +1,6 @@
 use glory::render::{GraphicPoint as P, PathCommand as C};
-use kartis::{motion::*, *};
+use kartis::motion::*;
+use kartis::*;
 fn scene(geometry: Geometry) -> Scene {
     let mut s = ChartConfig::default().scene().unwrap();
     let mut m = Mark::new("shape", geometry, Color(30, 90, 160, 255));

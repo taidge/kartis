@@ -1,10 +1,11 @@
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
 use glory::web::WebApp;
-use kartis::{render::raster::*, surface::SurfaceInput, *};
+use kartis::render::raster::*;
+use kartis::surface::SurfaceInput;
+use kartis::*;
 use serde_json::json;
-use std::{
-    cell::{Cell, RefCell},
-    rc::Rc,
-};
 use wasm_bindgen::prelude::*;
 
 struct Fixture {

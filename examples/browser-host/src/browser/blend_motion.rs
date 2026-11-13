@@ -1,7 +1,8 @@
 //! Actual retained surfaces driven by the host frame callback.
-use super::*;
 use kartis::browser::{BrowserHighlight, MotionPreference};
 use web_sys::Element;
+
+use super::*;
 
 struct Fixture {
     chart: BrowserChart,

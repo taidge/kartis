@@ -1,8 +1,10 @@
 #![cfg(feature = "raster")]
 
-use glory::App;
-use kartis::{render::raster::*, *};
 use std::rc::Rc;
+
+use glory::App;
+use kartis::render::raster::*;
+use kartis::*;
 
 fn fonts(columns: RasterVerticalColumns) -> FontRegistry {
     let mut fonts = FontRegistry::new().with_vertical_layout(RasterVerticalLayout {

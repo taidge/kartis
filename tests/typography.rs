@@ -1,5 +1,6 @@
-use kartis::*;
 use std::collections::{BTreeMap, BTreeSet};
+
+use kartis::*;
 
 fn font(family: FontFamily, weight: Option<f64>) -> FontOptions {
     FontOptions {

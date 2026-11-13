@@ -1,10 +1,12 @@
+use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint, GraphicStroke, PathCommand};
+
 use super::{
     ContourGrid, ContourLevel, ContourLimits, ContourOptions, DensityField, DensityThresholds,
     checked, contours,
 };
 use crate::*;
-use glory::render::{GraphicPoint, GraphicStroke, PathCommand};
-use std::collections::{BTreeMap, BTreeSet};
 
 /// Scene admission is deliberately stricter than the raw algorithm budget.
 /// Limits may only decrease; complete rings are never simplified or split to

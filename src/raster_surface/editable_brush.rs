@@ -1,13 +1,15 @@
 //! Viewport-pixel brush paint and native control bridge. Only the temporary
 //! paint Scene receives inverse-projected overlay marks; business data and
 //! interaction bindings remain untouched.
-use super::*;
-use glory::render::{
-    DragCapture, DragPhase, Event, EventKind, FocusMode, NodeId, Query, QueryValue, Semantics,
-};
-use glory::render::{GraphicStroke, StrokeCap};
-use glory::style::{Display, FlexDirection, FlexWrap};
 use std::collections::VecDeque;
+
+use glory::render::{
+    DragCapture, DragPhase, Event, EventKind, FocusMode, GraphicStroke, NodeId, Query, QueryValue,
+    Semantics, StrokeCap,
+};
+use glory::style::{Display, FlexDirection, FlexWrap};
+
+use super::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct RasterEditableBrushSnapshot {

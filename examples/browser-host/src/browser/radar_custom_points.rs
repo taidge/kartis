@@ -1,7 +1,8 @@
 //! Retained Radar with caller-authored offset point shapes.
-use super::*;
 use kartis::surface::{Picking, SurfaceOptions};
 use web_sys::Element;
+
+use super::*;
 
 const WIDTH: f64 = 320.;
 const HEIGHT: f64 = 240.;

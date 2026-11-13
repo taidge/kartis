@@ -1,6 +1,8 @@
-use glory::render::{GraphicPoint as P, PathCommand as C};
-use kartis::{surface::*, *};
 use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint as P, PathCommand as C};
+use kartis::surface::*;
+use kartis::*;
 
 fn rect(x0: f64, y0: f64, x1: f64, y1: f64) -> Brush {
     Brush { x0, y0, x1, y1 }

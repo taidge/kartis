@@ -1,18 +1,20 @@
 //! Stream layers, raw stacks, point scales and separate layer and slice bindings.
+use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
+use crate::cartesian::path;
+use crate::scene::{MAX_LABEL_BYTES, MAX_MARKS, ensure};
+use crate::stack::{StackOffset, StackOptions, StackResult, stack};
 use crate::{
     BarSeries, CartesianAxes, CategoryKey, ChartConfig, ChartError, ClipRect, Color, ColorModifier,
     ContinuousScaleOptions, Curve, FillPaint, Geometry, GlyphOptions, GlyphPaintMode, GlyphShape,
     InheritedColor, InheritedColorContext, InteractionAnchor, InteractionBinding, InteractionSite,
     LegendItem, LineOptions, LineStyleOptions, Mark, OrdinalColorOptions, OrdinalColorScale,
     PointLineOptions, PointScaleOptions, ResolvedContinuousScale, ResolvedLinePointScale, Result,
-    ScaleKind, ScaleNice, Scene, SceneInteraction, ValueFormat,
-    cartesian::path,
-    glyph_geometry, glyph_mark, point_line_layout,
-    scene::{MAX_LABEL_BYTES, MAX_MARKS, ensure},
-    stack::{StackOffset, StackOptions, StackResult, stack},
+    ScaleKind, ScaleNice, Scene, SceneInteraction, ValueFormat, glyph_geometry, glyph_mark,
+    point_line_layout,
 };
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
-use std::collections::{BTreeMap, BTreeSet};
 
 pub const MAX_STREAM_CELLS: usize = 16_384;
 

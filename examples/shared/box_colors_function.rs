@@ -1,8 +1,10 @@
 //! Actual borrowed source-color/caption factories; no closure is retained.
-use glory::render::{GraphicStroke, PathCommand, StrokeCap};
-use kartis::{surface::SurfacePhysicalHit, *};
-use serde_json::{Value, json};
 use std::cell::RefCell;
+
+use glory::render::{GraphicStroke, PathCommand, StrokeCap};
+use kartis::surface::SurfacePhysicalHit;
+use kartis::*;
+use serde_json::{Value, json};
 
 pub const WIDTH: f64 = 480.;
 pub const HEIGHT: f64 = 300.;

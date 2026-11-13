@@ -6,6 +6,13 @@ mod editable_brush;
 mod geo_conic;
 mod sequential_quantile;
 mod text_baseline;
+use std::cell::RefCell;
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
+use std::path::Path;
+use std::rc::Rc;
+use std::sync::{Arc, Mutex};
+use std::task::{Context, Poll, Waker};
+
 use apace_dom::Document;
 use apace_traits::events::{
     ApaceKeyEvent, ApacePointerEvent, ApacePointerId, KeyState, MouseEventButton,
@@ -13,27 +20,15 @@ use apace_traits::events::{
 };
 use glory::Widget;
 use glory::render::{NodeId, Props, Query, QueryValue};
-use glory_apace::{
-    Config, Raster,
-    assets::{Bytes, NetHandler, NetProvider, Request, Url},
-    shell::WindowApp,
+use glory_apace::assets::{Bytes, NetHandler, NetProvider, Request, Url};
+use glory_apace::shell::WindowApp;
+use glory_apace::{Config, Raster};
+use kartis::render::raster::{
+    BidiBaseDirection, ColorGlyphMode, FaceDescriptor, FontRegistry, render_raster,
 };
-use kartis::{
-    render::raster::{
-        BidiBaseDirection, ColorGlyphMode, FaceDescriptor, FontRegistry, render_raster,
-    },
-    surface::{SurfaceEvent, SurfaceInput},
-    *,
-};
+use kartis::surface::{SurfaceEvent, SurfaceInput};
+use kartis::*;
 use keyboard_types::{Code, Key, Location, Modifiers, NamedKey};
-use std::{
-    cell::RefCell,
-    collections::{BTreeMap, BTreeSet, VecDeque},
-    path::Path,
-    rc::Rc,
-    sync::{Arc, Mutex},
-    task::{Context, Poll, Waker},
-};
 type AnyResult<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
 struct Job {
     doc: usize,

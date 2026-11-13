@@ -1,13 +1,12 @@
 //! Renderer-independent custom cells reuse the validated Scatter/Line glyph contract.
 use super::*;
-use crate::{
-    FillPaint, InteractionAnchor, InteractionBinding, InteractionSite, ScatterNodeGeometry,
-};
-
 /// The same checked single-mark Geometry/FillPaint representation used by
 /// custom Scatter and Line points. Rects and circles stay centered at the
 /// logical cell origin. Use a Path for intentionally offset visible ink.
 pub use crate::ScatterNodeGeometry as HeatmapCellGeometry;
+use crate::{
+    FillPaint, InteractionAnchor, InteractionBinding, InteractionSite, ScatterNodeGeometry,
+};
 
 /// Original nullable source and already-resolved layout for one visible cell.
 /// Factories run in configured row/column order, once per visible source pair.
@@ -88,14 +87,24 @@ pub type HeatmapLabelFactory<'a> = dyn FnMut(&HeatmapLabelContext<'_>) -> Result
 /// ```
 /// use kartis::*;
 /// let cells = [HeatCell::new("row", "column", 0.)];
-/// let mut text = |ctx: &HeatmapLabelContext<'_>| {
-///     Ok(format!("{}: {}", ctx.datum.row, ctx.default_text))
-/// };
+/// let mut text =
+///     |ctx: &HeatmapLabelContext<'_>| Ok(format!("{}: {}", ctx.datum.row, ctx.default_text));
 /// let layout = heatmap_layout_with_factories(
-///     &ChartConfig::default(), &cells, &HeatmapLayoutOptions::default(),
-///     HeatmapFactories { cell: None, label: Some(&mut text) },
+///     &ChartConfig::default(),
+///     &cells,
+///     &HeatmapLayoutOptions::default(),
+///     HeatmapFactories {
+///         cell: None,
+///         label: Some(&mut text),
+///     },
 /// )?;
-/// assert!(layout.scene.labels.iter().any(|label| label.text == "row: 0"));
+/// assert!(
+///     layout
+///         .scene
+///         .labels
+///         .iter()
+///         .any(|label| label.text == "row: 0")
+/// );
 /// # Ok::<(), ChartError>(())
 /// ```
 #[derive(Default)]

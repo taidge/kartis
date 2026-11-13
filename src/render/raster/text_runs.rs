@@ -1,11 +1,13 @@
 //! Shared Unicode preprocessing and font fallback for script-aware text.
+use std::ops::Range;
+
+use rustybuzz::Face;
+use unicode_script::{Script, ScriptExtension, UnicodeScript};
+use unicode_segmentation::UnicodeSegmentation;
+
 use super::{MissingGlyphPolicy, RasterWritingMode};
 use crate::scene::ensure;
 use crate::{ChartError, Result};
-use rustybuzz::Face;
-use std::ops::Range;
-use unicode_script::{Script, ScriptExtension, UnicodeScript};
-use unicode_segmentation::UnicodeSegmentation;
 
 pub(super) fn normalized(text: &str) -> Result<(String, Vec<u32>)> {
     let mut line = String::with_capacity(text.len());

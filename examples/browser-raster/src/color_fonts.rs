@@ -1,12 +1,14 @@
-use glory::{
-    Cage,
-    render::EventKind,
-    style::{Display, Style},
-    web::WebApp,
-};
-use kartis::{render::raster::*, *};
+use std::cell::RefCell;
+use std::collections::BTreeSet;
+use std::rc::Rc;
+
+use glory::Cage;
+use glory::render::EventKind;
+use glory::style::{Display, Style};
+use glory::web::WebApp;
+use kartis::render::raster::*;
+use kartis::*;
 use serde_json::json;
-use std::{cell::RefCell, collections::BTreeSet, rc::Rc};
 use wasm_bindgen::prelude::*;
 struct Fixture {
     web: WebApp,

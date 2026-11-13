@@ -1,6 +1,7 @@
 //! Real controller-owned crosshairs, typed slices and current safe tooltip rows.
-use super::*;
 use std::collections::BTreeSet;
+
+use super::*;
 struct LineCrosshairFixture {
     chart: BrowserChart,
     root: web_sys::Element,

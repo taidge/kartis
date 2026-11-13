@@ -1,7 +1,11 @@
 #![cfg(feature = "raster")]
+use std::cell::Cell;
+use std::rc::Rc;
+
 use glory::App;
-use kartis::{render::raster::*, surface::SurfaceInput, *};
-use std::{cell::Cell, rc::Rc};
+use kartis::render::raster::*;
+use kartis::surface::SurfaceInput;
+use kartis::*;
 
 fn config() -> ChartConfig {
     ChartConfig {

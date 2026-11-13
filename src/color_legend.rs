@@ -2,8 +2,11 @@
 //! A continuous ramp retains every sample in one renderer gradient.
 //! SequentialQuantile uses that same rectangle with ordered duplicate stops,
 //! retaining exact data jumps and isolated endpoint colors without band seams.
-use crate::{color_scale::color_value, scene::ensure, *};
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+
+use crate::color_scale::color_value;
+use crate::scene::ensure;
+use crate::*;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum ColorLegendOrientation {
     #[default]

@@ -1,5 +1,6 @@
-use kartis::*;
 use std::f64::consts::PI;
+
+use kartis::*;
 fn definitions() -> Vec<PatternFill> {
     vec![
         PatternShape::Dots {
@@ -220,10 +221,11 @@ fn malformed_and_expensive_tiles_fail_before_backend_allocation() {
 }
 #[cfg(feature = "raster")]
 mod raster {
-    use super::*;
     use tiny_skia::{
         FillRule, FilterQuality, Paint, PathBuilder, Pattern, Pixmap, Rect, SpreadMode, Transform,
     };
+
+    use super::*;
     #[test]
     fn full_width_translucent_stripes_have_no_odd_pixel_tile_seam() {
         let pattern = PatternFill {

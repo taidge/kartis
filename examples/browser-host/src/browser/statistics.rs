@@ -1,6 +1,7 @@
 //! Real sample BoxPlot and multi-row Bullet inputs, without remounting updates.
-use super::*;
 use std::collections::BTreeSet;
+
+use super::*;
 struct StatisticsFixture {
     chart: BrowserChart,
     root: web_sys::Element,

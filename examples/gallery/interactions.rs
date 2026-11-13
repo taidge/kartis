@@ -1,7 +1,8 @@
 //! Static snapshots of real accepted interaction/layout state; no tooltip or
 //! measuring heuristic is substituted for the live BrowserChart consumers.
 use glory::render::{GraphicStroke, StrokeCap};
-use kartis::{surface::*, *};
+use kartis::surface::*;
+use kartis::*;
 
 fn caption(scene: &mut Scene, frame: &ChartConfig, text: &str) {
     if !scene.draw_order.is_empty() {

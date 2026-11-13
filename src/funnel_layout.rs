@@ -1,14 +1,16 @@
 //! Typed funnel stages using Nivo's band and separator geometry and the shared D3 curves.
+use std::collections::BTreeSet;
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
+
+use crate::cartesian::path;
+use crate::scene::{MAX_LABEL_BYTES, ensure};
 use crate::{
     CategoryKey, ChartConfig, ChartError, ClipRect, Color, Curve, FillPaint, Geometry,
     InheritedColor, InheritedColorContext, InteractionAnchor, InteractionBinding, InteractionSite,
     Label, LegendItem, Mark, OrdinalColorOptions, OrdinalColorScale, Result, Scene,
     SceneInteraction, TextAnchor, ValueFormat,
-    cartesian::path,
-    scene::{MAX_LABEL_BYTES, ensure},
 };
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
-use std::collections::BTreeSet;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct FunnelDatum {

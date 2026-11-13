@@ -1,4 +1,8 @@
 //! Application-owned contours and weighted density using public Kartis APIs.
+use std::cell::{Cell, RefCell};
+use std::collections::BTreeSet;
+use std::rc::{Rc, Weak};
+
 use kartis::browser::{
     BrowserChart, BrowserEvent, BrowserHandle, BrowserHighlight, BrowserOptions, BrowserRenderer,
     MotionPreference,
@@ -6,11 +10,6 @@ use kartis::browser::{
 use kartis::surface::{SurfaceEvent, SurfaceOptions};
 use kartis::*;
 use serde_json::{Value, json};
-use std::{
-    cell::{Cell, RefCell},
-    collections::BTreeSet,
-    rc::{Rc, Weak},
-};
 use wasm_bindgen::prelude::*;
 
 #[derive(Clone)]

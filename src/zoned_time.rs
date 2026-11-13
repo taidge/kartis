@@ -2,11 +2,12 @@
 //! linear in epoch milliseconds. Calendar days are never fixed 24-hour durations.
 //! References: E:/Repos/d3/docs/d3-time.md; Jiff's AmbiguousOffset and TZif
 //! transition APIs, <https://docs.rs/jiff/latest/jiff/tz/index.html>.
+use std::collections::BTreeSet;
+
 use crate::datetime::{DateTimeFormat, TimeLocale, TimeZone};
 use crate::scene::ensure;
 use crate::time::{MAX_TIMESTAMP_MS, TimeTick, UtcTimeScale, civil_from_days, days_from_civil};
 use crate::{ChartError, Result};
-use std::collections::BTreeSet;
 
 const DAY: i64 = 86_400_000;
 pub const MAX_ZONED_TICKS: usize = 2000;

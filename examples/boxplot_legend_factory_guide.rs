@@ -1,10 +1,9 @@
+use std::cell::{Cell, RefCell};
+use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
+
 use glory::render::{Event, NodeId, Props};
 use kartis::*;
-use std::{
-    cell::{Cell, RefCell},
-    collections::{BTreeMap, BTreeSet},
-    rc::Rc,
-};
 
 fn legend_node(app: &glory::App, label: &str) -> Result<NodeId> {
     let tree = app.tree();

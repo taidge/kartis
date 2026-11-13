@@ -2,13 +2,13 @@
 //! Nivo treemap/src/hooks.ts (inner/outer and parent-label reservation),
 //! circle-packing/src/hooks.ts::useCirclePackingZoom, icicle/src/hooks.ts.
 //! Existing radial algorithms remain authoritative; no Scene camera is used.
-use crate::{
-    radial::{self, Hierarchy, Rect},
-    scene::ensure,
-    *,
-};
-use glory::render::GraphicStroke;
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
+
+use glory::render::GraphicStroke;
+
+use crate::radial::{self, Hierarchy, Rect};
+use crate::scene::ensure;
+use crate::*;
 
 mod labels;
 pub use labels::{

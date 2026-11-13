@@ -1,7 +1,8 @@
+use std::collections::BTreeMap;
+
 use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
 use kartis::surface::SurfaceModel;
 use kartis::*;
-use std::collections::BTreeMap;
 
 fn config() -> ChartConfig {
     ChartConfig {

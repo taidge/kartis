@@ -1,5 +1,6 @@
-use super::*;
 use std::collections::{BTreeMap, BTreeSet};
+
+use super::*;
 
 /// One source-over compositing group. Membership follows the Scene's actual
 /// paint order and cannot overlap another group or include labels.

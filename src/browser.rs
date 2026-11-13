@@ -1,28 +1,29 @@
 //! Opt-in browser host for application-owned SVG/Canvas surfaces plus real Glory
 //! controls. Native listeners enqueue bounded inputs; RAF performs model work,
 //! painting and application callbacks. Drop/stop removes every owned listener.
-use crate::{
-    annotations::ZoomTransform,
-    surface::{SurfaceEvent, SurfaceInput, SurfaceModel, SurfaceOptions},
-    *,
-};
-use glory::{Cage, web::WebApp};
-use std::{
-    cell::{Cell, RefCell},
-    collections::{BTreeMap, BTreeSet, VecDeque},
-    rc::{Rc, Weak},
-};
-use wasm_bindgen::{JsCast, closure::Closure};
+use std::cell::{Cell, RefCell};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
+use std::rc::{Rc, Weak};
+
+use glory::Cage;
+use glory::web::WebApp;
+use wasm_bindgen::JsCast;
+use wasm_bindgen::closure::Closure;
 use web_sys::{
     Element, Event, EventTarget, HtmlCanvasElement, HtmlElement, KeyboardEvent, PointerEvent,
     ResizeObserver, WheelEvent, Window,
 };
+
+use crate::annotations::ZoomTransform;
+use crate::surface::{SurfaceEvent, SurfaceInput, SurfaceModel, SurfaceOptions};
+use crate::*;
 mod blend_motion;
 mod blends;
 mod editable_brush;
 mod geo_coordinates;
-use crate::brush::{BrushReconfigure, EditableBrushOptions};
 pub use editable_brush::BrowserBrushSnapshot;
+
+use crate::brush::{BrushReconfigure, EditableBrushOptions};
 mod network;
 mod pattern_svg;
 mod plot_widgets;

@@ -1,5 +1,6 @@
-use kartis::{Color, ColorScheme};
 use std::collections::BTreeSet;
+
+use kartis::{Color, ColorScheme};
 
 fn rgb(hex: &str) -> Color {
     let color = u32::from_str_radix(hex, 16).unwrap();

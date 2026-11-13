@@ -2,13 +2,13 @@
 //! `packages/bullet/src/{types.ts,hooks.ts,compute.ts,Bullet.tsx}`.
 //! Sorted endpoints form adjacent intervals, not overlapping bars from zero.
 //! This profile deliberately preserves zero/negative values and source indices.
-use crate::{
-    boxplot_layout::{stats_extent, stats_id, stats_path, stats_stroke, stats_stroke_valid},
-    scene::ensure,
-    *,
-};
-use glory::render::GraphicStroke;
 use std::collections::{BTreeMap, BTreeSet};
+
+use glory::render::GraphicStroke;
+
+use crate::boxplot_layout::{stats_extent, stats_id, stats_path, stats_stroke, stats_stroke_valid};
+use crate::scene::ensure;
+use crate::*;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum BulletDomainMode {
     #[default]

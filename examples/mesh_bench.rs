@@ -1,6 +1,8 @@
 //! Reproducible point-mesh/query baseline, independent of GUI frame rates.
+use std::hint::black_box;
+use std::time::Instant;
+
 use kartis::mesh::{MeshPoint, PointMesh};
-use std::{hint::black_box, time::Instant};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let points: Vec<_> = (0..20_000)
         .map(|i| MeshPoint {

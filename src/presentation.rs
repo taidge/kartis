@@ -1,13 +1,15 @@
 //! Renderer-independent legend layout and safe, bounded tooltip text.
 //! Strings are plain text. Consumers must never interpret them as HTML.
+use std::collections::BTreeMap;
+
+use glory::style::{
+    Align, Display, Edges, FlexDirection, FlexWrap, Justify, Length, Style, WhiteSpace,
+};
+
 use crate::scene::ensure;
 use crate::{
     Color, LegendItem, LegendRole, LegendTarget, MAX_LABEL_BYTES, Mark, Result, ValueFormat,
 };
-use glory::style::{
-    Align, Display, Edges, FlexDirection, FlexWrap, Justify, Length, Style, WhiteSpace,
-};
-use std::collections::BTreeMap;
 
 /// Reactive inputs for an application-supplied legend content/symbol Widget.
 /// Returned Widgets provide content, not nested interactive controls. Chart

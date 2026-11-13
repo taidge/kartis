@@ -1,8 +1,10 @@
 //! Portable single-pointer node dragging. Positions remain in the simulation's
 //! world coordinates; camera/host resize changes are explicitly rebased.
-use super::{ForceSimulation, ForceStats, MAX_FORCE_COORDINATE};
-use crate::{ChartConfig, ClipRect, Result, ZoomTransform, scene::ensure};
 use std::collections::BTreeSet;
+
+use super::{ForceSimulation, ForceStats, MAX_FORCE_COORDINATE};
+use crate::scene::ensure;
+use crate::{ChartConfig, ClipRect, Result, ZoomTransform};
 #[derive(Clone, Debug, PartialEq)]
 pub struct NetworkDragMapping {
     pub scene_size: [f64; 2],

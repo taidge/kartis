@@ -1,5 +1,7 @@
+use std::cell::Cell;
+use std::collections::BTreeMap;
+
 use kartis::*;
-use std::{cell::Cell, collections::BTreeMap};
 
 fn data() -> Vec<BoxObservation> {
     ["A", "B"]

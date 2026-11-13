@@ -1,13 +1,14 @@
 //! Measured layout of the start and end labels authored by AreaBump.
+use std::collections::{BTreeMap, BTreeSet};
+use std::mem;
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C};
+
 use super::{AreaBumpLayout, alpha};
+use crate::scene::ensure;
 use crate::{
     ChartError, DrawItem, Geometry, Label, LabelCandidate, LabelCollisionOptions, LayoutRect, Mark,
-    Result, Scene, layout_labels, scene::ensure,
-};
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    mem,
+    Result, Scene, layout_labels,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]

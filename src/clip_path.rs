@@ -1,6 +1,8 @@
 //! Explicit fill-rule clip paths; drawing and picking share logical coordinates.
-use crate::{scene::ensure, *};
 use glory::render::{GraphicPoint as P, PathCommand as C};
+
+use crate::scene::ensure;
+use crate::*;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum ClipRule {
     #[default]

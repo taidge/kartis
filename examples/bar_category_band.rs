@@ -1,4 +1,5 @@
-use std::{fmt::Write, path::PathBuf};
+use std::fmt::Write;
+use std::path::PathBuf;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let out = PathBuf::from(std::env::args().nth(1).ok_or("output directory")?);
     std::fs::create_dir_all(&out)?;

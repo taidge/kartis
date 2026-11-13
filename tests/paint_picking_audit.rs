@@ -1,4 +1,7 @@
-use kartis::{annotations::Brush, mesh::PointMesh, surface::*, *};
+use kartis::annotations::Brush;
+use kartis::mesh::PointMesh;
+use kartis::surface::*;
+use kartis::*;
 fn shader_only() -> Scene {
     let mut scene = ChartConfig {
         width: 200.,

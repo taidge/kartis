@@ -1,9 +1,12 @@
 //! Series-local line/area/point presentation using the existing Cartesian
 //! layout. Nivo references: line/src/{defaults,Points,Areas,LinesItem}.ts(x).
 //! Colors may carry independent alpha; areas and stroke opacity are separate.
-use crate::{scene::ensure, *};
-use glory::render::{GraphicStroke, StrokeCap};
 use std::collections::BTreeMap;
+
+use glory::render::{GraphicStroke, StrokeCap};
+
+use crate::scene::ensure;
+use crate::*;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub enum LinePointLabelText {

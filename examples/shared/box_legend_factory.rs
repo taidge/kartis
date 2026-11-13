@@ -1,9 +1,11 @@
 //! Borrowed per-summary legend factories, shared by native and retained hosts.
 //! No factory is retained. Generic target overrides only touch a rendered clone.
-use glory::render::{GraphicStroke, PathCommand, StrokeCap};
-use kartis::{surface::SurfacePhysicalHit, *};
-use serde_json::{Value, json};
 use std::collections::BTreeMap;
+
+use glory::render::{GraphicStroke, PathCommand, StrokeCap};
+use kartis::surface::SurfacePhysicalHit;
+use kartis::*;
+use serde_json::{Value, json};
 
 pub const WIDTH: f64 = 480.;
 pub const HEIGHT: f64 = 300.;

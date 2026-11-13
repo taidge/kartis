@@ -1,10 +1,12 @@
+use std::collections::BTreeMap;
+
+use glory::Widget;
+use glory::style::Profile;
+
 use super::*;
 use crate::widget::plot_widgets::{
     PlotWidgetFactory, PlotWidgetsState, PreparedSlot, SlotSpace, overlay_style, prepare_in_space,
 };
-use glory::Widget;
-use glory::style::Profile;
-use std::collections::BTreeMap;
 
 mod masks;
 use masks::MaskLayer;

@@ -1,9 +1,7 @@
-use kartis::{
-    motion::PropertyMotionOptions,
-    render::{to_canvas_script, to_svg},
-    surface::{SurfaceInput, SurfaceModel, SurfaceOptions},
-    *,
-};
+use kartis::motion::PropertyMotionOptions;
+use kartis::render::{to_canvas_script, to_svg};
+use kartis::surface::{SurfaceInput, SurfaceModel, SurfaceOptions};
+use kartis::*;
 
 fn data() -> Vec<HierarchyDatum> {
     let mut data = vec![

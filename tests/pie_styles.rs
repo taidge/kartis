@@ -1,9 +1,8 @@
+use std::collections::BTreeSet;
+use std::f64::consts::{FRAC_PI_2, TAU};
+
 use glory::render::{GraphicStroke, PathCommand as C, StrokeCap};
 use kartis::*;
-use std::{
-    collections::BTreeSet,
-    f64::consts::{FRAC_PI_2, TAU},
-};
 fn config() -> ChartConfig {
     ChartConfig {
         width: 400.,

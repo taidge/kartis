@@ -1,5 +1,6 @@
 use glory::render::{GraphicPoint as P, PathCommand as C};
-use kartis::{surface::*, *};
+use kartis::surface::*;
+use kartis::*;
 
 fn frame() -> ChartConfig {
     ChartConfig {

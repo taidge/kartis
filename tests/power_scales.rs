@@ -1,4 +1,5 @@
-use kartis::{scales::PowScale, *};
+use kartis::scales::PowScale;
+use kartis::*;
 
 fn number(s: &str) -> f64 {
     s.parse().unwrap()

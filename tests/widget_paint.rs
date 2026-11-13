@@ -1,13 +1,13 @@
-use glory::{
-    App,
-    render::{
-        Event, GraphicPoint as P, GraphicProps, GraphicStroke, NodeId, PathCommand as C, Props,
-        StrokeCap,
-    },
-    style::Display,
+use std::cell::Cell;
+use std::rc::Rc;
+
+use glory::App;
+use glory::render::{
+    Event, GraphicPoint as P, GraphicProps, GraphicStroke, NodeId, PathCommand as C, Props,
+    StrokeCap,
 };
+use glory::style::Display;
 use kartis::*;
-use std::{cell::Cell, rc::Rc};
 fn scene() -> Scene {
     let mut scene = ChartConfig::default().scene().unwrap();
     let mut mark = Mark::new(

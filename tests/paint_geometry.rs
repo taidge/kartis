@@ -1,5 +1,7 @@
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
-use kartis::{mesh::PointMesh, surface::*, *};
+use kartis::mesh::PointMesh;
+use kartis::surface::*;
+use kartis::*;
 
 fn scene(geometry: Geometry, clip: Option<ClipRect>, stroke: bool) -> Scene {
     let mut scene = ChartConfig::default().scene().unwrap();

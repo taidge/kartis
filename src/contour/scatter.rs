@@ -1,10 +1,11 @@
+use std::collections::{BTreeMap, BTreeSet};
+use std::sync::Arc;
+
 use super::{
     ContourLayout, ContourLayoutOptions, ContourLevelMetadata, ContourLimits, DensityField,
     DensityOptions, DensityPoint, DensityThresholds, checked, density_layout, estimate_density,
 };
 use crate::*;
-use std::collections::{BTreeMap, BTreeSet};
-use std::sync::Arc;
 
 /// Explicit weights by original (series ID, datum ID). Missing weights are one;
 /// unknown IDs and nonfinite values reject rather than silently losing inputs.

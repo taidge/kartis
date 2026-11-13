@@ -2,11 +2,12 @@
 //! Native priming, nullable coercion, CSS/typed alpha and arbitrary-property
 //! boundaries are tested explicitly; no React or native-outlier parity claim.
 #![cfg(feature = "geojson")]
+use std::cell::Cell;
+use std::collections::BTreeSet;
+
 use glory::render::{GraphicStroke, StrokeCap};
 use kartis::*;
 use serde_json::Value;
-use std::cell::Cell;
-use std::collections::BTreeSet;
 
 fn fixture() -> Value {
     serde_json::from_str(include_str!("fixtures/box-colors-function/values.json")).unwrap()

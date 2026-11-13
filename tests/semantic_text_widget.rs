@@ -1,14 +1,11 @@
-use glory::{
-    App,
-    render::{Event, NodeId, Props},
-    style::{Display, Length, Style},
-};
+use std::cell::{Cell, RefCell};
+use std::collections::BTreeSet;
+use std::rc::Rc;
+
+use glory::App;
+use glory::render::{Event, NodeId, Props};
+use glory::style::{Display, Length, Style};
 use kartis::*;
-use std::{
-    cell::{Cell, RefCell},
-    collections::BTreeSet,
-    rc::Rc,
-};
 
 fn scene() -> Scene {
     let mut scene = ChartConfig {

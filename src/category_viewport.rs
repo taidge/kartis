@@ -1,6 +1,7 @@
 //! Category navigation retains the complete category domain. Fractional band
 //! windows zoom/pan smoothly; layouts keep IDs, colors and bar stacks stable.
-use crate::{scene::ensure, *};
+use crate::scene::ensure;
+use crate::*;
 #[derive(Clone, Debug, PartialEq)]
 pub struct CategoryViewport {
     categories: Vec<String>,

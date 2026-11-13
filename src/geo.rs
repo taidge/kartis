@@ -10,11 +10,13 @@
 //! before clipping; antipodal, self-intersecting or ambiguous spherical topology
 //! is rejected explicitly. Azimuthal clip angles are at most 90°; Gnomonic uses
 //! 60° by default and requires less than 90°, matching its singularity.
-use crate::scene::ensure;
-use crate::{ChartConfig, ChartError, Color, GeoFeature, Geometry, Mark, Result, Scene};
-use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
 use std::collections::BTreeSet;
 use std::f64::consts::{FRAC_PI_2, PI, TAU};
+
+use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
+
+use crate::scene::ensure;
+use crate::{ChartConfig, ChartError, Color, GeoFeature, Geometry, Mark, Result, Scene};
 const EPS: f64 = 1e-10;
 const PRECISION: f64 = PI / 90.;
 const MERCATOR_LIMIT: f64 = 1.4844222297453324;

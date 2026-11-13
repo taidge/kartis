@@ -2,14 +2,17 @@
 #[path = "../../shared/box_legend_labels.rs"]
 mod model;
 
-use glory::{Cage, Widget, web::WebApp};
-use kartis::{browser::*, raster_surface::*, render::raster::*, *};
+use std::cell::RefCell;
+use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
+
+use glory::web::WebApp;
+use glory::{Cage, Widget};
+use kartis::browser::*;
+use kartis::raster_surface::*;
+use kartis::render::raster::*;
+use kartis::*;
 use serde_json::{Value, json};
-use std::{
-    cell::RefCell,
-    collections::{BTreeMap, BTreeSet},
-    rc::Rc,
-};
 use wasm_bindgen::prelude::*;
 
 type Events = Rc<RefCell<Vec<Value>>>;

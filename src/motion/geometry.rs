@@ -1,9 +1,11 @@
 //! Explicit geometric correspondence, not semantic correspondence between data.
 //! Contours are flattened and resampled by arc length. Multiple contours need
 //! explicit caller keys; holes and semantic correspondence are never inferred.
-use crate::scene::*;
-use glory::render::{GraphicPoint as P, PathCommand as C};
 use std::collections::BTreeMap;
+
+use glory::render::{GraphicPoint as P, PathCommand as C};
+
+use crate::scene::*;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum ClosedAlignment {

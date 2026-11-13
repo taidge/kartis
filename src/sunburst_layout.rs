@@ -1,18 +1,18 @@
 //! Equal-area D3 partition and configurable Sunburst presentation. Nivo uses
 //! squared radial coordinates and computes node data in breadth-first order.
+use std::collections::{BTreeMap, BTreeSet};
+use std::f64::consts::TAU;
+
+use glory::render::{GraphicStroke, PathCommand, StrokeCap};
+
+use crate::pie_layout::pie_arc;
+use crate::radial::{Hierarchy, HierarchyDatum, hierarchy_with_self_values};
+use crate::scene::{MAX_LABEL_BYTES, ensure};
 use crate::{
     CategoryKey, ChartConfig, ChartError, ClipRect, Color, FillPaint, Geometry, InheritedColor,
     InheritedColorContext, InteractionAnchor, InteractionBinding, InteractionSite, Label, Mark,
     OrdinalColorOptions, OrdinalColorScale, PiePadRadius, PolarFrame, Result, Scene,
     SceneInteraction, TextAnchor, ValueFormat,
-    pie_layout::pie_arc,
-    radial::{Hierarchy, HierarchyDatum, hierarchy_with_self_values},
-    scene::{MAX_LABEL_BYTES, ensure},
-};
-use glory::render::{GraphicStroke, PathCommand, StrokeCap};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    f64::consts::TAU,
 };
 
 mod labels;

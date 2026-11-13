@@ -1,8 +1,6 @@
 use glory::render::{GraphicStroke, PathCommand, StrokeCap};
-use kartis::{
-    surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions},
-    *,
-};
+use kartis::surface::{Picking, SurfaceInput, SurfaceModel, SurfaceOptions};
+use kartis::*;
 
 fn frame(width: f64, height: f64) -> ChartConfig {
     ChartConfig {

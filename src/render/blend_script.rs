@@ -1,12 +1,12 @@
 //! Script replay plans physical scratch space before resizing its destination.
-use crate::{
-    Scene,
-    blend::{
-        MAX_BLEND_FRAME_PIXELS, MAX_BLEND_SCRATCH_PIXELS, MAX_BLEND_SIDE, MarkBlends,
-        group_blend_bounds, has_isolated_marks, mark_blend_bounds, requires_isolation,
-    },
+use std::collections::BTreeSet;
+use std::fmt::Write as _;
+
+use crate::Scene;
+use crate::blend::{
+    MAX_BLEND_FRAME_PIXELS, MAX_BLEND_SCRATCH_PIXELS, MAX_BLEND_SIDE, MarkBlends,
+    group_blend_bounds, has_isolated_marks, mark_blend_bounds, requires_isolation,
 };
-use std::{collections::BTreeSet, fmt::Write as _};
 
 // A plan only: no backing store or rendering context is created. The offscreen
 // path uses this before any extra buffer allocation for aggregate admission.

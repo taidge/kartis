@@ -1,7 +1,8 @@
+use std::cmp::Ordering;
+
 use kartis::{
     ContourLevel as Level, ContourPoint as Point, ContourPolygon as Polygon, ContourRing as Ring,
 };
-use std::cmp::Ordering;
 
 pub fn parse_levels(source: &str) -> Vec<Level> {
     if source.is_empty() {

@@ -1,5 +1,7 @@
+use std::cell::RefCell;
+use std::collections::BTreeMap;
+
 use kartis::*;
-use std::{cell::RefCell, collections::BTreeMap};
 
 fn config() -> ChartConfig {
     ChartConfig {

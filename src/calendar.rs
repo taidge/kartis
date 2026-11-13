@@ -1,9 +1,10 @@
 //! Inclusive multi-year Gregorian calendar ranges using the single-year layout
 //! as the date/weekday authority. Date identities survive year reordering and
 //! orientation changes; one color domain applies to the complete range.
+use std::collections::{BTreeMap, BTreeSet};
+
 use crate::scene::ensure;
 use crate::{CalendarDay, ChartConfig, Color, Geometry, Label, Result, Scene, TextAnchor};
-use std::collections::{BTreeMap, BTreeSet};
 
 /// One observation at an absolute instant. Multiple observations on the same
 /// local civil date are combined by the selected aggregation.
