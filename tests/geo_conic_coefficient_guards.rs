@@ -42,11 +42,13 @@ fn adjacent_standard_quotients_are_checked_per_selected_family() {
                 .contains("coefficient n")
         );
         assert!(GeoProjection::conic_equal_area(pair).is_ok());
+        // Adjacent cosine differences depend on libm rounding. The same
+        // unsafe standards can violate the coefficient bound/interval before
+        // the signed radial-origin guard is reached; either must reject.
+        let error = GeoProjection::conic_equidistant(pair).unwrap_err();
         assert!(
-            GeoProjection::conic_equidistant(pair)
-                .unwrap_err()
-                .to_string()
-                .contains("radial origin")
+            error.0.contains("coefficient n") || error.0.contains("radial origin"),
+            "{pair:?}: {error}"
         );
     }
     for a in [BAD_EQ[0], BAD_CC[0]] {
@@ -78,73 +80,50 @@ fn direct_variants_cannot_bypass_coefficient_checks_at_world_data_or_stream_entr
         GeoProjection::ConicConformal(GeoConicParallels::new(BAD_CC).unwrap()),
         GeoProjection::ConicEquidistant(GeoConicParallels::new(BAD_CC).unwrap()),
     ] {
+        let expected = match projection {
+            GeoProjection::ConicEquidistant(p) => {
+                GeoProjection::conic_equidistant(p.degrees()).unwrap_err()
+            }
+            GeoProjection::ConicConformal(p) => {
+                GeoProjection::conic_conformal(p.degrees()).unwrap_err()
+            }
+            _ => unreachable!(),
+        };
         for fit in [GeoFit::World, GeoFit::Data] {
             let view = GeoMapOptions {
                 projection,
                 fit,
                 ..Default::default()
             };
-            assert!(
-                project_geo_point([0., 0.], &view)
-                    .unwrap_err()
-                    .to_string()
-                    .contains(
-                        if projection
-                            == GeoProjection::ConicEquidistant(
-                                GeoConicParallels::new(BAD_CC).unwrap()
-                            )
-                        {
-                            "radial origin"
-                        } else {
-                            "coefficient n"
-                        }
-                    )
-            );
-            assert!(
+            assert_eq!(project_geo_point([0., 0.], &view).unwrap_err(), expected);
+            assert_eq!(
                 geographic_map_layout(
                     &ChartConfig::default(),
                     std::slice::from_ref(&feature),
                     &view
                 )
-                .unwrap_err()
-                .to_string()
-                .contains(
-                    if projection
-                        == GeoProjection::ConicEquidistant(GeoConicParallels::new(BAD_CC).unwrap())
-                    {
-                        "radial origin"
-                    } else {
-                        "coefficient n"
-                    }
-                )
+                .unwrap_err(),
+                expected
             );
-            assert!(
+            assert_eq!(
                 geographic_map_layout_with_path_options(
                     &ChartConfig::default(),
                     std::slice::from_ref(&feature),
                     &view,
                     &GeoPathOptions::default()
                 )
-                .is_err()
+                .unwrap_err(),
+                expected
             );
-            assert!(
+            assert_eq!(
                 geographic_lines(
                     &ChartConfig::default(),
                     &[GeoLineFeature::new("line", vec![[-10., 0.], [10., 0.]])],
                     &view,
                     &GeoStreamOptions::default()
                 )
-                .unwrap_err()
-                .to_string()
-                .contains(
-                    if projection
-                        == GeoProjection::ConicEquidistant(GeoConicParallels::new(BAD_CC).unwrap())
-                    {
-                        "radial origin"
-                    } else {
-                        "coefficient n"
-                    }
-                )
+                .unwrap_err(),
+                expected
             );
         }
     }
