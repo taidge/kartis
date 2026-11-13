@@ -4,6 +4,7 @@
 *.jpg -text
 *.woff -text
 *.woff2 -text
-# Reference fixtures and licensed fonts retain their exact upstream bytes.
+# Reference fixtures, producers, and licensed fonts retain their exact bytes.
 tests/fixtures/** -text
 tests/fonts/** -text
+scripts/** -text
