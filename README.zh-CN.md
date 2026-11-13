@@ -8,6 +8,18 @@ Kartis 是面向 Glory 的 Rust 图表库。布局生成一份共享 `Scene`，�
 
 Kartis 要求 Rust 1.95 或更新版本。根据数据创建图表布局，再把场景传给 `chart`。示例使用 Glory 的内存宿主，应用可按平台选择对应的 Glory 宿主。
 
+在 `Cargo.toml` 中添加 crates.io 依赖：
+
+```toml
+[dependencies]
+kartis = "0.1.0"
+glory = { version = "0.8.0", default-features = false }
+```
+
+浏览器控件和 Canvas 启用 `web`，CPU 渲染启用 `raster`，双向文字位图渲染启用
+`raster-bidi`，GeoJSON 启用 `geojson`，时区支持启用 `timezone`。
+[发布流程](docs/releasing.zh-CN.md)
+
 ```rust
 use kartis::{ChartConfig, LineOptions, Point, Series, chart, line};
 

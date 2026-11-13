@@ -6,7 +6,29 @@ rust-version = "1.95"
 license = "Apache-2.0"
 description = "Rust chart widgets and shared SVG/Canvas layouts for Glory"
 repository = "https://github.com/taidge/kartis"
+documentation = "https://docs.rs/kartis"
+keywords = ["charts", "visualization", "glory", "svg", "canvas"]
+categories = ["visualization", "gui", "graphics"]
 readme = "README.md"
+publish = ["crates-io"]
+include = [
+    "/src/**",
+    "/docs/**",
+    "/examples/*.rs",
+    "/examples/gallery/**",
+    "/examples/shared/**",
+    "/tests/fonts/**",
+    "/tests/fixtures/bidi-unicode-16.txt",
+    "/tests/fixtures/bidi-harfbuzz.txt",
+    "/tests/fixtures/vertical-*.txt",
+    "/tests/fixtures/vertical-*.json",
+    "/tests/fixtures/vertical-mixed-harfbuzz.rs",
+    "/tests/fixtures/*LICENSE*",
+    "/tests/fixtures/**/*LICENSE*",
+    "/README*.md",
+    "/CHANGELOG*.md",
+    "/LICENSE",
+]
 
 [package.metadata.docs.rs]
 all-features = true
@@ -25,7 +47,7 @@ raster-bidi = ["raster", "dep:unicode-bidi"]
 web = ["canvas", "glory/web", "web-sys/Window", "web-sys/Document", "web-sys/Node", "web-sys/Element", "web-sys/HtmlElement", "web-sys/ShadowRoot", "web-sys/HtmlSlotElement", "web-sys/Event", "web-sys/EventTarget", "web-sys/PointerEvent", "web-sys/WheelEvent", "web-sys/KeyboardEvent", "web-sys/MouseEvent", "web-sys/DomRect", "web-sys/CssStyleDeclaration", "web-sys/FontFaceSet", "web-sys/FontFaceSetLoadStatus", "web-sys/ResizeObserver", "web-sys/ResizeObserverEntry", "web-sys/AddEventListenerOptions", "web-sys/Performance", "web-sys/MediaQueryList"]
 
 [dependencies]
-glory = { path = "../glory/crates/glory", version = "0.7.0", default-features = false }
+glory = { version = "0.8.0", default-features = false }
 serde_json = {version="1",optional=true}
 jiff = { version = "0.2.41", default-features = false, features = ["alloc"], optional = true }
 jiff-tzdb = { version = "0.1.9", default-features = false, optional = true }
@@ -44,7 +66,7 @@ wasm-bindgen = { version = "=0.2.130", optional = true }
 web-sys = { version = "=0.3.107", optional = true, features = ["HtmlCanvasElement", "CanvasRenderingContext2d", "CanvasGradient", "CanvasPattern", "CanvasWindingRule", "DomMatrix2dInit", "SvgMatrix", "Document", "TextMetrics"] }
 
 [dev-dependencies]
-glory = { path = "../glory/crates/glory", version = "0.7.0", default-features = false, features = ["ssr"] }
+glory = { version = "0.8.0", default-features = false, features = ["ssr"] }
 
 [lints.rust]
 unsafe_code = "forbid"

@@ -1,0 +1,209 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact commit or tag to check
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  CARGO_INCREMENTAL: '0'
+  CARGO_PROFILE_DEV_DEBUG: '0'
+  CARGO_PROFILE_TEST_DEBUG: '0'
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ inputs.ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  quality:
+    name: Spelling and formatting
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: crate-ci/typos@bee27e3a4fd1ea2111cf90ab89cd076c870fce14 # v1.48.0
+        with:
+          config: typos.toml
+          files: . --hidden
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: nightly-2026-11-04
+          components: rustfmt
+      - run: cargo +nightly-2026-11-04 fmt --package kartis -- --check
+      - name: Format independent example packages
+        shell: bash
+        run: |
+          for pair in browser-canvas:kartis-canvas-demo browser-widget:kartis-widget-fixture browser-host:kartis-host-fixture browser-raster:kartis-raster-fixture native-raster:kartis-native-raster; do
+            example="${pair%%:*}"
+            package="${pair#*:}"
+            cargo +nightly-2026-11-04 fmt --manifest-path "examples/$example/Cargo.toml" --package "$package" -- --check
+          done
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Test release verification gates
+        run: python scripts/test_release.py
+
+  native:
+    name: Native (${{ matrix.os }}, ${{ matrix.features }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            features: minimal
+            args: --no-default-features
+          - os: ubuntu-latest
+            features: all
+            args: --all-features
+          - os: windows-latest
+            features: all
+            args: --all-features
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: stable
+          components: clippy
+      - run: cargo test --locked --all-targets ${{ matrix.args }}
+      - run: cargo test --locked --doc ${{ matrix.args }}
+      - run: cargo clippy --locked --all-targets ${{ matrix.args }} -- -D warnings
+
+  compatibility:
+    name: Rust ${{ matrix.toolchain }} and WebAssembly
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: [stable, '1.95.0']
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: clippy
+          targets: wasm32-unknown-unknown
+      - run: cargo check --locked --all-targets --no-default-features
+      - run: cargo check --locked --lib --all-features
+      - run: cargo clippy --locked --lib --all-features --target wasm32-unknown-unknown -- -D warnings
+      - name: Build API documentation
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo doc --locked --all-features --no-deps --target wasm32-unknown-unknown
+
+  consumers:
+    name: Browser consumer compilation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+      - name: Check independent browser workspaces
+        shell: bash
+        run: |
+          for example in browser-canvas browser-widget browser-host browser-raster; do
+            cargo check --locked --manifest-path "examples/$example/Cargo.toml" --target wasm32-unknown-unknown
+          done
+
+  gallery:
+    name: Chromium gallery rendering
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: stable
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Locate workspace build output
+        id: output
+        shell: bash
+        run: |
+          cargo metadata --locked --no-deps --format-version 1 |
+            python -c 'import json,sys; print("target_dir=" + json.load(sys.stdin)["target_directory"])' >> "$GITHUB_OUTPUT"
+      - name: Generate and verify gallery in Chromium
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          gallery_dir="$TARGET_DIR/gallery-ci"
+          cargo run --locked --all-features --example gallery -- "$gallery_dir"
+          python -m http.server 8811 --bind 127.0.0.1 --directory "$gallery_dir" > "$TARGET_DIR/gallery-http.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          curl --retry 20 --retry-delay 1 --retry-connrefused --fail --silent --show-error --output /dev/null http://127.0.0.1:8811/
+          node scripts/browser-acceptance.mjs http://127.0.0.1:8811/ "$TARGET_DIR/gallery-browser.json" 2>&1 | tee "$TARGET_DIR/gallery-browser.log"
+      - name: Preserve browser verification reports
+        if: ${{ !cancelled() && steps.output.outputs.target_dir != '' }}
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: gallery-browser-reports
+          path: |
+            ${{ steps.output.outputs.target_dir }}/gallery-browser.json
+            ${{ steps.output.outputs.target_dir }}/gallery-browser.log
+            ${{ steps.output.outputs.target_dir }}/gallery-http.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  package:
+    name: crates.io package verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: stable
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - run: cargo publish --locked --dry-run --all-features
+      - name: Test the unpacked release crate
+        shell: bash
+        run: |
+          crate_dir="$(cargo metadata --locked --no-deps --format-version 1 | python -c 'import json,pathlib,sys; d=json.load(sys.stdin); p=next(p for p in d["packages"] if p["id"] == d["workspace_default_members"][0]); print(pathlib.Path(d["target_directory"]) / "package" / (p["name"] + "-" + p["version"]))')"
+          cargo metadata --locked --no-deps --format-version 1 --manifest-path "$crate_dir/Cargo.toml" |
+            python -c 'import json,sys; print("Unpacked crate target_directory: " + json.load(sys.stdin)["target_directory"])'
+          cargo test --locked --all-features --all-targets --manifest-path "$crate_dir/Cargo.toml"

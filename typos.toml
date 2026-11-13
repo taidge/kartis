@@ -1,18 +1,49 @@
-[default]
-extend-ignore-identifiers-re = [
-    # *sigh* this just isn't worth the cost of fixing
-    "AttributeID.*Supress.*",
+# Preserve upstream snapshots and Unicode data byte-for-byte; they are
+# independently hash-checked by the reference-fixture tests.
+[files]
+extend-exclude = [
+    ".git/**",
+    "tests/fixtures/**/vendor/**",
+    "tests/fixtures/vertical-orientation-unicode-16.txt",
+    "tests/fixtures/*-oracle.js",
 ]
 
-[default.extend-identifiers]
-# *sigh* this just isn't worth the cost of fixing
-AttributeIDSupressMenu = "AttributeIDSupressMenu"
+[default]
+extend-ignore-re = [
+    # CSS colors and contiguous palette strings are data, not prose.
+    '#[0-9a-fA-F]{3,8}\b',
+    '\b[0-9a-fA-F]{6,}\b',
+]
 
 [default.extend-words]
-# Don't correct the surname "Teh"
-teh = "teh"
+# Mathematical terms, OpenType table/axis tags, PNG filter, and fixture IDs.
+bimap = "bimap"
+loca = "loca"
+wdth = "wdth"
+paeth = "paeth"
+ba = "ba"
+iy = "iy"
+pn = "pn"
+ot = "ot"
 Hashi = "Hashi"
 consts = "consts"
+# Upstream Nivo names and spellings must match the reference producers.
+Serie = "Serie"
+serie = "serie"
+silouhette = "silouhette"
+overrideable = "overrideable"
+# Valid alternate spelling in historical acceptance evidence.
+unparseable = "unparseable"
 
-[files]
-extend-exclude = ["**/*.js", "**/*.css", "**/*.html", "examples/*/static/**/*.*"]
+[type.locales]
+extend-glob = ["locales.rs", "datetime_locales.rs"]
+[type.locales.extend-words]
+# Correct Danish/German/Dutch/Norwegian/Swedish localized month/day names.
+januar = "januar"
+februar = "februar"
+fre = "fre"
+juni = "juni"
+juli = "juli"
+oktober = "oktober"
+Dezember = "Dezember"
+Marz = "Marz"

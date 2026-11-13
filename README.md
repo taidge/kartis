@@ -8,6 +8,18 @@ Kartis is a Rust chart library for Glory. Layouts produce a shared `Scene` for s
 
 Kartis requires Rust 1.95 or newer. Build a chart from data and pass its scene to `chart`. The example uses Glory’s in-memory host. Applications can select a Glory host appropriate to their platform.
 
+Add the crates.io dependencies to your `Cargo.toml`:
+
+```toml
+[dependencies]
+kartis = "0.1.0"
+glory = { version = "0.8.0", default-features = false }
+```
+
+Enable `web` for browser widgets and Canvas, `raster` for CPU rendering,
+`raster-bidi` for bidirectional raster text, `geojson` for GeoJSON, or
+`timezone` for time-zone support. [Release process](docs/releasing.md)
+
 ```rust
 use kartis::{ChartConfig, LineOptions, Point, Series, chart, line};
 
