@@ -322,8 +322,8 @@ fn valid_id(id: &str, budget: usize) -> Result<()> {
     )
 }
 fn visible(row: &ParallelDatum, o: &ParallelCoordinatesOptions) -> bool {
-    !o.hidden.contains(row.group.as_ref().unwrap_or(&row.id))
-        && !(o.missing == ParallelMissing::SkipRecord && row.values.iter().any(Option::is_none))
+    !(o.hidden.contains(row.group.as_ref().unwrap_or(&row.id))
+        || o.missing == ParallelMissing::SkipRecord && row.values.iter().any(Option::is_none))
 }
 fn axis_position(c: &ChartConfig, index: usize, count: usize, layout: ParallelLayout) -> f64 {
     match layout {

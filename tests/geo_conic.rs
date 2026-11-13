@@ -245,8 +245,26 @@ fn conformal_caps_seam_and_precision_errors_are_distinct() {
     let c = geographic_map_layout(&config(), &[], &view)
         .unwrap()
         .projection;
-    let q = c.project([-45., -90.]).unwrap().unwrap();
-    assert!(c.invert(q).unwrap_err().0.contains("precision"));
+    // Keep this precision diagnostic inside the intrinsic footprint. At an
+    // exact pole, small-n radial cancellation can move the recovered sine
+    // beyond +/-1 on some libm implementations, correctly returning None
+    // before the separate inverse-uncertainty check is reached. At +/-89.9
+    // degrees the estimate still exceeds 1e-7 by over an order of magnitude.
+    for longitude in [-45., 45.] {
+        for latitude in [-89.9, 89.9] {
+            let q = c.project([longitude, latitude]).unwrap().unwrap();
+            for query in [
+                q,
+                [q[0].next_down(), q[1].next_up()],
+                [q[0].next_up(), q[1].next_down()],
+            ] {
+                assert!(
+                    c.invert(query).unwrap_err().0.contains("precision"),
+                    "{longitude}, {latitude}: {query:?}"
+                );
+            }
+        }
+    }
     assert!(c.invert([f64::NAN, 0.]).is_err());
 }
 

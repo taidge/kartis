@@ -12,7 +12,10 @@ spelling, Rust formatting, native tests and Clippy, WebAssembly, the minimum
 supported Rust version, documentation, and crates.io package verification.
 The package uses published dependencies, with no sibling repositories required.
 
-The first publication can use `cargo publish --locked` with an authenticated
+Publishing uses Rust/Cargo 1.95.0 so local and CI packages use the same Cargo
+version. Keep this toolchain pin aligned with the release workflow.
+
+The first publication can use `cargo +1.95.0 publish --locked --all-features` with an authenticated
 crates.io account after CI passes. Configure a crates.io Trusted Publisher for
 owner `taidge`, repository `kartis`, workflow `release.yml` to enable subsequent
 publishing from GitHub Actions without storing a long-lived registry token.
@@ -37,7 +40,7 @@ workflow with the same tag. Keep the tag unchanged: crates.io versions are
 immutable. The release check is also available as:
 
 ```sh
-cargo package --locked
+cargo +1.95.0 package --locked --all-features
 python scripts/release.py verify --tag v0.1.0 --require-published
 ```
 

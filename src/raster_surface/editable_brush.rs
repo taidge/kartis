@@ -735,11 +735,11 @@ fn native_event(
         let input = handle.clone();
         let request = scope.request(Query::Bounds(image), move |result| {
             let apply = || -> Result<()> {
-                if !pending
+                if pending
                     .borrow()
                     .gesture
                     .as_ref()
-                    .is_some_and(|g| g.generation == generation)
+                    .is_none_or(|g| g.generation != generation)
                 {
                     return Ok(());
                 }

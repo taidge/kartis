@@ -9,8 +9,11 @@
 检查通过。CI 检查拼写、Rust 格式、原生测试及 Clippy、WebAssembly、最低 Rust
 版本、文档和 crates.io 发布包。包依赖已发布的版本，无需相邻源码仓库。
 
+发布固定使用 Rust/Cargo 1.95.0，使本地和 CI 使用相同 Cargo 版本生成发布包。
+调整此版本时同步更新发布工作流。
+
 首次发布可在 CI 通过后，通过已登录的 crates.io 账户执行
-`cargo publish --locked`。后续自动发布需在 crates.io 中配置 Trusted Publisher：
+`cargo +1.95.0 publish --locked --all-features`。后续自动发布需在 crates.io 中配置 Trusted Publisher：
 owner 为 `taidge`，repository 为 `kartis`，workflow 为 `release.yml`。
 GitHub Actions 通过 OIDC 获取临时凭据，无需保存长期 registry token。
 自动发布尚未上传的版本必须先完成此配置。
@@ -31,7 +34,7 @@ OIDC 登录 crates.io 并上传。只有 registry 验证成功后，才创建 Gi
 保持标签不变，crates.io 版本不可覆盖。也可以单独执行验收：
 
 ```sh
-cargo package --locked
+cargo +1.95.0 package --locked --all-features
 python scripts/release.py verify --tag v0.1.0 --require-published
 ```
 

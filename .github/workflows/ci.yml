@@ -37,7 +37,10 @@ jobs:
       - uses: crate-ci/typos@bee27e3a4fd1ea2111cf90ab89cd076c870fce14 # v1.48.0
         with:
           config: typos.toml
-          files: . --hidden
+          files: .
+      - name: Check spelling including workflow files
+        shell: bash
+        run: '"$RUNNER_TEMP/typos" --hidden --config typos.toml'
       - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
           toolchain: nightly-2026-11-04
@@ -135,7 +138,7 @@ jobs:
 
   gallery:
     name: Chromium gallery rendering
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
