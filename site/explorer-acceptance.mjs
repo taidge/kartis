@@ -15,7 +15,7 @@ const flags = Object.fromEntries(process.argv.slice(2).map(arg => {
 }));
 const out = resolve(flags.out ?? resolve(here, 'verification/explorer'));
 await mkdir(out, {recursive:true});
-const report = {passed:false, checks:[], charts:[], motions:[], errors:[], networkErrors:[], analytics:[]};
+const report = {passed:false, checks:[], charts:[], motions:[], errors:[], networkErrors:[], analytics:[], runtimeAssets:[]};
 const sha = text => createHash('sha256').update(text).digest('hex');
 let server, browser, page;
 const checked = name => report.checks.push(name);
@@ -77,7 +77,10 @@ try {
   const headers = {};
   page.on('pageerror',error=>report.errors.push(String(error)));
   page.on('console',message=>{if(message.type()==='error') report.errors.push(message.text());});
-  page.on('request',request=>{if(/cloudflareinsights|\/cdn-cgi\/(rum|beacon)/i.test(request.url())) report.analytics.push(request.url());});
+  page.on('request',request=>{
+    if(/cloudflareinsights|\/cdn-cgi\/(rum|beacon)/i.test(request.url())) report.analytics.push(request.url());
+    if(/\.(js|css|wasm)$/.test(new URL(request.url()).pathname)) report.runtimeAssets.push(request.url());
+  });
   page.on('requestfailed',request=>report.networkErrors.push({url:request.url(),error:request.failure()?.errorText}));
   page.on('response',response=>{
     if(response.status()>=400) report.networkErrors.push({url:response.url(),status:response.status()});
@@ -86,6 +89,13 @@ try {
   await page.goto(url);
   await page.waitForFunction(()=>window.kartisExplorer?.catalog?.length>=35);
   const catalog = await page.evaluate(()=>window.kartisExplorer.catalog);
+  const buildResponse=await page.request.get(new URL('build.json',url).href);
+  assert(buildResponse.ok());
+  const buildManifest=await buildResponse.json();
+  assert.match(buildManifest.asset_revision,/^[a-f0-9]{64}$/,'content-derived runtime asset revision');
+  report.assetRevision=buildManifest.asset_revision;
+  for(const asset of report.runtimeAssets) assert(new URL(asset).pathname.startsWith(`/assets/${report.assetRevision}/`),`versioned runtime asset: ${asset}`);
+  checked('content-versioned HTML entry points and complete JS/CSS/WASM module graph');
   assert.equal(catalog.length,35);
   assert.equal(new Set(catalog.map(chart=>chart.slug)).size,35);
   const required = ['line','area','bar','scatter','radar','stream','bump','area-bump','marimekko','parallel-coordinates','pie','radial-bar','polar-bar','waffle','funnel','tree','treemap','sunburst','circle-packing','icicle','chord','sankey','network','choropleth','geo-map','heatmap','boxplot','bullet','calendar','time-range','swarm','voronoi','delaunay','contour','density'];

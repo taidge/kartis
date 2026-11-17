@@ -31,7 +31,7 @@ python3 -m http.server 8080 --directory site/dist
 python3 site/build.py --install-tools
 ```
 
-公开 `build.json` 包含资源哈希与可选 Git commit，不包含机器路径；没有 Git 元数据时 commit 为 null。
+公开 `build.json` 包含资源哈希、由实际内容生成的 `asset_revision` 与可选 Git commit，不包含机器路径；没有 Git 元数据时 commit 为 null。
 源码归档和静态产物不依赖某台机器上的仓库路径。
 
 ## Cloudflare Pages
@@ -44,7 +44,9 @@ wrapper 先查找标准 `$HOME/.cargo/env`；没有 rustup 时通过官方 HTTPS
 
 站点不需要 token、binding、API 服务或环境密钥。Pages Git 部署与自定义域名登记独立处理。
 `.wasm` 应以 `application/wasm` 提供。`_headers` 的 `no-transform` 阻止边缘注入统计脚本，
-固定名称的 JavaScript／WASM 要求重新验证，避免新旧部署资源混用。第三方地图数据归属随静态站交付。
+JavaScript、CSS、WASM 与绑定 snippets 共同发布到 `assets/<asset_revision>/`，HTML 入口使用同一版本目录。
+revision 核对全部实际运行文件的路径与字节，即使托管方延长缓存时间，也不会将新 JavaScript 与旧 WASM 混用。
+每次构建只清理经严格路径与非链接检查的生成目录 `site/dist`。第三方地图数据归属随静态站交付。
 
 ## 真实动画与生命周期
 
@@ -72,6 +74,7 @@ npm ci
 npx playwright install chromium
 node site/smoke.mjs
 node site/explorer-acceptance.mjs
+node site/cache-acceptance.mjs
 ```
 
 脚本自行提供 `site/dist` 的静态 HTTP 服务，向忽略的 `site/verification` 写 JSON、截图与导出的 SVG。
@@ -81,5 +84,6 @@ node site/explorer-acceptance.mjs
 
 smoke 覆盖真实预览、首屏 Spring、原六类图表 SVG／Canvas 交互、tooltip／图例／下载与重复生命周期清理。
 独立 explorer 检查覆盖更多图型、选项与运动。确定性的生命周期 handler 检查与浏览器实际保留页面时的
-trusted BFCache 事件证据分别记录。可复用 Showcase CI 使用同一静态构建并运行两个脚本。
+trusted BFCache 事件证据分别记录。可复用 Showcase CI 使用同一静态构建并运行全部三个脚本。
+缓存回归在真实浏览器中保留旧资源，检查新版页面完整加载同一内容版本的模块图。
 这些有限场景通过不等于全部 API 的兼容性或性能承诺。

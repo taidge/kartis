@@ -56,9 +56,25 @@ try {
   report.analyticsScripts = await page.locator('script').evaluateAll(nodes => nodes.map(n=>({src:n.src,beacon:n.hasAttribute('data-cf-beacon'),body:n.textContent})).filter(n=>n.beacon || /cloudflareinsights\.com|\/cdn-cgi\/(?:rum|beacon)/i.test(n.src+' '+n.body)));
   assert.deepEqual(report.analyticsScripts,[],'no Cloudflare analytics script may be injected into the built page');
   check('no Cloudflare analytics script injection');
+  const manifestResponse=await page.request.get(new URL('/build.json',url).href);
+  assert(manifestResponse.ok(),'published build manifest is available');
+  const manifest=await manifestResponse.json();
+  assert.match(manifest.asset_revision,/^[0-9a-f]{64}$/);
+  const assetPrefix='/assets/'+manifest.asset_revision+'/';
+  const runtimeResponses=cacheResponses.filter(r=>/\.(?:js|css|wasm)$/.test(new URL(r.url).pathname));
+  assert(runtimeResponses.length>=4 && runtimeResponses.every(r=>new URL(r.url).pathname.startsWith(assetPrefix)),'every actual runtime JS, CSS and WASM response belongs to the manifest revision');
+  const runtimePaths=Object.keys(manifest.assets).filter(path=>/\.(?:js|css|wasm)$/.test(path));
+  assert(runtimePaths.length>=4 && runtimePaths.every(path=>path.startsWith(assetPrefix.slice(1))),'manifest runtime assets share one content revision');
+  for(const path of ['app.js','style.css','pkg/kartis_site.js','pkg/kartis_site_bg.wasm']) {
+    assert(manifest.assets[assetPrefix.slice(1)+path],'manifest includes '+path);
+    assert(runtimeResponses.some(r=>new URL(r.url).pathname===assetPrefix+path),'versioned HTTP response observed for '+path);
+  }
+  const entries=await page.locator('script[src],link[rel=stylesheet][href]').evaluateAll(nodes=>nodes.map(n=>n.src||n.href));
+  assert(entries.length>=2&&entries.every(value=>new URL(value).pathname.startsWith(assetPrefix)),'HTML runtime entry points use the same revision');
+  report.assetRevision={value:manifest.asset_revision,prefix:assetPrefix,entries,responses:runtimeResponses,paths:runtimePaths};
+  check('all runtime JS, CSS and WASM use one content-addressed asset revision');
   if (flags.url) {
     report.cachePolicy = {mode:'remote-http',responses:cacheResponses};
-    for (const path of ['/app.js','/style.css','/pkg/kartis_site.js','/pkg/kartis_site_bg.wasm']) assert(cacheResponses.some(r=>new URL(r.url).pathname===path),'HTTP response observed for '+path);
     assert(cacheResponses.length>=5 && cacheResponses.every(r=>/(?:^|,)\s*no-transform\s*(?:,|$)/i.test(r.cacheControl)),'remote HTML, JS, CSS and WASM responses must all declare no-transform');
   }
   check(flags.url?'remote HTTP no-transform headers':'built no-transform header rules');
@@ -66,9 +82,9 @@ try {
   const snapshot=()=>page.evaluate(()=>window.kartisExplorer.snapshot());
   const settled=async()=>{await page.waitForFunction(()=>{const s=window.kartisExplorer.snapshot();return s.active&&!s.animating&&s.pending===0;});await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));assert.deepEqual((await snapshot()).errors,[]);};
   const geometry=()=>page.locator('#chart-stage .kartis-surface > svg').evaluate(svg=>[...svg.querySelectorAll('path[data-id]')].map(p=>['d','fill','stroke','opacity','data-series'].map(k=>p.getAttribute(k)).join('~')).join('|'));
-  const entries=await page.evaluate(()=>window.kartisExplorer.catalog);
-  assert(entries.length>=35);assert.equal(await page.locator('.catalog-card').count(),entries.length);
-  assert.equal(await page.locator('.catalog-card .thumbnail > svg').count(),entries.length);
+  const catalogEntries=await page.evaluate(()=>window.kartisExplorer.catalog);
+  assert(catalogEntries.length>=35);assert.equal(await page.locator('.catalog-card').count(),catalogEntries.length);
+  assert.equal(await page.locator('.catalog-card .thumbnail > svg').count(),catalogEntries.length);
   check('35 real Rust-rendered catalog thumbnails');
   assert.equal(await page.locator('#chart-stage .kartis-surface').count(),1);
   await page.waitForFunction(()=>window.kartisExplorer.snapshot().animating,null,{timeout:10000});

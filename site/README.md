@@ -37,7 +37,8 @@ rustup toolchain. For a fresh builder with rustup, opt into normal tool installa
 python3 site/build.py --install-tools
 ```
 
-The public `build.json` includes asset hashes and an optional Git source commit;
+The public `build.json` includes asset hashes, a content-derived `asset_revision`,
+and an optional Git source commit;
 it includes no machine paths. Without Git metadata, the commit field is null.
 Source archives and deployed assets remain usable without a Git checkout.
 
@@ -53,8 +54,11 @@ or temporary directories. A provisioned CI runner can use `python3 site/build.py
 No site tokens, bindings, API server or environment secrets are required. Pages
 Git deployment and custom-domain registration are separate. Serve `.wasm` as
 `application/wasm`. `_headers` uses `no-transform` to prohibit edge analytics
-injection, and revalidation for fixed-name JavaScript/WASM so deployments do not
-mix cached versions. Third-party map data attribution is shipped with the site.
+injection. Runtime JavaScript, CSS, WASM and binding snippets are published together
+under `assets/<asset_revision>/`; HTML entry URLs use that same revision. The
+revision hashes all actual runtime file paths and bytes, so even a provider that
+extends cache lifetimes cannot mix new JavaScript with an older WASM module.
+Each build first cleans only the verified generated `site/dist` directory. Third-party map data attribution is shipped with the site.
 
 ## Real motion and lifecycle
 
@@ -90,6 +94,7 @@ npm ci
 npx playwright install chromium
 node site/smoke.mjs
 node site/explorer-acceptance.mjs
+node site/cache-acceptance.mjs
 ```
 
 The scripts serve `site/dist` and write JSON, screenshots and exported SVGs under
@@ -102,7 +107,9 @@ failures, including aborted beacon requests.
 The smoke covers real previews, the initial Spring demo, the original six-family
 SVG/Canvas interactions, tooltip/legend/download and repeated lifecycle cleanup.
 The separate explorer check exercises the broader catalog, options and motion.
+The cache regression retains legacy runtime files in a real browser cache and
+checks that the new page loads its complete versioned module graph.
 Deterministic lifecycle-handler coverage is explicitly separate from trusted
 BFCache events when a browser actually retains the page. The reusable Showcase
-CI workflow builds the same static output and runs both scripts. Passing these
+CI workflow builds the same static output and runs all three scripts. Passing these
 selected scenarios is not a compatibility or performance claim for every API.
