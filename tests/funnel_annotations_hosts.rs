@@ -320,7 +320,13 @@ mod pixels {
             },
         );
         let image = render_raster(&scene, &fonts, &RasterOptions::default()).unwrap();
-        let count = image.rgba.chunks_exact(4).filter(|p| p[3] > 0).count();
+        let count = image
+            .rgba
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .filter(|p| p[3] > 0)
+            .count();
         assert!(
             count > 100,
             "real glyph outline must paint nontransparent pixels"
@@ -328,13 +334,15 @@ mod pixels {
         assert!(
             image
                 .rgba
-                .chunks_exact(4)
+                .as_chunks::<4>()
+                .0
+                .iter()
                 .filter(|p| p[3] == 255)
                 .any(|p| p[0] == 220 && p[1] == 30 && p[2] == 70)
         );
         scene.typography.label_strokes.get_mut(&0).unwrap().width = 0.;
         let zero = render_raster(&scene, &fonts, &RasterOptions::default()).unwrap();
-        assert!(zero.rgba.chunks_exact(4).all(|p| p[3] == 0));
+        assert!(zero.rgba.as_chunks::<4>().0.iter().all(|p| p[3] == 0));
         scene.typography.label_strokes.clear();
         let none = render_raster(&scene, &fonts, &RasterOptions::default()).unwrap();
         assert_eq!(zero.rgba, none.rgba);
@@ -370,7 +378,13 @@ mod pixels {
         scene.typography.label_strokes.clear();
         let once = render_raster(&scene, &fonts, &RasterOptions::default()).unwrap();
         let mut interiors = 0;
-        for (a, b) in once.rgba.chunks_exact(4).zip(twice.rgba.chunks_exact(4)) {
+        for (a, b) in once
+            .rgba
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .zip(twice.rgba.as_chunks::<4>().0.iter())
+        {
             if a[3] == 128 {
                 interiors += 1;
                 assert!(

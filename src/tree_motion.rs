@@ -180,7 +180,7 @@ row!(
     TreeNodeEventData,
     TreeMotionNodeProps,
     7,
-    "Raw physical [x,y,diameter,r,g,b,a], before presentation clamping."
+    "Raw physical `[x,y,diameter,r,g,b,a]`, before presentation clamping."
 );
 row!(
     TreeMotionLink,
@@ -189,7 +189,7 @@ row!(
     TreeLinkEventData,
     TreeMotionLinkProps,
     9,
-    "Raw physical [source_x,source_y,target_x,target_y,thickness,r,g,b,a]."
+    "Raw physical `[source_x,source_y,target_x,target_y,thickness,r,g,b,a]`."
 );
 row!(
     TreeMotionLabel,
@@ -198,7 +198,7 @@ row!(
     TreeMotionLabelData,
     TreeMotionLabelProps,
     3,
-    "Raw physical [x,y,rotation], with direct numeric rotation."
+    "Raw physical `[x,y,rotation]`, with direct numeric rotation."
 );
 
 #[derive(Clone, Debug)]

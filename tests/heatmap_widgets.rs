@@ -486,8 +486,10 @@ fn actual_raster_publisher_failure_preserves_nullable_child_data_and_previous_pi
         assert!(
             initial
                 .rgba
-                .chunks_exact(4)
-                .all(|p| p == [255, 255, 255, 255])
+                .as_chunks::<4>()
+                .0
+                .iter()
+                .all(|p| *p == [255, 255, 255, 255])
         );
         let accepted = text(&app, child);
         assert!(accepted.contains("None count=1"));
@@ -511,8 +513,10 @@ fn actual_raster_publisher_failure_preserves_nullable_child_data_and_previous_pi
                 .as_ref()
                 .unwrap()
                 .rgba
-                .chunks_exact(4)
-                .any(|p| p != [255, 255, 255, 255])
+                .as_chunks::<4>()
+                .0
+                .iter()
+                .any(|p| *p != [255, 255, 255, 255])
         );
         app.clear().unwrap();
         assert_eq!(app.stats().nodes, 0);

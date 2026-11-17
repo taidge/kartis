@@ -163,7 +163,7 @@ try{for(const [name,engine,opts] of engines){const browser=await engine.launch({
   for(const r of ['svg','canvas']){await hit(r,130,90,false,'clipped paint');await hit(r,150,90,true,'outside clip');}
   await update({order:0,note:31,variant:6});
   const nativeGlyph=await page.evaluate(()=>{
-   const canvas=document.createElement('canvas'),ratio=devicePixelRatio;canvas.width=360*ratio;canvas.height=260*ratio;const cx=canvas.getContext('2d');cx.scale(ratio,ratio);cx.direction='ltr';cx.font='400 32px sans-serif';cx.fontKerning='normal';cx.textBaseline='alphabetic';cx.fillStyle='blue';cx.fillText('MMMM',124,110);
+   const canvas=document.createElement('canvas'),ratio=devicePixelRatio;canvas.width=360*ratio;canvas.height=260*ratio;const cx=canvas.getContext('2d');cx.scale(ratio,ratio);cx.direction='ltr';cx.font='700 32px sans-serif';cx.fontKerning='normal';cx.textBaseline='alphabetic';cx.fillStyle='blue';cx.fillText('MMMM',124,110);
    const data=cx.getImageData(0,0,canvas.width,canvas.height).data;window.__orderedGlyphAlpha={data,ratio,width:canvas.width};
    const alpha=(x,y)=>data[4*(Math.floor(y*ratio)*canvas.width+Math.floor(x*ratio))+3],solid=[],empty=[];
    for(let y=80;y<112;y++)for(let x=124;x<215;x++){const values=[-1,0,1].flatMap(dy=>[-1,0,1].map(dx=>alpha(x+dx,y+dy)));if(values.every(v=>v>0))solid.push([x,y]);if(values.every(v=>v===0))empty.push([x,y]);}

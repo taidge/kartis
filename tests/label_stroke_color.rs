@@ -40,7 +40,9 @@ fn exact_fill_control(stroke: LabelStroke) {
             assert!(
                 expected
                     .rgba
-                    .chunks_exact(4)
+                    .as_chunks::<4>()
+                    .0
+                    .iter()
                     .any(|p| p[..3] != [255, 255, 255]),
                 "the control must actually contain palette ink"
             );

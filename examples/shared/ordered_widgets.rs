@@ -124,6 +124,16 @@ pub fn source(
             anchor: TextAnchor::Start,
             rotation: 0.,
         });
+        // The occlusion fixture needs a genuine 3x3 opaque glyph interior on
+        // every desktop font backend, rather than assuming regular M stems
+        // are at least three fully covered pixels wide.
+        scene.typography.labels.insert(
+            1,
+            FontOptions {
+                weight: Some(700.),
+                ..Default::default()
+            },
+        );
     }
     let blue_first = order % 2 == 1;
     scene.draw_order = if blue_first {

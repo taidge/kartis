@@ -248,7 +248,9 @@ fn all_sixteen_original_function_cases_match_captured_cells_and_full_slot_polygo
                 let source: usize = f[2].parse().unwrap();
                 let polygon: usize = f[3].parse().unwrap();
                 let expected: Vec<_> = f[4..]
-                    .chunks_exact(2)
+                    .as_chunks::<2>()
+                    .0
+                    .iter()
                     .map(|p| {
                         [
                             p[0].parse::<f64>().unwrap() + 41.,

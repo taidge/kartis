@@ -173,7 +173,7 @@ jobs:
         shell: bash
         run: |
           cargo metadata --locked --no-deps --format-version 1 |
-            python -c 'import json,sys; print("target_dir=" + json.load(sys.stdin)["target_directory"])' >> "$GITHUB_OUTPUT"
+            python -c 'import json,pathlib,sys; p=pathlib.Path(json.load(sys.stdin)["target_directory"]); p.mkdir(parents=True,exist_ok=True); print("target_dir=" + str(p))' >> "$GITHUB_OUTPUT"
       - name: Generate and verify gallery in Chromium
         env:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
@@ -482,7 +482,7 @@ jobs:
         shell: bash
         run: |
           cargo metadata --locked --no-deps --format-version 1 |
-            python -c 'import json,sys; print("target_dir=" + json.load(sys.stdin)["target_directory"])' >> "$GITHUB_OUTPUT"
+            python -c 'import json,pathlib,sys; p=pathlib.Path(json.load(sys.stdin)["target_directory"]); p.mkdir(parents=True,exist_ok=True); print("target_dir=" + str(p))' >> "$GITHUB_OUTPUT"
       - name: Build browser fixture from this commit
         shell: bash
         run: |
@@ -602,7 +602,7 @@ jobs:
         shell: bash
         run: |
           cargo metadata --locked --no-deps --format-version 1 |
-            python -c 'import json,sys; print("target_dir=" + json.load(sys.stdin)["target_directory"])' >> "$GITHUB_OUTPUT"
+            python -c 'import json,pathlib,sys; p=pathlib.Path(json.load(sys.stdin)["target_directory"]); p.mkdir(parents=True,exist_ok=True); print("target_dir=" + str(p))' >> "$GITHUB_OUTPUT"
       - name: Build the browser fixture
         shell: bash
         run: |
@@ -652,7 +652,7 @@ jobs:
         shell: bash
         run: |
           cargo metadata --locked --no-deps --format-version 1 |
-            python -c 'import json,sys; print("target_dir=" + json.load(sys.stdin)["target_directory"])' >> "$GITHUB_OUTPUT"
+            python -c 'import json,pathlib,sys; p=pathlib.Path(json.load(sys.stdin)["target_directory"]); p.mkdir(parents=True,exist_ok=True); print("target_dir=" + str(p))' >> "$GITHUB_OUTPUT"
       - name: Build the browser fixture
         shell: bash
         run: |
