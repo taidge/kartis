@@ -1,4 +1,4 @@
-# Tree native mouse hooks (Unreleased)
+# Tree native mouse hooks (Kartis 0.2.0)
 
 [简体中文](tree-events.zh-CN.md)
 

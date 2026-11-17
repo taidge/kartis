@@ -1,6 +1,6 @@
 # Stream 函数配置
 
-这是开发中的 API，尚未包含在已发布的 0.1.0 包中。
+此 API 自 Kartis 0.2.0 提供。
 `StreamFactories` 提供八个同步、借用的函数入口，直接参与布局构建，结果用于
 实际绘制、计算元数据、图例、提示、切片以及[类型化点 Widget](stream-widgets.zh-CN.md)。
 构建器不会保留这些函数。[English](stream-functions.md)

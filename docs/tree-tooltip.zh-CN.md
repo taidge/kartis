@@ -1,9 +1,9 @@
-# Tree 节点提示组件（Unreleased）
+# Tree 节点提示组件（Kartis 0.2.0）
 
 [English](tree-tooltip.md)
 
 BrowserTree 展示接口需要 WebAssembly 上的 `web`；`TreeTooltipData` 也可作为纯 Rust
-数据使用。这些 API 保持 Unreleased，不包含在已发布的 0.1.0 中。受检 opt-in 浏览器
+数据使用。这些 API 自 Kartis 0.2.0 提供。受检 opt-in 浏览器
 范围覆盖 Chrome、Firefox、WebKit、Edge 和独立 Chromium 的 DPR1/2，以及 SVG／Canvas
 和原生 Canvas 源程序；实际范围见[验收说明](verification.md)。
 

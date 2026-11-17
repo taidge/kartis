@@ -1,6 +1,6 @@
 # Stream 点组件
 
-此开发 API 尚未包含在已发布的 0.1.0 中。`stream_dot_widgets` 用真实 Glory 子组件
+此 API 自 Kartis 0.2.0 提供。`stream_dot_widgets` 用真实 Glory 子组件
 和拥有所有权的 Rust 数据承接 Nivo Stream 的 `dotComponent` 角色，可用于类型化
 覆盖层、严格替换、CPU 图像 Chart 及浏览器 Scene 顺序组合。
 [完整可运行示例](../examples/stream_widgets.rs)使用 Memory，应用可选择实际 Glory 宿主。

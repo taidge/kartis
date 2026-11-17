@@ -1,6 +1,6 @@
 # Live force-network node Widgets
 
-Unreleased. `network_node_widgets` attaches measured, typed Glory components to visual nodes from `NetworkGlyphLayout`. `network_widget_frame` clones the authored Scene with explicit PaintedGeometry and its existing canonical node binding. `BrowserNetwork::mount_with_node_widgets` additionally updates real components across force ticks, source-node dragging, responsive resize and graph replacement. `mount_with_link_factory_and_node_widgets` combines them with retained exportable link geometry.
+Available in Kartis 0.2.0. `network_node_widgets` attaches measured, typed Glory components to visual nodes from `NetworkGlyphLayout`. `network_widget_frame` clones the authored Scene with explicit PaintedGeometry and its existing canonical node binding. `BrowserNetwork::mount_with_node_widgets` additionally updates real components across force ticks, source-node dragging, responsive resize and graph replacement. `mount_with_link_factory_and_node_widgets` combines them with retained exportable link geometry.
 
 ## Node data and placement
 

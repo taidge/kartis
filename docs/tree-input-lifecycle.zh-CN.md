@@ -2,7 +2,7 @@
 
 [English](tree-input-lifecycle.md)
 
-这是开发版 API，不包含在已发布的 Kartis 0.1.0 中。完整应用和四个活动修改器见
+此 API 自 Kartis 0.2.0 提供。完整应用和四个活动修改器见
 [Tree 活动指南](tree-activity.zh-CN.md)。
 
 `BrowserTree` 在处理图表输入前登记主鼠标/笔按压。当移动和按下发生在同一动画帧之前时，

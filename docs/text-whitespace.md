@@ -2,7 +2,7 @@
 
 [简体中文](text-whitespace.zh-CN.md)
 
-This is an **Unreleased development API**, absent from crates.io Kartis 0.1.0.
+This API is available in Kartis 0.2.0.
 It defines a single-line drawing protocol, not a CSS whitespace or paragraph
 layout engine.
 

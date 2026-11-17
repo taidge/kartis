@@ -1,4 +1,4 @@
-# Tree SVG function layers (Unreleased)
+# Tree SVG function layers (Kartis 0.2.0)
 
 [简体中文](tree-svg-layers.zh-CN.md)
 

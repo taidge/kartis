@@ -2,7 +2,7 @@
 
 [English](bullet-widgets.md) · [类型化插槽协议](typed-plot-widgets.zh-CN.md)
 
-此开发版 API 尚未包含在已发布的 0.1.0 包中。
+此 API 自 Kartis 0.2.0 提供。
 `bullet_part_widgets(&layout, revision, placement)` 为实际绘制的 range、
 measure、marker 建立测量插槽和拥有所有权的元数据，返回值可交给
 `Chart::plot_widgets_with_data`、`BrowserChart::mount_with_plot_widgets_data`

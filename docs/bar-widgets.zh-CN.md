@@ -1,4 +1,4 @@
-# Bar 实时组件（Unreleased）
+# Bar 实时组件（Kartis 0.2.0）
 
 `bar_widgets` 从 `CustomBarLayout` 构建类型化测量组件包。
 `bar_layout_with_factories(..., BarFactories::default())` 可继承普通 Bar 画笔，

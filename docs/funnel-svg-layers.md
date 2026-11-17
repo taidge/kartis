@@ -1,8 +1,8 @@
-# Funnel SVG function layers (Unreleased)
+# Funnel SVG function layers (Kartis 0.2.0)
 
 [简体中文](funnel-svg-layers.zh-CN.md)
 
-This API remains Unreleased. Browser input, paint and lifecycle checks have a
+This API is available in Kartis 0.2.0. Browser input, paint and lifecycle checks have a
 separate scope from native domain tests and WebAssembly compilation. See the
 [verification record](verification.md#development-funnel-literal-svg-layers) for
 that scope. This API does not promise complete compatibility with Nivo Funnel.

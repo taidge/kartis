@@ -2,7 +2,7 @@
 
 [English](network-link-custom.md)
 
-**Unreleased。** `network_glyph_layout_with_link_factory` 将自定义连线几何与画笔和
+**自 Kartis 0.2.0 提供。** `network_glyph_layout_with_link_factory` 将自定义连线几何与画笔和
 已有节点 glyph 组合。回调在物理布局后执行，不修改模拟、节点物理半径或力的端点。
 生成的 Scene 由 SVG、Canvas、CPU raster 和支持实色的语义 Graphic 共用。
 

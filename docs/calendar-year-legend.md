@@ -2,7 +2,7 @@
 
 [简体中文](calendar-year-legend.zh-CN.md)
 
-Unreleased: these APIs are not included in the published 0.1.0 release.
+These APIs are available in Kartis 0.2.0.
 
 `calendar_layout_with_year_legend` adds explicit FullYears year-label placement
 and borrowed, fallible plain-text formatting. These are the year labels beside

@@ -1,4 +1,4 @@
-# Waffle group event areas (Unreleased)
+# Waffle group event areas (Kartis 0.2.0)
 
 `waffle_area_interaction(&layout)` returns a checked `SceneInteraction` with one
 logical site for each visible group that occupies at least one grid slot.

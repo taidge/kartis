@@ -1,8 +1,8 @@
-# Funnel tooltips (Unreleased)
+# Funnel tooltips (Kartis 0.2.0)
 
 [简体中文](funnel-tooltip.zh-CN.md)
 
-This Unreleased SVG API has passed its native-events and tooltip browser
+This SVG API is available in Kartis 0.2.0 and has passed its native-events and tooltip browser
 acceptance: 10 configurations, 40 profiles, 2,000 frames, 160 rejections and 20
 real DOM negative controls. Artifacts and the fixed Chromium `--disable-gpu`
 test configuration are in the

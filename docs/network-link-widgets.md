@@ -1,6 +1,6 @@
 # Live Network link and node components
 
-Unreleased. `network_link_widgets` attaches typed Glory components to actual
+Available in Kartis 0.2.0. `network_link_widgets` attaches typed Glory components to actual
 links in `NetworkLinkLayout`. `network_widgets` combines link and node roles in
 one packet, one 128-slot budget and authored Scene order: links, then nodes.
 `network_link_widget_frame` clones the exact authored Scene and existing node

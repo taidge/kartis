@@ -1,6 +1,6 @@
 # Tree function configuration
 
-This development API is not included in the published 0.1.0 package.
+This API is available in Kartis 0.2.0.
 `tree_layout_with_factories` accepts five synchronous borrowed `FnMut` functions
 in `TreeFactories`. Unspecified functions retain the static options. Neither
 the functions nor their captured state is retained by the returned layout.

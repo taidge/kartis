@@ -1,10 +1,10 @@
-# Tree node tooltips (Unreleased)
+# Tree node tooltips (Kartis 0.2.0)
 
 [简体中文](tree-tooltip.zh-CN.md)
 
 The BrowserTree presentation API requires `web` on WebAssembly;
-`TreeTooltipData` is also available as pure Rust data. These development APIs
-are Unreleased and are not included in the published 0.1.0 package. The tested
+`TreeTooltipData` is also available as pure Rust data. These APIs
+are available in Kartis 0.2.0. The tested
 opt-in browser profile covers Chrome, Firefox, WebKit, Edge and bundled Chromium
 at DPR1/2, with SVG/Canvas and native Canvas source programs. See
 [verification](verification.md) for the bounded runtime evidence.

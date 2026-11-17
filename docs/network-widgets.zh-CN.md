@@ -1,6 +1,6 @@
 # 力导向 Network 实时节点组件
 
-开发版，尚未发布。`network_node_widgets` 为 `NetworkGlyphLayout` 的视觉节点提供测量后的类型化 Glory 组件，`network_widget_frame` 保留作者 Scene 和原 canonical 节点绑定并显式启用 PaintedGeometry。`BrowserNetwork::mount_with_node_widgets` 让真实组件跟随 force tick、源节点拖动、响应式 resize 及图替换；`mount_with_link_factory_and_node_widgets` 可同时保留可导出的连线几何工厂。
+自 Kartis 0.2.0 提供。`network_node_widgets` 为 `NetworkGlyphLayout` 的视觉节点提供测量后的类型化 Glory 组件，`network_widget_frame` 保留作者 Scene 和原 canonical 节点绑定并显式启用 PaintedGeometry。`BrowserNetwork::mount_with_node_widgets` 让真实组件跟随 force tick、源节点拖动、响应式 resize 及图替换；`mount_with_link_factory_and_node_widgets` 可同时保留可导出的连线几何工厂。
 
 ## 节点数据与定位
 

@@ -1,4 +1,4 @@
-# Tree property springs (Unreleased)
+# Tree property springs (Kartis 0.2.0)
 
 [简体中文](tree-motion.zh-CN.md)
 

@@ -2,7 +2,7 @@
 
 [English](widget-composition.md)
 
-这是开发中的 API，未包含在已发布的 0.1.0 包中。
+此 API 自 Kartis 0.2.0 提供。
 
 `Chart::plot_widgets_composed` 挂载真实 Glory Widget，并可替换指定 Scene 标记的墨迹。
 它是**终结构建方法**：先配置回调、控件与栅格发布器，最后再调用它。

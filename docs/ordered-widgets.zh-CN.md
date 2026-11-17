@@ -2,7 +2,7 @@
 
 [English](ordered-widgets.md)
 
-开发中的 API，已发布的 0.1.0 包不包含此功能。
+此 API 自 Kartis 0.2.0 提供。
 
 `BrowserChart::mount_with_plot_widgets_in_scene(root, scene, options,
 composition, factory)` 在 Scene 原始 Mark 的绘制位置插入真正的 Glory Widget。

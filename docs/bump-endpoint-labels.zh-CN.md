@@ -2,7 +2,7 @@
 
 [English](bump-endpoint-labels.md)
 
-这是尚未包含在已发布 Kartis 0.1.0 中的 **Unreleased 开发 API**。
+此 API 自 Kartis 0.2.0 提供。
 Start 与 End 可以使用不同文字，不修改系列原 label、图例、点 tooltip、几何、画笔或交互身份。
 旧入口与 `BumpLayoutOptions` 的既有字段保持原行为。
 

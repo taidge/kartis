@@ -1,6 +1,6 @@
 # Stream dot Widgets
 
-This development API is not included in the published 0.1.0 package.
+This API is available in Kartis 0.2.0.
 `stream_dot_widgets` supplies the role of Nivo's Stream `dotComponent` using
 real Glory children and owned Rust data. It works with typed overlays, strict
 replacement composition, CPU image Charts and browser Scene-order composition.

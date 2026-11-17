@@ -2,7 +2,7 @@
 
 [English](text-whitespace.md)
 
-这是**尚未发布的开发版 API**，不包含在 crates.io Kartis 0.1.0 中。
+此 API 自 Kartis 0.2.0 提供。
 它定义单行绘制协议，不等于 CSS 空白或段落排版引擎。
 
 `LabelWhitespace::Legacy` 为默认值，缺省条目保留各后端的旧行为，不给普通场景

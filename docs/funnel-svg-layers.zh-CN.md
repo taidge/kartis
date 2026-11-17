@@ -1,8 +1,8 @@
-# Funnel SVG 函数层（未发布）
+# Funnel SVG 函数层（Kartis 0.2.0）
 
 [English](funnel-svg-layers.md)
 
-此 API 保持 Unreleased。浏览器输入、绘制与生命周期检查，与原生领域测试及 WebAssembly
+此 API 自 Kartis 0.2.0 提供。浏览器输入、绘制与生命周期检查，与原生领域测试及 WebAssembly
 编译分别验收，具体范围见[验收记录](verification.md#development-funnel-literal-svg-layers)。
 本文说明当前 API 与边界，不承诺完整兼容 Nivo Funnel。
 

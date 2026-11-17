@@ -2,8 +2,7 @@
 
 [简体中文](bullet-custom.zh-CN.md)
 
-This is an **Unreleased development API**, not part of the published
-`kartis 0.1.0`. It adds a borrowed single-mark geometry and paint factory for
+This API is available in Kartis 0.2.0. It adds a borrowed single-mark geometry and paint factory for
 Bullet ranges, measures and markers.
 
 `bullet_layout_with_part_factory(config, data, options, &mut factory)` returns

@@ -1,6 +1,6 @@
 # Bump 实时点组件
 
-这是开发版 API，尚未包含在已发布的 0.1.0 包中。`bump_point_widgets` 将
+此 API 自 Kartis 0.2.0 提供。`bump_point_widgets` 将
 `BumpLayout` 中实际存在的点 Mark 接入测量式、类型化 Glory 实时组件，可组合普通点、
 自定义 Path、首尾文字工厂，以及既有 SVG、Canvas 和 CPU 图像宿主。
 

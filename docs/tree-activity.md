@@ -1,6 +1,6 @@
 # Tree activity and inherited colors
 
-This development API is not included in the published 0.1.0 package.
+This API is available in Kartis 0.2.0.
 `tree_layout_with_activity` combines the [five base functions](tree-functions.md)
 with four activity modifiers and fixed-depth color inheritance. The functions
 are borrowed for one build and never retained by its result.

@@ -1,6 +1,6 @@
 # Original values in retained plot Widgets
 
-Unreleased. Bump, Scatter, Bar, Stream, Heatmap and Bullet typed packets distinguish observable original `-0.0` and `+0.0` metadata. A data-only update can refresh a mounted child while its Scene, measured placement, business identity and revision remain equal. Ordinary chart geometry and category-key equality keep their numeric semantics.
+Available in Kartis 0.2.0. Bump, Scatter, Bar, Stream, Heatmap and Bullet typed packets distinguish observable original `-0.0` and `+0.0` metadata. A data-only update can refresh a mounted child while its Scene, measured placement, business identity and revision remain equal. Ordinary chart geometry and category-key equality keep their numeric semantics.
 
 | Role | Original values compared exactly |
 | --- | --- |

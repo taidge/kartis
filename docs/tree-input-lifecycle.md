@@ -2,7 +2,7 @@
 
 [中文](tree-input-lifecycle.zh-CN.md)
 
-This development API is not included in published Kartis 0.1.0. See the
+This API is available in Kartis 0.2.0. See the
 [Tree activity guide](tree-activity.md) for the complete application and the
 four activity modifiers.
 

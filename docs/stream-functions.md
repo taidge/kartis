@@ -1,6 +1,6 @@
 # Stream function configuration
 
-This development API is not included in the published 0.1.0 package.
+This API is available in Kartis 0.2.0.
 Stream supports eight synchronous, borrowed functions through `StreamFactories`.
 They participate in layout construction, including actual paint, computed
 metadata, legends, tooltips, slices and [typed dot Widgets](stream-widgets.md).

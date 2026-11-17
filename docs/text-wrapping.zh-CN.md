@@ -2,7 +2,7 @@
 
 [English](text-wrapping.md)
 
-这些是**尚未发布的开发版 API**，不包含在 crates.io Kartis 0.1.0 中。
+这些 API 自 Kartis 0.2.0 提供。
 自动折行属于 Rust 扩展；原 Nivo 的普通 SVG/Canvas 文字仍是单行入口。
 本实现不等于完整 CSS 排版或完整 UAX #14 断行。
 

@@ -1,8 +1,8 @@
-# Live Tree node and link Widgets (Unreleased)
+# Live Tree node and link Widgets (Kartis 0.2.0)
 
 [简体中文](tree-widgets.zh-CN.md)
 
-Development API, not included in the published 0.1.0 package.
+Available in Kartis 0.2.0.
 
 Nivo Tree has real SVG `nodeComponent` and `linkComponent` props, plus Canvas
 `renderNode` and `renderLink` functions. Kartis supplies a typed Tree layout and

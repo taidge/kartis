@@ -2,7 +2,7 @@
 
 [English](swarm-custom.md)
 
-**Unreleased。** 已发布 Kartis 0.1.0 不包含此扩展。
+**自 Kartis 0.2.0 提供。** 已发布 Kartis 0.1.0 不包含此扩展。
 
 `swarm_layout_with_node_factory` 在原有布局完成后替换 Swarm 节点的 Scene 图形与绘制样式。
 同一 Scene 可用于 SVG、Canvas、CPU 栅格、语义 Chart 控件与浏览器宿主。

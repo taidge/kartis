@@ -2,7 +2,7 @@
 
 [简体中文](text-wrapping.zh-CN.md)
 
-These are **Unreleased development APIs**, absent from crates.io Kartis 0.1.0.
+These APIs are available in Kartis 0.2.0.
 Wrapping is a Rust extension over Nivo's ordinary single-line SVG/Canvas text;
 it does not implement a full CSS text layout or UAX #14 line-breaking engine.
 

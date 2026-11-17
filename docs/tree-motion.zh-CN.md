@@ -1,4 +1,4 @@
-# Tree 逐属性 Spring（Unreleased）
+# Tree 逐属性 Spring（Kartis 0.2.0）
 
 [English](tree-motion.md)
 

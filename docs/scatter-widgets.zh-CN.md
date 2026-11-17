@@ -1,4 +1,4 @@
-# Scatter 实时节点组件（Unreleased）
+# Scatter 实时节点组件（Kartis 0.2.0）
 
 `scatter_node_widgets(&layout, &series, revision, placement)` 为真实 Scatter
 节点构建经过测量、拥有类型化数据的组件包。需要显式传入原始 `ScatterSeries`，

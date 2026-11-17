@@ -1,8 +1,8 @@
-# 实时 Tree 节点与连线 Widget（未发布）
+# 实时 Tree 节点与连线 Widget（Kartis 0.2.0）
 
 [English](tree-widgets.md)
 
-这是开发中的 API，尚未包含在已发布的 0.1.0 包中。
+此 API 自 Kartis 0.2.0 提供。
 
 Nivo Tree 确实提供 SVG `nodeComponent`、`linkComponent` 属性，以及 Canvas
 `renderNode`、`renderLink` 函数。Kartis 为这些定制场景提供类型化 Tree 布局和

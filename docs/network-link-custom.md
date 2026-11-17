@@ -2,7 +2,7 @@
 
 [简体中文](network-link-custom.zh-CN.md)
 
-**Unreleased.** `network_glyph_layout_with_link_factory` composes custom link
+**Available in Kartis 0.2.0.** `network_glyph_layout_with_link_factory` composes custom link
 geometry and paint with existing node glyphs. The callback runs after physics;
 it does not change the simulation, node radii or force endpoints. SVG, Canvas,
 CPU raster and solid semantic Graphic paths consume the resulting Scene.

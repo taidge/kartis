@@ -1,8 +1,8 @@
-# Funnel 原生鼠标事件（未发布）
+# Funnel 原生鼠标事件（Kartis 0.2.0）
 
 [English](funnel-events.md)
 
-该 Unreleased API 扩展专属 SVG `BrowserFunnel` owner。原生事件与 tooltip 浏览器验收
+该 API 自 Kartis 0.2.0 提供，扩展专属 SVG `BrowserFunnel` owner。原生事件与 tooltip 浏览器验收
 已通过：10 个配置、40 个 profile、2,000 帧、160 次拒绝及 20 个真实 DOM 负控。
 产物与 Chromium 固定 `--disable-gpu` 测试配置见
 [验收记录](verification.md#development-funnel-native-events-and-tooltips)。

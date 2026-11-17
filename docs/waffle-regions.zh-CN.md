@@ -1,4 +1,4 @@
-# Waffle 分组事件区域（Unreleased）
+# Waffle 分组事件区域（Kartis 0.2.0）
 
 `waffle_area_interaction(&layout)` 返回受检 `SceneInteraction`：每个可见且实际
 占用格位的组只有一个逻辑站点，事件区域包含完整格位及单元格间隙。函数逐值保留
@@ -56,4 +56,4 @@ Nivo 的 SVG/HTML area 层使用透明事件几何，Canvas 按完整 cell 查�
 
 浏览器验收脚本为 `scripts/waffle-regions-acceptance.mjs`，`--chromium-only`
 执行 CI 子集；共享场景见 `examples/shared/waffle_regions.rs`。
-这些 API 尚未包含在已发布的 0.1.0 中。
+这些 API 自 Kartis 0.2.0 提供。

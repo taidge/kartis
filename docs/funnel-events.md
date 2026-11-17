@@ -1,8 +1,8 @@
-# Funnel native mouse events (Unreleased)
+# Funnel native mouse events (Kartis 0.2.0)
 
 [简体中文](funnel-events.zh-CN.md)
 
-This Unreleased API extends the dedicated SVG `BrowserFunnel` owner. Its native
+This API is available in Kartis 0.2.0 and extends the dedicated SVG `BrowserFunnel` owner. Its native
 events and tooltip browser acceptance has passed: 10 configurations, 40 profiles,
 2,000 frames, 160 rejections and 20 real DOM negative controls. See the
 [verification record](verification.md#development-funnel-native-events-and-tooltips)

@@ -26,7 +26,7 @@ Log 域要求同号非零，负指数幂也要求同号非零分支。源样本�
 
 ### 数据视口
 
-**重复节点视口集成属于 Unreleased。** 原生 Line、Scatter 验收矩阵核对 4,128 条原 D3 视口记录，包含完整重排、受检拒绝和重置。浏览器绘制与平台数学边界另见[重复节点指南](piecewise-repeated.zh-CN.md)。
+**重复节点视口集成自 Kartis 0.2.0 提供。** 原生 Line、Scatter 验收矩阵核对 4,128 条原 D3 视口记录，包含完整重排、受检拒绝和重置。浏览器绘制与平台数学边界另见[重复节点指南](piecewise-repeated.zh-CN.md)。
 
 Line 和 Scatter 控制器保存全部原始显示断点。与原 D3 `rescaleX`/`rescaleY` 一致，导航通过累计像素变换逐个反算原输出节点。Resize 保留已接受域，仅更新后续输入使用的尺寸。
 

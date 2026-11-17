@@ -26,7 +26,7 @@ Actual charts use `PiecewiseLineScaleOptions` with `line_layout_with_piecewise_s
 
 ### Data viewports
 
-**Repeated-knot viewport integration is Unreleased.** The native Line and Scatter acceptance matrix checks 4,128 original-D3 viewport records, including complete reflow, checked rejection and reset. Browser paint and platform math are separately scoped in the [repeated-knot guide](piecewise-repeated.md).
+**Repeated-knot viewport integration is available in Kartis 0.2.0.** The native Line and Scatter acceptance matrix checks 4,128 original-D3 viewport records, including complete reflow, checked rejection and reset. Browser paint and platform math are separately scoped in the [repeated-knot guide](piecewise-repeated.md).
 
 Line and Scatter layout controllers retain all original displayed knots. Like original D3 `rescaleX`/`rescaleY`, navigation inverts every original range stop through the accumulated pixel transform. Resize preserves accepted domains and changes the dimensions used by later input.
 

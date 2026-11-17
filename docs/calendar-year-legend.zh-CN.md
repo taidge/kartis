@@ -2,7 +2,7 @@
 
 [English](calendar-year-legend.md)
 
-未发布（Unreleased）：这些 API 尚未包含在已发布的 0.1.0 版本中。
+这些 API 自 Kartis 0.2.0 提供。
 
 `calendar_layout_with_year_legend` 为 FullYears 增加显式年份标签定位和可借用、可失败的纯文本格式化函数。这里的年份标签是年面板旁的文字，不是 `Scene.legend` 图例行。原有 `calendar_layout` 和 `calendar_layout_with_color_profile` 保持完整的既有输出；`CalendarLayoutOptions` 没有新增字段。
 

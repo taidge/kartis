@@ -1,4 +1,4 @@
-# Funnel 休眠动画状态（Unreleased）
+# Funnel 休眠动画状态（Kartis 0.2.0）
 
 [English](funnel-dormant-motion.md) · [动画指南](funnel-motion.zh-CN.md)
 

@@ -1,9 +1,9 @@
-# Tree label components (Unreleased)
+# Tree label components (Kartis 0.2.0)
 
 [简体中文](tree-label-components.zh-CN.md)
 
-The development API adds real Glory label Widgets alongside Tree node and link
-Widgets. It is not included in the published 0.1.0 package. Existing Tree drawing
+Available in Kartis 0.2.0, this API adds real Glory label Widgets alongside Tree node and link
+Widgets. Existing Tree drawing
 and the older `TreeWidgetData` node/link API keep their defaults.
 
 `tree_components` returns one `SceneWidgetsData<TreeComponentData>` packet with

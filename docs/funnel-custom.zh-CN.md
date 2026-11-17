@@ -2,7 +2,7 @@
 
 [English](funnel-custom.md)
 
-本 API 属于 **Unreleased**，尚未包含在已发布的 `kartis 0.1.0` 中。
+本 API 自 Kartis 0.2.0 提供。
 它为现有 Nivo 风格阶段布局提供借用的 Rust 几何工厂，不等同于任意 React 自定义
 图层或实时 Widget。
 

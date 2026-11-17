@@ -1,8 +1,8 @@
-# SVG Tree 连线提示（Unreleased）
+# SVG Tree 连线提示（Kartis 0.2.0）
 
 [English](tree-link-tooltip.md)
 
-本 Unreleased SVG 适配已完成受检浏览器矩阵，范围见
+本 SVG 适配自 Kartis 0.2.0 提供，并已完成受检浏览器矩阵，范围见
 [验收记录](verification.md#development-tree-svg-link-tooltips)。
 浏览器 API 需要 WebAssembly 的 `web` 功能；纯数据
 `TreeLinkTooltipData` 也可用于原生 Rust。

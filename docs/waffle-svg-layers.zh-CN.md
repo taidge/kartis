@@ -1,6 +1,6 @@
 # Waffle 字面 SVG 层与保留式 Glory 子树
 
-本 API 为 Unreleased。原生默认 2095、全特性 2440、18 项 doctest 与 native／WASM 严格检查通过；
+本 API 自 Kartis 0.2.0 提供。原生默认 2095、全特性 2440、18 项 doctest 与 native／WASM 严格检查通过；
 完整矩阵通过 10 个浏览器／DPR 上下文、40 场景、2280 次 capture、2160 次操作、280 次候选拒绝与
 20 项真实 DOM 负控，sourceUnchanged 为真。独立读回亦通过，解码 3100 张 PNG 并核对完整原始事件与组件证据。
 见[验收记录](verification.md#development-waffle-literal-svg-layers)。

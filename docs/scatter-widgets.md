@@ -1,4 +1,4 @@
-# Live Scatter node Widgets (Unreleased)
+# Live Scatter node Widgets (Kartis 0.2.0)
 
 `scatter_node_widgets(&layout, &series, revision, placement)` builds measured,
 owned component packets for actual Scatter node marks. Pass the original

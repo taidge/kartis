@@ -1,6 +1,6 @@
 # Tree 函数配置
 
-这是开发版 API，不包含在已发布的 0.1.0 中。
+此 API 自 Kartis 0.2.0 提供。
 `tree_layout_with_factories` 通过 `TreeFactories` 接收五个同步借用的 `FnMut`。
 未设置的函数沿用静态选项，返回的布局不保留函数及其捕获状态。
 [English](tree-functions.md)

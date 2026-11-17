@@ -1,8 +1,8 @@
-# Funnel 函数与实时自定义图层角色（未发布）
+# Funnel 函数与实时自定义图层角色（Kartis 0.2.0）
 
 [English](funnel-widgets.md)
 
-这是开发中的 API，尚未包含在已发布的 0.1.0 包中。
+此 API 自 Kartis 0.2.0 提供。
 
 Nivo Funnel 提供函数形式的 `layers`，传入计算后的 parts、前后分隔线、
 area/border 路径生成器和 current-part setter。它没有 `partComponent`、

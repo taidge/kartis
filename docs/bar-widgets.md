@@ -1,4 +1,4 @@
-# Live Bar components (Unreleased)
+# Live Bar components (Kartis 0.2.0)
 
 `bar_widgets` builds typed measured component packets from `CustomBarLayout`.
 Use `bar_layout_with_factories(..., BarFactories::default())` for inherited

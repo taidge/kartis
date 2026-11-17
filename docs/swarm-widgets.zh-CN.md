@@ -1,6 +1,6 @@
 # Swarm 实时节点组件
 
-开发版，尚未发布。`swarm_node_widgets` 为实际打包的 Swarm 节点创建测量后的类型化 Glory 组件；`swarm_widget_frame` 提供显式按实际墨迹拾取的帧，可用于语义 Chart、CPU 图像及 SVG/Canvas 浏览器宿主。普通 Swarm 绘制与旧转换入口保持原行为。
+自 Kartis 0.2.0 提供。`swarm_node_widgets` 为实际打包的 Swarm 节点创建测量后的类型化 Glory 组件；`swarm_widget_frame` 提供显式按实际墨迹拾取的帧，可用于语义 Chart、CPU 图像及 SVG/Canvas 浏览器宿主。普通 Swarm 绘制与旧转换入口保持原行为。
 
 ```rust,ignore
 let packet = swarm_node_widgets(&layout, &original_points, revision, |node| {

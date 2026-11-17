@@ -1,4 +1,4 @@
-# Tree SVG 函数层（Unreleased）
+# Tree SVG 函数层（Kartis 0.2.0）
 
 [English](tree-svg-layers.md)
 

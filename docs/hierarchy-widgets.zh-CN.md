@@ -1,6 +1,6 @@
 # 层次图实时节点组件
 
-这是开发版 API，尚未包含在已发布的 0.1.0 包中。`hierarchy_node_widgets` 将 Treemap、
+此 API 自 Kartis 0.2.0 提供。`hierarchy_node_widgets` 将 Treemap、
 CirclePacking、Icicle 中真实节点 Mark 接入类型化、可测量 Glory 子组件。
 `hierarchy_widget_frame` 同时提供原 Scene、准确 plot 与显式实际绘制拾取。
 

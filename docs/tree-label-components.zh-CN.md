@@ -1,9 +1,8 @@
-# Tree 标签组件（Unreleased）
+# Tree 标签组件（Kartis 0.2.0）
 
 [English](tree-label-components.md)
 
-开发版增加真正的 Glory 标签 Widget，与 Tree 节点、连线组件共用事务。该接口尚未包含
-在已发布的 0.1.0 中，原有 Tree 绘制默认值及旧版双角色 `TreeWidgetData` 保持兼容。
+此 API 自 Kartis 0.2.0 提供，增加真正的 Glory 标签 Widget，与 Tree 节点、连线组件共用事务。原有 Tree 绘制默认值及旧版双角色 `TreeWidgetData` 保持兼容。
 
 `tree_components` 按实际 Scene 绘制顺序返回一个
 `SceneWidgetsData<TreeComponentData>`，包含 `Node`、`Link`、`Label`。

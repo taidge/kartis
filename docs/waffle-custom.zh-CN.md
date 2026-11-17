@@ -2,7 +2,7 @@
 
 [English](waffle-custom.md)
 
-这是**尚未发布的开发版 API**，不包含在 crates.io Kartis 0.1.0 中。
+此 API 自 Kartis 0.2.0 提供。
 它为已有 Waffle 布局增加借用的单标记几何与画笔工厂，不实现任意 React 组件或实时 Widget。
 
 `waffle_layout_with_cell_factory(config, data, options, &mut factory)` 返回

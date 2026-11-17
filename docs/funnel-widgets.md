@@ -1,8 +1,8 @@
-# Funnel functions and live custom-layer roles (Unreleased)
+# Funnel functions and live custom-layer roles (Kartis 0.2.0)
 
 [简体中文](funnel-widgets.zh-CN.md)
 
-Development API, not included in the published 0.1.0 package.
+Available in Kartis 0.2.0.
 
 Nivo Funnel exposes function-valued `layers`, with computed parts, before/after
 separators, area/border generators and a current-part setter. It does not expose

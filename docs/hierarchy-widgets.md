@@ -1,6 +1,6 @@
 # Live hierarchy node components
 
-These development APIs are not included in the published 0.1.0 package.
+These APIs are available in Kartis 0.2.0.
 `hierarchy_node_widgets` adapts actual Treemap, CirclePacking and Icicle node
 marks to typed, measured Glory children. `hierarchy_widget_frame` supplies the
 same Scene, accurate plot and explicit painted-geometry interaction.

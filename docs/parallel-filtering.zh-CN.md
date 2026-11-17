@@ -1,6 +1,6 @@
 # 平行坐标逐轴筛选
 
-尚未发布的开发 API；不包含在 crates.io Kartis 0.1.0 中。
+此 API 自 Kartis 0.2.0 提供。
 
 [English](parallel-filtering.md)
 

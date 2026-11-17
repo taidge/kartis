@@ -1,4 +1,4 @@
-# Funnel bound annotations (Unreleased)
+# Funnel bound annotations (Kartis 0.2.0)
 
 [简体中文](funnel-annotations.zh-CN.md)
 

@@ -2,7 +2,7 @@
 
 [中文](tree-canvas.zh-CN.md)
 
-These APIs are **Unreleased** and are not part of crates.io version 0.1.0.
+These APIs are available in Kartis 0.2.0.
 The native renderer requires `canvas` on WebAssembly; the retained browser
 owner requires `web`.
 

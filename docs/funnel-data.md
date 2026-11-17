@@ -1,4 +1,4 @@
-# Funnel owned application data (Unreleased)
+# Funnel owned application data (Kartis 0.2.0)
 
 [简体中文](funnel-data.zh-CN.md)
 

@@ -2,7 +2,7 @@
 
 [English](bullet-custom.md)
 
-这是 **Unreleased 开发 API**，尚未包含在已发布的 `kartis 0.1.0` 中。
+此 API 自 Kartis 0.2.0 提供。
 它为 Bullet 的范围、度量和标记提供借用式单 mark 几何与绘制工厂。
 
 `bullet_layout_with_part_factory(config, data, options, &mut factory)` 返回

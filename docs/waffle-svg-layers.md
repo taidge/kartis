@@ -1,6 +1,6 @@
 # Literal Waffle SVG layers and retained Glory components
 
-Unreleased implementation. Native checks pass 2095 default tests, 2440 all-feature
+Available in Kartis 0.2.0. Native checks pass 2095 default tests, 2440 all-feature
 tests and 18 doctests, with strict native/WASM checks. The complete matrix passes
 10 browser/DPR contexts, 40 profiles, 2280 captures, 2160 operations, 280 candidate
 rejections and 20 actual DOM negative controls with unchanged source. Independent

@@ -2,7 +2,7 @@
 
 [简体中文](widget-composition.zh-CN.md)
 
-Development API, not included in the published 0.1.0 package.
+Available in Kartis 0.2.0.
 
 `Chart::plot_widgets_composed` mounts real Glory Widgets and can replace named
 Scene mark ink. It is a **terminal builder method**: configure callbacks,

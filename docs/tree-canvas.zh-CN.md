@@ -2,7 +2,7 @@
 
 [English](tree-canvas.md)
 
-这些 API 保持 **Unreleased**，不属于 crates.io 已发布的 0.1.0。
+这些 API 自 Kartis 0.2.0 提供。
 原生绘制接口需要 WebAssembly 上的 `canvas` 功能，保留浏览器所有者需要 `web`。
 
 `TreeCanvasCallbacks` 为节点、连线、标签和命名自定义层提供真实

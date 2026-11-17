@@ -2,7 +2,7 @@
 
 [简体中文](geo-albers-usa.zh-CN.md)
 
-**Status: Unreleased.** Dedicated fitted maps, component-preserving lines and
+**Status: Available in Kartis 0.2.0.** Dedicated fitted maps, component-preserving lines and
 graticules, point/inverse primitives, planar rectangle clipping, selected-region
 symbol/glyph and location-label masks, and host inverse adapters are available.
 The input and numerical limits below apply; these APIs do not promise arbitrary

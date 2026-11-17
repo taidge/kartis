@@ -2,7 +2,7 @@
 
 [English](cell-widgets.md)
 
-开发中的 API，不包含在已发布的 0.1.0 包内。
+这些 API 自 Kartis 0.2.0 提供。
 这些适配器为 Nivo HeatMap、Waffle `cellComponent` 对应的单元格角色提供真正的
 Glory 组件，不保存 React 回调，不生成 `animatedProps` 或自动 spring 轨迹。
 

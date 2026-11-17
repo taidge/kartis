@@ -1,6 +1,6 @@
 # Tree 活动状态与颜色继承
 
-这是开发版 API，不包含在已发布的 0.1.0 中。
+此 API 自 Kartis 0.2.0 提供。
 `tree_layout_with_activity` 将[五类基础函数](tree-functions.zh-CN.md)与四个活动态修改器、
 固定深度颜色继承组合。函数仅在一次构造中借用，不被返回的布局保留。
 [English](tree-activity.md)

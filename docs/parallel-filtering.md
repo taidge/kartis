@@ -1,6 +1,6 @@
 # Parallel axis filtering
 
-Unreleased development API; not included in crates.io Kartis 0.1.0.
+This API is available in Kartis 0.2.0.
 
 [简体中文](parallel-filtering.zh-CN.md)
 

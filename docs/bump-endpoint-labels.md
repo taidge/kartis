@@ -2,7 +2,7 @@
 
 [简体中文](bump-endpoint-labels.zh-CN.md)
 
-This is an **Unreleased development API**, absent from published Kartis 0.1.0.
+This API is available in Kartis 0.2.0.
 Start and End can display different text without changing the series label,
 legend, point tooltip data, geometry, paint or interaction identity. Existing
 entries and `BumpLayoutOptions` fields retain their behavior.

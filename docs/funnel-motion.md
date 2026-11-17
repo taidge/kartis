@@ -1,4 +1,4 @@
-# Funnel property springs (Unreleased)
+# Funnel property springs (Kartis 0.2.0)
 
 [简体中文](funnel-motion.zh-CN.md)
 

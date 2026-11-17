@@ -1,4 +1,4 @@
-# Dormant Funnel motion (Unreleased)
+# Dormant Funnel motion (Kartis 0.2.0)
 
 [简体中文](funnel-dormant-motion.zh-CN.md) · [Motion guide](funnel-motion.md)
 

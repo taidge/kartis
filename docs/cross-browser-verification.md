@@ -1,5 +1,9 @@
 # Cross-browser verification
 
+See the [changelog](../CHANGELOG.md) for release availability. Statuses such as
+`Unreleased` in the dated entries below retain their meaning at capture time;
+original receipts, source revisions and verification results are preserved.
+
 ## Kartis rename acceptance (2026-11-13)
 
 The project, active identifiers and documentation now use Kartis. The configured Git origin is `https://github.com/taidge/kartis.git`; this local setting does not migrate or publish a GitHub repository. Historical acceptance artifacts retain their original bytes and paths, including legacy names in those paths. The earlier dated sections below retain their own source-revision scope.

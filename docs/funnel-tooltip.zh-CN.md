@@ -1,8 +1,8 @@
-# Funnel 提示框（Unreleased）
+# Funnel 提示框（Kartis 0.2.0）
 
 [English](funnel-tooltip.md)
 
-此 Unreleased SVG API 已通过原生事件与 tooltip 浏览器验收：10 个配置、40 个 profile、
+此 SVG API 自 Kartis 0.2.0 提供，并已通过原生事件与 tooltip 浏览器验收：10 个配置、40 个 profile、
 2,000 帧、160 次拒绝及 20 个真实 DOM 负控。产物与 Chromium 固定 `--disable-gpu`
 测试配置见[验收记录](verification.md#development-funnel-native-events-and-tooltips)。
 它扩展专用 `BrowserFunnel` owner，不代表通用 Canvas 图表或全部 Nivo Funnel 功能已经完成。

@@ -1,4 +1,4 @@
-# Funnel 绑定注解（未发布）
+# Funnel 绑定注解（Kartis 0.2.0）
 
 [English](funnel-annotations.md)
 

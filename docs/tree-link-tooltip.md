@@ -1,8 +1,8 @@
-# SVG Tree link tooltips (Unreleased)
+# SVG Tree link tooltips (Kartis 0.2.0)
 
 [简体中文](tree-link-tooltip.zh-CN.md)
 
-This Unreleased SVG adapter has completed the checked browser matrix described
+This SVG adapter is available in Kartis 0.2.0 and has completed the checked browser matrix described
 in the [verification record](verification.md#development-tree-svg-link-tooltips).
 The API requires `web` on WebAssembly. The pure
 `TreeLinkTooltipData` adapter is also available in native Rust.

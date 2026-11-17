@@ -1,6 +1,6 @@
 # Waffle group functions and owned application data
 
-This development API is unreleased. Waffle supports borrowed group color,
+This API is available in Kartis 0.2.0. Waffle supports borrowed group color,
 numeric value-format and border-color functions. Their results feed the actual
 cell or area paint, group metadata, legends and interaction sites. An optional
 owned frame keeps arbitrary application data alongside the numeric layout.

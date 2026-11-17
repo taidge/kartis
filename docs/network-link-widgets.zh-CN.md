@@ -1,6 +1,6 @@
 # Network 实时连线与节点组件
 
-Unreleased。`network_link_widgets` 为 `NetworkLinkLayout` 的真实连线附着类型化 Glory
+自 Kartis 0.2.0 提供。`network_link_widgets` 为 `NetworkLinkLayout` 的真实连线附着类型化 Glory
 组件；`network_widgets` 将连线与节点放入一个数据包，按原 Scene 的先连线、后节点顺序，
 共享 128 个插槽总预算。`network_link_widget_frame` 精确复制作者 Scene，沿用原节点 binding
 并显式使用 PaintedGeometry；连线仍是装饰来源，不增加假的节点控件、canonical 连线站点

@@ -2,7 +2,7 @@
 
 [简体中文](bullet-widgets.zh-CN.md) · [Typed slot protocol](typed-plot-widgets.md)
 
-This development API is not included in the published 0.1.0 package.
+This API is available in Kartis 0.2.0.
 `bullet_part_widgets(&layout, revision, placement)` creates measured Glory
 Widget slots and owned metadata for actual range, measure and marker marks.
 Pass its result to `Chart::plot_widgets_with_data`,

@@ -2,7 +2,7 @@
 
 [简体中文](piecewise-repeated.zh-CN.md)
 
-**Unreleased.** Numeric scales accept repeated knots and fully constant domains.
+**Available in Kartis 0.2.0.** Numeric scales accept repeated knots and fully constant domains.
 Line/Scatter integration passes the native and four-browser SVG/Canvas profiles
 described below. Published Kartis 0.1.0 does not include this extension.
 

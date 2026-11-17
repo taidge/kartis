@@ -2,7 +2,7 @@
 
 [简体中文](funnel-custom.zh-CN.md)
 
-This API is **Unreleased** and is not included in the published `kartis 0.1.0`.
+This API is available in Kartis 0.2.0.
 It extends the existing Nivo-inspired stage layout with a borrowed Rust geometry
 factory. It does not implement Nivo's arbitrary React custom layers or live Widgets.
 

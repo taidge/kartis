@@ -2,7 +2,7 @@
 
 [简体中文](cell-widgets.zh-CN.md)
 
-Development APIs, not included in the published 0.1.0 package. These adapters
+Available in Kartis 0.2.0. These adapters
 supply real Glory components for the cell roles represented by Nivo's HeatMap
 and Waffle `cellComponent`. They do not retain React callbacks, implement
 `animatedProps`, or create automatic spring trajectories.

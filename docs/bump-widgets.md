@@ -1,6 +1,6 @@
 # Bump point components
 
-This development API is not included in the published 0.1.0 package.
+This API is available in Kartis 0.2.0.
 `bump_point_widgets` adapts actual `BumpLayout` point marks into measured, typed
 live Glory components. It composes with ordinary point geometry, custom Paths,
 endpoint text factories and the existing SVG, Canvas and CPU-image hosts.

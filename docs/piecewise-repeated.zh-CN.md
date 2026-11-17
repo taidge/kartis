@@ -2,7 +2,7 @@
 
 [English](piecewise-repeated.md)
 
-**Unreleased。** 数值比例尺接受重复节点与全常量域。Line／Scatter 集成已通过下文
+**自 Kartis 0.2.0 提供。** 数值比例尺接受重复节点与全常量域。Line／Scatter 集成已通过下文
 所列原生及四浏览器 SVG／Canvas 配置；已发布 Kartis 0.1.0 不含此扩展。
 
 ## 映射与相等节点

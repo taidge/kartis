@@ -1,4 +1,4 @@
-# Funnel 原始应用数据（Unreleased）
+# Funnel 原始应用数据（Kartis 0.2.0）
 
 [English](funnel-data.md)
 

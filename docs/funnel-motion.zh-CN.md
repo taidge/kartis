@@ -1,4 +1,4 @@
-# Funnel 逐属性 Spring（Unreleased）
+# Funnel 逐属性 Spring（Kartis 0.2.0）
 
 [English](funnel-motion.md)
 

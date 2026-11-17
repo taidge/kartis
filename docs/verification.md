@@ -1,5 +1,8 @@
 # 验收记录
 
+版本可用性以 [CHANGELOG](../CHANGELOG.md) 为准。下方按日期记录中的 `Unreleased`
+等状态保留其验收当时的含义；原始收据、源码版本和验证结果保持原样。
+
 ## Kartis 改名验收（2026-11-13）
 
 项目、当前标识与文档现统一使用 Kartis。Git origin 配置为 `https://github.com/taidge/kartis.git`；修改本地配置不代表已迁移或发布 GitHub 仓库。历史验收产物保留原始字节与原路径（包括路径中的旧名称），下方先前各日期记录仍仅属于各自的源码版本。

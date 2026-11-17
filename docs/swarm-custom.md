@@ -2,7 +2,7 @@
 
 [简体中文](swarm-custom.zh-CN.md)
 
-**Unreleased.** Published Kartis 0.1.0 does not include this extension.
+**Available in Kartis 0.2.0.** Published Kartis 0.1.0 does not include this extension.
 
 `swarm_layout_with_node_factory` replaces a Swarm node's Scene geometry and
 paint after the ordinary layout has completed. The resulting Scene is shared

@@ -1,6 +1,6 @@
 # Live Swarm node Widgets
 
-Unreleased. `swarm_node_widgets` creates measured, typed Glory components for actual packed Swarm nodes. Use `swarm_widget_frame` for an explicit painted-geometry frame in semantic, CPU-image or SVG/Canvas browser hosts. Ordinary Swarm rendering and its legacy conversion retain their previous behavior.
+Available in Kartis 0.2.0. `swarm_node_widgets` creates measured, typed Glory components for actual packed Swarm nodes. Use `swarm_widget_frame` for an explicit painted-geometry frame in semantic, CPU-image or SVG/Canvas browser hosts. Ordinary Swarm rendering and its legacy conversion retain their previous behavior.
 
 ```rust,ignore
 let packet = swarm_node_widgets(&layout, &original_points, revision, |node| {

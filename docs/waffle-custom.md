@@ -2,7 +2,7 @@
 
 [简体中文](waffle-custom.zh-CN.md)
 
-This is an **Unreleased development API**, not part of crates.io Kartis 0.1.0.
+This API is available in Kartis 0.2.0.
 It extends the existing Waffle layout with a borrowed single-mark geometry and
 paint factory. It does not implement arbitrary React components or live Widgets.
 
