@@ -700,9 +700,13 @@ jobs:
           cargo test --locked --all-features --all-targets --manifest-path "$crate_dir/Cargo.toml"
 
   tree-spring-waffle-functions:
-    name: Chromium Tree spring, Waffle functions and Funnel layers
+    name: Chromium chart extensions (${{ matrix.suite }})
     runs-on: ubuntu-24.04
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [tree-waffle, funnel-layers, funnel-motion, funnel-dormant]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -737,61 +741,61 @@ jobs:
         shell: bash
         run: python scripts/build-browser-acceptance.py --out="$TARGET_DIR/browser-extensions-ci/producer" 2>&1 | tee "$TARGET_DIR/browser-extensions-producer.log"
       - name: Verify Tree spring at both DPRs
-        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' && matrix.suite == 'tree-waffle' }}
         env:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
         run: node scripts/tree-motion-acceptance.mjs --engine=chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/tree-motion" 2>&1 | tee "$TARGET_DIR/browser-extensions-tree-motion.log"
       - name: Verify ordinary Tree annotations at both DPRs
-        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' && matrix.suite == 'tree-waffle' }}
         env:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
         run: node scripts/tree-motion-extras-acceptance.mjs --chromium-only --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/tree-extras" 2>&1 | tee "$TARGET_DIR/browser-extensions-tree-extras.log"
       - name: Verify Waffle functions and live Widgets at both DPRs
-        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' && matrix.suite == 'tree-waffle' }}
         env:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
         run: node scripts/waffle-functions-acceptance.mjs --chromium-only --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/waffle-functions" 2>&1 | tee "$TARGET_DIR/browser-extensions-waffle-functions.log"
       - name: Verify literal Waffle SVG layers at both DPRs
-        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' && matrix.suite == 'tree-waffle' }}
         env:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
         run: node scripts/waffle-svg-layers-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/waffle-svg-layers" 2>&1 | tee "$TARGET_DIR/browser-extensions-waffle-svg-layers.log"
       - name: Verify literal Funnel SVG layers at both DPRs
-        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' && matrix.suite == 'funnel-layers' }}
         env:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
         run: node scripts/funnel-svg-layers-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/funnel-svg-layers" 2>&1 | tee "$TARGET_DIR/browser-extensions-funnel-svg-layers.log"
       - name: Verify native Funnel hooks and tooltips at both DPRs
-        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' && matrix.suite == 'funnel-layers' }}
         env:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
         run: node scripts/funnel-interactions-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/funnel-interactions" 2>&1 | tee "$TARGET_DIR/browser-extensions-funnel-interactions.log"
       - name: Verify bound Funnel annotations at both DPRs
-        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' && matrix.suite == 'funnel-layers' }}
         env:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
         run: node scripts/funnel-annotations-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/funnel-annotations" 2>&1 | tee "$TARGET_DIR/browser-extensions-funnel-annotations.log"
       - name: Verify opaque Funnel application data at both DPRs
-        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' && matrix.suite == 'funnel-layers' }}
         env:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
         run: node scripts/funnel-data-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/funnel-data" 2>&1 | tee "$TARGET_DIR/browser-extensions-funnel-data.log"
       - name: Verify Funnel property springs at both DPRs
-        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' && matrix.suite == 'funnel-motion' }}
         env:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
         run: node scripts/funnel-motion-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/funnel-motion" 2>&1 | tee "$TARGET_DIR/browser-extensions-funnel-motion.log"
       - name: Verify dormant Funnel springs at both DPRs
-        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' && matrix.suite == 'funnel-dormant' }}
         env:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
@@ -799,7 +803,7 @@ jobs:
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         if: always()
         with:
-          name: tree-spring-waffle-functions
+          name: browser-extensions-${{ matrix.suite }}
           path: |
             ${{ steps.output.outputs.target_dir }}/browser-extensions-ci/**
             ${{ steps.output.outputs.target_dir }}/browser-extensions-*.log

@@ -1,0 +1,38 @@
+Kartis showcase — third-party notices
+
+World country GeoJSON
+--------------------
+This showcase includes the 176-feature world_countries.json used by Nivo.
+Upstream repository: https://github.com/plouc/nivo
+Source revision: 0dae2c32052a573f9f1d66ec1b453b572119b265
+Source file: website/src/data/components/geo/world_countries.json
+Source URL: https://github.com/plouc/nivo/blob/0dae2c32052a573f9f1d66ec1b453b572119b265/website/src/data/components/geo/world_countries.json
+GeoJSON SHA-256: bb261743fc2aa5e09ca70a2823e307bfe084fbb812df066a55fb2bf898248e17
+
+The geographic data is embedded unchanged; country values shown by this showcase are synthetic examples assigned by stable country ID. Borders and names are retained from the upstream dataset and do not express a position on territorial status.
+
+Explicit input adaptation and rendered scope:
+The original KOR polygon 0 / ring 0 is not closed. A derived GeoJSON retains all 62 original ring coordinates and appends its first coordinate; all 176 source features remain present. Its SHA-256 is f1729812d1b8e7d3bb7f72401511a80a5399819f460f986ebba0252477547675.
+The two gallery maps display the 175 non-Antarctic regions. ATA (Antarctica) is explicitly excluded because the current planar projection profile rejects pole-enclosing spherical-cap topology. No other region is omitted; the library's strict parser, geometry and budget checks remain enabled. The author-data panel records this scope.
+
+Upstream MIT license (verbatim text follows):
+
+Copyright (c) Raphaël Benitte
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

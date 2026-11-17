@@ -6,6 +6,9 @@ Kartis is a Rust chart library for Glory. Layouts produce a shared `Scene` for s
 
 [Live gallery](https://kartis.taidge.org) · [Showcase source and deployment](https://github.com/taidge/kartis/tree/main/site)
 
+Explore 35 chart families with SVG and Canvas, interactive layout options,
+spring animation presets, live data updates, and author data and Rust call panels.
+
 ## Getting started
 
 Kartis 0.2.0 includes:

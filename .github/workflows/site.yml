@@ -36,6 +36,8 @@ jobs:
           package-manager-cache: false
       - name: Compile showcase with strict warnings
         run: cargo clippy --locked --manifest-path site/wasm/Cargo.toml --target wasm32-unknown-unknown -- -D warnings
+      - name: Verify geographic source and closed-ring derivative
+        run: python site/wasm/data/normalize_world.py --check
       - name: Install matching WebAssembly bindings generator
         run: cargo install wasm-bindgen-cli --version 0.2.130 --locked
       - name: Build deployable static assets
@@ -44,6 +46,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Verify charts and browser interactions
         run: node site/smoke.mjs
+      - name: Verify all chart families and real spring animation
+        run: node site/explorer-acceptance.mjs
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         if: always()
         with:

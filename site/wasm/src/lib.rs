@@ -1,299 +1,267 @@
-//! The public gallery uses the same owned chart surfaces as a Rust application.
+//! One real, application-owned chart. Thumbnails use the same Rust catalog.
 #![cfg(target_arch = "wasm32")]
-
-use std::cell::{Cell, RefCell};
+use std::cell::RefCell;
+use std::collections::BTreeMap;
 use std::rc::Rc;
 
-use kartis::browser::{BrowserChart, BrowserOptions, BrowserRenderer};
+use kartis::browser::{
+    BrowserAnimation, BrowserChart, BrowserEvent, BrowserOptions, BrowserRenderer, MotionPreference,
+};
+use kartis::motion::{PropertyMotionOptions, SpringConfig};
 use kartis::*;
+use serde_json::json;
 use wasm_bindgen::prelude::*;
-
-const KINDS: [&str; 6] = ["line", "bar", "pie", "scatter", "waffle", "heatmap"];
-thread_local! {
-    static GALLERY: RefCell<Option<Gallery>> = const { RefCell::new(None) };
-    // Author data outlives the owned DOM surfaces during BFCache suspension.
-    static DATASET: Rc<Cell<u32>> = Rc::new(Cell::new(0));
+pub mod catalog;
+#[derive(Clone)]
+struct Selection {
+    slug: String,
+    seed: u32,
+    renderer: String,
+    animate: bool,
+    preset: String,
+    theme: String,
+    variant: String,
 }
-struct Gallery {
-    charts: Vec<BrowserChart>,
-    seed: Rc<Cell<u32>>,
+impl Default for Selection {
+    fn default() -> Self {
+        Self {
+            slug: "line".into(),
+            seed: 0,
+            renderer: "svg".into(),
+            animate: true,
+            preset: "default".into(),
+            theme: "light".into(),
+            variant: String::new(),
+        }
+    }
+}
+struct Playground {
+    chart: BrowserChart,
+    sample: Rc<RefCell<catalog::Sample>>,
+    errors: Rc<RefCell<Vec<String>>>,
+}
+thread_local! {
+    static OWNER:RefCell<Option<Playground>>=const{RefCell::new(None)};
+    // Author state survives pagehide/BFCache; scoped owners and RAFs do not.
+    static SELECTION:Rc<RefCell<Selection>>=Rc::new(RefCell::new(Selection::default()));
+    static SEEDS:RefCell<BTreeMap<String,u32>>=const{RefCell::new(BTreeMap::new())};
 }
 fn js(error: impl ToString) -> JsValue {
     JsValue::from_str(&error.to_string())
 }
-fn root(kind: &str) -> std::result::Result<web_sys::Element, JsValue> {
-    web_sys::window()
-        .and_then(|w| w.document())
-        .and_then(|d| d.get_element_by_id(&format!("chart-{kind}")))
-        .ok_or_else(|| js(format!("Missing gallery surface: {kind}")))
-}
-fn scene(kind: &str, width: f64, height: f64, seed: u32) -> Result<Scene> {
-    let phase = f64::from(seed % 7);
-    let mut config = ChartConfig {
-        width: width.clamp(220., 1800.),
-        height: height.clamp(220., 600.),
-        margin: Margin {
-            top: 22.,
-            right: 24.,
-            bottom: 38.,
-            left: 44.,
-        },
-        title: format!("Kartis {kind} example"),
-        theme: Theme {
-            colors: vec![
-                Color(34, 126, 119, 255),
-                Color(232, 137, 86, 255),
-                Color(113, 127, 187, 255),
-                Color(211, 173, 78, 255),
-            ],
-            text: Color(108, 117, 124, 255),
-            grid: Color(233, 236, 235, 255),
-            font_size: 11.,
-            ..Default::default()
-        },
-    };
-    match kind {
-        "line" => {
-            let series = ["This year", "Last year"]
-                .into_iter()
-                .enumerate()
-                .map(|(j, id)| {
-                    Series::new(
-                        id,
-                        (0..18)
-                            .map(|i| {
-                                let x = f64::from(i);
-                                Point::new(
-                                    x,
-                                    22. + x * (1.8 - j as f64 * 0.55)
-                                        + (x * 0.75 + phase + j as f64).sin() * 8.
-                                        + j as f64 * 6.,
-                                )
-                            })
-                            .collect(),
-                    )
-                })
-                .collect::<Vec<_>>();
-            line(
-                &config,
-                &series,
-                &LineOptions {
-                    curve: Curve::MonotoneX,
-                    area: true,
-                    y_domain: Some([0., 70.]),
-                    ..Default::default()
-                },
-            )
+fn themed(mut sample: catalog::Sample, theme: &str) -> catalog::Sample {
+    if theme == "dark" {
+        sample.scene.background = Color(24, 34, 32, 255);
+        for label in &mut sample.scene.labels {
+            if label.color.0 != 255 || label.color.1 != 255 || label.color.2 != 255 {
+                label.color = Color(178, 195, 184, label.color.3);
+            }
         }
-        "bar" => {
-            let categories = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(str::to_owned);
-            let series = ["Studio", "Online"]
-                .into_iter()
-                .enumerate()
-                .map(|(j, id)| {
-                    BarSeries::new(
-                        id,
-                        (0..6)
-                            .map(|i| Some(24. + ((i * 7 + j * 11 + seed as usize * 3) % 35) as f64))
-                            .collect(),
-                    )
-                })
-                .collect::<Vec<_>>();
-            bar(
-                &config,
-                &categories,
-                &series,
-                &BarOptions {
-                    corner_radius: 4.,
-                    ..Default::default()
-                },
-            )
+        for mark in &mut sample.scene.marks {
+            if let Some(stroke) = &mut mark.stroke {
+                let Color(r, g, b, a) = stroke.color;
+                if r.abs_diff(g) < 16 && g.abs_diff(b) < 16 {
+                    stroke.color = if r > 190 {
+                        Color(53, 72, 65, a)
+                    } else {
+                        Color(143, 166, 150, a)
+                    };
+                }
+            }
         }
-        "pie" => {
-            config.margin = Margin {
-                top: 18.,
-                right: 28.,
-                bottom: 18.,
-                left: 28.,
-            };
-            pie(
-                &config,
-                &[
-                    RadialDatum::new("Direct", 42. + phase * 2.),
-                    RadialDatum::new("Search", 28. - phase),
-                    RadialDatum::new("Community", 19. + phase),
-                    RadialDatum::new("Other", 11.),
-                ],
-                &PieOptions {
-                    inner_radius: 0.65,
-                    pad_angle: 0.035,
-                    labels: false,
-                    ..Default::default()
-                },
-            )
-        }
-        "scatter" => {
-            let series = ["North", "South", "West"]
-                .into_iter()
-                .enumerate()
-                .map(|(j, id)| {
-                    Series::new(
-                        id,
-                        (0..14)
-                            .map(|i| {
-                                let x = 8. + ((i * 17 + j * 23) % 88) as f64;
-                                Point::new(
-                                    x,
-                                    12. + x * 0.6
-                                        + (i as f64 * 2.3 + phase).sin() * 16.
-                                        + j as f64 * 4.,
-                                )
-                            })
-                            .collect(),
-                    )
-                })
-                .collect::<Vec<_>>();
-            scatter(
-                &config,
-                &series,
-                &ScatterOptions {
-                    radius: 4.5,
-                    x_domain: Some([0., 100.]),
-                    y_domain: Some([0., 100.]),
-                    ..Default::default()
-                },
-            )
-        }
-        "waffle" => {
-            config.margin = Margin {
-                top: 14.,
-                right: 16.,
-                bottom: 14.,
-                left: 16.,
-            };
-            Ok(waffle_layout(
-                &config,
-                &[
-                    RadialDatum::new("Complete", 35. + phase),
-                    RadialDatum::new("In progress", 20. - phase),
-                    RadialDatum::new("Planned", 10.),
-                ],
-                &WaffleLayoutOptions {
-                    rows: 6,
-                    columns: 10,
-                    total: Some(70.),
-                    padding: 5.,
-                    corner_radius: 4.,
-                    empty_color: Color(235, 239, 237, 255),
-                    ..Default::default()
-                },
-            )?
-            .scene)
-        }
-        "heatmap" => {
-            let days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-            let cells = days
-                .into_iter()
-                .enumerate()
-                .flat_map(|(d, day)| {
-                    (0..8).map(move |hour| {
-                        HeatCell::new(
-                            format!("{:02}:00", 8 + hour * 2),
-                            day,
-                            ((d * 13 + hour * 9 + seed as usize * 7) % 64) as f64,
-                        )
-                    })
-                })
-                .collect::<Vec<_>>();
-            heatmap(
-                &config,
-                &cells,
-                &HeatmapOptions {
-                    padding: 0.12,
-                    domain: Some([0., 64.]),
-                    low: Color(234, 244, 236, 255),
-                    high: Color(34, 126, 119, 255),
-                    ..Default::default()
-                },
-            )
-        }
-        _ => Err(ChartError("Unknown gallery chart".into())),
     }
+    sample
 }
-/// Changing renderers disposes the previous owners and their native listeners.
+fn sample(selection: &Selection, width: f64, height: f64) -> Result<catalog::Sample> {
+    catalog::sample(
+        &selection.slug,
+        width.max(240.),
+        height.max(220.),
+        selection.seed,
+        &selection.variant,
+    )
+    .map(|s| themed(s, &selection.theme))
+}
+fn spring(preset: &str) -> Result<SpringConfig> {
+    let (stiffness, damping) = match preset {
+        "default" => (170., 26.),
+        "gentle" => (120., 14.),
+        "wobbly" => (180., 12.),
+        "stiff" => (210., 20.),
+        "slow" => (100., 28.),
+        _ => return Err(ChartError("Unknown spring preset".into())),
+    };
+    Ok(SpringConfig {
+        stiffness,
+        damping,
+        ..Default::default()
+    })
+}
 #[wasm_bindgen]
-pub fn mount_gallery(renderer: &str) -> std::result::Result<(), JsValue> {
-    let renderer = match renderer {
+pub fn catalog_json() -> String {
+    json!(catalog::KINDS.iter().map(|kind|json!({"slug":kind.slug,"name":kind.name,"category":kind.category,"description":kind.description,"variants":catalog::variants(kind.slug).iter().map(|(value,label)|json!({"value":value,"label":label})).collect::<Vec<_>>()})).collect::<Vec<_>>()).to_string()
+}
+#[wasm_bindgen]
+pub fn thumbnail_svg(slug: &str, theme: &str) -> std::result::Result<String, JsValue> {
+    let variant = catalog::variants(slug).first().map_or("", |v| v.0);
+    let source = themed(
+        catalog::sample(slug, 360., 230., 0, variant).map_err(js)?,
+        theme,
+    );
+    render::to_svg_with_namespace(&source.scene, &format!("preview-{slug}")).map_err(js)
+}
+#[wasm_bindgen]
+pub fn mount_chart(
+    slug: &str,
+    renderer: &str,
+    animate: bool,
+    preset: &str,
+    theme: &str,
+    variant: &str,
+) -> std::result::Result<(), JsValue> {
+    if !catalog::KINDS.iter().any(|kind| kind.slug == slug) {
+        return Err(js("Unknown chart type"));
+    }
+    let render_mode = match renderer {
         "svg" => BrowserRenderer::Svg,
         "canvas" => BrowserRenderer::Canvas,
         _ => return Err(js("Unknown renderer")),
     };
-    let seed = DATASET.with(Rc::clone);
-    stop_gallery();
-    let mut charts = Vec::new();
-    for kind in KINDS {
-        let root = root(kind)?;
-        let bounds = root.get_bounding_client_rect();
-        // Leave room for the real Glory legend below the owned surface.
-        let height = if kind == "line" {
-            288.
-        } else if kind == "heatmap" {
-            264.
-        } else {
-            250.
-        };
-        let chart = BrowserChart::mount(
-            root,
-            scene(kind, bounds.width(), height, seed.get()).map_err(js)?,
-            BrowserOptions {
-                renderer,
-                data_controls: false,
-                legend: kind != "heatmap",
-                height: Some(height),
-                ..Default::default()
-            },
-        )
-        .map_err(js)?;
-        let current = seed.clone();
-        chart.on_resize(move |w, h| scene(kind, w, h, current.get()));
-        charts.push(chart);
+    if !["light", "dark"].contains(&theme) {
+        return Err(js("Unknown theme"));
     }
-    GALLERY.with(|g| *g.borrow_mut() = Some(Gallery { charts, seed }));
+    let config = spring(preset).map_err(js)?;
+    let seed = SEEDS.with(|seeds| seeds.borrow().get(slug).copied().unwrap_or(0));
+    let selection = Selection {
+        slug: slug.into(),
+        seed,
+        renderer: renderer.into(),
+        animate,
+        preset: preset.into(),
+        theme: theme.into(),
+        variant: variant.into(),
+    };
+    let root = web_sys::window()
+        .and_then(|w| w.document())
+        .and_then(|d| d.get_element_by_id("chart-stage"))
+        .ok_or_else(|| js("Missing chart stage"))?;
+    let bounds = root.get_bounding_client_rect();
+    let height = (bounds.height() - 54.).clamp(220., 720.);
+    let source = sample(&selection, bounds.width(), height).map_err(js)?;
+    stop_gallery();
+    let source = Rc::new(RefCell::new(source));
+    let errors = Rc::new(RefCell::new(Vec::new()));
+    let chart = BrowserChart::mount(
+        root,
+        source.borrow().scene.clone(),
+        BrowserOptions {
+            renderer: render_mode,
+            data_controls: false,
+            height: Some(height),
+            motion: if animate {
+                MotionPreference::System
+            } else {
+                MotionPreference::Reduced
+            },
+            animation: BrowserAnimation::Properties(PropertyMotionOptions {
+                spring: config,
+                presence_spring: config,
+                ..Default::default()
+            }),
+            ..Default::default()
+        },
+    )
+    .map_err(js)?;
+    SELECTION.with(|s| *s.borrow_mut() = selection);
+    let current = SELECTION.with(Rc::clone);
+    let target = source.clone();
+    chart.on_resize(move |w, h| {
+        let next = sample(&current.borrow(), w, h)?;
+        let scene = next.scene.clone();
+        *target.borrow_mut() = next;
+        Ok(scene)
+    });
+    let log = errors.clone();
+    chart.on_event(move |event| {
+        if let BrowserEvent::Error(error) = event {
+            let mut log = log.borrow_mut();
+            if log.len() == 32 {
+                log.remove(0);
+            }
+            log.push(error.to_string());
+        }
+    });
+    OWNER.with(|owner| {
+        *owner.borrow_mut() = Some(Playground {
+            chart,
+            sample: source,
+            errors,
+        })
+    });
     Ok(())
 }
 #[wasm_bindgen]
 pub fn next_dataset() -> std::result::Result<(), JsValue> {
-    GALLERY.with(|g| {
-        let g = g.borrow();
-        let g = g.as_ref().ok_or_else(|| js("Gallery is not mounted"))?;
-        g.seed.set(g.seed.get().wrapping_add(1));
-        for (kind, chart) in KINDS.into_iter().zip(&g.charts) {
-            let snapshot = chart.snapshot().map_err(js)?;
-            chart
-                .set_scene(scene(kind, snapshot.width, snapshot.height, g.seed.get()).map_err(js)?)
-                .map_err(js)?;
+    OWNER.with(|owner| {
+        let owner = owner.borrow();
+        let owner = owner.as_ref().ok_or_else(|| js("Chart is not mounted"))?;
+        let mut selection = SELECTION.with(|s| s.borrow().clone());
+        selection.seed = selection.seed.wrapping_add(1);
+        let state = owner.chart.snapshot().map_err(js)?;
+        let next = sample(&selection, state.width, state.height).map_err(js)?;
+        if selection.animate {
+            owner.chart.animate_to(next.scene.clone())
+        } else {
+            owner.chart.set_scene(next.scene.clone())
         }
+        .map_err(js)?;
+        *owner.sample.borrow_mut() = next;
+        SEEDS.with(|seeds| {
+            seeds
+                .borrow_mut()
+                .insert(selection.slug.clone(), selection.seed);
+        });
+        SELECTION.with(|s| *s.borrow_mut() = selection);
         Ok(())
     })
 }
-/// Export the author dataset with the current responsive chart dimensions.
 #[wasm_bindgen]
-pub fn export_svg(kind: &str) -> std::result::Result<String, JsValue> {
-    GALLERY.with(|g| {
-        let g = g.borrow();
-        let g = g.as_ref().ok_or_else(|| js("Gallery is not mounted"))?;
-        let index = KINDS
-            .iter()
-            .position(|k| *k == kind)
-            .ok_or_else(|| js("Unknown chart"))?;
-        let snapshot = g.charts[index].snapshot().map_err(js)?;
-        render::to_svg(&scene(kind, snapshot.width, snapshot.height, g.seed.get()).map_err(js)?)
-            .map_err(js)
+pub fn gallery_snapshot() -> String {
+    let selection = SELECTION.with(|s| s.borrow().clone());
+    OWNER.with(|owner|{let owner=owner.borrow();let Some(owner)=owner.as_ref() else{return json!({"active":false,"slug":selection.slug,"seed":selection.seed}).to_string()};match owner.chart.snapshot(){Ok(state)=>json!({"active":state.active,"slug":selection.slug,"seed":selection.seed,"dataset":selection.seed+1,"renderer":selection.renderer,"animate":selection.animate,"preset":selection.preset,"theme":selection.theme,"variant":selection.variant,"animating":state.animating,"animationKind":state.animation_kind.map(|kind|format!("{kind:?}")),"revision":state.revision,"pending":state.pending,"width":state.width,"height":state.height,"marks":owner.sample.borrow().scene.marks.len(),"errors":*owner.errors.borrow()}).to_string(),Err(error)=>json!({"active":false,"error":error.to_string()}).to_string()}})
+}
+#[wasm_bindgen]
+pub fn input_json() -> std::result::Result<String, JsValue> {
+    OWNER.with(|owner| {
+        owner
+            .borrow()
+            .as_ref()
+            .ok_or_else(|| js("Chart is not mounted"))
+            .and_then(|owner| serde_json::to_string_pretty(&owner.sample.borrow().data).map_err(js))
+    })
+}
+#[wasm_bindgen]
+pub fn source_code() -> std::result::Result<String, JsValue> {
+    OWNER.with(|owner| {
+        owner
+            .borrow()
+            .as_ref()
+            .map(|owner| owner.sample.borrow().code.to_owned())
+            .ok_or_else(|| js("Chart is not mounted"))
+    })
+}
+#[wasm_bindgen]
+pub fn export_svg() -> std::result::Result<String, JsValue> {
+    OWNER.with(|owner| {
+        owner
+            .borrow()
+            .as_ref()
+            .ok_or_else(|| js("Chart is not mounted"))
+            .and_then(|owner| render::to_svg(&owner.sample.borrow().scene).map_err(js))
     })
 }
 #[wasm_bindgen]
 pub fn stop_gallery() {
-    GALLERY.with(|g| {
-        g.borrow_mut().take();
-    });
+    let old = OWNER.with(|owner| owner.borrow_mut().take());
+    drop(old);
 }

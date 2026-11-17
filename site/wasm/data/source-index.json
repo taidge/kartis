@@ -1,0 +1,51 @@
+{
+  "repository": "https://github.com/plouc/nivo",
+  "commit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "files": [
+    {
+      "file": "world_countries.json",
+      "sourcePath": "website/src/data/components/geo/world_countries.json",
+      "sourceURL": "https://github.com/plouc/nivo/blob/0dae2c32052a573f9f1d66ec1b453b572119b265/website/src/data/components/geo/world_countries.json",
+      "sha256": "bb261743fc2aa5e09ca70a2823e307bfe084fbb812df066a55fb2bf898248e17",
+      "bytes": 998590
+    },
+    {
+      "file": "NIVO-LICENSE.md",
+      "sourcePath": "LICENSE.md",
+      "sourceURL": "https://github.com/plouc/nivo/blob/0dae2c32052a573f9f1d66ec1b453b572119b265/LICENSE.md",
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+      "bytes": 1054
+    }
+  ],
+  "derived": {
+    "file": "world_countries.closed.geojson",
+    "sha256": "f1729812d1b8e7d3bb7f72401511a80a5399819f460f986ebba0252477547675",
+    "bytes": 252176,
+    "featureCount": 176,
+    "sourcePositions": 10586,
+    "derivedPositions": 10587,
+    "normalizer": "normalize_world.py",
+    "normalizerSHA256": "031e6ef14336e52673461b6448deac26100f3b44d304d659545061504ecb9c6f",
+    "changes": [
+      {
+        "featureID": "KOR",
+        "polygonIndex": 0,
+        "ringIndex": 0,
+        "operation": "Append the first coordinate; preserve all 62 original ring coordinates",
+        "originalPositions": 62,
+        "derivedPositions": 63
+      }
+    ]
+  },
+  "galleryScope": {
+    "sourceFeatureCount": 176,
+    "renderedFeatureCount": 175,
+    "excluded": [
+      {
+        "id": "ATA",
+        "reason": "The current planar projection profile rejects pole-enclosing spherical-cap topology"
+      }
+    ],
+    "allOtherFeaturesParsedAndRendered": true
+  }
+}

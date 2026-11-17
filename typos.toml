@@ -6,6 +6,9 @@ extend-exclude = [
     "tests/fixtures/**/vendor/**",
     "tests/fixtures/vertical-orientation-unicode-16.txt",
     "tests/fixtures/*-oracle.js",
+    # Hash-verified upstream geographic data contains ISO country identifiers.
+    "site/wasm/data/world_countries.json",
+    "site/wasm/data/world_countries.closed.geojson",
 ]
 
 [default]

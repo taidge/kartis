@@ -6,6 +6,9 @@ Kartis 是面向 Glory 的 Rust 图表库。布局生成一份共享 `Scene`，�
 
 [在线图表示例](https://kartis.taidge.org) · [展示站源码与部署](https://github.com/taidge/kartis/tree/main/site)
 
+展示站提供 35 类真实图表、SVG／Canvas 切换、布局选项、弹簧动画预设和实时数据更新，
+并可查看原始输入与 Rust 核心调用。
+
 ## 快速开始
 
 Kartis 0.2.0 包含：

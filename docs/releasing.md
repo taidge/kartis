@@ -12,6 +12,11 @@ spelling, Rust formatting, native tests and Clippy, WebAssembly, the minimum
 supported Rust version, documentation, and crates.io package verification.
 The package uses published dependencies, with no sibling repositories required.
 
+The reusable Showcase workflow also builds and checks the public chart explorer.
+The larger Tree, Waffle and Funnel browser suites run in separate parallel
+groups, preserving each suite's inputs and assertions. A failed group blocks
+publication while the remaining groups continue collecting evidence.
+
 Publishing uses Rust/Cargo 1.95.0 so local and CI packages use the same Cargo
 version. Keep this toolchain pin aligned with the release workflow.
 

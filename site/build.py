@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -55,8 +56,15 @@ def main():
         "bytes": path.stat().st_size,
         "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
     } for path in sorted(out.rglob("*")) if path.is_file() and path.name != "build.json"}
+    try:
+        revision = subprocess.run(["git", "rev-parse", "HEAD"], cwd=HERE.parent,
+                                  capture_output=True, text=True, check=False)
+        commit = revision.stdout.strip() if revision.returncode == 0 else ""
+    except OSError:
+        commit = ""
     (out / "build.json").write_text(json.dumps({
         "version": "0.2.0", "target": "wasm32-unknown-unknown", "profile": "release",
+        "source_commit": commit if re.fullmatch(r"[0-9a-fA-F]{40}", commit) else None,
         "wasm_bindgen": VERSION, "assets": assets,
     }, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(f"\nStatic site ready: {out.resolve()}\nServe: python -m http.server 8080 --directory {out}")

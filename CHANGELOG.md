@@ -4,6 +4,10 @@
 
 ## 0.2.0 — 2026-11-17
 
+- A public 35-family chart playground adds categorized navigation and search, real Rust SVG previews, SVG/Canvas switching, configurable layouts, author data and core Rust call panels, theme switching and SVG export. Rust property springs animate dataset updates with presets, interruption, autoplay and reduced-motion support. The world-map examples use 175 explicitly documented non-Antarctic regions from the attributed Nivo dataset.
+
+- Release CI includes the reusable showcase build and browser checks. Expensive Tree, Waffle and Funnel acceptance cohorts run in isolated parallel groups with their original commands, inputs and gates. Fresh runners create the normal Cargo metadata target directory before opening verification logs.
+
 - Funnel body/border springs now retain source-key state while their paint Mark is absent. Dormant geometry and explicit style targets keep ticking without adding ink or input; source removal discards the state. Public part-role queries and a one-shot all-source stage factory support genuinely captured custom collapsed targets, with validation and live-plus-dormant work budgets.
 
 - `FunnelMotion` adds independent path-progress and property springs over the captured target Scene. Dedicated SVG owners support automatic/manual clocks, reduced motion, same-cohort animated layer/tooltip Bonds and native motion certificates. Real native paths retain identity through journaled adoption; precommit placement failures restore attributes, position and focus. New and removed roles follow Nivo's immediate keyed-map behavior without invented exit ghosts. Pure sampled Scenes remain usable by SVG, Canvas and raster renderers.
