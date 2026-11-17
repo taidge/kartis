@@ -56,11 +56,21 @@ pub fn painted_labels(
 ) -> Result<PaintedLabels> {
     scene.validate()?;
     options.validate()?;
+    ensure(
+        scene
+            .typography
+            .label_strokes
+            .iter()
+            .all(|(index, _)| options.rotated_only && scene.labels[*index].rotation == 0.),
+        "glyph lowering does not support label strokes",
+    )?;
     let mut result = PaintedLabels::default();
     for (index, label) in scene.labels.iter().enumerate() {
         if options.rotated_only && label.rotation == 0. {
             continue;
         }
+        let drawable = scene.typography.drawable_label(index, label);
+        let label = drawable.as_ref();
         let text = if scene.typography.has_label_font(index) {
             fonts.painted_label_with_font(
                 label,
@@ -133,11 +143,21 @@ pub fn outline_labels(
 ) -> Result<OutlinedLabels> {
     scene.validate()?;
     options.validate()?;
+    ensure(
+        scene
+            .typography
+            .label_strokes
+            .iter()
+            .all(|(index, _)| options.rotated_only && scene.labels[*index].rotation == 0.),
+        "glyph lowering does not support label strokes",
+    )?;
     let mut result = OutlinedLabels::default();
     for (index, label) in scene.labels.iter().enumerate() {
         if options.rotated_only && label.rotation == 0. {
             continue;
         }
+        let drawable = scene.typography.drawable_label(index, label);
+        let label = drawable.as_ref();
         let outline = if label.color.3 == 0 {
             RasterTextOutline {
                 glyphs: Vec::new(),

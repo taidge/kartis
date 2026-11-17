@@ -1,0 +1,8 @@
+{
+  "upstreamCommit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "runner": "scripts/funnel-annotations-reference.mjs",
+  "runnerSha256": "3749bd6791657ddc80b4701aaca5237f12ee2f2ecf65d99eb37ec28ae5309aa3",
+  "referenceSha256": "53b5b8ae4c824faf4730bb1573b366623fb958dc7aae3b43150ba9f28bde11dc",
+  "tsvSha256": "7ad3f4df3b7ac74700089658d814a7012f58bdf427386662bf7bb63d8be3e535",
+  "scope": "Original Funnel computed parts, real Lodash binding and original annotation connector calculations. 144 independent source/current/profile/recipe cases; no React/Spring/Canvas equivalence."
+}

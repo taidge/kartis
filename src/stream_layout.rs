@@ -1,7 +1,12 @@
 //! Stream layers, raw stacks, point scales and separate layer and slice bindings.
 use std::collections::{BTreeMap, BTreeSet};
+use std::sync::Arc;
 
+mod factories;
+mod widgets;
+pub use factories::*;
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+pub use widgets::*;
 
 use crate::cartesian::path;
 use crate::scene::{MAX_LABEL_BYTES, MAX_MARKS, ensure};
@@ -174,7 +179,7 @@ fn style_valid(style: &StreamLayerStyle) -> Result<()> {
 }
 
 impl StreamLayoutOptions {
-    fn validate(&self) -> Result<()> {
+    fn validate(&self, dynamic_dot_border: bool) -> Result<()> {
         self.curve.validate()?;
         ensure(
             matches!(
@@ -229,7 +234,9 @@ impl StreamLayoutOptions {
             if let Some(glyph) = &dots.glyph {
                 let geometry = glyph_geometry([0., 0.], glyph)?;
                 ensure(
-                    geometry.paint_mode != GlyphPaintMode::Stroke || dots.border_width > 0.,
+                    geometry.paint_mode != GlyphPaintMode::Stroke
+                        || dots.border_width > 0.
+                        || dynamic_dot_border,
                     "stroke-only Stream glyph requires a dot border",
                 )?;
             }
@@ -286,6 +293,7 @@ pub struct StreamLayout {
     pub slices: Vec<StreamSlice>,
     interaction: InteractionBinding,
     slice_interaction: InteractionBinding,
+    widget_source: Option<Arc<widgets::StreamWidgetSource>>,
 }
 
 impl StreamLayout {
@@ -404,7 +412,14 @@ pub fn stream_layout(
     series: &[BarSeries],
     o: &StreamLayoutOptions,
 ) -> Result<StreamLayout> {
-    layout(c, categories, series, o, None)
+    layout(
+        c,
+        categories,
+        series,
+        o,
+        &mut StreamFactories::default(),
+        None,
+    )
 }
 
 /// Draw each enabled, visible and non-null dot from its original stack sample.
@@ -416,7 +431,14 @@ pub fn stream_layout_with_dot_factory(
     o: &StreamLayoutOptions,
     mut factory: impl FnMut(&StreamDotContext<'_>) -> Result<StreamDotGeometry>,
 ) -> Result<StreamLayout> {
-    layout(c, categories, series, o, Some(&mut factory))
+    layout(
+        c,
+        categories,
+        series,
+        o,
+        &mut StreamFactories::default(),
+        Some(&mut factory),
+    )
 }
 
 fn layout(
@@ -424,10 +446,11 @@ fn layout(
     categories: &[CategoryKey],
     series: &[BarSeries],
     o: &StreamLayoutOptions,
+    factories: &mut StreamFactories<'_>,
     mut factory: Option<&mut DotFactory<'_>>,
 ) -> Result<StreamLayout> {
     c.validate()?;
-    o.validate()?;
+    o.validate(factories.dot_border_width.is_some())?;
     ensure(
         categories.len() <= 4096
             && series
@@ -491,6 +514,7 @@ fn layout(
         slices: vec![],
         interaction: Default::default(),
         slice_interaction: Default::default(),
+        widget_source: None,
     };
     result.scene.draw_order.clear();
     let mut path_commands = result
@@ -502,16 +526,47 @@ fn layout(
             _ => 0,
         })
         .sum::<usize>();
-    let mut dots = Vec::new();
-    let mut sample_sites = BTreeMap::new();
+    ensure(
+        factories.dot_size.is_none() || o.dots.as_ref().is_none_or(|dots| dots.glyph.is_none()),
+        "Stream dot size function cannot be combined with a configured glyph: diameter and glyph size have different units",
+    )?;
+    let category_labels = categories
+        .iter()
+        .map(|category| crate::line_scales::category_text(category, &o.axes.x.format))
+        .collect::<Result<Vec<_>>>()?;
+    struct PreparedLayer {
+        layer: StreamLayer,
+        area: Option<(Geometry, usize, usize)>,
+    }
+    let mut prepared_layers = Vec::with_capacity(result.stack.layers.len());
+    let mut original_commands = path_commands;
+    let mut original_stops = result
+        .scene
+        .marks
+        .iter()
+        .map(|mark| {
+            mark.fill_paint
+                .as_ref()
+                .map_or(0, |paint| paint.stops().len())
+        })
+        .sum::<usize>();
+    // Validate every original ID, projection and path before user callbacks.
     for layer in &result.stack.layers {
         let style = o.styles.get(&layer.id).unwrap_or(&o.style);
-        let color = style
-            .color
-            .or(result
-                .colors
-                .map_or_insert(CategoryKey::String(layer.id.clone()))?)
-            .ok_or_else(|| ChartError("missing stream layer color".into()))?;
+        let color = if factories.color.is_some() {
+            // This internal placeholder is replaced before exposing a computed
+            // layer to border/dot callbacks or emitting any paint. An explicit
+            // function need not have a static ordinal fallback, and must not
+            // extend that separate, caller-declared ordinal mapping.
+            Color(0, 0, 0, 0)
+        } else {
+            style
+                .color
+                .or(result
+                    .colors
+                    .map_or_insert(CategoryKey::String(layer.id.clone()))?)
+                .ok_or_else(|| ChartError("missing stream layer color".into()))?
+        };
         let label = o
             .labels
             .get(&layer.id)
@@ -519,16 +574,7 @@ fn layout(
             .cloned()
             .unwrap_or_else(|| layer.id.clone());
         let hidden = o.hidden.contains(&layer.id);
-        let mut computed = StreamLayer {
-            id: layer.id.clone(),
-            label,
-            original_index: layer.original_index,
-            stack_index: layer.stack_index,
-            area_mark_id: None,
-            color,
-            hidden,
-            samples: Vec::with_capacity(categories.len()),
-        };
+        let mut samples = Vec::with_capacity(categories.len());
         for point in &layer.points {
             let category = &categories[point.column];
             let mark_id = format!(
@@ -545,7 +591,9 @@ fn layout(
             let x = result.x_scale.map(category).unwrap();
             let y = [point.y0, point.y1].map(|v| result.y_scale.map(v));
             ensure(
-                y.into_iter().all(|v| v.is_finite() && v.abs() <= 900_000.),
+                x.is_finite()
+                    && x.abs() <= 900_000.
+                    && y.into_iter().all(|v| v.is_finite() && v.abs() <= 900_000.),
                 "stream boundary projection overflow",
             )?;
             let position = [
@@ -560,26 +608,194 @@ fn layout(
                     StreamDotPosition::End => y[1],
                 },
             ];
-            let sample = StreamSample {
+            if let Some(dots) = o.dots.as_ref().filter(|_| !hidden && point.value.is_some())
+                && let Some(glyph) = &dots.glyph
+            {
+                let glyph = glyph_geometry(position, glyph)?;
+                if factory.is_none()
+                    && let Geometry::Path(commands) = &glyph.geometry
+                {
+                    original_commands = original_commands
+                        .checked_add(commands.len())
+                        .ok_or_else(|| ChartError("Stream original path budget overflow".into()))?;
+                    ensure(
+                        original_commands <= 200_000,
+                        "stream path command budget exceeded",
+                    )?;
+                }
+            }
+            ensure(
+                hidden
+                    || factories.label.is_some()
+                    || label.len() + " · ".len() + category_labels[point.column].len()
+                        <= MAX_LABEL_BYTES,
+                "Stream sample label exceeds text budget",
+            )?;
+            samples.push(StreamSample {
                 mark_id,
                 source_index: point.column,
                 category: category.clone(),
                 value: point.value,
-                formatted_value: point.value.map(|v| o.value_format.format(v)).transpose()?,
+                formatted_value: None,
                 y0: point.y0,
                 y1: point.y1,
                 screen_y: y,
                 position,
-            };
+            });
+        }
+        let area = if !hidden || factories.label.is_some() || factories.color.is_some() {
+            area_geometry(&samples, o.curve)
+        } else {
+            // Legacy hidden layers never rendered a path. Only the new
+            // label/color geometry contexts request an otherwise unused path;
+            // formatter/dot/border functions do not change hidden eligibility.
+            None
+        };
+        if !hidden && area.is_some() {
+            original_stops = original_stops
+                .checked_add(style.paint.as_ref().map_or(0, |paint| paint.stops().len()))
+                .ok_or_else(|| ChartError("Stream original paint budget overflow".into()))?;
+            ensure(
+                original_stops <= crate::MAX_SCENE_GRADIENT_STOPS,
+                "stream paint stop budget exceeded",
+            )?;
+        }
+        if let Some((Geometry::Path(commands), ..)) = &area {
+            // Finite path controls and original path budgets are independent of
+            // function results. Hidden geometry is still supplied to label/color.
+            for command in commands {
+                let valid = match command {
+                    C::Move(p) | C::Line(p) => [p.x, p.y]
+                        .into_iter()
+                        .all(|v| v.is_finite() && v.abs() <= 1e6),
+                    C::Cubic { first, second, end } => [first, second, end].into_iter().all(|p| {
+                        [p.x, p.y]
+                            .into_iter()
+                            .all(|v| v.is_finite() && v.abs() <= 1e6)
+                    }),
+                    C::Close => true,
+                };
+                ensure(valid, "Stream area control projection overflow")?;
+            }
             if !hidden {
+                original_commands = original_commands
+                    .checked_add(commands.len())
+                    .ok_or_else(|| ChartError("Stream original path budget overflow".into()))?;
+                ensure(
+                    original_commands <= 200_000,
+                    "stream path command budget exceeded",
+                )?;
+            }
+        }
+        prepared_layers.push(PreparedLayer {
+            layer: StreamLayer {
+                id: layer.id.clone(),
+                label,
+                original_index: layer.original_index,
+                stack_index: layer.stack_index,
+                area_mark_id: (!hidden && area.is_some())
+                    .then(|| format!("stream:area:{}:{}", layer.id.len(), layer.id)),
+                color,
+                hidden,
+                samples,
+            },
+            area,
+        });
+    }
+    let estimated_marks = result.scene.marks.len()
+        + prepared_layers
+            .iter()
+            .filter(|p| p.layer.area_mark_id.is_some())
+            .count()
+        + prepared_layers
+            .iter()
+            .filter(|p| !p.layer.hidden)
+            .map(|p| p.layer.samples.len())
+            .sum::<usize>();
+    ensure(
+        estimated_marks <= MAX_MARKS,
+        "stream rendered mark budget exceeded",
+    )?;
+    let mut dots = Vec::new();
+    let mut sample_sites = BTreeMap::new();
+    for mut prepared in prepared_layers {
+        let computed = &mut prepared.layer;
+        let series = &series[computed.original_index];
+        let style = o.styles.get(&computed.id).unwrap_or(&o.style);
+        for sample in &mut computed.samples {
+            sample.formatted_value = sample
+                .value
+                .map(|value| {
+                    let text = match &mut factories.formatted_value {
+                        Some(format) => format(value)?,
+                        None => o.value_format.format(value)?,
+                    };
+                    ensure(
+                        text.len() <= MAX_LABEL_BYTES,
+                        "Stream formatted value exceeds text budget",
+                    )?;
+                    Ok(text)
+                })
+                .transpose()?;
+        }
+        let path_context = StreamLayerPathContext {
+            series,
+            series_index: computed.original_index,
+            id: &computed.id,
+            path: prepared.area.as_ref().map(|(geometry, ..)| geometry),
+            plot: result.plot,
+        };
+        if let Some(label) = &mut factories.label {
+            computed.label = label(&path_context)?;
+            ensure(
+                computed.label.len() <= MAX_LABEL_BYTES,
+                "Stream layer label exceeds text budget",
+            )?;
+        }
+        if !computed.hidden {
+            for text in &category_labels {
+                ensure(
+                    computed.label.len() + " · ".len() + text.len() <= MAX_LABEL_BYTES,
+                    "Stream sample label exceeds text budget",
+                )?;
+            }
+        }
+        if let Some(color) = &mut factories.color {
+            computed.color = color(&path_context)?;
+        }
+        let color = computed.color;
+        // Resolve full-layer border before dots, even at width0 when explicitly
+        // requested. Unused static inherited colors retain their old admission.
+        let resolved_border = if computed.area_mark_id.is_some() {
+            match &mut factories.border_color {
+                Some(border) => Some(border(&StreamLayerStyleContext {
+                    series,
+                    series_index: computed.original_index,
+                    layer: computed,
+                    path: prepared.area.as_ref().map(|(g, ..)| g),
+                    plot: result.plot,
+                })?),
+                None if style.border_width > 0. => {
+                    Some(style.border_color.resolve(color_context(c, color))?)
+                }
+                None => None,
+            }
+        } else {
+            None
+        };
+        if !computed.hidden {
+            for sample in &computed.samples {
                 let dot = sample_mark(
-                    c,
-                    &computed,
-                    &sample,
-                    o,
-                    &series[layer.original_index],
+                    DotEnvironment {
+                        c,
+                        o,
+                        series,
+                        remaining_commands: 200_000usize.saturating_sub(path_commands),
+                    },
+                    computed,
+                    sample,
+                    factories,
                     factory.as_deref_mut(),
-                    200_000usize.saturating_sub(path_commands),
                 )?;
                 if let Geometry::Path(path) = &dot.mark.geometry {
                     path_commands += path.len();
@@ -606,17 +822,14 @@ fn layout(
                 }
                 dots.push(dot.mark);
             }
-            computed.samples.push(sample);
         }
-        if !hidden && let Some((geometry, a, b)) = area_geometry(&computed.samples, o.curve) {
-            let mut mark = Mark::new(
-                format!("stream:area:{}:{}", layer.id.len(), layer.id),
-                geometry,
-                color,
-            );
-            mark.series = layer.id.clone();
+        if let Some(id) = &computed.area_mark_id {
+            let (geometry, a, b) = prepared.area.take().unwrap();
+            let mut mark = Mark::new(id, geometry, color);
+            mark.series = computed.id.clone();
             mark.label = computed.label.clone();
-            let value = computed.samples.last().and_then(|sample| sample.value);
+            let last = computed.samples.last();
+            let value = last.and_then(|sample| sample.value);
             mark.value = value.unwrap_or(0.);
             mark.fill = Some(crate::area_bump::alpha(color, style.fill_opacity));
             mark.fill_paint = style
@@ -625,7 +838,7 @@ fn layout(
                 .map(|paint| crate::area_bump::paint_alpha(paint, style.fill_opacity));
             mark.stroke = if style.border_width > 0. {
                 Some(GraphicStroke {
-                    color: style.border_color.resolve(color_context(c, color))?,
+                    color: resolved_border.unwrap(),
                     width: style.border_width,
                     cap: StrokeCap::Butt,
                 })
@@ -639,33 +852,34 @@ fn layout(
                 path_commands <= 200_000,
                 "stream path command budget exceeded",
             )?;
-            let p = endpoint(&commands[a]).unwrap();
-            let q = endpoint(&commands[b]).unwrap();
-            let position = [p[0] * 0.5 + q[0] * 0.5, p[1] * 0.5 + q[1] * 0.5];
-            result.interaction.anchors.insert(
-                mark.id.clone(),
-                InteractionAnchor::path_points(&mark.geometry, position, &[a, b])?,
-            );
-            result.interaction.sites.push(InteractionSite {
-                mark_id: mark.id.clone(),
-                series: layer.id.clone(),
-                label: computed.label.clone(),
-                value,
-                formatted_value: value.map(|v| o.value_format.format(v)).transpose()?,
-                color,
-                position,
-            });
-            computed.area_mark_id = Some(mark.id.clone());
+            if !mark.label.is_empty() {
+                let p = endpoint(&commands[a]).unwrap();
+                let q = endpoint(&commands[b]).unwrap();
+                let position = [p[0] * 0.5 + q[0] * 0.5, p[1] * 0.5 + q[1] * 0.5];
+                result.interaction.anchors.insert(
+                    mark.id.clone(),
+                    InteractionAnchor::path_points(&mark.geometry, position, &[a, b])?,
+                );
+                result.interaction.sites.push(InteractionSite {
+                    mark_id: mark.id.clone(),
+                    series: computed.id.clone(),
+                    label: computed.label.clone(),
+                    value,
+                    formatted_value: last.and_then(|sample| sample.formatted_value.clone()),
+                    color,
+                    position,
+                });
+            }
             result.scene.marks.push(mark);
         }
         if o.legend {
             result.scene.legend.push(LegendItem {
-                id: layer.id.clone(),
+                id: computed.id.clone(),
                 label: computed.label.clone(),
                 color,
             });
         }
-        result.layers.push(computed);
+        result.layers.push(prepared.layer);
     }
     result.scene.marks.extend(dots);
     for (source_index, category) in categories.iter().enumerate() {
@@ -699,6 +913,11 @@ fn layout(
     )?;
     result.interaction.validate(&result.scene)?;
     result.slice_interaction.validate(&result.scene)?;
+    result.widget_source = Some(Arc::new(widgets::StreamWidgetSource::capture(
+        &result,
+        series,
+        o.dots.is_some(),
+    )));
     Ok(result)
 }
 
@@ -718,42 +937,101 @@ struct PreparedDot {
     ink: bool,
 }
 
+struct DotEnvironment<'a> {
+    c: &'a ChartConfig,
+    o: &'a StreamLayoutOptions,
+    series: &'a BarSeries,
+    remaining_commands: usize,
+}
 fn sample_mark(
-    c: &ChartConfig,
+    environment: DotEnvironment<'_>,
     layer: &StreamLayer,
     sample: &StreamSample,
-    o: &StreamLayoutOptions,
-    series: &BarSeries,
+    factories: &mut StreamFactories<'_>,
     factory: Option<&mut DotFactory<'_>>,
-    remaining_commands: usize,
 ) -> Result<PreparedDot> {
+    let DotEnvironment {
+        c,
+        o,
+        series,
+        remaining_commands,
+    } = environment;
     let [x, y] = sample.position;
     let visible_dot = o.dots.as_ref().filter(|_| sample.value.is_some());
     let inherited = color_context(c, layer.color);
-    let color = visible_dot.map_or(Ok(layer.color), |dot| dot.color.resolve(inherited))?;
-    let stroke = visible_dot
-        .filter(|dot| dot.border_width > 0.)
-        .map(|dot| {
-            Ok(GraphicStroke {
-                color: dot.border_color.resolve(inherited)?,
-                width: dot.border_width,
-                cap: StrokeCap::Butt,
-            })
-        })
-        .transpose()?;
+    let mut resolved_size = visible_dot.map_or(0., |dot| dot.size);
+    let mut resolved_width = visible_dot.map_or(0., |dot| dot.border_width);
+    let mut explicit_dot_color = false;
+    let (color, stroke) = if let Some(style) = visible_dot {
+        let context = StreamDotStyleContext {
+            series,
+            series_index: layer.original_index,
+            layer,
+            sample,
+            position: sample.position,
+            plot: ClipRect::plot(c),
+            style,
+        };
+        if let Some(size) = &mut factories.dot_size {
+            resolved_size = size(&context)?;
+        }
+        ensure(
+            (0. ..=4096.).contains(&resolved_size),
+            "invalid Stream function dot size",
+        )?;
+        let color = match &mut factories.dot_color {
+            Some(color) => {
+                explicit_dot_color = true;
+                color(&context)?
+            }
+            None => style.color.resolve(inherited)?,
+        };
+        if let Some(width) = &mut factories.dot_border_width {
+            resolved_width = width(&context)?;
+        }
+        ensure(
+            border_width(resolved_width),
+            "invalid Stream function dot border width",
+        )?;
+        let border_color = match &mut factories.dot_border_color {
+            Some(color) => Some(color(&context)?),
+            None if resolved_width > 0. => Some(style.border_color.resolve(inherited)?),
+            None => None,
+        };
+        ensure(
+            !style
+                .glyph
+                .as_ref()
+                .is_some_and(|g| matches!(g.shape, GlyphShape::Stroked(_)))
+                || resolved_width > 0.,
+            "stroke-only Stream glyph requires a dot border",
+        )?;
+        let stroke = (resolved_width > 0.).then(|| GraphicStroke {
+            color: border_color.unwrap(),
+            width: resolved_width,
+            cap: StrokeCap::Butt,
+        });
+        (color, stroke)
+    } else {
+        (layer.color, None)
+    };
     let mut mark = Mark::new(
         &sample.mark_id,
         Geometry::Circle {
             x,
             y,
-            radius: visible_dot.map_or(0., |dot| dot.size / 2.),
+            radius: resolved_size / 2.,
         },
         color,
     );
     mark.stroke = stroke;
     let mut anchor = None;
-    let mut point_color = layer.color;
-    let mut ink = visible_dot.is_some_and(|dot| dot.size > 0. || dot.border_width > 0.);
+    let mut point_color = if explicit_dot_color {
+        color
+    } else {
+        layer.color
+    };
+    let mut ink = visible_dot.is_some() && (resolved_size > 0. || resolved_width > 0.);
     if let Some(style) = visible_dot {
         let fill = (!style
             .glyph

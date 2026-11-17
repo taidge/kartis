@@ -202,6 +202,16 @@ pub struct InteractionPartDatum {
     pub source_id: String,
     pub value: f64,
 }
+/// Explicit logical event area for one existing business site. Rectangles are
+/// in Scene coordinates and include their left/top edges, excluding right/bottom.
+/// This metadata creates no paint or physical hit. The last matching region wins.
+/// Publish updated regions together with a relaid-out Scene; they do not follow
+/// geometry animation automatically. Source opacity does not disable the area.
+#[derive(Clone, Debug, PartialEq)]
+pub struct InteractionRegion {
+    pub mark_id: String,
+    pub bounds: Vec<ClipRect>,
+}
 #[derive(Clone, Default, PartialEq)]
 pub struct InteractionBinding {
     pub sites: Vec<InteractionSite>,
@@ -219,6 +229,11 @@ pub struct InteractionBinding {
     /// Optional accepted original source for an actual site/alias mark. This
     /// metadata does not synthesize a logical datum or change source geometry.
     pub part_data: BTreeMap<String, InteractionPartDatum>,
+    /// Independent logical areas, supported with explicit PaintedGeometry only.
+    /// Region-owned sites use these bounds instead of their ink for pointer
+    /// selection. Other sites retain strict ink picking. Hidden series remain
+    /// excluded; keyboard controls still refer to the actual canonical Mark.
+    pub regions: Vec<InteractionRegion>,
 }
 // Preserve the legacy compact/pretty representation when aliases are absent.
 impl std::fmt::Debug for InteractionBinding {
@@ -237,6 +252,9 @@ impl std::fmt::Debug for InteractionBinding {
         }
         if !self.part_data.is_empty() {
             debug.field("part_data", &self.part_data);
+        }
+        if !self.regions.is_empty() {
+            debug.field("regions", &self.regions);
         }
         debug.finish()
     }
@@ -536,7 +554,60 @@ impl From<Scene> for SceneInteraction {
     }
 }
 impl InteractionBinding {
+    fn validate_regions(&self) -> Result<()> {
+        if self.regions.is_empty() {
+            return Ok(());
+        }
+        ensure(
+            self.picking_profile == PickingProfile::PaintedGeometry
+                && self.regions.len() <= MAX_MARKS,
+            "logical regions require PaintedGeometry and a bounded region count",
+        )?;
+        let sites: BTreeSet<_> = self
+            .sites
+            .iter()
+            .map(|site| site.mark_id.as_str())
+            .collect();
+        let mut owners = BTreeSet::new();
+        let mut count = 0usize;
+        for region in &self.regions {
+            ensure(
+                sites.contains(region.mark_id.as_str())
+                    && owners.insert(region.mark_id.as_str())
+                    && !region.bounds.is_empty(),
+                "logical region requires a unique existing site and nonempty bounds",
+            )?;
+            count = count
+                .checked_add(region.bounds.len())
+                .ok_or_else(|| ChartError("logical region rectangle count overflow".into()))?;
+            ensure(
+                count <= MAX_MARKS,
+                "logical region rectangle budget exceeded",
+            )?;
+            for bounds in &region.bounds {
+                ensure(
+                    [
+                        bounds.x,
+                        bounds.y,
+                        bounds.width,
+                        bounds.height,
+                        bounds.x + bounds.width,
+                        bounds.y + bounds.height,
+                    ]
+                    .iter()
+                    .all(|v| v.is_finite() && v.abs() <= 1e6)
+                        && bounds.width > 0.
+                        && bounds.height > 0.
+                        && bounds.x + bounds.width > bounds.x
+                        && bounds.y + bounds.height > bounds.y,
+                    "invalid logical region rectangle",
+                )?;
+            }
+        }
+        Ok(())
+    }
     fn validate_ink_owners(&self, scene: &Scene) -> Result<()> {
+        self.validate_regions()?;
         if self.picking_profile == PickingProfile::LegacyGeometry
             && self.ink_owners.is_empty()
             && self.part_data.is_empty()

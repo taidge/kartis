@@ -501,6 +501,7 @@ fn label_values(label: &Label) -> Vec<f64> {
 #[derive(Clone)]
 struct LabelTrack {
     metadata: Label,
+    whitespace: crate::LabelWhitespace,
     font: crate::FontOptions,
     owner: Option<String>,
     clip: Option<crate::ClipPath>,
@@ -512,6 +513,7 @@ impl LabelTrack {
     fn new(
         label: Label,
         font: crate::FontOptions,
+        whitespace: crate::LabelWhitespace,
         owner: Option<String>,
         clip: Option<crate::ClipPath>,
         mode: FadeMode,
@@ -520,6 +522,7 @@ impl LabelTrack {
         Ok(Self {
             values: Scalars::new(label_values(&label), options.spring)?,
             metadata: label,
+            whitespace,
             font,
             owner,
             clip,
@@ -531,10 +534,12 @@ impl LabelTrack {
         &self,
         label: &Label,
         font: &crate::FontOptions,
+        whitespace: crate::LabelWhitespace,
         owner: Option<&String>,
         clip: Option<&crate::ClipPath>,
     ) -> bool {
-        self.metadata.text == label.text
+        self.whitespace == whitespace
+            && self.metadata.text == label.text
             && self.font.resolve(&crate::ResolvedFont::default())
                 == font.resolve(&crate::ResolvedFont::default())
             && self.metadata.anchor == label.anchor
@@ -545,6 +550,7 @@ impl LabelTrack {
         &mut self,
         label: &Label,
         font: crate::FontOptions,
+        whitespace: crate::LabelWhitespace,
         owner: Option<String>,
         clip: Option<crate::ClipPath>,
         shortest: bool,
@@ -558,6 +564,7 @@ impl LabelTrack {
         self.presence.retarget(1.)?;
         self.metadata = label.clone();
         self.font = font;
+        self.whitespace = whitespace;
         self.owner = owner;
         self.clip = clip;
         self.exiting = false;
@@ -639,6 +646,10 @@ impl PropertyMotion {
     ) -> Result<Self> {
         initial.validate()?;
         ensure(
+            initial.typography.label_strokes.is_empty(),
+            "property motion does not support label strokes",
+        )?;
+        ensure(
             initial.opacity_groups.is_empty(),
             "property motion does not support multi-mark opacity groups",
         )?;
@@ -696,6 +707,7 @@ impl PropertyMotion {
                     LabelTrack::new(
                         label,
                         initial.typography.label_options(index),
+                        initial.typography.label_whitespace(index),
                         initial.label_series.get(&index).cloned(),
                         initial.label_clips.get(&index).cloned(),
                         FadeMode::Immediate,
@@ -866,6 +878,10 @@ impl PropertyMotion {
         blends: MarkBlends,
     ) -> Result<()> {
         target.validate()?;
+        ensure(
+            target.typography.label_strokes.is_empty(),
+            "property motion does not support label strokes",
+        )?;
         ensure(
             target.opacity_groups.is_empty(),
             "property motion does not support multi-mark opacity groups",
@@ -1073,6 +1089,7 @@ impl PropertyMotion {
                     old.compatible(
                         label,
                         &target.typography.label_options(*index),
+                        target.typography.label_whitespace(*index),
                         target.label_series.get(index),
                         target.label_clips.get(index),
                     )
@@ -1180,6 +1197,7 @@ impl PropertyMotion {
                     .retarget(
                         label,
                         target.typography.label_options(index),
+                        target.typography.label_whitespace(index),
                         owner,
                         clip,
                         self.options.shortest_rotation,
@@ -1205,6 +1223,7 @@ impl PropertyMotion {
                 LabelTrack::new(
                     label.clone(),
                     target.typography.label_options(index),
+                    target.typography.label_whitespace(index),
                     owner,
                     clip,
                     mode,
@@ -1374,6 +1393,7 @@ impl PropertyMotion {
             let mut track = LabelTrack::new(
                 label.clone(),
                 old.typography.label_options(index),
+                old.typography.label_whitespace(index),
                 old.label_series.get(&index).cloned(),
                 old.label_clips.get(&index).cloned(),
                 FadeMode::Immediate,
@@ -1405,6 +1425,7 @@ impl PropertyMotion {
         scene.label_series.clear();
         scene.label_clips.clear();
         scene.typography.labels.clear();
+        scene.typography.label_whitespace.clear();
         let mut marks = BTreeMap::new();
         let mut labels = BTreeMap::new();
         for (id, track) in &self.marks {
@@ -1413,6 +1434,12 @@ impl PropertyMotion {
         }
         for (key, track) in &self.labels {
             labels.insert(*key, scene.labels.len());
+            if track.whitespace != crate::LabelWhitespace::Legacy {
+                scene
+                    .typography
+                    .label_whitespace
+                    .insert(scene.labels.len(), track.whitespace);
+            }
             let mut font = track.font.clone();
             if font.is_empty() && !scene.typography.default.is_empty() {
                 let resolved = crate::ResolvedFont::default();

@@ -1,6 +1,6 @@
 [package]
 name = "kartis"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.95"
 license = "Apache-2.0"
@@ -42,24 +42,25 @@ default = []
 canvas = ["dep:web-sys", "dep:wasm-bindgen"]
 geojson = ["dep:serde_json"]
 timezone = ["dep:jiff", "dep:jiff-tzdb"]
-raster = ["dep:tiny-skia", "dep:rustybuzz", "dep:ttf-parser", "dep:png", "dep:base64", "dep:unicode-script", "dep:unicode-segmentation"]
+raster = ["dep:tiny-skia", "dep:rustybuzz", "dep:ttf-parser", "dep:png", "dep:base64", "dep:unicode-script"]
 raster-bidi = ["raster", "dep:unicode-bidi"]
-web = ["canvas", "glory/web", "web-sys/Window", "web-sys/Document", "web-sys/Node", "web-sys/Element", "web-sys/HtmlElement", "web-sys/ShadowRoot", "web-sys/HtmlSlotElement", "web-sys/Event", "web-sys/EventTarget", "web-sys/PointerEvent", "web-sys/WheelEvent", "web-sys/KeyboardEvent", "web-sys/MouseEvent", "web-sys/DomRect", "web-sys/CssStyleDeclaration", "web-sys/FontFaceSet", "web-sys/FontFaceSetLoadStatus", "web-sys/ResizeObserver", "web-sys/ResizeObserverEntry", "web-sys/AddEventListenerOptions", "web-sys/Performance", "web-sys/MediaQueryList"]
+web = ["canvas", "glory/web", "web-sys/Window", "web-sys/ImageData", "web-sys/Document", "web-sys/Node", "web-sys/Element", "web-sys/HtmlElement", "web-sys/ShadowRoot", "web-sys/HtmlSlotElement", "web-sys/Event", "web-sys/EventTarget", "web-sys/PointerEvent", "web-sys/WheelEvent", "web-sys/KeyboardEvent", "web-sys/MouseEvent", "web-sys/DomRect", "web-sys/CssStyleDeclaration", "web-sys/FontFaceSet", "web-sys/FontFaceSetLoadStatus", "web-sys/ResizeObserver", "web-sys/ResizeObserverEntry", "web-sys/AddEventListenerOptions", "web-sys/Performance", "web-sys/MediaQueryList"]
 
 [dependencies]
 glory = { version = "0.8.0", default-features = false }
-serde_json = {version="1",optional=true}
+serde_json = {version="1",optional=true,features=["float_roundtrip"]}
 jiff = { version = "0.2.41", default-features = false, features = ["alloc"], optional = true }
 jiff-tzdb = { version = "0.1.9", default-features = false, optional = true }
 tiny-skia = { version = "0.12.0", default-features = false, features = ["std", "simd"], optional = true }
 rustybuzz = { version = "0.20.1", optional = true }
 unicode-bidi = { version = "=0.3.18", default-features = false, features = ["hardcoded-data"], optional = true }
 unicode-script = { version = "=0.5.9", optional = true }
-unicode-segmentation = { version = "1.12", optional = true }
+unicode-segmentation = "1.12"
 ttf-parser = { version = "0.25.1", optional = true }
 png = { version = "0.18.1", optional = true }
 base64 = { version = "0.22.1", optional = true }
 spade = "=2.15.1"
+libm = "=0.2.16"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = { version = "=0.2.130", optional = true }
@@ -85,3 +86,43 @@ required-features = ["raster"]
 [[example]]
 name = "heatmap_custom"
 required-features = ["raster", "geojson"]
+
+[[example]]
+name = "funnel_custom"
+required-features = ["raster", "geojson"]
+
+[[example]]
+name = "text_wrapping"
+required-features = ["raster", "geojson"]
+
+[[example]]
+name = "waffle_custom"
+required-features = ["raster", "geojson"]
+
+[[example]]
+name = "calendar_year_legend"
+required-features = ["raster", "geojson"]
+
+[[example]]
+name = "bullet_custom"
+required-features = ["raster", "geojson"]
+
+[[example]]
+name = "bump_endpoint_labels"
+required-features = ["raster", "geojson"]
+
+[[example]]
+name = "geo_usa_primitives"
+required-features = ["raster", "geojson"]
+
+[[example]]
+name = "geo_usa_maps"
+required-features = ["raster", "geojson"]
+
+[[example]]
+name = "geo_usa_streams"
+required-features = ["raster", "geojson"]
+
+[[example]]
+name = "swarm_custom"
+required-features = ["raster", "canvas", "geojson"]

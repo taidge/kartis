@@ -16,6 +16,7 @@ pub struct HierarchyLabelCandidate {
     pub label: Label,
     /// Use this exact selection when measuring the candidate's ink.
     pub font: crate::ResolvedFont,
+    pub whitespace: crate::LabelWhitespace,
     /// The authored node, parent-header or plot clip, in scene coordinates.
     pub clip: Option<ClipPath>,
 }
@@ -37,7 +38,7 @@ impl HierarchyLabelCandidate {
             label.x.to_bits(),
             label.y.to_bits(),
             self.clip,
-            self.font.signature(),
+            self.whitespace.measurement_signature(&self.font),
         )
     }
 
@@ -116,6 +117,8 @@ struct LabelBinding {
     slot: Option<usize>,
     label: Label,
     font: Option<crate::FontOptions>,
+    whitespace: Option<crate::LabelWhitespace>,
+    stroke: Option<crate::LabelStroke>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -144,6 +147,7 @@ impl HierarchyLabelState {
                     node_id: node.id.clone(),
                     label: label.clone(),
                     font: layout.scene.resolved_label_font(slot),
+                    whitespace: layout.scene.typography.label_whitespace(slot),
                     clip: layout.scene.label_clips.get(&slot).cloned(),
                 };
                 rows.push((
@@ -152,6 +156,8 @@ impl HierarchyLabelState {
                         slot: Some(slot),
                         label: label.clone(),
                         font: layout.scene.typography.labels.get(&slot).cloned(),
+                        whitespace: layout.scene.typography.label_whitespace.get(&slot).copied(),
+                        stroke: layout.scene.typography.label_strokes.get(&slot).copied(),
                     },
                 ));
             }
@@ -228,6 +234,25 @@ fn clip_contains(clip: Option<&ClipPath>, bounds: LayoutRect) -> Result<bool> {
 }
 
 impl HierarchyLayout {
+    /// Select single-line whitespace before obtaining ink measurements.
+    pub fn with_label_whitespace(&self, mode: crate::LabelWhitespace) -> Result<Self> {
+        self.scene.validate()?;
+        self.validate_managed_labels()?;
+        ensure(
+            self.label_layout.placements.is_empty(),
+            "select label whitespace before measured placement",
+        )?;
+        let mut result = self.clone();
+        for binding in &self.label_layout.bindings {
+            if let Some(slot) = binding.slot {
+                result.scene.typography.label_whitespace.insert(slot, mode);
+            }
+        }
+        result.scene.validate()?;
+        result.label_layout = HierarchyLabelState::capture(&result)?;
+        Ok(result)
+    }
+
     /// Select fonts for the authored node labels before measuring them.
     /// Per-label declarations merge independently; extra Scene text is retained.
     pub fn with_label_font(&self, font: crate::FontOptions) -> Result<Self> {
@@ -357,7 +382,7 @@ impl HierarchyLayout {
         self.apply_label_placements(&placed, &authored)
     }
 
-    fn validate_managed_labels(&self) -> Result<()> {
+    pub(super) fn validate_managed_labels(&self) -> Result<()> {
         ensure(
             self.nodes.len() <= 8000
                 && self.label_layout.candidates.len() <= 8000
@@ -390,7 +415,8 @@ impl HierarchyLayout {
                     .resolve(&crate::ResolvedFont::default()),
             );
             ensure(
-                font == candidate.font,
+                font == candidate.font
+                    && binding.whitespace.unwrap_or_default() == candidate.whitespace,
                 "hierarchy label font was changed before placement",
             )?;
             let node = self
@@ -404,7 +430,11 @@ impl HierarchyLayout {
                 ensure(
                     self.scene.labels.get(slot) == Some(&binding.label)
                         && self.scene.label_series.get(&slot) == Some(&candidate.node_id)
+                        && self.scene.typography.label_strokes.get(&slot)
+                            == binding.stroke.as_ref()
                         && self.scene.typography.labels.get(&slot) == binding.font.as_ref()
+                        && self.scene.typography.label_whitespace.get(&slot)
+                            == binding.whitespace.as_ref()
                         && self.scene.label_clips.get(&slot) == candidate.clip.as_ref(),
                     "hierarchy managed label or clip was changed before placement",
                 )?;
@@ -432,6 +462,8 @@ impl HierarchyLayout {
         result.scene.label_series.clear();
         result.scene.label_clips.clear();
         result.scene.typography.labels.clear();
+        result.scene.typography.label_whitespace.clear();
+        result.scene.typography.label_strokes.clear();
         for (old_slot, label) in self.scene.labels.iter().enumerate() {
             let (label, owner, clip) = if let Some(&index) = managed.get(&old_slot) {
                 let candidate = &self.label_layout.candidates[index];
@@ -466,6 +498,12 @@ impl HierarchyLayout {
             if let Some(clip) = clip {
                 result.scene.label_clips.insert(slot, clip);
             }
+            if let Some(mode) = self.scene.typography.label_whitespace.get(&old_slot) {
+                result.scene.typography.label_whitespace.insert(slot, *mode);
+            }
+            if let Some(stroke) = self.scene.typography.label_strokes.get(&old_slot) {
+                result.scene.typography.label_strokes.insert(slot, *stroke);
+            }
             if let Some(font) = self.scene.typography.labels.get(&old_slot) {
                 result.scene.typography.labels.insert(slot, font.clone());
             }
@@ -494,6 +532,12 @@ impl HierarchyLayout {
                     .insert(slot, candidate.node_id.clone());
                 if let Some(clip) = &candidate.clip {
                     result.scene.label_clips.insert(slot, clip.clone());
+                }
+                if let Some(stroke) = binding.stroke {
+                    result.scene.typography.label_strokes.insert(slot, stroke);
+                }
+                if let Some(mode) = binding.whitespace {
+                    result.scene.typography.label_whitespace.insert(slot, mode);
                 }
                 if let Some(font) = &binding.font {
                     result.scene.typography.labels.insert(slot, font.clone());
@@ -529,6 +573,8 @@ impl HierarchyLayout {
             result.label_layout.bindings[index] = LabelBinding {
                 slot,
                 font: self.label_layout.bindings[index].font.clone(),
+                whitespace: self.label_layout.bindings[index].whitespace,
+                stroke: self.label_layout.bindings[index].stroke,
                 label: slot
                     .map(|slot| result.scene.labels[slot].clone())
                     .unwrap_or_else(|| candidate.label.clone()),

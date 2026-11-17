@@ -1,0 +1,6 @@
+/dist/
+/wasm/target/
+/wasm/pkg/
+/node_modules/
+/__pycache__/
+/verification/

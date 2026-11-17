@@ -9,8 +9,12 @@ use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
 use crate::scene::ensure;
 use crate::*;
 
+mod custom;
 mod group_axis;
 mod packing;
+mod widgets;
+pub use custom::*;
+pub use widgets::*;
 
 const MAX_POINTS: usize = 2000;
 const MAX_GROUPS: usize = 256;
@@ -191,7 +195,8 @@ pub struct SwarmSite {
     pub color: Color,
     pub position: [f64; 2],
     pub size: f64,
-    /// Radius about the actual glyph origin containing its fill and stroke.
+    /// Packing radius of the original configured glyph, including its stroke.
+    /// Custom node factories retain it; replacement ink may extend beyond it.
     pub ink_radius: f64,
     pub mark_index: usize,
 }

@@ -26,7 +26,7 @@ concurrency:
 
 jobs:
   quality:
-    name: Spelling and formatting
+    name: Spelling, formatting and workflow syntax
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -46,6 +46,7 @@ jobs:
           toolchain: nightly-2026-11-04
           components: rustfmt
       - run: cargo +nightly-2026-11-04 fmt --package kartis -- --check
+      - run: cargo +nightly-2026-11-04 fmt --manifest-path site/wasm/Cargo.toml -- --check
       - name: Format independent example packages
         shell: bash
         run: |
@@ -57,6 +58,15 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
+      - name: Check workflow syntax
+        shell: bash
+        run: |
+          tool_dir="$RUNNER_TEMP/kartis-actionlint"
+          mkdir -p "$tool_dir"
+          curl --fail --silent --show-error --location --retry 3 https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz -o "$tool_dir/actionlint.tar.gz"
+          printf '%s  %s\n' '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8' "$tool_dir/actionlint.tar.gz" | sha256sum --check --strict
+          tar -xzf "$tool_dir/actionlint.tar.gz" -C "$tool_dir" actionlint
+          "$tool_dir/actionlint" -shellcheck="" -pyflakes="" .github/workflows/*.yml
       - name: Test release verification gates
         run: python scripts/test_release.py
 
@@ -139,7 +149,7 @@ jobs:
   gallery:
     name: Chromium gallery rendering
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -148,6 +158,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
           toolchain: stable
+          targets: wasm32-unknown-unknown
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '24'
@@ -175,6 +186,196 @@ jobs:
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           curl --retry 20 --retry-delay 1 --retry-connrefused --fail --silent --show-error --output /dev/null http://127.0.0.1:8811/
           node scripts/browser-acceptance.mjs http://127.0.0.1:8811/ "$TARGET_DIR/gallery-browser.json" 2>&1 | tee "$TARGET_DIR/gallery-browser.log"
+      - name: Verify chart extension exports
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          cargo run --locked --all-features --example waffle_custom -- "$TARGET_DIR/waffle-ci"
+          node scripts/waffle-custom-acceptance.mjs "$TARGET_DIR/waffle-ci" "$TARGET_DIR/waffle-ci/browser-report.json" --chromium-only 2>&1 | tee "$TARGET_DIR/waffle-ci/browser.log"
+          cargo run --locked --all-features --example calendar_year_legend -- "$TARGET_DIR/calendar-years-ci"
+          node scripts/calendar-year-legend-acceptance.mjs "$TARGET_DIR/calendar-years-ci" "$TARGET_DIR/calendar-years-ci/browser-report.json" --chromium-only 2>&1 | tee "$TARGET_DIR/calendar-years-ci/browser.log"
+          cargo run --locked --all-features --example bullet_custom -- "$TARGET_DIR/bullet-ci"
+          node scripts/bullet-custom-acceptance.mjs "$TARGET_DIR/bullet-ci" "$TARGET_DIR/bullet-ci/browser-report.json" --chromium-only 2>&1 | tee "$TARGET_DIR/bullet-ci/browser.log"
+          cargo run --locked --all-features --example bump_endpoint_labels -- "$TARGET_DIR/bump-endpoints-ci"
+          node scripts/bump-endpoint-labels-acceptance.mjs "$TARGET_DIR/bump-endpoints-ci" "$TARGET_DIR/bump-endpoints-ci/browser-report.json" --chromium-only 2>&1 | tee "$TARGET_DIR/bump-endpoints-ci/browser.log"
+          cargo run --locked --all-features --example geo_usa_primitives -- "$TARGET_DIR/geo-usa-primitives-ci"
+          node scripts/geo-usa-primitives-acceptance.mjs "$TARGET_DIR/geo-usa-primitives-ci" "$TARGET_DIR/geo-usa-primitives-ci/browser-report.json" --chromium-only 2>&1 | tee "$TARGET_DIR/geo-usa-primitives-ci/browser.log"
+          cargo run --locked --all-features --example geo_usa_maps -- "$TARGET_DIR/geo-usa-maps-ci"
+          node scripts/geo-usa-maps-acceptance.mjs "$TARGET_DIR/geo-usa-maps-ci" "$TARGET_DIR/geo-usa-maps-ci/browser-report.json" --chromium-only 2>&1 | tee "$TARGET_DIR/geo-usa-maps-ci/browser.log"
+          cargo run --locked --all-features --example geo_usa_streams -- "$TARGET_DIR/geo-usa-streams-ci"
+          node scripts/geo-usa-streams-acceptance.mjs "$TARGET_DIR/geo-usa-streams-ci" "$TARGET_DIR/geo-usa-streams-ci/browser-report.json" --chromium-only 2>&1 | tee "$TARGET_DIR/geo-usa-streams-ci/browser.log"
+      - name: Verify USA browser input and editable labels
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          cargo install wasm-bindgen-cli --version 0.2.130 --locked
+          cargo build --locked --manifest-path examples/browser-host/Cargo.toml --target wasm32-unknown-unknown --release
+          host_target="$(cargo metadata --locked --manifest-path examples/browser-host/Cargo.toml --no-deps --format-version 1 | python -c 'import json,sys; print(json.load(sys.stdin)["target_directory"])')"
+          wasm-bindgen "$host_target/wasm32-unknown-unknown/release/kartis_host_fixture.wasm" --target web --out-dir examples/browser-host/pkg --out-name host
+          mkdir -p "$TARGET_DIR/geo-usa-host-ci"
+          node scripts/geo-usa-host-acceptance.mjs "$TARGET_DIR/geo-usa-host-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/geo-usa-host-ci/browser.log"
+      - name: Verify repeated-domain WASM and SVG/Canvas consumers
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          mkdir -p "$TARGET_DIR/piecewise-repeated-host-ci"
+          node scripts/piecewise-repeated-wasm-acceptance.mjs "$TARGET_DIR/piecewise-repeated-wasm-ci" 2>&1 | tee "$TARGET_DIR/piecewise-repeated-wasm-ci.log"
+          node scripts/piecewise-repeated-host-acceptance.mjs "$TARGET_DIR/piecewise-repeated-host-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/piecewise-repeated-host-ci/browser.log"
+      - name: Verify custom Swarm nodes and live network links
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/node-link-custom-reference.mjs --check 2>&1 | tee "$TARGET_DIR/node-link-reference-ci.log"
+          cargo run --locked --all-features --example swarm_custom -- "$TARGET_DIR/swarm-custom-export"
+          node scripts/swarm-custom-acceptance.mjs "$TARGET_DIR/swarm-custom-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/swarm-custom-ci.log"
+          node scripts/network-link-custom-acceptance.mjs "$TARGET_DIR/network-link-custom-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/network-link-custom-ci.log"
+      - name: Verify typed Bullet Widget overlays
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/bullet-widgets-acceptance.mjs "$TARGET_DIR/bullet-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/bullet-widgets-ci.log"
+      - name: Verify transactional Widget ink composition
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/widget-composition-acceptance.mjs "$TARGET_DIR/widget-composition-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/widget-composition-ci.log"
+      - name: Verify Scene-order live Widget composition
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/ordered-widgets-acceptance.mjs "$TARGET_DIR/ordered-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/ordered-widgets-ci.log"
+      - name: Verify typed HeatMap and Waffle cell Widgets
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/heatmap-widgets-acceptance.mjs "$TARGET_DIR/heatmap-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/heatmap-widgets-ci.log"
+          node scripts/waffle-widgets-acceptance.mjs "$TARGET_DIR/waffle-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/waffle-widgets-ci.log"
+      - name: Verify original Stream dot contract and live components
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/stream-dot-widget-reference.mjs --frozen
+          node scripts/stream-widgets-acceptance.mjs "$TARGET_DIR/stream-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/stream-widgets-ci.log"
+      - name: Verify Waffle group regions and physical ink separation
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/waffle-regions-acceptance.mjs "$TARGET_DIR/waffle-regions-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/waffle-regions-ci.log"
+      - name: Verify original Scatter node contract and live components
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/scatter-node-widget-reference.mjs --frozen
+          node scripts/scatter-widgets-acceptance.mjs "$TARGET_DIR/scatter-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/scatter-widgets-ci.log"
+      - name: Verify original Bar component contract and live components
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/bar-widget-reference.mjs --frozen
+          node scripts/bar-widgets-acceptance.mjs "$TARGET_DIR/bar-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/bar-widgets-ci.log"
+      - name: Verify original Bump point contract and live components
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/bump-point-widget-reference.mjs --frozen
+          node scripts/bump-widgets-acceptance.mjs "$TARGET_DIR/bump-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/bump-widgets-ci.log"
+      - name: Verify original hierarchy component contracts and live nodes
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/hierarchy-node-widget-reference.mjs --frozen
+          node scripts/hierarchy-widgets-acceptance.mjs "$TARGET_DIR/hierarchy-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/hierarchy-widgets-ci.log"
+      - name: Verify original Network node contract and live force components
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/network-node-widget-reference.mjs --frozen
+          node scripts/network-widgets-acceptance.mjs "$TARGET_DIR/network-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/network-widgets-ci.log"
+      - name: Verify original Network link contract and mixed live components
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/network-link-widget-reference.mjs --frozen
+          node scripts/network-link-widgets-acceptance.mjs "$TARGET_DIR/network-link-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/network-link-widgets-ci.log"
+      - name: Verify original Stream function configuration
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/stream-function-reference.mjs --frozen
+          node scripts/stream-functions-acceptance.mjs "$TARGET_DIR/stream-functions-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/stream-functions-ci.log"
+      - name: Verify original Tree function configuration
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/tree-function-reference.mjs --frozen
+          node scripts/tree-functions-acceptance.mjs "$TARGET_DIR/tree-functions-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/tree-functions-ci.log"
+      - name: Verify original Tree activity and live ownership
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/tree-activity-reference.mjs --frozen
+          node scripts/tree-activity-acceptance.mjs "$TARGET_DIR/tree-activity-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/tree-activity-ci.log"
+      - name: Verify original Tree node and link components
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/tree-widget-reference.mjs --frozen
+          node scripts/tree-widgets-acceptance.mjs "$TARGET_DIR/tree-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/tree-widgets-ci.log"
+      - name: Verify original Funnel layers and live stage roles
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/funnel-layer-widget-reference.mjs --frozen
+          node scripts/funnel-widgets-acceptance.mjs "$TARGET_DIR/funnel-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/funnel-widgets-ci.log"
+      - name: Verify original Swarm node contract and live components
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/swarm-node-widget-reference.mjs --frozen
+          node scripts/swarm-widgets-acceptance.mjs "$TARGET_DIR/swarm-widgets-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/swarm-widgets-ci.log"
+      - name: Verify typed Widget raw-value-only updates
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/widget-source-values-acceptance.mjs "$TARGET_DIR/widget-raw-bits-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/widget-raw-bits-ci.log"
+      - name: Verify exact viewport screenshot sampling
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          node scripts/viewport-capture-acceptance.mjs "$TARGET_DIR/viewport-capture-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/viewport-capture-ci.log"
+      - name: Verify typed CPU image Chart input and Widget rollback
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: |
+          cargo build --locked --manifest-path examples/browser-widget/Cargo.toml --target wasm32-unknown-unknown --release
+          widget_target="$(cargo metadata --locked --manifest-path examples/browser-widget/Cargo.toml --no-deps --format-version 1 | python -c 'import json,sys; print(json.load(sys.stdin)["target_directory"])')"
+          wasm-bindgen "$widget_target/wasm32-unknown-unknown/release/kartis_widget_fixture.wasm" --target web --out-dir examples/browser-widget/pkg --out-name widget
+          node scripts/raster-chart-bindings-acceptance.mjs "$TARGET_DIR/raster-chart-bindings-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/raster-chart-bindings-ci.log"
       - name: Preserve browser verification reports
         if: ${{ !cancelled() && steps.output.outputs.target_dir != '' }}
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
@@ -184,6 +385,293 @@ jobs:
             ${{ steps.output.outputs.target_dir }}/gallery-browser.json
             ${{ steps.output.outputs.target_dir }}/gallery-browser.log
             ${{ steps.output.outputs.target_dir }}/gallery-http.log
+            ${{ steps.output.outputs.target_dir }}/waffle-ci/**
+            ${{ steps.output.outputs.target_dir }}/calendar-years-ci/**
+            ${{ steps.output.outputs.target_dir }}/bullet-ci/**
+            ${{ steps.output.outputs.target_dir }}/bump-endpoints-ci/**
+            ${{ steps.output.outputs.target_dir }}/geo-usa-primitives-ci/**
+            ${{ steps.output.outputs.target_dir }}/geo-usa-maps-ci/**
+            ${{ steps.output.outputs.target_dir }}/geo-usa-streams-ci/**
+            ${{ steps.output.outputs.target_dir }}/geo-usa-host-ci/**
+            ${{ steps.output.outputs.target_dir }}/piecewise-repeated-host-ci/**
+            ${{ steps.output.outputs.target_dir }}/piecewise-repeated-wasm-ci/**
+            ${{ steps.output.outputs.target_dir }}/piecewise-repeated-wasm-ci.log
+            ${{ steps.output.outputs.target_dir }}/node-link-reference-ci.log
+            ${{ steps.output.outputs.target_dir }}/swarm-custom-export/**
+            ${{ steps.output.outputs.target_dir }}/swarm-custom-ci/**
+            ${{ steps.output.outputs.target_dir }}/swarm-custom-ci.log
+            ${{ steps.output.outputs.target_dir }}/network-link-custom-ci/**
+            ${{ steps.output.outputs.target_dir }}/network-link-custom-ci.log
+            ${{ steps.output.outputs.target_dir }}/bullet-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/bullet-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/widget-composition-ci/**
+            ${{ steps.output.outputs.target_dir }}/widget-composition-ci.log
+            ${{ steps.output.outputs.target_dir }}/ordered-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/ordered-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/heatmap-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/heatmap-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/waffle-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/waffle-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/raster-chart-bindings-ci/**
+            ${{ steps.output.outputs.target_dir }}/raster-chart-bindings-ci.log
+            ${{ steps.output.outputs.target_dir }}/stream-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/stream-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/waffle-regions-ci/**
+            ${{ steps.output.outputs.target_dir }}/waffle-regions-ci.log
+            ${{ steps.output.outputs.target_dir }}/scatter-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/scatter-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/bar-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/bar-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/bump-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/bump-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/hierarchy-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/hierarchy-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/network-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/network-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/network-link-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/network-link-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/stream-functions-ci/**
+            ${{ steps.output.outputs.target_dir }}/stream-functions-ci.log
+            ${{ steps.output.outputs.target_dir }}/tree-functions-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-functions-ci.log
+            ${{ steps.output.outputs.target_dir }}/tree-activity-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-activity-ci.log
+            ${{ steps.output.outputs.target_dir }}/tree-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/funnel-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/funnel-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/swarm-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/swarm-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/widget-raw-bits-ci/**
+            ${{ steps.output.outputs.target_dir }}/widget-raw-bits-ci.log
+            ${{ steps.output.outputs.target_dir }}/viewport-capture-ci/**
+            ${{ steps.output.outputs.target_dir }}/viewport-capture-ci.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  site:
+    name: Showcase build and browser smoke
+    uses: ./.github/workflows/site.yml
+    with:
+      ref: ${{ inputs.ref || github.sha }}
+
+  pointer-input:
+    name: Chromium Tree pointer and retained components
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: '1.95.0'
+          targets: wasm32-unknown-unknown
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Locate workspace build output
+        id: output
+        shell: bash
+        run: |
+          cargo metadata --locked --no-deps --format-version 1 |
+            python -c 'import json,sys; print("target_dir=" + json.load(sys.stdin)["target_directory"])' >> "$GITHUB_OUTPUT"
+      - name: Build browser fixture from this commit
+        shell: bash
+        run: |
+          cargo install wasm-bindgen-cli --version 0.2.130 --locked
+          cargo build --locked --manifest-path examples/browser-host/Cargo.toml --target wasm32-unknown-unknown --release
+          host_target="$(cargo metadata --locked --manifest-path examples/browser-host/Cargo.toml --no-deps --format-version 1 | python -c 'import json,sys; print(json.load(sys.stdin)["target_directory"])')"
+          wasm-bindgen "$host_target/wasm32-unknown-unknown/release/kartis_host_fixture.wasm" --target web --out-dir examples/browser-host/pkg --out-name host
+      - name: Verify native pointer lifecycle
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-input-lifecycle-acceptance.mjs "$TARGET_DIR/tree-input-lifecycle-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/tree-input-lifecycle-ci.log"
+      - name: Verify retained UI error recovery after commit
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-ui-errors-acceptance.mjs --chromium-only --out="$TARGET_DIR/tree-ui-errors-ci" 2>&1 | tee "$TARGET_DIR/tree-ui-errors-ci.log"
+      - name: Verify real Tree label components
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-label-components-acceptance.mjs --chromium-only --out="$TARGET_DIR/tree-label-components-ci" 2>&1 | tee "$TARGET_DIR/tree-label-components-ci.log"
+      - name: Verify fixed-Scene nonuniform label placement
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/scene-label-affine-acceptance.mjs --chromium-only --out="$TARGET_DIR/scene-label-affine-ci" 2>&1 | tee "$TARGET_DIR/scene-label-affine-ci.log"
+      - name: Verify native Tree Canvas callbacks and shared state
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-canvas-native-acceptance.mjs --chromium-only --out="$TARGET_DIR/tree-canvas-native-ci" 2>&1 | tee "$TARGET_DIR/tree-canvas-native-ci.log"
+      - name: Verify sealed Tree Canvas owner transactions
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-canvas-owner-acceptance.mjs --chromium-only --out="$TARGET_DIR/tree-canvas-owner-ci" 2>&1 | tee "$TARGET_DIR/tree-canvas-owner-ci.log"
+      - name: Verify native Canvas and retained Tree components together
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-canvas-widgets-acceptance.mjs --chromium-only --out="$TARGET_DIR/tree-canvas-widgets-ci" 2>&1 | tee "$TARGET_DIR/tree-canvas-widgets-ci.log"
+      - name: Verify rollback after candidate Canvas paint and DOM refusal
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-canvas-widgets-late-dom-acceptance.mjs --chromium-only --dpr=1 --out="$TARGET_DIR/tree-canvas-widgets-late-dom-ci" 2>&1 | tee "$TARGET_DIR/tree-canvas-widgets-late-dom-ci.log"
+      - name: Verify origin-tainted candidate rejection
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-canvas-taint-acceptance.mjs --chromium-only --out="$TARGET_DIR/tree-canvas-taint-ci" 2>&1 | tee "$TARGET_DIR/tree-canvas-taint-ci.log"
+      - name: Verify native Tree tooltips and retained presentation components
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-tooltip-acceptance.mjs --chromium-only --out="$TARGET_DIR/tree-tooltip-ci" 2>&1 | tee "$TARGET_DIR/tree-tooltip-ci.log"
+      - name: Verify literal Tree SVG layers and retained Glory subtrees
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-svg-layers-acceptance.mjs --chromium-only --out="$TARGET_DIR/tree-svg-layers-ci" 2>&1 | tee "$TARGET_DIR/tree-svg-layers-ci.log"
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        if: always()
+        with:
+          name: tree-pointer-lifecycle
+          path: |
+            ${{ steps.output.outputs.target_dir }}/tree-input-lifecycle-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-input-lifecycle-ci.log
+            ${{ steps.output.outputs.target_dir }}/tree-ui-errors-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-ui-errors-ci.log
+            ${{ steps.output.outputs.target_dir }}/tree-label-components-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-label-components-ci.log
+            ${{ steps.output.outputs.target_dir }}/scene-label-affine-ci/**
+            ${{ steps.output.outputs.target_dir }}/scene-label-affine-ci.log
+            ${{ steps.output.outputs.target_dir }}/tree-canvas-native-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-canvas-native-ci.log
+            ${{ steps.output.outputs.target_dir }}/tree-canvas-owner-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-canvas-owner-ci.log
+            ${{ steps.output.outputs.target_dir }}/tree-canvas-widgets-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-canvas-widgets-ci.log
+            ${{ steps.output.outputs.target_dir }}/tree-canvas-widgets-late-dom-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-canvas-widgets-late-dom-ci.log
+            ${{ steps.output.outputs.target_dir }}/tree-canvas-taint-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-canvas-taint-ci.log
+            ${{ steps.output.outputs.target_dir }}/tree-tooltip-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-tooltip-ci.log
+            ${{ steps.output.outputs.target_dir }}/tree-svg-layers-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-svg-layers-ci.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  tree-mouse-events:
+    name: Chromium Tree typed native events
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: '1.95.0'
+          targets: wasm32-unknown-unknown
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Locate workspace build output
+        id: output
+        shell: bash
+        run: |
+          cargo metadata --locked --no-deps --format-version 1 |
+            python -c 'import json,sys; print("target_dir=" + json.load(sys.stdin)["target_directory"])' >> "$GITHUB_OUTPUT"
+      - name: Build the browser fixture
+        shell: bash
+        run: |
+          cargo install wasm-bindgen-cli --version 0.2.130 --locked
+          cargo build --locked --manifest-path examples/browser-host/Cargo.toml --target wasm32-unknown-unknown --release
+          host_target="$(cargo metadata --locked --manifest-path examples/browser-host/Cargo.toml --no-deps --format-version 1 | python -c 'import json,sys; print(json.load(sys.stdin)["target_directory"])')"
+          wasm-bindgen "$host_target/wasm32-unknown-unknown/release/kartis_host_fixture.wasm" --target web --out-dir examples/browser-host/pkg --out-name host
+      - name: Verify typed Tree events in Chromium at both DPRs
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-events-acceptance.mjs --chromium-only --out="$TARGET_DIR/tree-events-ci" 2>&1 | tee "$TARGET_DIR/tree-events-ci.log"
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        if: always()
+        with:
+          name: tree-typed-native-events
+          path: |
+            ${{ steps.output.outputs.target_dir }}/tree-events-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-events-ci.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  tree-link-tooltip:
+    name: Chromium SVG Tree link tooltips
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: '1.95.0'
+          targets: wasm32-unknown-unknown
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Locate workspace build output
+        id: output
+        shell: bash
+        run: |
+          cargo metadata --locked --no-deps --format-version 1 |
+            python -c 'import json,sys; print("target_dir=" + json.load(sys.stdin)["target_directory"])' >> "$GITHUB_OUTPUT"
+      - name: Build the browser fixture
+        shell: bash
+        run: |
+          cargo install wasm-bindgen-cli --version 0.2.130 --locked
+          cargo build --locked --manifest-path examples/browser-host/Cargo.toml --target wasm32-unknown-unknown --release
+          host_target="$(cargo metadata --locked --manifest-path examples/browser-host/Cargo.toml --no-deps --format-version 1 | python -c 'import json,sys; print(json.load(sys.stdin)["target_directory"])')"
+          wasm-bindgen "$host_target/wasm32-unknown-unknown/release/kartis_host_fixture.wasm" --target web --out-dir examples/browser-host/pkg --out-name host
+      - name: Verify native SVG link tooltips at both DPRs
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-link-tooltip-acceptance.mjs --chromium-only --out="$TARGET_DIR/tree-link-tooltip-ci" 2>&1 | tee "$TARGET_DIR/tree-link-tooltip-ci.log"
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        if: always()
+        with:
+          name: tree-svg-link-tooltips
+          path: |
+            ${{ steps.output.outputs.target_dir }}/tree-link-tooltip-ci/**
+            ${{ steps.output.outputs.target_dir }}/tree-link-tooltip-ci.log
           if-no-files-found: warn
           retention-days: 14
 
@@ -210,3 +698,110 @@ jobs:
           cargo metadata --locked --no-deps --format-version 1 --manifest-path "$crate_dir/Cargo.toml" |
             python -c 'import json,sys; print("Unpacked crate target_directory: " + json.load(sys.stdin)["target_directory"])'
           cargo test --locked --all-features --all-targets --manifest-path "$crate_dir/Cargo.toml"
+
+  tree-spring-waffle-functions:
+    name: Chromium Tree spring, Waffle functions and Funnel layers
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: '1.95.0'
+          components: clippy
+          targets: wasm32-unknown-unknown
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Locate workspace evidence directory
+        id: output
+        shell: bash
+        run: |
+          target_dir="$(cargo +1.95.0 metadata --locked --no-deps --format-version 1 | python -c 'import json,sys; print(json.load(sys.stdin)["target_directory"])')"
+          mkdir -p "$target_dir"
+          echo "target_dir=$target_dir" >> "$GITHUB_OUTPUT"
+      - run: cargo +1.95.0 install wasm-bindgen-cli --version 0.2.130 --locked
+      - name: Build a source-bound browser package
+        id: producer
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: python scripts/build-browser-acceptance.py --out="$TARGET_DIR/browser-extensions-ci/producer" 2>&1 | tee "$TARGET_DIR/browser-extensions-producer.log"
+      - name: Verify Tree spring at both DPRs
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-motion-acceptance.mjs --engine=chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/tree-motion" 2>&1 | tee "$TARGET_DIR/browser-extensions-tree-motion.log"
+      - name: Verify ordinary Tree annotations at both DPRs
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/tree-motion-extras-acceptance.mjs --chromium-only --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/tree-extras" 2>&1 | tee "$TARGET_DIR/browser-extensions-tree-extras.log"
+      - name: Verify Waffle functions and live Widgets at both DPRs
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/waffle-functions-acceptance.mjs --chromium-only --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/waffle-functions" 2>&1 | tee "$TARGET_DIR/browser-extensions-waffle-functions.log"
+      - name: Verify literal Waffle SVG layers at both DPRs
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/waffle-svg-layers-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/waffle-svg-layers" 2>&1 | tee "$TARGET_DIR/browser-extensions-waffle-svg-layers.log"
+      - name: Verify literal Funnel SVG layers at both DPRs
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/funnel-svg-layers-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/funnel-svg-layers" 2>&1 | tee "$TARGET_DIR/browser-extensions-funnel-svg-layers.log"
+      - name: Verify native Funnel hooks and tooltips at both DPRs
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/funnel-interactions-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/funnel-interactions" 2>&1 | tee "$TARGET_DIR/browser-extensions-funnel-interactions.log"
+      - name: Verify bound Funnel annotations at both DPRs
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/funnel-annotations-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/funnel-annotations" 2>&1 | tee "$TARGET_DIR/browser-extensions-funnel-annotations.log"
+      - name: Verify opaque Funnel application data at both DPRs
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/funnel-data-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/funnel-data" 2>&1 | tee "$TARGET_DIR/browser-extensions-funnel-data.log"
+      - name: Verify Funnel property springs at both DPRs
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/funnel-motion-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/funnel-motion" 2>&1 | tee "$TARGET_DIR/browser-extensions-funnel-motion.log"
+      - name: Verify dormant Funnel springs at both DPRs
+        if: ${{ !cancelled() && steps.producer.outcome == 'success' }}
+        env:
+          TARGET_DIR: ${{ steps.output.outputs.target_dir }}
+        shell: bash
+        run: node scripts/funnel-dormant-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/funnel-dormant" 2>&1 | tee "$TARGET_DIR/browser-extensions-funnel-dormant.log"
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        if: always()
+        with:
+          name: tree-spring-waffle-functions
+          path: |
+            ${{ steps.output.outputs.target_dir }}/browser-extensions-ci/**
+            ${{ steps.output.outputs.target_dir }}/browser-extensions-*.log
+          if-no-files-found: warn
+          retention-days: 14

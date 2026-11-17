@@ -2,6 +2,50 @@
 use super::*;
 
 impl BrowserHandle {
+    /// Pick Albers USA with D3's default inset selector, retaining its region.
+    /// Use the known-region method for a particular component's overlapping ink.
+    pub fn invert_usa_at_client(
+        &self,
+        projection: &GeoProjectionContext,
+        client: (f64, f64),
+    ) -> Result<Option<GeoUsaInverse>> {
+        self.with_usa_client(projection, client, |point| projection.invert_usa(point))
+    }
+
+    /// Pick a known Albers USA component, removing Scene pan/zoom exactly once.
+    pub fn invert_usa_in_region_at_client(
+        &self,
+        projection: &GeoProjectionContext,
+        region: GeoUsaRegion,
+        client: (f64, f64),
+    ) -> Result<Option<[f64; 2]>> {
+        self.with_usa_client(projection, client, |point| {
+            projection.invert_usa_in_region(region, point)
+        })
+    }
+
+    fn with_usa_client<T>(
+        &self,
+        projection: &GeoProjectionContext,
+        client: (f64, f64),
+        convert: impl FnOnce([f64; 2]) -> Result<T>,
+    ) -> Result<T> {
+        let engine = self.engine()?;
+        let state = engine.state.borrow();
+        let state = state
+            .as_ref()
+            .ok_or_else(|| ChartError("browser chart is stopped".into()))?;
+        scene::ensure(
+            projection.dimensions() == [state.model.scene().width, state.model.scene().height],
+            "geographic context dimensions do not match the accepted Scene",
+        )?;
+        let point = state
+            .model
+            .paint_transform()
+            .unproject(state.coordinates(client)?)?;
+        convert([point.0, point.1])
+    }
+
     /// Convert precise CSS client coordinates to accepted Scene coordinates.
     /// Reuses the host surface bounds and removes its current paint camera
     /// exactly once. Relayout mode already paints Scene coordinates directly.

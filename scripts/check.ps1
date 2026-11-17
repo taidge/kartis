@@ -16,7 +16,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Cargo metadata failed' }
     $metadata = $metadataJson | ConvertFrom-Json
     Write-Host "Workspace artifacts: $($metadata.target_directory)"
-    Invoke-Checked -Program cargo -Arguments @('fmt', '--package', 'kartis', '--check')
+    Invoke-Checked -Program cargo -Arguments @('+nightly-2026-11-04', 'fmt', '--package', 'kartis', '--', '--check')
     Invoke-Checked -Program cargo -Arguments @('check', '--locked', '--no-default-features', '--all-targets')
     Invoke-Checked -Program cargo -Arguments @('test', '--locked', '--no-default-features', '--lib', '--tests')
     Invoke-Checked -Program cargo -Arguments @('test', '--locked', '--all-features', '--all-targets')
@@ -33,7 +33,7 @@ try {
             $exampleMetadata = $exampleMetadataJson | ConvertFrom-Json
             Write-Host "$example artifacts: $($exampleMetadata.target_directory)"
             $packageName = $exampleMetadata.packages[0].name
-            Invoke-Checked -Program cargo -Arguments @('fmt', '--package', $packageName, '--check')
+            Invoke-Checked -Program cargo -Arguments @('+nightly-2026-11-04', 'fmt', '--package', $packageName, '--', '--check')
             if (-not $SkipWasm) {
                 Invoke-Checked -Program cargo -Arguments @('clippy', '--locked', '--target', 'wasm32-unknown-unknown', '--', '-D', 'warnings')
             }
@@ -47,7 +47,7 @@ try {
             if ($LASTEXITCODE -ne 0) { throw 'Native example metadata failed' }
             $nativeMetadata = $nativeMetadataJson | ConvertFrom-Json
             Write-Host "$example artifacts: $($nativeMetadata.target_directory)"
-            Invoke-Checked -Program cargo -Arguments @('fmt', '--check')
+            Invoke-Checked -Program cargo -Arguments @('+nightly-2026-11-04', 'fmt', '--package', $nativeMetadata.packages[0].name, '--', '--check')
             Invoke-Checked -Program cargo -Arguments @('check', '--locked', '--all-targets')
             Invoke-Checked -Program cargo -Arguments @('clippy', '--locked', '--all-targets', '--', '-D', 'warnings')
             if ($RunNative) {

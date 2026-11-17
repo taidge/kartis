@@ -21,18 +21,18 @@ pub(super) struct PiecewiseMappings {
 #[derive(Clone, Debug)]
 pub(super) struct PiecewiseMapping {
     profile: PiecewiseScaleOptions,
-    normalized: ChartScale,
-    source_descending: bool,
+    pixels: ChartScale,
+    extent: f64,
 }
 
 impl PartialEq for PiecewiseMapping {
     fn eq(&self, other: &Self) -> bool {
-        self.profile == other.profile && self.source_descending == other.source_descending
+        self.profile == other.profile && self.extent == other.extent
     }
 }
 
 impl PiecewiseMapping {
-    fn new(axis: ViewportAxis, scale: &ChartScale) -> Result<Self> {
+    fn new(axis: ViewportAxis, scale: &ChartScale, origin: f64, extent: f64) -> Result<Self> {
         ensure(
             scale.is_piecewise(),
             "viewport mapping must be a piecewise scale",
@@ -45,65 +45,58 @@ impl PiecewiseMapping {
             axis.scale == scale.kind(),
             "piecewise viewport kind differs from axis",
         )?;
-        let mut domain = scale.domain_stops().to_vec();
-        let mut range = scale.range_stops().to_vec();
-        let source_descending = domain[0] > domain[domain.len() - 1];
-        if source_descending {
-            domain.reverse();
-            range.reverse();
-        }
+        let domain = scale.domain_stops().to_vec();
+        let range = scale
+            .range_stops()
+            .iter()
+            .map(|v| v - origin)
+            .collect::<Vec<_>>();
+        let first_domain = domain[0];
+        let last_domain = domain[domain.len() - 1];
         ensure(
-            [domain[0], domain[domain.len() - 1]] == axis.domain,
+            [first_domain.min(last_domain), first_domain.max(last_domain)] == axis.domain,
             "piecewise viewport endpoints differ from the original axis",
         )?;
-        let first = range[0];
-        let span = range[range.len() - 1] - first;
+        let span = range[range.len() - 1] - range[0];
         ensure(
             span.is_finite() && span != 0.,
             "piecewise viewport range has no finite span",
         )?;
-        for value in &mut range {
-            *value = (*value - first) / span;
-        }
         let profile = PiecewiseScaleOptions {
             domain,
             range,
             continuous: ContinuousScaleOptions {
                 kind: axis.scale,
+                clamp: scale.is_clamped(),
                 ..Default::default()
             },
         };
-        let normalized = ResolvedContinuousScale::piecewise(&profile)?.into_chart_scale();
+        let pixels = ResolvedContinuousScale::piecewise(&profile)?.into_chart_scale();
         Ok(Self {
             profile,
-            normalized,
-            source_descending,
+            pixels,
+            extent,
         })
     }
 
-    fn stops(&self, window: Window, reverse: bool, bounded: bool) -> Result<Vec<f64>> {
-        let mut domain = if window.start == 0. && window.span == 1. {
+    fn stops(&self, window: Window) -> Result<Vec<f64>> {
+        let domain = if window.start == 0. && window.span == 1. {
             self.profile.domain.clone()
         } else {
-            let start = if reverse {
-                1. - window.start - window.span
-            } else {
-                window.start
-            };
-            let low = self.profile.domain[0];
-            let high = self.profile.domain[self.profile.domain.len() - 1];
+            // Keep D3 Transform's pixel arithmetic and order of operations.
+            // Normalizing to [0,1] and simplifying this affine expression can
+            // perturb constant inverse branches by an ULP or UTC TimeClip by
+            // one millisecond, then select an entirely different output part.
+            let k = 1. / window.span;
+            let translation = -window.start * self.extent * k;
             let values = self
                 .profile
                 .range
                 .iter()
-                .map(|&position| {
-                    let value = self.normalized.invert(start + window.span * position)?;
-                    Ok(if bounded {
-                        value.clamp(low, high)
-                    } else {
-                        value
-                    })
-                })
+                // Bounded navigation already constrains the pixel window.
+                // Clamping the inverse again would erase native weighted
+                // interpolation and transcendental rounding at repeated ends.
+                .map(|&position| self.pixels.invert((position - translation) / k))
                 .collect::<Result<Vec<_>>>()?;
             // Every knot must remain usable, not merely the two outer ones.
             let proposal = PiecewiseScaleOptions {
@@ -114,9 +107,6 @@ impl PiecewiseMapping {
             proposal.validate()?;
             values
         };
-        if self.source_descending {
-            domain.reverse();
-        }
         Ok(domain)
     }
 }
@@ -129,7 +119,7 @@ pub(super) fn resolve_axis(
     bounded: bool,
 ) -> Result<[f64; 2]> {
     if let Some(mapping) = mapping {
-        let stops = mapping.stops(window, reverse, bounded)?;
+        let stops = mapping.stops(window)?;
         let last = stops[stops.len() - 1];
         Ok([stops[0].min(last), stops[0].max(last)])
     } else {
@@ -157,13 +147,15 @@ impl DomainViewport {
                     let axis = axis.ok_or_else(|| {
                         crate::ChartError("piecewise mapping has no value axis".into())
                     })?;
-                    PiecewiseMapping::new(axis, scale)
+                    PiecewiseMapping::new(axis, scale, self.plot.y, self.plot.height)
                 })
                 .transpose()
         };
         self.piecewise = PiecewiseMappings {
-            x: x.map(|scale| PiecewiseMapping::new(self.axes.x, scale))
-                .transpose()?,
+            x: x.map(|scale| {
+                PiecewiseMapping::new(self.axes.x, scale, self.plot.x, self.plot.width)
+            })
+            .transpose()?,
             left: value_axis(self.axes.left, left)?,
             right: value_axis(self.axes.right, right)?,
         };
@@ -180,19 +172,19 @@ impl DomainViewport {
                 .piecewise
                 .x
                 .as_ref()
-                .map(|m| m.stops(self.x, self.directions.x, self.limits.bounded))
+                .map(|m| m.stops(self.x))
                 .transpose()?,
             left: self
                 .piecewise
                 .left
                 .as_ref()
-                .map(|m| m.stops(self.y, !self.directions.left, self.limits.bounded))
+                .map(|m| m.stops(self.y))
                 .transpose()?,
             right: self
                 .piecewise
                 .right
                 .as_ref()
-                .map(|m| m.stops(self.y, !self.directions.right, self.limits.bounded))
+                .map(|m| m.stops(self.y))
                 .transpose()?,
         })
     }

@@ -1,0 +1,267 @@
+{
+  "schema": 1,
+  "d3GeoVersion": "3.1.1",
+  "license": {
+    "name": "ISC",
+    "notice": "../geo-inverse-d3-LICENSE.txt"
+  },
+  "sourceSHA256": {
+    "src/area.js": "bd11df8704dc679ca517364f1d46f6517d3729e6ba5c1d8cf1dd184163ff6e46",
+    "src/bounds.js": "e1ef2d354ad4aba09d7411e805d66f2702cb9c65e355f9aead466e1f18c8759b",
+    "src/cartesian.js": "c0850bb6906e30821ecc6bd6a00615802e0688e0e01b84f3631de35a5b1a6974",
+    "src/centroid.js": "e0d254f73a2ab12e07848f3efb22ec967241fd7eedcb3333764e6083c204f43b",
+    "src/circle.js": "04b126183a6df475f4a7405df169da9ad2c20a430b102cd783d4469f001f51e6",
+    "src/clip/antimeridian.js": "b7a4f9bde59d267abe5dfaeda19367425b8096eb6b3a18965caa0f136f295a06",
+    "src/clip/buffer.js": "cb4b6265d1baa6cbb47ab932cf9f5b133c9f5e4307a98f8eeb969db22094c333",
+    "src/clip/circle.js": "d61cc9efeb49302a2c7ba56c2d559dcd586208745b732f42e53bc2eb0883eb34",
+    "src/clip/extent.js": "56b5455029a7e0df9abd9ec409ccdb90362c0c0326eb108108b39fe193530141",
+    "src/clip/index.js": "f0c1f9c8b50696720cb31931d2ccb31da22b2077218c87b6e4139b583b0bd4cb",
+    "src/clip/line.js": "1b08c2f20a5bb2a9c180bc91695e0a62c95cde2e47395146fc24281fb1f9d92f",
+    "src/clip/rectangle.js": "e726070528ac5cc903929934fa8d87420d59effdbd996388048ae2cabcad9652",
+    "src/clip/rejoin.js": "6f70ed7e4cad610c85ef6b15d60a21eb271dfe2365350015e05223e096138043",
+    "src/compose.js": "316a0fc35ff4b538c19648b79659c0d1bc7d86d9974870a61e5b28dd684055c5",
+    "src/constant.js": "88f2653180d441d431ad68e0e2cf2c02aea72976c5ff24b6ed988a5bb2b78847",
+    "src/contains.js": "fbdbbd46a529fc1870d8cf769dbba4cce44899f61fc2bd8c5a8785f21a15a528",
+    "src/distance.js": "15bec2af551ac9a06ad65632310aac0b6d9b6f8418e191141cf7df959b055ed0",
+    "src/graticule.js": "33f46a2d8f0e444b33d18bf6dfdcba4cdd3c8e6ad336d3988dbf8ee6daa3f8b5",
+    "src/identity.js": "36a44dd3cf1e9c8a8a6f4d9fb2055ed65120b929b6561ffe902268fdb0e68389",
+    "src/index.js": "6cd0cfd7ee4e52c1b02ae15d19bd70a40505dc550bc74b7cc7aaeadba54a4dc5",
+    "src/interpolate.js": "7da5e4386b4393d737ecdd6ef19747b16b178117655d2eaecd2b62d8dd3cf725",
+    "src/length.js": "f81caf5f38fb5c31234e0bddaaf162b93dcc5111ca0759f29695ff7ce2488c15",
+    "src/math.js": "2fd787731d13e29df7f32cefc01079554d86bb87ad2c89d0d7fd5e040487ca90",
+    "src/noop.js": "3209d333f747a8bcd536b37650340adce79b014015421e78a87bdbfa4217f466",
+    "src/path/area.js": "b3024380aa2ebb2edcdadce53708166ab45aeeaae6a8e5c86783b3903f38f80c",
+    "src/path/bounds.js": "74f45574b00114caa10c06f11d7f4b9b86a7a2792cc8ea1a3ae07a525826a274",
+    "src/path/centroid.js": "68dd475518820e7cbb286c6c1fd9a08dc5c385cc08f3633bd4e66892e2c2d958",
+    "src/path/context.js": "7ceb8604843ab5da816c419042aaa4ad236d6a74b26958844d34c5d0d5af7487",
+    "src/path/index.js": "7cdf7ead70d6d31447dc5adfd39a627c5e80f944987932276e3dfed5457ff891",
+    "src/path/measure.js": "b35c8fd6d194dc542b1fa1409fdbbb069449bf0f10ab851edd970426e8b4b653",
+    "src/path/string.js": "3e19d06d967c72a5b22537181a50dff25141284e378ef06744269aa30cd3ddf2",
+    "src/pointEqual.js": "5aff0b464bd215e97924aba96a30f526e879b0a2a594ad49d55981add9f2871b",
+    "src/polygonContains.js": "a83430f0a9c8e9e6516567d80716230c8e1120c7c1aaac89eeb65c7a943804fd",
+    "src/projection/albers.js": "8b13808049f2f3d2aaaa49f53b17fdd6b71d51422be89c34e18681ae1f403f93",
+    "src/projection/albersUsa.js": "3c0aa5d8ca8d92a5557bad7b336fa57831866e8fbb68e15fa3e69983999aa66f",
+    "src/projection/azimuthal.js": "9e4baff20c2152f8297947e7bb01ec8f8afe61f4e744d0789e5afb5ee51566cd",
+    "src/projection/azimuthalEqualArea.js": "5fe92333484ca41199f742d9514037d65fe39aa965c72375d355ed68a2db1574",
+    "src/projection/azimuthalEquidistant.js": "c30d2a57baa8fa66a4f2356903869cecc2c75f0e6b48d336d50f9750c136e085",
+    "src/projection/conic.js": "08f0b18017637bd3224f3f2604004d20fe69454488cb96ac0dc02b6afd665cbc",
+    "src/projection/conicConformal.js": "237bc52033f0a75d857d1eb97d7b7043efc1cfe1a47fc66ad3f20c7d05aa5bef",
+    "src/projection/conicEqualArea.js": "b06b06ac53b5ac1cb106d2c34a2b505cd28bda0cb8404574ff904cd9a6539913",
+    "src/projection/conicEquidistant.js": "ba4ebceb45d7e6494327726a394a2d6b2d63c10c57c7b98a1443aa9c2c756b8b",
+    "src/projection/cylindricalEqualArea.js": "0757d3b29ae9db0b6e5df04e3c905ebabfb899a09fc46417d677049227298854",
+    "src/projection/equalEarth.js": "94c087cb66f21b12421e506ecfce4d16a163f39a85fdddee17b6ce23c99ceb04",
+    "src/projection/equirectangular.js": "0567dad3dea186702901be8c401f0fc3ee332ef2d802bdbba92b6608faab7fd1",
+    "src/projection/fit.js": "23801607fefe0576e401270a76f18e16b6421ced96658f00e61d3a5ca3e04b95",
+    "src/projection/gnomonic.js": "d4a50dfab94b9c024c795ab6e839b21ab95cd5e93ec53edee362f7014007521b",
+    "src/projection/identity.js": "5f91629fb6837ecb4767f4fb16efd5d81c3da02eaf8f937ccf77ead589298f07",
+    "src/projection/index.js": "1c2727b0dd8e4219aadb9bc4017575eec16394aff8b0a0000804fe1b15173f54",
+    "src/projection/mercator.js": "315102b6a64c48fa4a13c642036f8640407b96cad8d2ebe454d519259d2ad17e",
+    "src/projection/naturalEarth1.js": "178fe2944343025048ad74fcbc253ce9536712c1b531a55cf9c6fc6f4a855b14",
+    "src/projection/orthographic.js": "7605d995232635e5c6a52440ac4d945bd5cc20aa703aae0d7d559f5be88661d1",
+    "src/projection/resample.js": "878c3eddfb44d4ff02a2ec155f879e3db059ee93ea1e8660a6edec8a3a8fb0b0",
+    "src/projection/stereographic.js": "b1504bc703aa038592a2c83c83875b98bf8d5314202769c2317412e95226fd15",
+    "src/projection/transverseMercator.js": "a1cbb97616493429f1aa079d7f23bec33771f318874a8e41136328a8e7354147",
+    "src/rotation.js": "1eb2bb01f3647dc3047e30876db5472bce48ac0afd023be2f1c5591d71529f91",
+    "src/stream.js": "c552b3b095104472e2e0a09e9bc3b77813353666f3d3d57c1125939e4a655294",
+    "src/transform.js": "4374c6ca1262c33faa09761a161d211978c303953ec43629e796c275cbe2ee30"
+  },
+  "mapValuesSHA256": "e94ed9d27eb5408ec1c270ea5650763bfa64a39f1c0179bb1e04445f8544ad9d",
+  "producerSHA256": "95b7c3220f4d73ba28a2d64fcdc658b0b441567e615b6fd642b8a51b5b446a92",
+  "valuesSHA256": "feef6d68e4a449d28dffae30c01111d3acb41526c54d89a2434d7e12b560cd08",
+  "counts": {
+    "cases": 6,
+    "featureStates": 132,
+    "regionStates": 396,
+    "materialComponents": 156,
+    "shortComponents": 5,
+    "nativeVertices": 1372,
+    "multiplexNestedStarts": 6,
+    "multiplexInterleavedFeatures": 6,
+    "coverageQueries": 18005,
+    "coverageIncluded": 18002,
+    "coverageExcluded": 3
+  },
+  "maxClipAmplification": 2.041308473669768,
+  "maxErrorLimit": 0.08170972963110774,
+  "nativeMultiplexCaveat": {
+    "source": "src/projection/albersUsa.js:6-7",
+    "comment": "The projections must have mutually exclusive clip regions on the sphere, as this will avoid emitting interleaving lines and polygons.",
+    "interpretation": "Original composite events are preserved without repair. Child streams have identical point multisets but their noninterleaving regional geometry is not equivalent to interpreting the composite as a flat path.",
+    "interleaving": [
+      {
+        "case": "three-regions-960-World",
+        "id": "cross-insets",
+        "source": [
+          [
+            [
+              -120,
+              35
+            ],
+            [
+              -150,
+              61
+            ],
+            [
+              -157,
+              21
+            ],
+            [
+              -100,
+              40
+            ]
+          ]
+        ],
+        "maxActive": 2,
+        "nestedLineStarts": 1,
+        "compositePoints": 34,
+        "childPoints": 34,
+        "pointMultisetEqual": true
+      },
+      {
+        "case": "three-regions-960-Data",
+        "id": "cross-insets",
+        "source": [
+          [
+            [
+              -120,
+              35
+            ],
+            [
+              -150,
+              61
+            ],
+            [
+              -157,
+              21
+            ],
+            [
+              -100,
+              40
+            ]
+          ]
+        ],
+        "maxActive": 2,
+        "nestedLineStarts": 1,
+        "compositePoints": 39,
+        "childPoints": 39,
+        "pointMultisetEqual": true
+      },
+      {
+        "case": "three-regions-640-World",
+        "id": "cross-insets",
+        "source": [
+          [
+            [
+              -120,
+              35
+            ],
+            [
+              -150,
+              61
+            ],
+            [
+              -157,
+              21
+            ],
+            [
+              -100,
+              40
+            ]
+          ]
+        ],
+        "maxActive": 2,
+        "nestedLineStarts": 1,
+        "compositePoints": 29,
+        "childPoints": 29,
+        "pointMultisetEqual": true
+      },
+      {
+        "case": "three-regions-640-Data",
+        "id": "cross-insets",
+        "source": [
+          [
+            [
+              -120,
+              35
+            ],
+            [
+              -150,
+              61
+            ],
+            [
+              -157,
+              21
+            ],
+            [
+              -100,
+              40
+            ]
+          ]
+        ],
+        "maxActive": 2,
+        "nestedLineStarts": 1,
+        "compositePoints": 34,
+        "childPoints": 34,
+        "pointMultisetEqual": true
+      },
+      {
+        "case": "three-regions-960-World-explicit",
+        "id": "cross-insets",
+        "source": [
+          [
+            [
+              -120,
+              35
+            ],
+            [
+              -150,
+              61
+            ],
+            [
+              -157,
+              21
+            ],
+            [
+              -100,
+              40
+            ]
+          ]
+        ],
+        "maxActive": 2,
+        "nestedLineStarts": 1,
+        "compositePoints": 37,
+        "childPoints": 37,
+        "pointMultisetEqual": true
+      },
+      {
+        "case": "three-regions-640-World-explicit",
+        "id": "cross-insets",
+        "source": [
+          [
+            [
+              -120,
+              35
+            ],
+            [
+              -150,
+              61
+            ],
+            [
+              -157,
+              21
+            ],
+            [
+              -100,
+              40
+            ]
+          ]
+        ],
+        "maxActive": 2,
+        "nestedLineStarts": 1,
+        "compositePoints": 31,
+        "childPoints": 31,
+        "pointMultisetEqual": true
+      }
+    ]
+  }
+}

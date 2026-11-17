@@ -12,6 +12,9 @@ pub const MAX_PARALLEL_DIMENSIONS: usize = 64;
 pub const MAX_PARALLEL_RECORDS: usize = 2048;
 pub const MAX_PARALLEL_AXIS_TICKS: usize = 8192;
 
+mod filter;
+pub use filter::*;
+
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum ParallelLayout {
     /// Vertical variable axes, ordered from left to right (Nivo horizontal).
@@ -540,6 +543,17 @@ fn build_parallel(
     o: &ParallelCoordinatesOptions,
     profiles: Option<&BTreeMap<String, ParallelScaleOptions>>,
 ) -> Result<ParallelCoordinatesLayout> {
+    build_parallel_selected(c, dimensions, rows, o, profiles, None)
+}
+
+fn build_parallel_selected(
+    c: &ChartConfig,
+    dimensions: &[ParallelDimension],
+    rows: &[ParallelDatum],
+    o: &ParallelCoordinatesOptions,
+    profiles: Option<&BTreeMap<String, ParallelScaleOptions>>,
+    selected: Option<&BTreeSet<String>>,
+) -> Result<ParallelCoordinatesLayout> {
     let mut scene = c.scene()?;
     let plot = ClipRect::plot(c);
     o.validate()?;
@@ -710,7 +724,7 @@ fn build_parallel(
         ..Default::default()
     };
     for (source_index, row) in ordered {
-        let visible = visible(row, o);
+        let visible = visible(row, o) && selected.is_none_or(|ids| ids.contains(&row.id));
         if !visible && profiles.is_none() {
             continue;
         }

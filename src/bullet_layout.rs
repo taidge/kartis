@@ -9,6 +9,10 @@ use glory::render::GraphicStroke;
 use crate::boxplot_layout::{stats_extent, stats_id, stats_path, stats_stroke, stats_stroke_valid};
 use crate::scene::ensure;
 use crate::*;
+mod custom;
+pub use custom::*;
+mod widgets;
+pub use widgets::*;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum BulletDomainMode {
     #[default]

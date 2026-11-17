@@ -1,0 +1,636 @@
+{
+  "scope": "Original computePoints, transition functions/options, transition createElement callback and radius helper executed unchanged. Callback styles are plain probe values, not real SpringValues. No React lifecycle, animation scheduling, rendering or physical-event claim.",
+  "package": "0.99.0",
+  "commit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "originalSources": {
+    "Nodes.tsx": {
+      "sha256": "f8f802bf86c509231001c95276df06d5fa43e2324b41bb08a378686dfb263b54",
+      "bytes": 4679
+    },
+    "Node.tsx": {
+      "sha256": "0ed96262644bc99fab02147aef0f6f734d254d083398678bbecf1e06c2e6a266",
+      "bytes": 2263
+    },
+    "compute.ts": {
+      "sha256": "db86e940f210187d13b9b43a62fc5d4887e6bed9a583e4af8359871d0ed6a10d",
+      "bytes": 3130
+    },
+    "hooks.ts": {
+      "sha256": "8ccba4f375d42d7c55223d97950fba1957af34de80200aeedf9ff0755ac83910",
+      "bytes": 3328
+    },
+    "types.ts": {
+      "sha256": "2e20e1a78e78c7cedf057d55f5c545d82a2eaee22dce6e4b90d029a89e6be6b0",
+      "bytes": 5949
+    },
+    "props.tsx": {
+      "sha256": "0453248237f7485ac4830d42fc2cfacf667d438394dd4c948f56fe7375dff43d",
+      "bytes": 1899
+    }
+  },
+  "license": {
+    "file": "original/LICENSE.md",
+    "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+    "bytes": 1054
+  },
+  "producer": {
+    "file": "scripts/scatter-node-widget-reference.mjs",
+    "sha256": "ded4b53593cefd8c7929257fefe32ee6a88d40b4b930a98e4ed1d2a6ead0114f"
+  },
+  "execution": {
+    "getNodeKey": "const getNodeKey = <RawDatum extends ScatterPlotDatum>(node: ScatterPlotNodeData<RawDatum>) =>\n    node.id;",
+    "regularTransition": "const regularTransition = <RawDatum extends ScatterPlotDatum>(\n    node: ScatterPlotNodeData<RawDatum>\n) => ({\n    x: node.x,\n    y: node.y,\n    size: node.size,\n    color: node.color,\n});",
+    "leaveTransition": "const leaveTransition = <RawDatum extends ScatterPlotDatum>(\n    node: ScatterPlotNodeData<RawDatum>\n) => ({\n    x: node.x,\n    y: node.y,\n    size: 0,\n    color: node.color,\n});",
+    "transitionCallback": "(style, node) =>\n                createElement(nodeComponent, {\n                    node,\n                    style,\n                    blendMode,\n                    isInteractive,\n                    onMouseEnter: isInteractive ? handleMouseEnter : undefined,\n                    onMouseMove: isInteractive ? handleMouseMove : undefined,\n                    onMouseLeave: isInteractive ? handleMouseLeave : undefined,\n                    onMouseDown: isInteractive ? handleMouseDown : undefined,\n                    onMouseUp: isInteractive ? handleMouseUp : undefined,\n                    onClick: isInteractive ? handleClick : undefined,\n                    onDoubleClick: isInteractive ? handleDoubleClick : undefined,\n                })",
+    "transitionOptions": "{\n        keys: getNodeKey,\n        from: regularTransition,\n        enter: regularTransition,\n        update: regularTransition,\n        leave: leaveTransition,\n        config: springConfig,\n        immediate: !animate,\n    }",
+    "computePoints": "const computePoints = <RawDatum extends ScatterPlotDatum>({\n    series,\n    formatX,\n    formatY,\n    getNodeId,\n}: {\n    series: ComputedSerie<{ id: string | number }, RawDatum>[]\n    formatX: (value: RawDatum['x']) => string | number\n    formatY: (value: RawDatum['x']) => string | number\n    getNodeId: (d: Omit<ScatterPlotNodeData<RawDatum>, 'id' | 'size' | 'color'>) => string\n}): Omit<ScatterPlotNodeData<RawDatum>, 'size' | 'color'>[] => {\n    const points: Omit<ScatterPlotNodeData<RawDatum>, 'size' | 'color'>[] = []\n\n    series.forEach(serie => {\n        serie.data.forEach((d, serieIndex) => {\n            const point: Omit<ScatterPlotNodeData<RawDatum>, 'id' | 'size' | 'color'> = {\n                index: points.length,\n                serieIndex,\n                serieId: serie.id,\n                x: d.position.x as number,\n                xValue: d.data.x,\n                formattedX: formatX(d.data.x),\n                y: d.position.y as number,\n                yValue: d.data.y,\n                formattedY: formatY(d.data.y),\n                data: d.data,\n            }\n\n            points.push({\n                ...point,\n                id: getNodeId(point),\n            })\n        })\n    })\n\n    return points\n};",
+    "radius": "const interpolateRadius = (size: number) => size / 2;"
+  },
+  "input": [
+    {
+      "id": "first",
+      "data": [
+        {
+          "position": {
+            "x": -20,
+            "y": 30
+          },
+          "data": {
+            "x": 1,
+            "y": 2,
+            "note": "raw outside"
+          }
+        },
+        {
+          "position": {
+            "x": 70,
+            "y": 80
+          },
+          "data": {
+            "x": 3,
+            "y": 4,
+            "note": "raw zero size"
+          }
+        }
+      ]
+    },
+    {
+      "id": "second",
+      "data": [
+        {
+          "position": {
+            "x": 100,
+            "y": 40
+          },
+          "data": {
+            "x": "category",
+            "y": 5,
+            "note": "raw category"
+          }
+        }
+      ]
+    }
+  ],
+  "computedNodes": [
+    {
+      "index": 0,
+      "serieIndex": 0,
+      "serieId": "first",
+      "x": -20,
+      "xValue": 1,
+      "formattedX": "x:1",
+      "y": 30,
+      "yValue": 2,
+      "formattedY": "y:2",
+      "data": {
+        "x": 1,
+        "y": 2,
+        "note": "raw outside"
+      },
+      "id": "first:0",
+      "size": 9,
+      "color": "#123456"
+    },
+    {
+      "index": 1,
+      "serieIndex": 1,
+      "serieId": "first",
+      "x": 70,
+      "xValue": 3,
+      "formattedX": "x:3",
+      "y": 80,
+      "yValue": 4,
+      "formattedY": "y:4",
+      "data": {
+        "x": 3,
+        "y": 4,
+        "note": "raw zero size"
+      },
+      "id": "first:1",
+      "size": 0,
+      "color": "#abcdef"
+    },
+    {
+      "index": 2,
+      "serieIndex": 0,
+      "serieId": "second",
+      "x": 100,
+      "xValue": "category",
+      "formattedX": "x:category",
+      "y": 40,
+      "yValue": 5,
+      "formattedY": "y:5",
+      "data": {
+        "x": "category",
+        "y": 5,
+        "note": "raw category"
+      },
+      "id": "second:0",
+      "size": 18,
+      "color": "#654321"
+    }
+  ],
+  "transitionRecipe": {
+    "keys": "getNodeKey",
+    "from": "regularTransition",
+    "enter": "regularTransition",
+    "update": "regularTransition",
+    "leave": "leaveTransition",
+    "immediate": true,
+    "config": {
+      "mass": 1
+    }
+  },
+  "cases": [
+    {
+      "interactive": false,
+      "phase": "regular",
+      "nodes": [
+        {
+          "node": {
+            "index": 0,
+            "serieIndex": 0,
+            "serieId": "first",
+            "x": -20,
+            "xValue": 1,
+            "formattedX": "x:1",
+            "y": 30,
+            "yValue": 2,
+            "formattedY": "y:2",
+            "data": {
+              "x": 1,
+              "y": 2,
+              "note": "raw outside"
+            },
+            "id": "first:0",
+            "size": 9,
+            "color": "#123456"
+          },
+          "style": {
+            "x": -20,
+            "y": 30,
+            "size": 9,
+            "color": "#123456"
+          },
+          "blendMode": "multiply",
+          "isInteractive": false,
+          "onMouseEnter": null,
+          "onMouseMove": null,
+          "onMouseLeave": null,
+          "onMouseDown": null,
+          "onMouseUp": null,
+          "onClick": null,
+          "onDoubleClick": null
+        },
+        {
+          "node": {
+            "index": 1,
+            "serieIndex": 1,
+            "serieId": "first",
+            "x": 70,
+            "xValue": 3,
+            "formattedX": "x:3",
+            "y": 80,
+            "yValue": 4,
+            "formattedY": "y:4",
+            "data": {
+              "x": 3,
+              "y": 4,
+              "note": "raw zero size"
+            },
+            "id": "first:1",
+            "size": 0,
+            "color": "#abcdef"
+          },
+          "style": {
+            "x": 70,
+            "y": 80,
+            "size": 0,
+            "color": "#abcdef"
+          },
+          "blendMode": "multiply",
+          "isInteractive": false,
+          "onMouseEnter": null,
+          "onMouseMove": null,
+          "onMouseLeave": null,
+          "onMouseDown": null,
+          "onMouseUp": null,
+          "onClick": null,
+          "onDoubleClick": null
+        },
+        {
+          "node": {
+            "index": 2,
+            "serieIndex": 0,
+            "serieId": "second",
+            "x": 100,
+            "xValue": "category",
+            "formattedX": "x:category",
+            "y": 40,
+            "yValue": 5,
+            "formattedY": "y:5",
+            "data": {
+              "x": "category",
+              "y": 5,
+              "note": "raw category"
+            },
+            "id": "second:0",
+            "size": 18,
+            "color": "#654321"
+          },
+          "style": {
+            "x": 100,
+            "y": 40,
+            "size": 18,
+            "color": "#654321"
+          },
+          "blendMode": "multiply",
+          "isInteractive": false,
+          "onMouseEnter": null,
+          "onMouseMove": null,
+          "onMouseLeave": null,
+          "onMouseDown": null,
+          "onMouseUp": null,
+          "onClick": null,
+          "onDoubleClick": null
+        }
+      ]
+    },
+    {
+      "interactive": false,
+      "phase": "leave",
+      "nodes": [
+        {
+          "node": {
+            "index": 0,
+            "serieIndex": 0,
+            "serieId": "first",
+            "x": -20,
+            "xValue": 1,
+            "formattedX": "x:1",
+            "y": 30,
+            "yValue": 2,
+            "formattedY": "y:2",
+            "data": {
+              "x": 1,
+              "y": 2,
+              "note": "raw outside"
+            },
+            "id": "first:0",
+            "size": 9,
+            "color": "#123456"
+          },
+          "style": {
+            "x": -20,
+            "y": 30,
+            "size": 0,
+            "color": "#123456"
+          },
+          "blendMode": "multiply",
+          "isInteractive": false,
+          "onMouseEnter": null,
+          "onMouseMove": null,
+          "onMouseLeave": null,
+          "onMouseDown": null,
+          "onMouseUp": null,
+          "onClick": null,
+          "onDoubleClick": null
+        },
+        {
+          "node": {
+            "index": 1,
+            "serieIndex": 1,
+            "serieId": "first",
+            "x": 70,
+            "xValue": 3,
+            "formattedX": "x:3",
+            "y": 80,
+            "yValue": 4,
+            "formattedY": "y:4",
+            "data": {
+              "x": 3,
+              "y": 4,
+              "note": "raw zero size"
+            },
+            "id": "first:1",
+            "size": 0,
+            "color": "#abcdef"
+          },
+          "style": {
+            "x": 70,
+            "y": 80,
+            "size": 0,
+            "color": "#abcdef"
+          },
+          "blendMode": "multiply",
+          "isInteractive": false,
+          "onMouseEnter": null,
+          "onMouseMove": null,
+          "onMouseLeave": null,
+          "onMouseDown": null,
+          "onMouseUp": null,
+          "onClick": null,
+          "onDoubleClick": null
+        },
+        {
+          "node": {
+            "index": 2,
+            "serieIndex": 0,
+            "serieId": "second",
+            "x": 100,
+            "xValue": "category",
+            "formattedX": "x:category",
+            "y": 40,
+            "yValue": 5,
+            "formattedY": "y:5",
+            "data": {
+              "x": "category",
+              "y": 5,
+              "note": "raw category"
+            },
+            "id": "second:0",
+            "size": 18,
+            "color": "#654321"
+          },
+          "style": {
+            "x": 100,
+            "y": 40,
+            "size": 0,
+            "color": "#654321"
+          },
+          "blendMode": "multiply",
+          "isInteractive": false,
+          "onMouseEnter": null,
+          "onMouseMove": null,
+          "onMouseLeave": null,
+          "onMouseDown": null,
+          "onMouseUp": null,
+          "onClick": null,
+          "onDoubleClick": null
+        }
+      ]
+    },
+    {
+      "interactive": true,
+      "phase": "regular",
+      "nodes": [
+        {
+          "node": {
+            "index": 0,
+            "serieIndex": 0,
+            "serieId": "first",
+            "x": -20,
+            "xValue": 1,
+            "formattedX": "x:1",
+            "y": 30,
+            "yValue": 2,
+            "formattedY": "y:2",
+            "data": {
+              "x": 1,
+              "y": 2,
+              "note": "raw outside"
+            },
+            "id": "first:0",
+            "size": 9,
+            "color": "#123456"
+          },
+          "style": {
+            "x": -20,
+            "y": 30,
+            "size": 9,
+            "color": "#123456"
+          },
+          "blendMode": "multiply",
+          "isInteractive": true,
+          "onMouseEnter": "handleMouseEnter",
+          "onMouseMove": "handleMouseMove",
+          "onMouseLeave": "handleMouseLeave",
+          "onMouseDown": "handleMouseDown",
+          "onMouseUp": "handleMouseUp",
+          "onClick": "handleClick",
+          "onDoubleClick": "handleDoubleClick"
+        },
+        {
+          "node": {
+            "index": 1,
+            "serieIndex": 1,
+            "serieId": "first",
+            "x": 70,
+            "xValue": 3,
+            "formattedX": "x:3",
+            "y": 80,
+            "yValue": 4,
+            "formattedY": "y:4",
+            "data": {
+              "x": 3,
+              "y": 4,
+              "note": "raw zero size"
+            },
+            "id": "first:1",
+            "size": 0,
+            "color": "#abcdef"
+          },
+          "style": {
+            "x": 70,
+            "y": 80,
+            "size": 0,
+            "color": "#abcdef"
+          },
+          "blendMode": "multiply",
+          "isInteractive": true,
+          "onMouseEnter": "handleMouseEnter",
+          "onMouseMove": "handleMouseMove",
+          "onMouseLeave": "handleMouseLeave",
+          "onMouseDown": "handleMouseDown",
+          "onMouseUp": "handleMouseUp",
+          "onClick": "handleClick",
+          "onDoubleClick": "handleDoubleClick"
+        },
+        {
+          "node": {
+            "index": 2,
+            "serieIndex": 0,
+            "serieId": "second",
+            "x": 100,
+            "xValue": "category",
+            "formattedX": "x:category",
+            "y": 40,
+            "yValue": 5,
+            "formattedY": "y:5",
+            "data": {
+              "x": "category",
+              "y": 5,
+              "note": "raw category"
+            },
+            "id": "second:0",
+            "size": 18,
+            "color": "#654321"
+          },
+          "style": {
+            "x": 100,
+            "y": 40,
+            "size": 18,
+            "color": "#654321"
+          },
+          "blendMode": "multiply",
+          "isInteractive": true,
+          "onMouseEnter": "handleMouseEnter",
+          "onMouseMove": "handleMouseMove",
+          "onMouseLeave": "handleMouseLeave",
+          "onMouseDown": "handleMouseDown",
+          "onMouseUp": "handleMouseUp",
+          "onClick": "handleClick",
+          "onDoubleClick": "handleDoubleClick"
+        }
+      ]
+    },
+    {
+      "interactive": true,
+      "phase": "leave",
+      "nodes": [
+        {
+          "node": {
+            "index": 0,
+            "serieIndex": 0,
+            "serieId": "first",
+            "x": -20,
+            "xValue": 1,
+            "formattedX": "x:1",
+            "y": 30,
+            "yValue": 2,
+            "formattedY": "y:2",
+            "data": {
+              "x": 1,
+              "y": 2,
+              "note": "raw outside"
+            },
+            "id": "first:0",
+            "size": 9,
+            "color": "#123456"
+          },
+          "style": {
+            "x": -20,
+            "y": 30,
+            "size": 0,
+            "color": "#123456"
+          },
+          "blendMode": "multiply",
+          "isInteractive": true,
+          "onMouseEnter": "handleMouseEnter",
+          "onMouseMove": "handleMouseMove",
+          "onMouseLeave": "handleMouseLeave",
+          "onMouseDown": "handleMouseDown",
+          "onMouseUp": "handleMouseUp",
+          "onClick": "handleClick",
+          "onDoubleClick": "handleDoubleClick"
+        },
+        {
+          "node": {
+            "index": 1,
+            "serieIndex": 1,
+            "serieId": "first",
+            "x": 70,
+            "xValue": 3,
+            "formattedX": "x:3",
+            "y": 80,
+            "yValue": 4,
+            "formattedY": "y:4",
+            "data": {
+              "x": 3,
+              "y": 4,
+              "note": "raw zero size"
+            },
+            "id": "first:1",
+            "size": 0,
+            "color": "#abcdef"
+          },
+          "style": {
+            "x": 70,
+            "y": 80,
+            "size": 0,
+            "color": "#abcdef"
+          },
+          "blendMode": "multiply",
+          "isInteractive": true,
+          "onMouseEnter": "handleMouseEnter",
+          "onMouseMove": "handleMouseMove",
+          "onMouseLeave": "handleMouseLeave",
+          "onMouseDown": "handleMouseDown",
+          "onMouseUp": "handleMouseUp",
+          "onClick": "handleClick",
+          "onDoubleClick": "handleDoubleClick"
+        },
+        {
+          "node": {
+            "index": 2,
+            "serieIndex": 0,
+            "serieId": "second",
+            "x": 100,
+            "xValue": "category",
+            "formattedX": "x:category",
+            "y": 40,
+            "yValue": 5,
+            "formattedY": "y:5",
+            "data": {
+              "x": "category",
+              "y": 5,
+              "note": "raw category"
+            },
+            "id": "second:0",
+            "size": 18,
+            "color": "#654321"
+          },
+          "style": {
+            "x": 100,
+            "y": 40,
+            "size": 0,
+            "color": "#654321"
+          },
+          "blendMode": "multiply",
+          "isInteractive": true,
+          "onMouseEnter": "handleMouseEnter",
+          "onMouseMove": "handleMouseMove",
+          "onMouseLeave": "handleMouseLeave",
+          "onMouseDown": "handleMouseDown",
+          "onMouseUp": "handleMouseUp",
+          "onClick": "handleClick",
+          "onDoubleClick": "handleDoubleClick"
+        }
+      ]
+    }
+  ],
+  "defaultRadius": [
+    {
+      "size": 0,
+      "radius": 0
+    },
+    {
+      "size": 9,
+      "radius": 4.5
+    },
+    {
+      "size": 18,
+      "radius": 9
+    }
+  ]
+}

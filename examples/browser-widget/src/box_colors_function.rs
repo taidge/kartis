@@ -214,6 +214,7 @@ fn mount_host(
                         })
                         .font_text_measurer(move |text, style, font| {
                             let request = SemanticTextRequest {
+                                whitespace: kartis::LabelWhitespace::Legacy,
                                 text: text.to_string(), size: style.size, font: font.clone(),
                                 line_height: style.size * style.line_height, revision: 0,
                             };

@@ -8,6 +8,9 @@ use crate::scene::ensure;
 use crate::{ClipRect, Mark, Result, Scene};
 mod editable_brush;
 mod painted_geometry;
+#[cfg(test)]
+mod source_projection_tests;
+mod widget_replacements;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub enum Picking {
@@ -205,6 +208,7 @@ struct Index {
 struct BoundInteraction {
     data: crate::InteractionBinding,
     lookup: BTreeMap<String, usize>,
+    region_owners: BTreeSet<String>,
 }
 impl BoundInteraction {
     fn new(data: crate::InteractionBinding, scene: &Scene) -> Result<Self> {
@@ -215,7 +219,16 @@ impl BoundInteraction {
             .enumerate()
             .map(|(i, s)| (s.mark_id.clone(), i))
             .collect();
-        Ok(Self { data, lookup })
+        let region_owners = data
+            .regions
+            .iter()
+            .map(|region| region.mark_id.clone())
+            .collect();
+        Ok(Self {
+            data,
+            lookup,
+            region_owners,
+        })
     }
 }
 #[derive(Clone)]
@@ -223,10 +236,13 @@ pub struct SurfaceModel {
     scene: Rc<Scene>,
     lookup: Rc<BTreeMap<String, usize>>,
     group_opacities: Rc<BTreeMap<String, f64>>,
+    widget_replacements: BTreeSet<String>,
     options: SurfaceOptions,
     index: Option<Rc<Index>>,
     interaction: Option<Rc<BoundInteraction>>,
     painted: Option<Rc<painted_geometry::PreparedPainted>>,
+    source_paint_order: Option<Rc<Vec<usize>>>,
+    source_pick_suppressed: bool,
     frame_token: SurfaceFrameToken,
     physical_hit: Option<SurfacePhysicalHit>,
     hidden: BTreeSet<String>,
@@ -234,6 +250,8 @@ pub struct SurfaceModel {
     hover_point: Option<(f64, f64)>,
     selected: Option<String>,
     view: ZoomTransform,
+    // Absolute Scene camera for the bound image Chart, separate from Surface gestures.
+    chart_paint: Option<ZoomTransform>,
     brush: Option<Brush>,
     editable_brush: Option<crate::brush::EditableBrush>,
     drag: Option<Drag>,
@@ -267,9 +285,12 @@ impl SurfaceModel {
             ),
             scene: Rc::new(scene),
             options,
+            widget_replacements: BTreeSet::new(),
             index: None,
             interaction,
             painted: None,
+            source_paint_order: None,
+            source_pick_suppressed: false,
             frame_token: SurfaceFrameToken(std::sync::Arc::new(())),
             physical_hit: None,
             hidden: BTreeSet::new(),
@@ -277,6 +298,7 @@ impl SurfaceModel {
             hover_point: None,
             selected: None,
             view: ZoomTransform::default(),
+            chart_paint: None,
             brush: None,
             editable_brush: None,
             drag: None,
@@ -290,11 +312,82 @@ impl SurfaceModel {
     pub fn scene(&self) -> &Scene {
         &self.scene
     }
+    /// Browser SVG literal layers project real original Mark indices. The
+    /// authoritative Scene, sites and canonical business map remain complete.
+    #[cfg(any(test, all(feature = "web", target_arch = "wasm32")))]
+    pub(crate) fn set_source_paint_order(
+        &mut self,
+        indices: Vec<usize>,
+    ) -> Result<Vec<SurfaceEvent>> {
+        ensure(
+            self.interaction
+                .as_ref()
+                .is_some_and(|b| b.data.picking_profile == crate::PickingProfile::PaintedGeometry),
+            "source paint projection requires PaintedGeometry",
+        )?;
+        if self
+            .source_paint_order
+            .as_deref()
+            .is_some_and(|old| old == &indices)
+        {
+            return Ok(Vec::new());
+        }
+        let mut next = self.clone();
+        next.source_paint_order = Some(Rc::new(indices));
+        next.reindex()?;
+        let mut events = next.reconcile();
+        next.repick(&mut events)?;
+        next.physical_events(self, &mut events);
+        *self = next;
+        Ok(events)
+    }
     pub fn frame_token(&self) -> SurfaceFrameToken {
         self.frame_token.clone()
     }
     pub fn hovered_physical_hit(&self) -> Option<&SurfacePhysicalHit> {
         self.physical_hit.as_ref()
+    }
+    #[cfg(all(feature = "web", target_arch = "wasm32"))]
+    pub(crate) fn source_ink_ids(&self) -> BTreeSet<String> {
+        self.painted
+            .as_ref()
+            .map_or_else(BTreeSet::new, |p| p.ink_ids(&self.hidden))
+    }
+    /// A real painted original Mark, including unowned nodes/decorations.
+    /// This never creates a canonical hit or changes physical hover.
+    #[cfg(all(feature = "web", target_arch = "wasm32"))]
+    pub(crate) fn source_paint_target(&self, point: (f64, f64)) -> Result<Option<usize>> {
+        finite(point)?;
+        if !self.input_plot_contains(point)? {
+            return Ok(None);
+        }
+        let world = self.paint_transform().unproject(point)?;
+        Ok(self
+            .painted
+            .as_ref()
+            .and_then(|p| p.physical_target(world, &self.hidden))
+            .and_then(|id| self.lookup.get(id).copied()))
+    }
+    #[cfg(any(test, all(feature = "web", target_arch = "wasm32")))]
+    pub(crate) fn apply_without_source_pick(
+        &mut self,
+        input: SurfaceInput,
+    ) -> Result<Vec<SurfaceEvent>> {
+        let selected = self.selected.clone();
+        self.source_pick_suppressed = true;
+        let result = self.apply(input);
+        self.source_pick_suppressed = false;
+        result.map(|mut events| {
+            // Mesh owns this pointer observation. Retaining it as a source
+            // repick point would manufacture a physical hover on a later
+            // layout/projection update, after suppression has ended.
+            self.hover_point = None;
+            // An empty suppressed pick is not an ordinary blank-source click.
+            // Mesh can pan/zoom but cannot clear the canonical selection.
+            self.selected = selected;
+            events.retain(|event| !matches!(event, SurfaceEvent::Selected(_)));
+            events
+        })
     }
     pub fn is_current_hit(&self, hit: &SurfacePhysicalHit) -> bool {
         hit.frame_token == self.frame_token
@@ -306,7 +399,7 @@ impl SurfaceModel {
         let painted = self.painted.as_ref().ok_or_else(|| {
             crate::ChartError("physical ink query requires PaintedGeometry".into())
         })?;
-        if !self.plot().contains(point.0, point.1) {
+        if !self.input_plot_contains(point)? {
             return Ok(None);
         }
         let world = self.paint_transform().unproject(point)?;
@@ -394,7 +487,10 @@ impl SurfaceModel {
                     slice
                         .member_ids
                         .iter()
-                        .filter(|id| self.datum(id).is_some())
+                        .filter(|id| {
+                            self.datum(id).is_some()
+                                && (!self.widget_replacements.contains(*id) || ids.contains(id))
+                        })
                         .cloned()
                         .collect()
                 })
@@ -413,7 +509,14 @@ impl SurfaceModel {
                         .cloned()
                         .collect()
                 })
-                .unwrap_or_default()
+                .unwrap_or_else(|| {
+                    ids.iter()
+                        .filter(|id| {
+                            self.widget_replacements.contains(first) && self.datum(id).is_some()
+                        })
+                        .cloned()
+                        .collect()
+                })
         } else {
             ids.iter()
                 .filter(|id| self.datum(id).is_some())
@@ -661,6 +764,9 @@ impl SurfaceModel {
         })
     }
     pub fn paint_transform(&self) -> ZoomTransform {
+        if let Some(view) = self.chart_paint {
+            return view;
+        }
         if self.options.view_mode == SurfaceViewMode::Relayout {
             return ZoomTransform::default();
         }
@@ -670,6 +776,44 @@ impl SurfaceModel {
             translate_x: p.x + self.view.translate_x - p.x * self.view.scale,
             translate_y: p.y + self.view.translate_y - p.y * self.view.scale,
         }
+    }
+    fn input_plot_contains(&self, point: (f64, f64)) -> Result<bool> {
+        if let Some(view) = self.chart_paint {
+            let viewport = ClipRect {
+                x: 0.,
+                y: 0.,
+                width: self.scene.width,
+                height: self.scene.height,
+            };
+            if !viewport.contains(point.0, point.1) {
+                return Ok(false);
+            }
+            let world = view.unproject(point)?;
+            return Ok(self.plot().contains(world.0, world.1));
+        }
+        Ok(self.plot().contains(point.0, point.1))
+    }
+    pub(crate) fn set_chart_paint(&mut self, view: ZoomTransform) -> Result<()> {
+        view.validate()?;
+        if self.chart_paint == Some(view) {
+            return Ok(());
+        }
+        ensure(
+            self.painted.is_some()
+                && !self.options.zoom
+                && !self.options.pan
+                && !self.options.pinch
+                && !self.options.brush,
+            "chart paint camera requires a strict non-gesture plot",
+        )?;
+        let mut next = self.clone();
+        next.chart_paint = Some(view);
+        next.cancel_drag();
+        next.frame_token = SurfaceFrameToken(std::sync::Arc::new(()));
+        next.physical_hit = None;
+        next.repick(&mut vec![])?;
+        *self = next;
+        Ok(())
     }
     fn local(&self, point: (f64, f64)) -> (f64, f64) {
         let p = self.plot();
@@ -692,6 +836,13 @@ impl SurfaceModel {
                 .editable_brush
                 .as_ref()
                 .is_some_and(|brush| brush.active())
+    }
+    #[cfg(all(feature = "web", target_arch = "wasm32"))]
+    pub(crate) fn native_click_pending(&self) -> bool {
+        self.touches.is_empty()
+            && self
+                .drag
+                .is_some_and(|drag| !drag.moved && drag.kind != DragKind::Brush)
     }
     pub fn touch_count(&self) -> usize {
         self.touches.len()
@@ -744,9 +895,15 @@ impl SurfaceModel {
             |binding| binding.data.anchor_for(mark).ok().flatten(),
         )
     }
+    fn has_region(&self, id: &str) -> bool {
+        self.interaction
+            .as_ref()
+            .is_some_and(|binding| binding.region_owners.contains(id))
+    }
     fn data(&self, m: &Mark) -> bool {
         if let Some(painted) = &self.painted {
-            return !self.hidden.contains(&m.series) && painted.has_owner(&m.id);
+            return !self.hidden.contains(&m.series)
+                && (painted.has_owner(&m.id) || self.has_region(&m.id));
         }
         !m.series.is_empty()
             && !m.label.is_empty()
@@ -807,10 +964,20 @@ impl SurfaceModel {
                 binding.polar.is_none(),
                 "PaintedGeometry cannot use a polar slice index",
             )?;
-            Some(Rc::new(painted_geometry::PreparedPainted::prepare(
-                &self.scene,
-                binding,
-            )?))
+            Some(Rc::new(if let Some(order) = &self.source_paint_order {
+                painted_geometry::PreparedPainted::prepare_projected(
+                    &self.scene,
+                    binding,
+                    &self.widget_replacements,
+                    order,
+                )?
+            } else {
+                painted_geometry::PreparedPainted::prepare(
+                    &self.scene,
+                    binding,
+                    &self.widget_replacements,
+                )?
+            }))
         } else {
             None
         };
@@ -820,7 +987,10 @@ impl SurfaceModel {
         self.index = if self.options.picking == Picking::Geometry {
             None
         } else {
-            let mut source = self.scene.without_series(&self.hidden);
+            let mut source = self
+                .scene
+                .without_series(&self.hidden)
+                .without_mark_ink(&self.widget_replacements);
             let mesh = if self.interaction.is_some() {
                 let positions = source
                     .marks
@@ -872,6 +1042,41 @@ impl SurfaceModel {
         *self = next;
         Ok(events)
     }
+    /// Admit literal SVG source order with its layout as one physical frame.
+    /// No temporary default-Scene hover escapes this private transaction.
+    #[cfg(any(test, all(feature = "web", target_arch = "wasm32")))]
+    pub(crate) fn set_projected_layout(
+        &mut self,
+        candidate: crate::SceneInteraction,
+        indices: Vec<usize>,
+    ) -> Result<Vec<SurfaceEvent>> {
+        ensure(
+            candidate.interaction.as_ref().is_some_and(|binding| {
+                binding.picking_profile == crate::PickingProfile::PaintedGeometry
+            }),
+            "source paint projection requires PaintedGeometry",
+        )?;
+        let interaction = candidate
+            .interaction
+            .map(|data| BoundInteraction::new(data, &candidate.scene).map(Rc::new))
+            .transpose()?;
+        let mut next = self.clone();
+        if let Some(plot) = candidate.plot {
+            next.options.plot = Some(plot);
+        }
+        let mut events = next.replace_scene_with_source_order(
+            candidate.scene,
+            interaction,
+            Some(Rc::new(indices)),
+        )?;
+        events.retain(|event| !matches!(event, SurfaceEvent::Hover(_)));
+        if next.hovered != self.hovered {
+            events.push(SurfaceEvent::Hover(next.hovered.clone()));
+        }
+        next.physical_events(self, &mut events);
+        *self = next;
+        Ok(events)
+    }
     /// Hosts retaining property-motion settings can admit the next layout and
     /// its binding transactionally before publishing or creating new tracks.
     pub fn set_layout_for_motion(
@@ -893,6 +1098,14 @@ impl SurfaceModel {
         scene: Scene,
         interaction: Option<Rc<BoundInteraction>>,
     ) -> Result<Vec<SurfaceEvent>> {
+        self.replace_scene_with_source_order(scene, interaction, None)
+    }
+    fn replace_scene_with_source_order(
+        &mut self,
+        scene: Scene,
+        interaction: Option<Rc<BoundInteraction>>,
+        source_order: Option<Rc<Vec<usize>>>,
+    ) -> Result<Vec<SurfaceEvent>> {
         scene.validate()?;
         validate_plot(self.options.plot, &scene)?;
         let mut next = self.clone();
@@ -910,6 +1123,13 @@ impl SurfaceModel {
         );
         next.group_opacities = Rc::new(scene.mark_group_opacities());
         next.scene = Rc::new(scene);
+        next.source_paint_order = source_order;
+        if next.source_paint_order.is_some() {
+            next.widget_replacements.clear();
+        } else {
+            next.widget_replacements
+                .retain(|id| next.lookup.contains_key(id));
+        }
         next.view = next.limits().constrain(&next.view)?;
         let mut events = next.cancel_editable_brush()?;
         next.cancel_drag();
@@ -973,6 +1193,9 @@ impl SurfaceModel {
         );
         next.group_opacities = Rc::new(scene.mark_group_opacities());
         next.scene = Rc::new(scene);
+        next.source_paint_order = None;
+        next.widget_replacements
+            .retain(|id| next.lookup.contains_key(id));
         next.view = next.limits().constrain(&view)?;
         let mut events = Vec::new();
         if !preserve {
@@ -1064,7 +1287,12 @@ impl SurfaceModel {
         events
     }
     fn hover(&mut self, next: Vec<String>, events: &mut Vec<SurfaceEvent>) {
-        if next.is_empty() {
+        if next.is_empty()
+            && self
+                .physical_hit
+                .as_ref()
+                .is_none_or(|hit| !self.has_region(&hit.logical_site_id))
+        {
             self.physical_hit = None;
         }
         if self.hovered != next {
@@ -1097,11 +1325,33 @@ impl SurfaceModel {
     }
     fn pick(&mut self, point: (f64, f64)) -> Result<Vec<String>> {
         finite(point)?;
+        if self.source_pick_suppressed {
+            self.physical_hit = None;
+            return Ok(Vec::new());
+        }
         if self.painted.is_some() {
             self.physical_hit = self.physical_hit_at(point)?;
+            if self.input_plot_contains(point)? {
+                let world = self.paint_transform().unproject(point)?;
+                if let Some(binding) = &self.interaction {
+                    for region in binding.data.regions.iter().rev() {
+                        if self.datum(&region.mark_id).is_some()
+                            && region.bounds.iter().any(|r| {
+                                world.0 >= r.x
+                                    && world.0 < r.x + r.width
+                                    && world.1 >= r.y
+                                    && world.1 < r.y + r.height
+                            })
+                        {
+                            return Ok(vec![region.mark_id.clone()]);
+                        }
+                    }
+                }
+            }
             return Ok(self
                 .physical_hit
                 .as_ref()
+                .filter(|hit| !self.has_region(&hit.logical_site_id))
                 .map(|h| vec![h.logical_site_id.clone()])
                 .unwrap_or_default());
         }
@@ -1120,7 +1370,9 @@ impl SurfaceModel {
                     slice
                         .member_ids
                         .iter()
-                        .filter(|id| self.datum(id).is_some())
+                        .filter(|id| {
+                            self.datum(id).is_some() && !self.widget_replacements.contains(*id)
+                        })
                         .cloned()
                         .collect()
                 })
@@ -1133,7 +1385,7 @@ impl SurfaceModel {
                     .scene
                     .paint_marks()
                     .rev()
-                    .filter(|mark| self.data(mark))
+                    .filter(|mark| self.pointer_data(mark))
                 {
                     if self.interaction.is_some()
                         && let Some(geometry) = crate::render::point_stroke_footprint(m)?
@@ -1182,7 +1434,8 @@ impl SurfaceModel {
                 };
                 let eligible = |id: &&String| {
                     self.datum(id).is_some_and(|m| {
-                        m.clip.is_none_or(|c| c.contains(world.0, world.1))
+                        !self.widget_replacements.contains(*id)
+                            && m.clip.is_none_or(|c| c.contains(world.0, world.1))
                             && m.clip_path
                                 .as_ref()
                                 .is_none_or(|c| c.contains(world.0, world.1))
@@ -1232,7 +1485,7 @@ impl SurfaceModel {
                 {
                     return Ok(events);
                 }
-                if !self.plot().contains(point.0, point.1) {
+                if !self.input_plot_contains(point)? {
                     return Ok(events);
                 }
                 if self.touches.contains_key(&id)
@@ -1257,6 +1510,7 @@ impl SurfaceModel {
                     self.brush = None;
                     self.pinch = Some(self.pinch_baseline()?);
                 }
+                self.physical_hit = None;
                 self.hover(vec![], &mut events);
                 self.hover_point = None;
             }
@@ -1314,6 +1568,7 @@ impl SurfaceModel {
             SurfaceInput::TouchCancel { id } => {
                 if self.touches.remove(&id).is_some() {
                     self.resume_touch();
+                    self.physical_hit = None;
                     self.hover(vec![], &mut events);
                 }
             }
@@ -1342,6 +1597,7 @@ impl SurfaceModel {
                                 &self.limits(),
                             )?;
                             self.transform(view, &mut events);
+                            self.physical_hit = None;
                             self.hover(vec![], &mut events);
                         }
                         DragKind::Brush => {
@@ -1377,6 +1633,7 @@ impl SurfaceModel {
             SurfaceInput::Leave => {
                 if self.drag.is_none() {
                     self.hover_point = None;
+                    self.physical_hit = None;
                     self.hover(vec![], &mut events);
                 }
             }
@@ -1389,7 +1646,7 @@ impl SurfaceModel {
                 {
                     return Ok(events);
                 }
-                if !self.plot().contains(point.0, point.1) {
+                if !self.input_plot_contains(point)? {
                     return Ok(events);
                 }
                 if self.drag.is_none() && self.touches.is_empty() {
@@ -1468,6 +1725,7 @@ impl SurfaceModel {
                 self.transform(view, &mut events);
                 self.cancel_drag();
                 self.hover_point = None;
+                self.physical_hit = None;
                 self.hover(vec![], &mut events);
             }
             SurfaceInput::Next
@@ -1543,6 +1801,7 @@ impl SurfaceModel {
                 }
                 self.cancel_drag();
                 self.hover_point = None;
+                self.physical_hit = None;
                 self.hover(vec![], &mut events);
                 self.selection(None, &mut events);
             }
@@ -1583,7 +1842,12 @@ impl SurfaceModel {
         });
     }
     fn brush_ids(&self, bounds: Brush) -> Result<Vec<String>> {
-        bounds.select(&self.scene.without_series(&self.hidden))
+        bounds.select(
+            &self
+                .scene
+                .without_series(&self.hidden)
+                .without_mark_ink(&self.widget_replacements),
+        )
     }
     pub fn transformed_brush(&self) -> Result<Option<Brush>> {
         self.brush

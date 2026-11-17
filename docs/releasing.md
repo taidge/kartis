@@ -24,8 +24,8 @@ The publishing workflow requires this configuration for an unpublished version.
 Create and push the version tag:
 
 ```sh
-git tag -a v0.1.0 -m "Kartis 0.1.0"
-git push origin v0.1.0
+git tag -a v0.2.0 -m "Kartis 0.2.0"
+git push origin v0.2.0
 ```
 
 The release workflow runs CI again on that tag, verifies that its version matches
@@ -41,7 +41,7 @@ immutable. The release check is also available as:
 
 ```sh
 cargo +1.95.0 package --locked --all-features
-python scripts/release.py verify --tag v0.1.0 --require-published
+python scripts/release.py verify --tag v0.2.0 --require-published
 ```
 
 The registry archive contains library sources, examples, documentation, fonts,

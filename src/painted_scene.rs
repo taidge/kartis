@@ -56,6 +56,14 @@ pub fn scene_with_painted_labels(
     scene.validate()?;
     options.validate()?;
     ensure(
+        scene
+            .typography
+            .label_strokes
+            .iter()
+            .all(|(index, _)| options.rotated_only && scene.labels[*index].rotation == 0.),
+        "glyph lowering does not support label strokes",
+    )?;
+    ensure(
         !namespace.is_empty()
             && namespace.len() <= 128
             && namespace.bytes().enumerate().all(|(index, byte)| {
@@ -104,6 +112,8 @@ pub fn scene_with_painted_labels(
         if !selected[index] {
             continue;
         }
+        let drawable = scene.typography.drawable_label(index, label);
+        let label = drawable.as_ref();
         let painted = if scene.typography.has_label_font(index) {
             fonts.painted_label_with_font(
                 label,
@@ -180,6 +190,8 @@ pub fn scene_with_painted_labels(
         typography: scene.typography.clone(),
     };
     result.typography.labels.clear();
+    result.typography.label_whitespace.clear();
+    result.typography.label_strokes.clear();
     result.marks.extend(additions);
     let mut remaining = BTreeMap::new();
     for (index, label) in scene.labels.iter().enumerate() {
@@ -188,6 +200,12 @@ pub fn scene_with_painted_labels(
         }
         let next = result.labels.len();
         remaining.insert(index, next);
+        if let Some(mode) = scene.typography.label_whitespace.get(&index) {
+            result.typography.label_whitespace.insert(next, *mode);
+        }
+        if let Some(stroke) = scene.typography.label_strokes.get(&index) {
+            result.typography.label_strokes.insert(next, *stroke);
+        }
         result.labels.push(label.clone());
         if let Some(font) = scene.typography.labels.get(&index) {
             result.typography.labels.insert(next, font.clone());

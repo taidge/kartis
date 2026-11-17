@@ -1,0 +1,55 @@
+name: Showcase
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact source commit or tag
+        required: false
+        type: string
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and verify public showcase
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: '1.95.0'
+          targets: wasm32-unknown-unknown
+          components: clippy
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Compile showcase with strict warnings
+        run: cargo clippy --locked --manifest-path site/wasm/Cargo.toml --target wasm32-unknown-unknown -- -D warnings
+      - name: Install matching WebAssembly bindings generator
+        run: cargo install wasm-bindgen-cli --version 0.2.130 --locked
+      - name: Build deployable static assets
+        run: python site/build.py
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Verify charts and browser interactions
+        run: node site/smoke.mjs
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        if: always()
+        with:
+          name: kartis-showcase
+          path: |
+            site/dist/
+            site/verification/
+          if-no-files-found: error
+          retention-days: 14

@@ -1,5 +1,15 @@
 # Third-party algorithm notices
 
+The development Albers USA projection primitives and planar rectangle clipping
+follow d3-geo 3.1.1 (ISC, Mike Bostock). The rectangle port includes line clipping,
+buffering and boundary rejoining; frozen original-function inventories live in
+`tests/fixtures/geo-usa-kernel/`, `tests/fixtures/geo-rect-clip/` and
+`tests/fixtures/geo-usa-map/` and `tests/fixtures/geo-usa-stream/`. The map reference executes original multiplexed
+polygon streams and fitting; the line reference retains original composite events and separate child streams, including interleaving and degenerate contacts. Neither asserts identical adaptive subdivisions.
+The existing
+[D3 license notice](../tests/fixtures/geo-inverse-d3-LICENSE.txt) applies. Complete
+fitted composite map and overlay integration remains in progress.
+
 ## D3 continuous color transforms and piecewise scales
 
 `src/color_scale/transform.rs` adapts `d3-scale` 4.0.2 `sequential.js`,
@@ -104,6 +114,14 @@ D3 categorical palettes named in Nivo's color catalog. The ordinal fixture
 uses the original catalog and `d3-scale` 4.0.2. Inherited RGB modifiers follow
 Nivo's inherited color configuration and `d3-color` 3.1.0. The Nivo MIT
 terms and D3 license notices apply to these references.
+
+## Unicode grapheme segmentation
+
+The shared text-wrapping implementation uses the `unicode-segmentation` Rust
+crate for extended grapheme boundaries. This dependency was already used by
+the optional raster text pipeline and is now shared with renderer-independent
+wrapping. Its license is MIT OR Apache-2.0. This does not supply a complete CSS
+line-breaking or hyphenation engine.
 
 ## Bidirectional text reference fixtures
 
@@ -357,3 +375,173 @@ Nivo's MIT license:
 Spherical measurement, circle, centroid and containment equations and compensated addition follow d3-geo 3.1.1 and d3-array 3.2.5 (ISC, Mike Bostock). Complete original notices are preserved in [the D3 reference license](../tests/fixtures/geo-inverse-d3-LICENSE.txt). Original UMD and ESM references and checked native differences are retained in the geo-spherical and geo-spherical-relations fixture directories.
 
 Calendar month-spacing references execute the original Nivo Calendar computation and legend-position functions with D3-time and Lodash. Radar point-label references execute the original property accessor, public defaults and pure RadarDots point-data stage; they do not mount React components. These are verification-only sources, not Rust runtime dependencies. Their source inventories and preserved Nivo/Lodash notices are in [Calendar fixtures](../tests/fixtures/calendar-month-spacing/) and [Radar fixtures](../tests/fixtures/radar-point-label/). [Calendar producer](../scripts/calendar-month-spacing-reference.mjs) · [Radar producer](../scripts/radar-point-label-reference.mjs)
+
+Custom Swarm-node and Network-link references preserve the original Nivo 0.99
+renderer bodies, layer loops, transition functions and source-preparation
+fragments. They execute on actual Chromium Canvas2D, including its requested
+and applied paint behavior; React lifecycles and force-layout trajectories are
+outside that comparison. Complete upstream sources and MIT notices are in
+[the renderer fixtures](../tests/fixtures/node-link-custom/vendor/nivo/), with
+the [reference producer](../scripts/node-link-custom-reference.mjs). These
+sources are used only for verification and are not JavaScript runtime
+dependencies of Kartis's Rust layout implementation.
+
+Stream dot-component verification preserves the original Nivo 0.99 StreamDots,
+StreamDotsItem, Stream, hooks, types and props sources with their complete MIT
+notice in [the frozen reference](../tests/fixtures/stream-dot-widgets/original/).
+The [producer and read-only verifier](../scripts/stream-dot-widget-reference.mjs)
+execute original component arguments and enable gates. These test fixtures do
+not introduce React or JavaScript dependencies into the Rust runtime.
+
+
+Scatter node-component verification preserves original Nivo 0.99 Nodes, Node,
+compute, hooks, types and props sources, with the complete MIT notice in
+[the frozen reference](../tests/fixtures/scatter-node-widgets/original/).
+The [producer and read-only verifier](../scripts/scatter-node-widget-reference.mjs)
+execute original computePoints, transition style recipes, node component arguments
+and default radius expressions. They do not execute React or spring lifecycles,
+and do not add JavaScript runtime dependencies to the Rust library.
+
+
+Bar component verification preserves original Nivo 0.99 Bar, BarItem, hooks,
+types, props and computation sources with the complete MIT notice in
+[the frozen reference](../tests/fixtures/bar-widgets/original/).
+The [producer and read-only verifier](../scripts/bar-widget-reference.mjs)
+execute original null eligibility, component arguments, common props, transition
+recipes, label layout and default rectangle expressions. These verification-only
+sources do not execute React/spring lifecycles or add JavaScript runtime
+dependencies to Kartis.
+
+Bump point-component verification preserves Nivo 0.99 Bump, Point, compute,
+hooks, Mesh, types, defaults and the original point-scale adapter, with complete
+MIT notices in [the frozen reference](../tests/fixtures/bump-point-widgets/original/).
+The [producer and read-only verifier](../scripts/bump-point-widget-reference.mjs)
+execute actual source computation, style branches, component arguments, spring
+input recipes and radius clamps. Actual D3 point-scale dependency source hashes
+are recorded separately. These are test-only sources; no React runtime or
+JavaScript dependency is added to the Rust library.
+
+Hierarchy component verification preserves 29 complete Nivo 0.99 Treemap,
+CirclePacking, Icicle, Rects and Theming sources and five complete MIT notices
+in [the frozen reference](../tests/fixtures/hierarchy-node-widgets/original/).
+The [producer and read-only verifier](../scripts/hierarchy-node-widget-reference.mjs)
+execute distinct original TSX component/wrapper creation, scalar transition,
+handler and label-gate recipes through the pinned test compiler. Computed node
+geometry is authored; hook/accessor/selector probes do not implement D3 hierarchy
+layout, React lifecycle, real Spring values or browser focus transport. These
+sources are used only for verification and add no Rust runtime dependency.
+
+Swarm node-component verification preserves eight complete original Nivo 0.99
+SwarmPlot/Circles/CircleSvg/Canvas/hooks/compute/types/props source files,
+package metadata and the complete MIT notice in
+[the frozen reference](../tests/fixtures/swarm-node-widgets/original/).
+The [producer and read-only verifier](../scripts/swarm-node-widget-reference.mjs)
+execute original source preparation, component creation arguments, handlers,
+transition/radius recipes and record-only Canvas drawing commands. Positions
+and indices are authored; force trajectories, React scheduling, actual Spring
+and pixel rendering are outside that reference. These are verification-only
+sources and add no JavaScript runtime dependency to the Rust library.
+
+Network node-component verification preserves eight complete original Nivo0.99
+Network/NetworkNodes/NetworkNode/Canvas/hooks/defaults/types source files, package
+metadata and the full MIT notice in
+[the frozen reference](../tests/fixtures/network-node-widgets/original/).
+The [producer and read-only verifier](../scripts/network-node-widget-reference.mjs)
+execute original node preparation/style expressions, component creation,
+transition and handler recipes, plus record-only Canvas commands. Force positions
+are authored; React, actual Spring/D3-force scheduling and framebuffer rendering
+are not part of that reference. These are verification-only sources and do not
+add JavaScript runtime dependencies to the Rust library.
+
+Network link-component verification preserves eight complete original Nivo0.99
+Network/NetworkLinks/NetworkLink/Canvas/hooks/defaults/types/Canvas-link source
+files, package metadata and the full MIT notice in
+[the frozen reference](../tests/fixtures/network-link-widgets/original/).
+The [producer and read-only verifier](../scripts/network-link-widget-reference.mjs)
+execute original creation props, transition/default-SVG recipes and record-only
+Canvas commands. Authored force positions are probes; actual React/Spring,
+D3-force trajectories, blending and framebuffer pixels are not executed.
+These verification-only sources add no JavaScript runtime dependency to Kartis.
+
+## Funnel custom layers and function properties
+
+The Funnel layer reference retains 19 original source and package metadata files
+from Nivo 0.99.0, together with the full MIT notices for Funnel, core and colors,
+in [the frozen fixture](../tests/fixtures/funnel-layer-widgets/).
+The [producer and offline verifier](../scripts/funnel-layer-widget-reference.mjs)
+execute original layout, color/formatter/style, layer creation and handler
+recipes. Original JSX recipes are recorded without a React or Spring runtime.
+Funnel exposes custom function layers; the Rust live body, border and separator
+roles are typed extensions, not nonexistent upstream component properties.
+Original separator edge cases and callback scheduling differences are retained
+as reference evidence, not claimed as identical Rust behavior. These sources
+are verification fixtures and add no JavaScript runtime dependency to Kartis.
+
+## Tree node and link component contracts
+
+The Tree reference retains 14 complete original source and package metadata
+files from Nivo 0.99.0 and the full Tree MIT notice in
+[the frozen fixture](../tests/fixtures/tree-widgets/).
+The [producer and offline verifier](../scripts/tree-widget-reference.mjs)
+execute original UID, computed-node/link, component creation/transition,
+handler and Canvas renderer recipes, including the actual Canvas layer loop.
+Hierarchy traversal, coordinates, scales, React hooks and Spring scheduling use
+explicit authored dependency probes. These recipes do not establish D3 layout
+numerical identity, React lifecycle, native event transport or pixel parity.
+Nested path UIDs and arbitrary raw fields are distinct from Kartis's flat,
+globally unique source IDs and explicit raw/aggregate weights. This fixture
+adds no JavaScript runtime dependency to Kartis.
+
+## Stream function configuration
+
+The [Stream function fixture](../tests/fixtures/stream-functions/) preserves
+19 complete original source/package files from Nivo 0.99.0 and full MIT notices
+for Stream, core and colors. Its [producer and offline verifier](../scripts/stream-function-reference.mjs)
+execute original eight-function passthrough, computed layers, dot creation,
+area stroke and default-circle recipes. Twenty-four profiles and 72 dot calls
+use explicit authored stack/scale/path/hook probes, not D3 numerical or React
+lifecycle execution. Separate layer-enable profiles verify actual creation
+gates. Rust nullable series, borrowed Geometry and static ordinal metadata are
+distinct from generic JavaScript raw data, SVG path strings and hook caches.
+These are verification-only sources, adding no JavaScript runtime dependency.
+
+## Tree function configuration
+
+The [Tree function fixture](../tests/fixtures/tree-functions/) retains 19
+complete Nivo 0.99.0 source/package files and full MIT notices for Tree, core
+and colors. Its [producer and offline verifier](../scripts/tree-function-reference.mjs)
+execute original five-function passthrough and node/link computation, including
+48 profiles with active/fixed-depth boundaries, 384 label-position profiles,
+and separate SVG/Canvas label gates. Hierarchy coordinates, scales, hooks and
+Spring use explicit synchronous dependency probes. These sources establish
+function inputs/order and creation gates, rather than D3 numerical, React
+lifecycle or framebuffer equivalence, and add no JavaScript runtime dependency.
+
+## Tree activity and current-node events
+
+The [Tree activity fixture](../tests/fixtures/tree-activity/) retains 24 complete
+Nivo 0.99.0 source/package files and full MIT notices for Tree, core, colors and
+Voronoi. Its [producer and offline verifier](../scripts/tree-activity-reference.mjs)
+execute the original active/inactive modifiers, fixed-depth inheritance,
+current-node setter, node handlers and mesh-event recipes. They cover 576 core
+profiles, 16 zero-modifier profiles, six original numeric boundaries, eight
+node-handler profiles and four mesh sequences. Hook, hierarchy, scale, event
+coordinate and nearest-query dependencies are explicit probes; this is not
+React, D3 layout, Voronoi, browser event or operating-system runtime evidence.
+These verification sources add no JavaScript runtime dependency to Kartis.
+
+## Funnel annotation references
+
+The [Funnel annotation fixture](../tests/fixtures/funnel-annotations/) includes
+a committed numeric reference table and MIT notice. Its portable
+[original component sources](../tests/fixtures/funnel-annotations/original/)
+retain the exact Nivo 0.99.0 `DotAnnotationOutline`, defaults and annotation
+license, with the commit and byte hashes in `source-index.json`.
+
+The browser reference executes the original component with declared cold
+numeric Spring and JSX adapters, then renders its native circles in an isolated
+browser process. This establishes the recorded static paint reference, without
+claiming React lifecycle, Spring time integration or whole-primitive antialias
+equivalence. Playwright's pinned development compiler and its source hashes are
+recorded with each run. These assets serve verification and add no JavaScript
+runtime dependency to Kartis.

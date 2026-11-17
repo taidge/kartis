@@ -1,0 +1,130 @@
+{
+  "passed": true,
+  "featureAccepted": false,
+  "broadGoalComplete": false,
+  "commit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "version": "0.99.0",
+  "scope": "Exact source capture only, no React/ReactSpring or browser execution",
+  "files": {
+    "packages/funnel/src/Part.tsx": {
+      "sha256": "bed32ee4e9bc6c2797ec37789bf775d67ff62587d4990740173aaf8d9d57e992",
+      "bytes": 1742
+    },
+    "packages/funnel/src/Parts.tsx": {
+      "sha256": "5397889e23b8d3a5d5c71a149c0e27c303d3e8c340c2f5374419254bfa0026c8",
+      "bytes": 698
+    },
+    "packages/funnel/src/PartLabel.tsx": {
+      "sha256": "2535e2340efe9eeedcd7778a1fb5a2f05afe62c1f3176ae5da17b7393f82cb8a",
+      "bytes": 1117
+    },
+    "packages/funnel/src/PartLabels.tsx": {
+      "sha256": "905592f928815b673afae7c1cc36a8769af484a433851ccffc87745b3e7e52de",
+      "bytes": 373
+    },
+    "packages/funnel/src/Separator.tsx": {
+      "sha256": "01d75b2209dd48bbe24f7aae7001e4afd59df7708ef54a7c92611d7f0f5da574",
+      "bytes": 882
+    },
+    "packages/funnel/src/Separators.tsx": {
+      "sha256": "c036916b762b940ba497a84bbf588eca9fb4cba8196e6779f5161b22e1084913",
+      "bytes": 565
+    },
+    "packages/funnel/src/Funnel.tsx": {
+      "sha256": "9f8f6b09b7494a4b918294b26a00c09e0219d068f4d395f19f0808e24ec8e218",
+      "bytes": 5664
+    },
+    "packages/funnel/src/FunnelAnnotations.tsx": {
+      "sha256": "32412078827cde3a98c1f8c622dbe00ed16b22a0ecbbaa2ad0e4d4a7fc8b93fe",
+      "bytes": 622
+    },
+    "packages/funnel/src/hooks.ts": {
+      "sha256": "d7f6be945fe48de6ee36f19f7b3f6f35b88445445ef41dc439decb0cfd951eab",
+      "bytes": 23993
+    },
+    "packages/funnel/src/props.tsx": {
+      "sha256": "472d15d6fc3fdb2bfe6dd2d75188ddb20f571851133b37ed48084e28b785950c",
+      "bytes": 923
+    },
+    "packages/funnel/src/types.ts": {
+      "sha256": "0c1154df7bd22546fb903049a6ab41e10370d998b6510a3c590847d203c526c6",
+      "bytes": 4289
+    },
+    "packages/core/src/hooks/useAnimatedPath.js": {
+      "sha256": "74002e9fa2db6e925b686a60795b6dd7ec5f72f5c656b360080f0cb756d8e766",
+      "bytes": 810
+    },
+    "packages/core/src/motion/context.js": {
+      "sha256": "f02cc3b773c64790b39e595edbc31c01fe13675109c08da7945250a9de9575cf",
+      "bytes": 899
+    },
+    "packages/core/src/motion/hooks.js": {
+      "sha256": "4ca0f333a132aaf56aed8f51b868e96c98790cfda416f7dc29db10b3bae0f7ac",
+      "bytes": 380
+    },
+    "packages/annotations/src/Annotation.tsx": {
+      "sha256": "8ee1f705f274da34c7cb05b212f254977df93cb6c7c0079f8aa41e7aff33da55",
+      "bytes": 1627
+    },
+    "packages/annotations/src/AnnotationLink.tsx": {
+      "sha256": "db0d5bcc0968b76ea185dd23e728977f5472fe7dcb3e82299895df58d6a69342",
+      "bytes": 1145
+    },
+    "packages/annotations/src/AnnotationNote.tsx": {
+      "sha256": "69129547d682483fcd1a375a65461d208aab494604f8b284df462bbb3ace83f5",
+      "bytes": 1583
+    },
+    "packages/annotations/src/CircleAnnotationOutline.tsx": {
+      "sha256": "d9eaa11718a34db4d325ff3ef1bd497bea386e1cf6218c676a0557ef7c532593",
+      "bytes": 1467
+    },
+    "packages/annotations/src/DotAnnotationOutline.tsx": {
+      "sha256": "75ca2a6d75ec82215de238d81ff72a3c0230bb8b4b7b9256fe3f25019e76aea1",
+      "bytes": 1453
+    },
+    "packages/annotations/src/RectAnnotationOutline.tsx": {
+      "sha256": "72b026e1301feeca8a1bf5e85c549c18c28a67fce839e62c7beb89a0b994074a",
+      "bytes": 1843
+    },
+    "packages/annotations/src/hooks.ts": {
+      "sha256": "02874d28bc67ffebc0055f6a259173f6a0b25c86eecfa423eaa53c1f71bef60d",
+      "bytes": 1358
+    },
+    "packages/annotations/src/props.ts": {
+      "sha256": "af6a2b4a585a27ea6138255ae5f4473e90e608a8e1a839d6be4b63b1a04e1551",
+      "bytes": 110
+    },
+    "packages/annotations/src/types.ts": {
+      "sha256": "5ec81db8e6b6c8212d84adef8a8b7c40234d90c2253b3eaf1b051131610613aa",
+      "bytes": 4104
+    },
+    "packages/annotations/src/utils.ts": {
+      "sha256": "c77cb2780f91cf053244ce3ffb9744467dfbd8b6dce0f7908e98ed080aa99596",
+      "bytes": 1146
+    },
+    "packages/funnel/package.json": {
+      "sha256": "f462d05337f8322442adf1393fad9b6a4264403f7e8653bf297306791a5141d8",
+      "bytes": 1481
+    },
+    "packages/funnel/LICENSE.md": {
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+      "bytes": 1054
+    },
+    "packages/core/package.json": {
+      "sha256": "d789634bd1ed39d5ac9c87abaef36450cfa0ec2b02908684fd7fe4834a4cea30",
+      "bytes": 1514
+    },
+    "packages/core/LICENSE.md": {
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+      "bytes": 1054
+    },
+    "packages/annotations/package.json": {
+      "sha256": "9490abbaf3e639b3c46a7ebacf58ae8104105ee9072b569751064608baa3b699",
+      "bytes": 1277
+    },
+    "packages/annotations/LICENSE.md": {
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+      "bytes": 1054
+    }
+  }
+}

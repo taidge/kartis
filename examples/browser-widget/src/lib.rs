@@ -15,6 +15,10 @@ mod box_parts_pointer;
 mod plot_widgets;
 #[cfg(target_arch = "wasm32")]
 mod radial_box_stroke_roles;
+#[cfg(target_arch = "wasm32")]
+mod raster_chart_bindings;
+#[cfg(target_arch = "wasm32")]
+mod whitespace;
 
 #[cfg(target_arch = "wasm32")]
 mod browser {

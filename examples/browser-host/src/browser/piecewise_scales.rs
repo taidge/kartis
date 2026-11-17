@@ -25,7 +25,7 @@ fn bind(f: &Fixture) -> Result<()> {
         snapshot.hidden,
         None,
     )?;
-    if f.case == 6 {
+    if matches!(f.case, 6 | 10 | 11) {
         f.chart.set_layout(baseline.interaction())?;
         *f.accepted.borrow_mut() = baseline;
         return Ok(());
@@ -163,7 +163,7 @@ pub fn piecewise_scales_flush() -> std::result::Result<(), JsValue> {
 #[wasm_bindgen]
 pub fn piecewise_scales_reset() -> std::result::Result<(), JsValue> {
     FIXTURES.with(|s| {
-        for f in s.borrow().iter().filter(|f| f.case != 6) {
+        for f in s.borrow().iter().filter(|f| !matches!(f.case, 6 | 10 | 11)) {
             f.chart
                 .handle()
                 .request_viewport(ViewportRequest::Reset)
@@ -179,6 +179,37 @@ pub fn piecewise_scales_reject(reject: bool) {
             f.reject.set(reject);
         }
     });
+}
+/// Apply an explicit normalized window through the same mounted publisher as gestures.
+#[wasm_bindgen]
+pub fn piecewise_scales_window(
+    start: f64,
+    span: f64,
+    vertical: bool,
+) -> std::result::Result<(), JsValue> {
+    FIXTURES.with(|s| {
+        for f in s.borrow().iter() {
+            let p = f.accepted.borrow().plot();
+            let k = 1. / span;
+            f.chart
+                .handle()
+                .request_viewport(ViewportRequest::TransformXY {
+                    transform: ViewportTransform {
+                        scale_x: if vertical { 1. } else { k },
+                        scale_y: if vertical { k } else { 1. },
+                        translate_x: if vertical { 0. } else { -start * p.width * k },
+                        translate_y: if vertical { -start * p.height * k } else { 0. },
+                    },
+                    axes: if vertical {
+                        ViewportSelection::Y
+                    } else {
+                        ViewportSelection::X
+                    },
+                })
+                .map_err(js)?;
+        }
+        Ok(())
+    })
 }
 #[wasm_bindgen]
 pub fn piecewise_scales_invalid() -> bool {

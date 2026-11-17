@@ -2,6 +2,37 @@
 use super::*;
 
 impl RasterSurfaceHandle {
+    /// Pick Albers USA with D3's default inset selector, retaining its region.
+    /// Composite image overlaps can resolve to a different source location;
+    /// use the known-region method when picking a specific component's ink.
+    pub fn invert_usa_at_host(
+        &self,
+        projection: &GeoProjectionContext,
+        host: (f64, f64),
+        bounds: RasterSurfaceBounds,
+    ) -> Result<Option<GeoUsaInverse>> {
+        with_host_point(self, host, bounds, |model, point| {
+            matching_dimensions(projection, model)?;
+            let point = model.paint_transform().unproject(point)?;
+            projection.invert_usa([point.0, point.1])
+        })
+    }
+
+    /// Pick one known Albers USA component through the accepted host transform.
+    pub fn invert_usa_in_region_at_host(
+        &self,
+        projection: &GeoProjectionContext,
+        region: GeoUsaRegion,
+        host: (f64, f64),
+        bounds: RasterSurfaceBounds,
+    ) -> Result<Option<[f64; 2]>> {
+        with_host_point(self, host, bounds, |model, point| {
+            matching_dimensions(projection, model)?;
+            let point = model.paint_transform().unproject(point)?;
+            projection.invert_usa_in_region(region, [point.0, point.1])
+        })
+    }
+
     /// Convert host input in the supplied image bounds to accepted Scene pixels.
     /// Bounds and input share units and origin; image DPR is already accounted
     /// for by those bounds. The current paint camera is removed exactly once.

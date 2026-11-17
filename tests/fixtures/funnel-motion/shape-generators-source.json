@@ -1,0 +1,8 @@
+{
+  "source": "original/packages/funnel/src/hooks.ts",
+  "sourceSha256": "d7f6be945fe48de6ee36f19f7b3f6f35b88445445ef41dc439decb0cfd951eab",
+  "start": 996,
+  "end": 2265,
+  "expressionSha256": "2ac259538b69ed477607af16b9b10f5e343e842e4d7e825062dbb4affb0bf7e3",
+  "generatedSha256": "05c81da2ed1ed1c6758f7e4c24a6cac3e752761c322ceb0e6807c5cdfef62861"
+}

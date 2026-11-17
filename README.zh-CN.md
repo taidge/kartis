@@ -4,7 +4,49 @@
 
 Kartis 是面向 Glory 的 Rust 图表库。布局生成一份共享 `Scene`，可输出独立 SVG、浏览器 Canvas、Glory 控件和可选的 CPU 位图。布局和交互由 Rust 实现，无需 JavaScript 图表库。接口设计参考 D3 和 Nivo。[架构](docs/architecture.md) · [第三方许可](docs/third-party-notices.md)
 
+[在线图表示例](https://kartis.taidge.org) · [展示站源码与部署](https://github.com/taidge/kartis/tree/main/site)
+
 ## 快速开始
+
+Kartis 0.2.0 包含：
+[平行坐标逐轴筛选](docs/parallel-filtering.zh-CN.md)与
+[Funnel 阶段自定义几何](docs/funnel-custom.zh-CN.md)，以及
+[真实测量自动折行](docs/text-wrapping.zh-CN.md)与
+[标签空白协议](docs/text-whitespace.zh-CN.md)。
+0.2.0还提供[自定义 Waffle 单元格](docs/waffle-custom.zh-CN.md)和
+[Calendar 年份标签](docs/calendar-year-legend.zh-CN.md)。
+[Bullet 部件工厂](docs/bullet-custom.zh-CN.md)覆盖区间、测量值和目标标记。
+[Bump 两端文字工厂](docs/bump-endpoint-labels.zh-CN.md)可与点几何组合。
+[Albers USA 地图、线路、经纬网与分区覆盖层](docs/geo-albers-usa.zh-CN.md)
+已提供共同拟合、交互归属与宿主逆算拾取。
+[类型化实时 Widget 插槽](docs/typed-plot-widgets.zh-CN.md)共同接收已接受的几何与数据，
+并提供 [Bullet 部件覆盖层](docs/bullet-widgets.zh-CN.md)。
+[事务式 Widget 组合](docs/widget-composition.zh-CN.md)还可在候选组件构建成功后，
+替换指定标记的原墨迹。
+[浏览器 Scene 顺序组合](docs/ordered-widgets.zh-CN.md)还可交错源绘制与真实组件，
+共同应用组透明度，并以 Canvas 像素命中遮挡组件输入。
+[HeatMap 与 Waffle 单元格控件适配](docs/cell-widgets.zh-CN.md)为真实组件保留
+原始输入索引、空值与空单元格身份。
+[CPU 图像类型化输入](docs/raster-chart-bindings.zh-CN.md)还可与组件共同保留
+源交互绑定及已接受的图像相机。
+[Waffle 分组事件区域](docs/waffle-regions.zh-CN.md)覆盖完整占用格位及间隙，
+逻辑选择与实际墨迹命中分别报告。
+[Waffle 分组函数与原始应用数据](docs/waffle-functions.zh-CN.md)让颜色、边框和
+格式化数值共同用于图形、图例、交互及保留式 Glory 单元格组件。
+[Waffle 字面 SVG 层](docs/waffle-svg-layers.zh-CN.md)增加有序 Cells、透明分组 Areas、
+图例和保留式 Glory 整层子树，并共享类型化原生输入与提示。
+[Scatter 节点组件](docs/scatter-widgets.zh-CN.md)在实时子组件中保留完整原系列、
+类型化 XY 与计算站点。
+[Bar 实时组件](docs/bar-widgets.zh-CN.md)保留可空原系列、堆叠区间、未裁剪几何及
+当前标签元数据。
+[Stream 点组件](docs/stream-widgets.zh-CN.md)还可在真实 Glory 子组件中保留
+原始采样、堆叠区间与类型化 Path 锚点。
+[Bump 点组件](docs/bump-widgets.zh-CN.md)保留类别身份、可空排名和完整原系列，
+可与自定义点几何组合。
+[层次图节点组件](docs/hierarchy-widgets.zh-CN.md)在 Treemap、CirclePacking 与 Icicle
+中保留原树权重、计算聚合值及焦点元数据。
+[Funnel SVG 函数层](docs/funnel-svg-layers.zh-CN.md)支持字面省略、重复和保留式 Glory
+子树，共同接收完整来源数据和当前部件命令。此 API 已包含在 0.2.0 中。
 
 Kartis 要求 Rust 1.95 或更新版本。根据数据创建图表布局，再把场景传给 `chart`。示例使用 Glory 的内存宿主，应用可按平台选择对应的 Glory 宿主。
 
@@ -12,7 +54,7 @@ Kartis 要求 Rust 1.95 或更新版本。根据数据创建图表布局，再�
 
 ```toml
 [dependencies]
-kartis = "0.1.0"
+kartis = "0.2.0"
 glory = { version = "0.8.0", default-features = false }
 ```
 
@@ -92,7 +134,7 @@ app.flush()?;
 
 Pie 和 RadialBar 标签可选择 `ArcLabelRadiusMeasure::RingThickness`，按 Nivo 的环厚度语义应用 `skipRadius`。`OuterRadius` 保留原有行为。两种类型化布局都提供经过校验的交互绑定，保留原始值和极坐标锚点，涵盖活动切片外扩与圆角弧形。
 
-`funnel_layout` 返回各阶段的原始数据、投影轮廓、分隔线和交互目标。可配置方向、直线或平滑边缘、阶段间距和受控高亮。
+`funnel_layout` 返回各阶段的原始数据、投影轮廓、分隔线和交互目标。可配置方向、直线或平滑边缘、阶段间距和受控高亮。0.2.0增加[样式与格式化函数、Funnel 实时角色](docs/funnel-widgets.zh-CN.md)，为实际 body、border 和 separator Mark 提供共享类型化层数据。
 
 `waffle_layout` 返回网格位置和各组的分配结果。支持四个填充方向、独立取整或最大余数分配，以及带间距的单元格或实心分组区域。
 
@@ -104,13 +146,15 @@ Sunburst 另提供已测量标签的 `label_candidates` 和 `place_labels`。传
 
 `bump_layout` 为类型化类别和离散排名分别建立点比例尺，保留转折肩部和缺失槽。`bump_layout_with_point_factory` 可绘制自定义点，同时保留原始交互锚点。
 
-`stream_layout` 返回原始数值、堆叠边界、投影采样和图层，可配置堆叠顺序、偏移、曲线、坐标轴和点。`into_scene_interaction` 提供图层拾取，`into_slice_interaction` 提供采样切片，涵盖关闭点显示后的采样。
+`stream_layout` 返回原始数值、堆叠边界、投影采样和图层，可配置堆叠顺序、偏移、曲线、坐标轴和点。0.2.0增加[八类借用式 Stream 函数](docs/stream-functions.zh-CN.md)，用于标签、颜色、格式化和点样式。`into_scene_interaction` 提供图层拾取，`into_slice_interaction` 提供采样切片，涵盖关闭点显示后的采样。
 
 `StreamDotOptions::glyph` 可选择共享的填充或描边符号。`stream_layout_with_dot_factory` 接受自定义点几何与样式。起点、中点和终点位置保留各自的堆叠锚点，绘制偏移点时也一样。精确拾取使用实际墨迹与裁剪，最近点和切片保留原始数据坐标。
 
 ### 多断点尺度和地理反算
 
 `PiecewiseScaleOptions` 保留完整的数值或 UTC 域与输出断点。`line_layout_with_piecewise_scale_options` 和 `ScatterAxisScale::Piecewise` 让实际坐标轴、几何和类型化拾取共用该映射；图型中的 range 使用首项为 0、末项为 1 的绘图区比例。域视口逐个重算断点，并在布局回调中传入 `piecewise_domains`。转向的输出域支持绘制及显式 `invert_segment`；全局反算和数据视口要求输出域严格单调。[尺度与反算指南](docs/advanced-scales.zh-CN.md)
+
+0.2.0 数值核心接受重复域节点和静态常量域，按 D3 变换坐标选择相等节点的分段，并在整个域上执行 clamp。Line、Scatter 保留完整视口断点，包含全常量窗口及重置；文档所列配置已通过原生和四浏览器 SVG／Canvas 专项验收。唯一反算 range 分支不代表双射；跳跃附近的超越函数结果可能因运行时而异。[重复域节点指南](docs/piecewise-repeated.zh-CN.md)
 
 ```rust
 # use kartis::*;
@@ -244,7 +288,17 @@ assert_eq!(format.format(0.)?, "1970年1月1日 08:00 +0800");
 
 ### 树图、平行坐标和网络
 
-树图可配置连接线曲线、节点形状与标签。层级图可聚焦子树。树图、网络图、弦图和桑基图可通过显式图关系实现高亮。
+树图可配置连接线曲线、节点形状与标签。0.2.0增加[类型化 Tree 节点和连线组件](docs/tree-widgets.zh-CN.md)，提供完整拓扑、原始锚点及零半径节点。[五类 Tree 函数](docs/tree-functions.zh-CN.md) 进一步配置节点直径/填充、连线粗细/颜色与绘制标签。[Tree 活动状态](docs/tree-activity.zh-CN.md) 进一步提供 current-node 修改器、颜色继承与保留控件的 BrowserTree 所有者。[Tree 标签组件](docs/tree-label-components.zh-CN.md)增加真实标签目标及节点、连线、标签混合事务。[Tree 原生 Canvas 回调](docs/tree-canvas.zh-CN.md)增加共享上下文绘制、可重复自定义层和封存位图准备。[指针生命周期](docs/tree-input-lifecycle.zh-CN.md) 在原生按压期间延后自动活动更新，区分接受更新与候选拒绝。层级图可聚焦子树。树图、网络图、弦图和桑基图可通过显式图关系实现高亮。
+
+0.2.0另提供显式启用的 [Tree 节点提示组件](docs/tree-tooltip.zh-CN.md)，保留完整原始／计算数据，支持节点固定或光标定位及真实保留式 Glory 内容。原默认行为不变。受检 opt-in 范围覆盖 Chrome、Firefox、WebKit、Edge 和独立 Chromium 的 DPR1/2；源布局、输入与导出限制见指南。
+
+未发布的 [Tree SVG 函数图层](docs/tree-svg-layers.zh-CN.md) 保留字面遗漏、重复和顺序，并承载绘图区局部坐标中的保留式 Glory 子树。源组件与提示共享接纳边界，实际 Mesh 图层决定最近节点输入的覆盖范围。此 SVG 适配使用 foreignObject/XHTML，动画、任意原始 SVG 和导出均有明确边界。
+
+未发布的 [Tree 原生鼠标回调](docs/tree-events.zh-CN.md) 新增节点、连线各七个独立回调、共享类型化事件数据与显式 Glory 元素绑定。SVG、Mesh 和 Canvas 来源模型各有明确路由合同；可选的原生组件活动配置与已处理目标双击策略保留旧默认行为。受检原生输入合同已通过五种浏览器配置、两种 DPR 的完整矩阵。
+
+未发布的 [SVG Tree 连线提示](docs/tree-link-tooltip.zh-CN.md) 新增光标定位、完整端点数据及真实保留式 Glory 组件，与节点提示共同采用。请求与解析后的 anchor 分开提供，受检浏览器矩阵覆盖 SVG 连线输入、组件状态、定位及拒绝恢复。
+
+未发布的 [Tree 逐属性 Spring](docs/tree-motion.zh-CN.md) 接入 SVG 自动动画、精确手动推进、保速重定向及 Glory 组件退出保留。采样图形与目标数据共享来源／图层／提示采用边界，动画与重入保留组件本地状态。Canvas Spring、Radial 动画与 GPU/worker 继续后置。
 
 `HierarchyFocusMotion` 为矩形树图、圆堆积和冰柱图的子树切换提供动画。已接受的目标布局与当前采样几何分别可读。`frame_interaction` 将当前帧和拾取所需的类型化数据、锚点一起返回。
 
@@ -428,3 +482,24 @@ BoxPlot 通过 `BoxPlotFactories` 接受借用的逐摘要 RGBA 与 ByLabel 文�
 Calendar 的 FullYears 布局支持横纵方向的显式月份间距，日期单元格、月轮廓和标签同步移动；零值保留原布局。[日历月份间距](docs/calendar-month-spacing.zh-CN.md)
 
 Radar 点标签接受借用的文字工厂，可使用轴与系列身份、原始值和格式化值，并与几何工厂及共享值尺度组合。[Radar 点标签](docs/radar-point-labels.zh-CN.md)
+
+0.2.0 Swarm 节点工厂在碰撞布局后替换几何，保留原数据锚点与碰撞圆。精确拾取跟随新墨迹，最近点仍使用原位置；实色语义 Chart 控件和 SVG／Canvas／raster 共用受检帧。[自定义 Swarm 节点](docs/swarm-custom.zh-CN.md)
+
+0.2.0 Network 连线工厂可组合节点 glyph 和显式关系身份。浏览器力导向驱动保留工厂，在 tick、拖动、resize 和源替换时重建，拒绝候选保留已接受帧。[自定义网络连线](docs/network-link-custom.zh-CN.md)
+
+参见[保留组件中的原始数据更新](docs/widget-source-values.zh-CN.md)，了解画面与子组件身份不变时的数据更新规则（0.2.0）。
+
+参见[Swarm 实时节点组件](docs/swarm-widgets.zh-CN.md)，了解原始数据、打包锚点及 SVG/Canvas 组合接线（0.2.0）。
+
+参见[力导向 Network 实时节点组件](docs/network-widgets.zh-CN.md)，了解随已接受 force tick、拖动和响应式布局更新的类型化组件（0.2.0）。
+
+参见 [Network 实时连线与节点组件](docs/network-link-widgets.zh-CN.md)：两类角色随 force/Scene 共同提交（0.2.0）。
+
+0.2.0 Funnel 原生事件与来源一致的标准／自定义提示见[提示指南](docs/funnel-tooltip.zh-CN.md)。
+
+0.2.0 的 Funnel 绑定注解支持类型化匹配、独立 SVG 图层及共享 SVG／Canvas／CPU 绘制。
+接口和当前验收范围见[绑定注解指南](docs/funnel-annotations.zh-CN.md)。
+
+0.2.0 Funnel 原始应用数据及类型化浏览器适配见[原始数据指南](docs/funnel-data.zh-CN.md)。
+
+0.2.0 Funnel 逐属性 Spring 与浏览器时钟见[动画指南](docs/funnel-motion.zh-CN.md)。

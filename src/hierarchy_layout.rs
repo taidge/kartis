@@ -11,10 +11,12 @@ use crate::scene::ensure;
 use crate::*;
 
 mod labels;
+mod widgets;
 pub use labels::{
     HierarchyLabelCandidate, HierarchyLabelPlacementOptions, HierarchyMeasuredLabel,
     HierarchyPlacedLabel,
 };
+pub use widgets::*;
 
 #[derive(Clone, Debug)]
 pub(crate) struct HierarchyModel {
@@ -346,7 +348,7 @@ pub struct HierarchyLayoutNode {
     pub mark_id: String,
     pub label_slots: Vec<usize>,
 }
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct HierarchyLayout {
     pub scene: Scene,
     pub root_id: Option<String>,
@@ -359,6 +361,24 @@ pub struct HierarchyLayout {
     plot: ClipRect,
     value_format: ValueFormat,
     label_layout: labels::HierarchyLabelState,
+    widget_source: std::sync::Arc<widgets::HierarchyWidgetSource>,
+}
+// Preserve the existing presentation equality, including input-permutation
+// invariance. The new private raw source belongs to Widget payload equality.
+impl PartialEq for HierarchyLayout {
+    fn eq(&self, other: &Self) -> bool {
+        self.scene == other.scene
+            && self.root_id == other.root_id
+            && self.focus_id == other.focus_id
+            && self.focus_ancestors == other.focus_ancestors
+            && self.nodes == other.nodes
+            && self.resquarify_stats == other.resquarify_stats
+            && self.by_id == other.by_id
+            && self.by_mark == other.by_mark
+            && self.plot == other.plot
+            && self.value_format == other.value_format
+            && self.label_layout == other.label_layout
+    }
 }
 impl HierarchyLayout {
     pub fn plot(&self) -> ClipRect {
@@ -551,6 +571,7 @@ fn initial(
     model: &HierarchyModel,
     focus: Option<&str>,
     style: &HierarchyStyleOptions,
+    kind: HierarchyWidgetKind,
 ) -> Result<(HierarchyLayout, Option<usize>, Vec<usize>)> {
     let scene = c.scene()?;
     style.validate()?;
@@ -611,6 +632,9 @@ fn initial(
             plot: ClipRect::plot(c),
             value_format: style.value_format.clone(),
             label_layout: Default::default(),
+            widget_source: std::sync::Arc::new(widgets::HierarchyWidgetSource::new(
+                model, focus, style, kind,
+            )),
         },
         focus,
         branch,
@@ -832,7 +856,8 @@ fn treemap_build(
         .all(bounded),
         "invalid treemap padding or parent label reservation",
     )?;
-    let (mut result, focus, branch) = initial(c, model, focus, &o.style)?;
+    let (mut result, focus, branch) =
+        initial(c, model, focus, &o.style, HierarchyWidgetKind::Treemap)?;
     let Some(focus) = focus else {
         return Ok(result);
     };
@@ -1015,7 +1040,13 @@ pub(crate) fn circle_packing_model(
         o.padding.is_finite() && (0. ..=1024.).contains(&o.padding) && bounded(o.viewport_padding),
         "invalid focused packing padding",
     )?;
-    let (mut result, focus, branch) = initial(c, model, focus, &o.style)?;
+    let (mut result, focus, branch) = initial(
+        c,
+        model,
+        focus,
+        &o.style,
+        HierarchyWidgetKind::CirclePacking,
+    )?;
     ensure(
         o.viewport_padding * 2. < c.inner_width().min(c.inner_height()),
         "packing viewport padding leaves no radius",
@@ -1117,7 +1148,8 @@ pub(crate) fn icicle_model(
     o: &IcicleLayoutOptions,
 ) -> Result<HierarchyLayout> {
     ensure(bounded(o.padding), "invalid icicle padding")?;
-    let (mut result, focus, branch) = initial(c, model, focus, &o.style)?;
+    let (mut result, focus, branch) =
+        initial(c, model, focus, &o.style, HierarchyWidgetKind::Icicle)?;
     let Some(focus) = focus else {
         return Ok(result);
     };

@@ -185,7 +185,8 @@ impl HeatmapLayout {
         )?;
         for (i, (cell, source)) in self.cells.iter().zip(&self.binding_source).enumerate() {
             ensure(
-                BindingSourceCell::from(cell) == *source,
+                BindingSourceCell::from(cell) == *source
+                    && crate::widget_source_eq::optional(cell.value, source.value),
                 "HeatMap original nullable binding source was changed",
             )?;
             self.validate_owned_label_row(i, &source.key.row)?;
@@ -234,7 +235,7 @@ impl HeatmapLayout {
             let mut expected = source.cells[i].clone();
             expected.opacity = cell.opacity;
             ensure(
-                *cell == expected,
+                *cell == expected && crate::widget_source_eq::optional(cell.value, expected.value),
                 "custom HeatMap source metadata was changed",
             )?;
             if let Some(mark) = &source.marks[i] {

@@ -2,12 +2,78 @@
 //!
 //! A named family is a CSS string, distinct from a generic family. Font data and
 //! native face selection remain explicit application resources.
+use std::borrow::Cow;
 use std::collections::BTreeMap;
 
+use glory::style::Color;
 pub use glory::style::Family as FontFamily;
 
 use crate::scene::ensure;
-use crate::{MAX_MARKS, Result};
+use crate::{Label, MAX_MARKS, Result};
+
+/// Native glyph stroke, painted after the label fill with round joins.
+/// Width is the full centered stroke width in Scene units.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct LabelStroke {
+    pub color: Color,
+    pub width: f64,
+}
+impl LabelStroke {
+    pub fn validate(self) -> Result<()> {
+        ensure(
+            self.width.is_finite() && (0.0..=4096.0).contains(&self.width),
+            "invalid label stroke width",
+        )
+    }
+}
+
+/// Explicit single-line whitespace behavior. Legacy leaves each host's old
+/// behavior unchanged; Preserve retains spaces and maps each line/control
+/// separator to one space, matching the existing native shaper's normalization.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum LabelWhitespace {
+    #[default]
+    Legacy,
+    Preserve,
+}
+
+impl LabelWhitespace {
+    pub(crate) fn measurement_signature(self, font: &ResolvedFont) -> String {
+        match self {
+            Self::Legacy => font.signature(),
+            Self::Preserve => format!("preserve:{}", font.signature()),
+        }
+    }
+
+    pub fn normalize(self, text: &str) -> Cow<'_, str> {
+        let separator = |c| {
+            matches!(
+                c,
+                '\t' | '\n' | '\r' | '\u{b}' | '\u{c}' | '\u{85}' | '\u{2028}' | '\u{2029}'
+            )
+        };
+        if self == Self::Legacy || !text.chars().any(separator) {
+            Cow::Borrowed(text)
+        } else {
+            Cow::Owned(
+                text.chars()
+                    .map(|c| if separator(c) { ' ' } else { c })
+                    .collect(),
+            )
+        }
+    }
+
+    pub fn drawable_label(self, label: &Label) -> Cow<'_, Label> {
+        match self.normalize(&label.text) {
+            Cow::Borrowed(_) => Cow::Borrowed(label),
+            Cow::Owned(text) => {
+                let mut drawable = label.clone();
+                drawable.text = text;
+                Cow::Owned(drawable)
+            }
+        }
+    }
+}
 
 /// Optional declarations, inherited independently for family and weight.
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -153,6 +219,10 @@ fn validate_families(families: &[FontFamily]) -> Result<()> {
 pub struct SceneTypography {
     pub default: FontOptions,
     pub labels: BTreeMap<usize, FontOptions>,
+    /// Sparse opt-in label modes; absent slots retain legacy host behavior.
+    pub label_whitespace: BTreeMap<usize, LabelWhitespace>,
+    /// Sparse native glyph strokes; absent slots retain their original paint.
+    pub label_strokes: BTreeMap<usize, LabelStroke>,
     pub legend: FontOptions,
     pub tooltip: FontOptions,
 }
@@ -170,7 +240,39 @@ impl SceneTypography {
             ensure(*index < label_count, "label font references an absent slot")?;
             font.validate()?;
         }
+        ensure(
+            self.label_strokes.len() <= label_count && self.label_strokes.len() <= MAX_MARKS,
+            "label stroke budget exceeded",
+        )?;
+        for (&index, stroke) in &self.label_strokes {
+            ensure(
+                index < label_count,
+                "label stroke references an absent slot",
+            )?;
+            stroke.validate()?;
+        }
+        ensure(
+            self.label_whitespace.len() <= label_count && self.label_whitespace.len() <= MAX_MARKS,
+            "label whitespace budget exceeded",
+        )?;
+        ensure(
+            self.label_whitespace
+                .keys()
+                .all(|index| *index < label_count),
+            "label whitespace references an absent slot",
+        )?;
         Ok(())
+    }
+
+    pub fn label_whitespace(&self, index: usize) -> LabelWhitespace {
+        self.label_whitespace
+            .get(&index)
+            .copied()
+            .unwrap_or_default()
+    }
+
+    pub fn drawable_label<'a>(&self, index: usize, label: &'a Label) -> Cow<'a, Label> {
+        self.label_whitespace(index).drawable_label(label)
     }
 
     pub fn label_options(&self, index: usize) -> FontOptions {
@@ -216,10 +318,20 @@ impl SceneTypography {
     /// Remap surviving labels after filtering, expansion, or removal. The map
     /// is from old slots to new slots; declarations for removed labels disappear.
     pub fn remap_labels(&mut self, slots: &BTreeMap<usize, usize>) {
+        self.label_strokes = self
+            .label_strokes
+            .iter()
+            .filter_map(|(old, stroke)| slots.get(old).map(|new| (*new, *stroke)))
+            .collect();
         self.labels = self
             .labels
             .iter()
             .filter_map(|(old, font)| slots.get(old).map(|new| (*new, font.clone())))
+            .collect();
+        self.label_whitespace = self
+            .label_whitespace
+            .iter()
+            .filter_map(|(old, mode)| slots.get(old).map(|new| (*new, *mode)))
             .collect();
     }
 }

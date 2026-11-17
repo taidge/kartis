@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f3">
+  <meta name="description" content="Explore Kartis: interactive charts built with Rust, rendered in your browser with SVG and Canvas.">
+  <title>Kartis — A little clarity in your data</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#gallery">Skip to charts</a>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Kartis home"><svg width="29" height="29" viewBox="0 0 29 29" aria-hidden="true"><rect width="29" height="29" rx="8" fill="#253d38"/><path d="M8 20V14M14.5 20V8M21 20V11" stroke="#dcebd7" stroke-width="3" stroke-linecap="round"/></svg>kartis<span class="version">0.2.0</span></a>
+    <nav aria-label="Main navigation"><a href="#gallery" aria-current="page">Gallery</a><a href="https://docs.rs/kartis/0.2.0/kartis/">Documentation <span aria-hidden="true">↗</span></a><a class="github" href="https://github.com/taidge/kartis">GitHub <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div class="eyebrow"><span class="live-dot"></span> RUST AT HEART. CLARITY BY DESIGN.</div>
+      <h1 id="page-title">A little clarity<br>in your <span>data.</span></h1>
+      <div class="intro-bottom"><p>Thoughtful charts, from a single Rust source.<br>Explore the shapes. Find the story.</p><a class="text-link" href="#get-started">Make something with Kartis <span aria-hidden="true">↗</span></a></div>
+      <svg class="intro-art" viewBox="0 0 340 150" aria-hidden="true"><path d="M10 120C45 120 40 75 80 75S125 115 160 80S200 20 235 35S285 75 330 10" fill="none" stroke="#ccdcd1" stroke-width="2"/><path d="M10 145C50 145 40 110 80 110S120 130 160 105S205 55 235 75S290 100 330 55" fill="none" stroke="#e6c5ae" stroke-width="2"/><circle cx="235" cy="35" r="5" fill="#227e77"/></svg>
+    </section>
+    <section id="gallery" aria-labelledby="gallery-title">
+      <div class="gallery-toolbar"><div><h2 id="gallery-title">The gallery <span>06</span></h2><p>Real charts. Go ahead, interact.</p></div><div class="tools"><div class="renderer-switch" role="group" aria-label="Chart renderer"><button type="button" data-renderer="svg" aria-pressed="true">SVG</button><button type="button" data-renderer="canvas" aria-pressed="false">Canvas</button></div><button type="button" class="refresh-button" id="new-data" disabled><span aria-hidden="true">↻</span> New dataset</button></div></div>
+      <p id="status" class="status" role="status" aria-live="polite">Loading the Rust chart engine…</p>
+      <div id="error" class="error" role="alert" hidden></div>
+      <div class="chart-grid">
+        <article class="chart-card wide" id="line-card"><div class="card-heading"><div><span class="chart-number">01 / TRENDS</span><h3>A steady kind of growth</h3><p>Two journeys, eighteen moments.</p></div><button type="button" class="download" data-download="line" disabled aria-label="Download line chart as SVG">↓ <span>SVG</span></button></div><div id="chart-line" class="chart chart-wide" aria-label="Interactive growth line chart"></div><div class="card-note"><span class="hint-dot"></span> Hover to explore · click a legend to focus the story<span class="render-label">SVG RENDERER</span></div></article>
+        <article class="chart-card"><div class="card-heading"><div><span class="chart-number">02 / COMPARE</span><h3>A week, side by side</h3></div><button type="button" class="download" data-download="bar" disabled aria-label="Download bar chart as SVG">↓ <span>SVG</span></button></div><div id="chart-bar" class="chart" aria-label="Interactive grouped bar chart"></div><p class="card-caption">Studio visits meet online discoveries.</p></article>
+        <article class="chart-card"><div class="card-heading"><div><span class="chart-number">03 / PROPORTION</span><h3>Many ways to arrive</h3></div><button type="button" class="download" data-download="pie" disabled aria-label="Download donut chart as SVG">↓ <span>SVG</span></button></div><div id="chart-pie" class="chart" aria-label="Interactive traffic donut chart"></div><p class="card-caption">A whole, seen through its parts.</p></article>
+        <article class="chart-card"><div class="card-heading"><div><span class="chart-number">04 / RELATIONSHIP</span><h3>Room for a pattern</h3></div><button type="button" class="download" data-download="scatter" disabled aria-label="Download scatter chart as SVG">↓ <span>SVG</span></button></div><div id="chart-scatter" class="chart" aria-label="Interactive scatter chart"></div><p class="card-caption">Small observations, a bigger picture.</p></article>
+        <article class="chart-card"><div class="card-heading"><div><span class="chart-number">05 / PROGRESS</span><h3>One square at a time</h3></div><button type="button" class="download" data-download="waffle" disabled aria-label="Download waffle chart as SVG">↓ <span>SVG</span></button></div><div id="chart-waffle" class="chart" aria-label="Interactive waffle chart"></div><p class="card-caption">What’s done, what’s next, what’s possible.</p></article>
+        <article class="chart-card wide"><div class="card-heading"><div><span class="chart-number">06 / DENSITY</span><h3>The rhythm of a week</h3><p>Every day has its own busy hours.</p></div><button type="button" class="download" data-download="heatmap" disabled aria-label="Download heatmap as SVG">↓ <span>SVG</span></button></div><div id="chart-heatmap" class="chart chart-heatmap" aria-label="Interactive weekly heatmap"></div><div class="card-note">LESS <span class="color-ramp" aria-hidden="true"></span> MORE<span class="render-label">SVG RENDERER</span></div></article>
+      </div>
+    </section>
+    <section id="get-started" class="get-started" aria-labelledby="start-title"><div><div class="eyebrow">YOUR DATA. YOUR APPLICATION.</div><h2 id="start-title">Good things start<br>with a simple chart.</h2><p>Rust layouts. Shared SVG and Canvas rendering.<br>Real interaction, with Glory components when you need them.</p><div class="start-links"><a class="primary-link" href="https://docs.rs/kartis/0.2.0/kartis/">Read the documentation ↗</a><a href="https://github.com/taidge/kartis/tree/main/examples">Explore the examples ↗</a></div></div><div class="code-card"><div><span></span><span></span><span></span><small>Cargo.toml</small></div><pre><code><span class="code-muted"># Make room for a little clarity.</span>
+[dependencies]
+<span class="code-key">kartis</span> = { version = <span class="code-string">"0.2.0"</span>,
+           features = [<span class="code-string">"web"</span>] }</code></pre><p>Open source · Apache 2.0 · Built for Rust</p></div></section>
+  </main>
+  <footer><a class="footer-brand" href="#">kartis<span>Data, thoughtfully drawn.</span></a><p>Sample datasets · rendered locally in your browser.</p><a href="https://github.com/taidge/kartis">Made in the open ↗</a></footer>
+  <noscript><p class="error">Enable JavaScript and WebAssembly to explore the live gallery. The documentation and source links remain available.</p></noscript>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

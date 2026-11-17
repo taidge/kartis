@@ -13,6 +13,8 @@ extend-ignore-re = [
     # CSS colors and contiguous palette strings are data, not prose.
     '#[0-9a-fA-F]{3,8}\b',
     '\b[0-9a-fA-F]{6,}\b',
+    # Stable machine-readable acceptance case ID: opt-in, not 'option'.
+    '\bapplication-pointer-optin\b',
 ]
 
 [default.extend-words]

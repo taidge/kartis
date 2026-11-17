@@ -1,0 +1,27 @@
+{
+  "text": "{\"count\":0,\"data\":{\"band\":[235.7142857142857,51.42857142857142],\"categories\":[\"A\",\"B\",\"C\",\"D\"],\"category\":\"B\",\"displayedValue\":1.0,\"endpoints\":[154.46153846153845,138.15384615384613],\"horizontal\":false,\"interval\":[0.0,1.0],\"label\":null,\"labelClip\":null,\"originalRect\":[235.7142857142857,138.15384615384613,51.42857142857142,16.30769230769232],\"plot\":[30.0,24.0,540.0,212.0],\"position\":[261.4285714285714,146.3076923076923],\"rawValue\":1.0,\"series\":{\"id\":\"south\",\"values\":[2.0,1.0,-1.0,4.0]},\"seriesIndex\":1,\"sourceColor\":[255,180,0,255],\"sourceIndex\":1,\"visibleRect\":[235.7142857142857,138.15384615384613,51.428571428571416,16.30769230769232]},\"focus\":false,\"geometry\":\"Rect { x: 235.7142857142857, y: 138.15384615384613, width: 51.428571428571416, height: 16.30769230769232 }\",\"id\":\"styled-bar:5:south:1:B\",\"interactive\":true,\"opacity\":1.0,\"paintFill\":[255,180,0,255],\"paintValue\":1.0,\"rect\":[249.4285714285714,141.3076923076923,24.0,10.0],\"visible\":[249.4285714285714,141.3076923076923,24.0,10.0]}",
+  "plot": [
+    20,
+    840.40625,
+    600,
+    260
+  ],
+  "button": [
+    249.421875,
+    141.296875,
+    24,
+    10
+  ],
+  "point": [
+    262.4285714285714,
+    145.3076923076923
+  ],
+  "color": [
+    0,
+    100,
+    255,
+    255
+  ],
+  "font": "8px monospace",
+  "provenance": "Synthetic Bar metadata used only as native text content. The diagnostic executes no Kartis rendering code."
+}

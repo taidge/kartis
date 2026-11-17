@@ -16,15 +16,17 @@ Empty or all-missing observations keep the general automatic `[0,1]` domain. Giv
 
 ## Full-breakpoint chart axes
 
-`PiecewiseScaleOptions` stores full `domain` and `range` vectors plus `ContinuousScaleOptions`; the existing two-endpoint options retain their Copy API. Numeric and UTC profiles accept 2–4096 matching stops. Domains must be strictly monotonic, ascending or descending. UTC stops must be bounded integral epoch milliseconds.
+`PiecewiseScaleOptions` stores full `domain` and `range` vectors plus `ContinuousScaleOptions`; the existing two-endpoint options retain their Copy API. Numeric and UTC profiles accept 2–4096 matching stops. Domains may be nondecreasing or nonincreasing, including repeated knots and fully constant domains; genuine turns reject. UTC stops must be bounded integral epoch milliseconds. Repeated knots can create jumps and follow D3's native-transformed reverse-then-bisect-right rule, including negative powers. See [repeated domain knots](piecewise-repeated.md) for the constant-domain midpoint and whole-domain clamp rules.
 
 `ResolvedContinuousScale::piecewise` and `ChartScale::with_piecewise_options` use actual output coordinates. Nice extends only the outer domain stops, preserving interior knots; Reverse reverses the full range. Ticks stay in source-value units. Round applies ECMAScript rounding to the computed floating-point result; inverse stays unrounded.
 
-Ranges may turn or contain plateaus. Forward mapping remains available, while `invert` rejects an ambiguous global inverse. `invert_segment(index,pixel)` selects a branch, including the existing midpoint rule for a constant branch. It does not make a turning range uniquely invertible.
+Ranges may turn or contain plateaus. Forward mapping remains available, while `invert` rejects an ambiguous global inverse. `invert_segment(index,pixel)` selects a branch; a flat range branch still rejects. A repeated domain branch can have a constant algebraic inverse. `is_invertible()` identifies unique range-branch selection, rather than a bijection or a guaranteed map/invert round trip.
 
 Actual charts use `PiecewiseLineScaleOptions` with `line_layout_with_piecewise_scale_options`, or `ScatterAxisScale::Piecewise`. Their ranges are plot fractions beginning at 0 and ending at 1. Interior fractions may turn or leave that interval; the ordinary plot clip applies. Axes, paths, factories, raw-data anchors and picking share the resolved mapping.
 
 ### Data viewports
+
+**Repeated-knot viewport integration is Unreleased.** The native Line and Scatter acceptance matrix checks 4,128 original-D3 viewport records, including complete reflow, checked rejection and reset. Browser paint and platform math are separately scoped in the [repeated-knot guide](piecewise-repeated.md).
 
 Line and Scatter layout controllers retain all original displayed knots. Like original D3 `rescaleX`/`rescaleY`, navigation inverts every original range stop through the accumulated pixel transform. Resize preserves accepted domains and changes the dimensions used by later input.
 
@@ -33,7 +35,9 @@ Line and Scatter layout controllers retain all original displayed knots. Like or
 - Line: use the baseline layout's `viewport_scale_options(&request.piecewise_domains)`.
 - Scatter: use `viewport_scale_options_with_piecewise(request.domains,&request.piecewise_domains)`.
 
-Pass the resulting profiles to the next layout, and use outer domains for ordinary axes. Do not rebuild a piecewise mapping from two endpoints. The endpoint-only Scatter helper explicitly rejects piecewise axes. Turning or plateau ranges can be drawn but cannot create a unique data viewport. Invalid or collapsed knot proposals preserve the accepted controller and frame.
+Pass the resulting profiles to the next layout, and use outer domains for ordinary axes. Do not rebuild a piecewise mapping from two endpoints. The endpoint-only Scatter helper explicitly rejects piecewise axes. Turning or plateau ranges can be drawn but cannot create a unique data viewport. Static constant domains are supported; navigation still requires a usable outer extent. True turns, invalid transforms and nonrepresentable proposals must preserve the accepted controller and frame.
+
+Repeated-knot navigation must retain the original local pixel range and invert `(rangeStop - tx)/k` in the original mapping. An additional normalized `[0,1]` round trip can change discontinuous Log branch selection or UTC TimeClip by a millisecond. Range direction already includes source and output reversal; resize must preserve accepted domains and original mapping provenance.
 
 ## Geographic inverse
 
@@ -47,7 +51,9 @@ Applications retain the projection context together with its accepted frame. A d
 
 ## Numerical and host boundaries
 
-The independent references execute pinned original D3 functions. Two fixed SymLog plateau/half-pixel cases expose a two-ULP cross-runtime transform difference that changes the rounded pixel. Original D3 values and raw bits remain in a separate fixed difference list; ordinary rounded records still require exact equality. Geographic exact-cap and singular cases are also separate from ordinary inverse equivalence and retain the existing projection boundary tolerance.
+The independent references execute pinned original D3 functions. Explicit piecewise scales now share fixed `libm` log/log1p/exp/expm1 primitives, including after nice or a viewport rebuild removes repetition; ordinary two-endpoint scales keep their earlier arithmetic. Comparing 31,904 queries from 2,400 earlier strict-domain profiles finds 76 changed raw bit patterns, maximum absolute delta `5.684341886080802e-14`. The only two rounded changes correct the earlier recorded SymLog `208` results to original D3's `207`; the historical values and difference list remain preserved.
+
+General signed powers retain platform `powf` in native builds and standalone `wasm32` core builds without `canvas`. On `wasm32` with `canvas` (including `web`), explicit piecewise scales safely import the actual host's `Math.pow`, selecting the same primitive as original D3 in that runtime. This feature selects browser math; it does not change ordinary two-endpoint scales or the fixed `libm` logarithmic primitives. The initial full WASM matrix retained 108 failures across 72 exponent-`0.25` profiles before that import. The rebuilt browser-math version completed the same 9,496-profile matrix in one Chromium context with no differences or one-ULP rounding exceptions. This measured WASM result is separate from native acceptance, and identical transcendental bits across engines are not promised. At a repeated knot, an ULP can select an entirely different branch and requires diagnosis rather than a general pixel tolerance. Geographic exact-cap and singular cases remain separate from ordinary inverse equivalence and retain the existing projection boundary tolerance.
 
 Browser publication retains its revision telemetry. Unchanged paint attributes are not rewritten. Hosts supporting Canvas2D `reset()` reuse unchanged backing dimensions while clearing drawing state; older hosts retain the dimension-reset path. This does not promise that explicit Scene replacement preserves gesture ownership. The controlled same-frame gradient failure test covers caught renderer errors and restoration of old pixels, not arbitrary user callback side effects.
 

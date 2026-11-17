@@ -13,6 +13,9 @@ impl GeoProjectionContext {
     /// at a pole and the two antimeridian representations are not unique;
     /// compare spherical positions rather than requiring one longitude there.
     pub fn invert(&self, point: [f64; 2]) -> Result<Option<[f64; 2]>> {
+        if let Some(usa) = self.usa {
+            return usa.invert(point).map(|point| point.map(|p| p.position));
+        }
         inverse_input(point)?;
         let raw_point = [
             (point[0] - self.translate[0]) / self.scale + self.center[0],

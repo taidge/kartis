@@ -46,6 +46,43 @@ pub fn choropleth_with_color_profile(
         color_scale: scale,
     })
 }
+
+/// Albers USA counterpart with a common color domain across all source
+/// features, including those outside the three visible component windows.
+pub fn choropleth_usa_with_color_scale(
+    c: &ChartConfig,
+    features: &[GeoFeature],
+    map: &GeoUsaMapOptions,
+    colors: &ColorScaleOptions,
+) -> Result<ColorMappedGeoLayout> {
+    choropleth_usa_with_color_profile(c, features, map, colors, ColorInterpolation::Srgb)
+}
+
+pub fn choropleth_usa_with_color_profile(
+    c: &ChartConfig,
+    features: &[GeoFeature],
+    map: &GeoUsaMapOptions,
+    colors: &ColorScaleOptions,
+    profile: impl Into<ColorScaleProfile>,
+) -> Result<ColorMappedGeoLayout> {
+    let scale = colors.resolve_with_profile(features.iter().map(|f| f.value), profile)?;
+    let mut layout = geographic_usa_map_layout(c, features, map)?;
+    let values = features
+        .iter()
+        .map(|f| (f.id.as_str(), f.value))
+        .collect::<BTreeMap<_, _>>();
+    for mark in &mut layout.scene.marks {
+        if let Some(value) = values.get(mark.series.as_str()) {
+            mark.fill = Some(scale.map(*value));
+        }
+    }
+    layout.scene.validate()?;
+    Ok(ColorMappedGeoLayout {
+        scene: layout.scene,
+        projection: layout.projection,
+        color_scale: scale,
+    })
+}
 #[derive(Clone, Debug, PartialEq)]
 pub struct ColorMappedCalendarLayout {
     pub scene: Scene,

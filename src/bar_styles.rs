@@ -9,12 +9,14 @@ use crate::scales::{BandScale, BandScaleOptions};
 use crate::scene::ensure;
 use crate::*;
 mod custom;
+mod widgets;
 pub use custom::{
     BarDatumContext, BarDatumGeometry, BarFactories, BarGeometryFactory, BarLabelContext,
     BarLabelFactory, CustomBarLayout, ScaledCustomBarLayout, bar_layout_with_bar_factory,
     bar_layout_with_factories, bar_layout_with_scale_options_and_bar_factory,
     bar_layout_with_scale_options_and_factories,
 };
+pub use widgets::*;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum BarColorBy {

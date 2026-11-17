@@ -279,11 +279,20 @@ impl BrowserSemanticTextMeasurer {
                 ("font-weight", request.font.weight.to_string()),
                 ("font-size", format!("{}px", request.size)),
                 ("line-height", format!("{}px", request.line_height)),
+                (
+                    "white-space",
+                    match request.whitespace {
+                        crate::LabelWhitespace::Legacy => "nowrap",
+                        crate::LabelWhitespace::Preserve => "pre",
+                    }
+                    .into(),
+                ),
             ] {
                 style.set_property(name, &value).map_err(metric_host)?;
             }
         }
-        self.text.set_text_content(Some(&request.text));
+        self.text
+            .set_text_content(Some(&request.whitespace.normalize(&request.text)));
         let span = self.text.get_bounding_client_rect();
         let marker = self.marker.get_bounding_client_rect();
         let computed = self

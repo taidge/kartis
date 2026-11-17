@@ -315,6 +315,8 @@ struct LabelNode {
     node: Element,
     accepted: Option<Label>,
     accepted_font: Option<crate::ResolvedFont>,
+    accepted_whitespace: Option<crate::LabelWhitespace>,
+    accepted_stroke: Option<crate::LabelStroke>,
     mask: Option<Element>,
     accepted_clip: Option<ClipPath>,
 }
@@ -322,22 +324,29 @@ impl LabelNode {
     fn outer(&self) -> Element {
         self.mask.as_ref().unwrap_or(&self.node).clone()
     }
+    #[allow(clippy::too_many_arguments)]
     fn patch(
         &mut self,
         document: &web_sys::Document,
         label: &Label,
         font: &crate::ResolvedFont,
+        whitespace: crate::LabelWhitespace,
+        stroke: Option<crate::LabelStroke>,
         clip: Option<&ClipPath>,
         namespace: &str,
     ) -> Result<()> {
         if self.accepted.as_ref() == Some(label)
             && self.accepted_font.as_ref() == Some(font)
+            && self.accepted_whitespace == Some(whitespace)
+            && self.accepted_stroke == stroke
             && self.accepted_clip.as_ref() == clip
         {
             return Ok(());
         }
         // As with marks, only a fully successful patch may populate the cache.
         self.accepted = None;
+        self.accepted_whitespace = None;
+        self.accepted_stroke = None;
         for (name, value) in [("x", label.x), ("y", label.y), ("font-size", label.size)] {
             attr(&self.node, name, &value.to_string())?;
         }
@@ -345,6 +354,16 @@ impl LabelNode {
         attr(&self.node, "font-family", &font.css_family())?;
         attr(&self.node, "font-weight", &font.weight.to_string())?;
         attr(&self.node, "text-anchor", render::anchor(label.anchor))?;
+        if let Some(stroke) = stroke {
+            attr(&self.node, "stroke", &render::css_color(stroke.color))?;
+            attr(&self.node, "stroke-width", &stroke.width.to_string())?;
+            attr(&self.node, "stroke-linejoin", "round")?;
+            attr(&self.node, "paint-order", "fill stroke")?;
+        } else {
+            for name in ["stroke", "stroke-width", "stroke-linejoin", "paint-order"] {
+                unset(&self.node, name)?;
+            }
+        }
         if label.rotation != 0. {
             attr(
                 &self.node,
@@ -354,7 +373,12 @@ impl LabelNode {
         } else {
             unset(&self.node, "transform")?;
         }
-        text(&self.node, &label.text);
+        if whitespace == crate::LabelWhitespace::Preserve {
+            attr(&self.node, "style", "white-space:pre")?;
+        } else {
+            unset(&self.node, "style")?;
+        }
+        text(&self.node, &whitespace.normalize(&label.text));
         if let Some(clip) = clip {
             if self.mask.is_none() {
                 let mask = node(document, "g")?;
@@ -374,6 +398,8 @@ impl LabelNode {
         }
         self.accepted = Some(label.clone());
         self.accepted_font = Some(font.clone());
+        self.accepted_whitespace = Some(whitespace);
+        self.accepted_stroke = stroke;
         self.accepted_clip = clip.cloned();
         Ok(())
     }
@@ -391,6 +417,7 @@ pub(super) struct RetainedSvg {
     marks: BTreeMap<String, MarkNode>,
     opacity_groups: BTreeMap<String, Element>,
     labels: BTreeMap<usize, LabelNode>,
+    labels_passive: bool,
 }
 impl RetainedSvg {
     pub fn new(document: &web_sys::Document) -> Result<Self> {
@@ -430,7 +457,28 @@ impl RetainedSvg {
             marks: BTreeMap::new(),
             opacity_groups: BTreeMap::new(),
             labels: BTreeMap::new(),
+            labels_passive: false,
         })
+    }
+    pub(super) fn make_labels_passive(&mut self) {
+        self.labels_passive = true;
+    }
+    /// Actual retained paths, never companion marks, own Tree SVG input.
+    pub(super) fn native_hit_ids(&self, ids: &BTreeSet<String>) -> Result<()> {
+        attr(&self.root, "pointer-events", "none")?;
+        attr(&self.background, "pointer-events", "none")?;
+        for (id, row) in &self.marks {
+            attr(
+                &row.path,
+                "pointer-events",
+                if ids.contains(id) {
+                    "visiblePainted"
+                } else {
+                    "none"
+                },
+            )?;
+        }
+        Ok(())
     }
     pub fn paint(
         &mut self,
@@ -603,6 +651,8 @@ impl RetainedSvg {
                     node: node(&document, "text")?,
                     accepted: None,
                     accepted_font: None,
+                    accepted_whitespace: None,
+                    accepted_stroke: None,
                     mask: None,
                     accepted_clip: None,
                 });
@@ -611,9 +661,14 @@ impl RetainedSvg {
                 &document,
                 label,
                 &scene.resolved_label_font(index),
+                scene.typography.label_whitespace(index),
+                scene.typography.label_strokes.get(&index).copied(),
                 scene.label_clips.get(&index),
                 &self.namespace,
             )?;
+            if self.labels_passive {
+                attr(&self.labels[&index].node, "pointer-events", "none")?;
+            }
         }
         // Keep the source opacity on a real parent, never multiply it into
         // the individual member paths. Stable MarkNode outers retain their
@@ -733,4 +788,64 @@ impl RetainedSvg {
         }
         Ok(())
     }
+}
+
+/// A new SVG occurrence over an already validated source projection. Its paint
+/// resources receive an independent namespace, while data-id values continue
+/// to name the original business marks. The outer Tree host paints background
+/// once; labels are passive and hit eligibility belongs to the projection.
+pub(super) fn native_view(
+    document: &web_sys::Document,
+    source: &Scene,
+    view: ZoomTransform,
+    hit_ids: &BTreeSet<String>,
+) -> Result<Element> {
+    native_view_with_decoration_input(document, source, view, hit_ids, false)
+}
+/// Native annotation ink can intercept input without acquiring a business role.
+/// Other existing literal views retain their original passive decoration.
+pub(super) fn native_view_with_decoration_input(
+    document: &web_sys::Document,
+    source: &Scene,
+    view: ZoomTransform,
+    hit_ids: &BTreeSet<String>,
+    decoration_input: bool,
+) -> Result<Element> {
+    let mut scene = source.clone();
+    scene.background = Color(0, 0, 0, 0);
+    let scratch: HtmlElement = document
+        .create_element("div")
+        .map_err(host)?
+        .dyn_into()
+        .map_err(host)?;
+    let mut retained = RetainedSvg::new(document)?;
+    retained.paint(&scratch, &scene, view)?;
+    attr(&retained.root, "role", "presentation")?;
+    attr(&retained.root, "aria-hidden", "true")?;
+    attr(&retained.root, "pointer-events", "none")?;
+    attr(&retained.background, "pointer-events", "none")?;
+    for (id, row) in &retained.marks {
+        attr(
+            &row.path,
+            "pointer-events",
+            if hit_ids.contains(id) || decoration_input {
+                "visiblePainted"
+            } else {
+                "none"
+            },
+        )?;
+    }
+    for row in retained.labels.values() {
+        attr(
+            &row.node,
+            "pointer-events",
+            if decoration_input {
+                "visiblePainted"
+            } else {
+                "none"
+            },
+        )?;
+    }
+    retained.root.remove();
+    Ok(retained.root.clone())
 }

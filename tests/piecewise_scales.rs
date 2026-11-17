@@ -160,7 +160,7 @@ fn invalid_breakpoints_and_transform_collapse_are_rejected() {
         (vec![], vec![]),
         (vec![0.], vec![0.]),
         (vec![0., 1., 2.], vec![0., 1.]),
-        (vec![0., 1., 1.], vec![0., 1., 2.]),
+        (vec![2., 0., 1.], vec![0., 1., 2.]),
         (vec![0., 2., 1.], vec![0., 1., 2.]),
         (vec![0., f64::NAN, 2.], vec![0., 1., 2.]),
         (vec![0., 1., 2.], vec![0., f64::INFINITY, 2.]),

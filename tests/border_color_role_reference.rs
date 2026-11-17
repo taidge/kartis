@@ -163,7 +163,7 @@ fn actual_original_heat_style_null_zero_and_active_results_reach_ordinary_border
             };
             let actual = heatmap_layout(&ChartConfig::default(), &source, &options)?;
             for row in rows.iter().filter(|r| {
-                r["profile"] == name && (!r["activeIds"].as_array().unwrap().is_empty()) == active
+                r["profile"] == name && r["activeIds"].as_array().unwrap().is_empty() != active
             }) {
                 let id = HeatmapCellKey::new("r", row["column"].as_str().unwrap()).mark_id();
                 let mark = actual.scene.marks.iter().find(|m| m.id == id).unwrap();

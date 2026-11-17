@@ -1,0 +1,12 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Retained label whitespace</title>
+<style>body{margin:16px}#retained,#semantic,#canvas{width:320px;height:140px}</style>
+<div id="app" style="position:absolute;left:-3000px;width:640px;height:300px"></div>
+<div id="retained"></div><div id="semantic"></div><div id="canvas"></div>
+<script type="module">
+import init,*as api from './pkg/widget.js';
+try {
+await init(); api.whitespace_mount(); window.whitespace=api; window.whitespaceReady=true;
+} catch(e) { window.whitespaceBootError=String(e)+' '+document.getElementById('semantic').getAttribute('data-reject')+' '+document.getElementById('semantic').getAttribute('data-measure-error'); }
+</script>

@@ -6,8 +6,10 @@
 //! Transactional retention covers rendering, encoding and source publication.
 //! A custom provider's later asynchronous decode/transport failures are host
 //! observations; they cannot roll back the accepted application model.
-//! This module does not install plot-coordinate pointer listeners. Applications
-//! can use `SurfaceModel` with their host's explicitly supplied coordinates.
+//! `chart_layout(frame).raster(fonts, options)` retains an explicit
+//! PaintedGeometry binding and installs finite plot input on a physical View
+//! containing the image. Input uses the accepted image camera, independent of
+//! device pixel ratio; Scene-only `raster_chart` retains its controls input.
 use std::cell::{Cell, RefCell};
 use std::collections::BTreeSet;
 use std::rc::Rc;

@@ -65,6 +65,34 @@ pub enum CalendarLegendPosition {
     Before,
     After,
 }
+/// Opt-in year-label placement relative to the actual FullYears panel bounds.
+/// The existing header allocation is retained; this changes labels only.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct CalendarYearLegendOptions {
+    pub position: CalendarLegendPosition,
+    /// Distance from the panel edge, in -1024..=1024 pixels.
+    /// Negative values move the label toward the panel interior.
+    pub offset: f64,
+}
+impl Default for CalendarYearLegendOptions {
+    fn default() -> Self {
+        Self {
+            position: CalendarLegendPosition::Before,
+            offset: 10.,
+        }
+    }
+}
+/// Data for one emitted FullYears year label, in chronological panel order.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct CalendarYearLegendContext {
+    pub year: i32,
+    pub index: usize,
+    /// Actual oriented panel bounds, including month spacing.
+    pub grid: ClipRect,
+}
+/// Borrowed, fallible plain-text formatting; this does not create widgets.
+pub type CalendarYearLegendTextFactory<'a> =
+    dyn FnMut(&CalendarYearLegendContext) -> Result<String> + 'a;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum CalendarDayLabel {
     #[default]
@@ -542,8 +570,61 @@ pub fn calendar_layout_with_color_profile(
     o: &CalendarLayoutOptions,
     profile: impl Into<crate::ColorScaleProfile>,
 ) -> Result<CalendarLayout> {
+    calendar_layout_impl(c, data, o, profile, None, None)
+}
+
+/// FullYears year-label placement and/or borrowed plain-text formatting.
+/// None/None preserves the complete existing layout. The new entry rejects
+/// Compact even when both optional customizations are absent.
+pub fn calendar_layout_with_year_legend(
+    c: &ChartConfig,
+    data: &[CalendarCell],
+    o: &CalendarLayoutOptions,
+    year_legend: Option<&CalendarYearLegendOptions>,
+    text_factory: Option<&mut CalendarYearLegendTextFactory<'_>>,
+) -> Result<CalendarLayout> {
+    calendar_layout_with_color_profile_and_year_legend(
+        c,
+        data,
+        o,
+        crate::ColorInterpolation::Srgb,
+        year_legend,
+        text_factory,
+    )
+}
+
+/// Combine the existing day-color profile with FullYears year-label options.
+pub fn calendar_layout_with_color_profile_and_year_legend(
+    c: &ChartConfig,
+    data: &[CalendarCell],
+    o: &CalendarLayoutOptions,
+    color_profile: impl Into<crate::ColorScaleProfile>,
+    year_legend: Option<&CalendarYearLegendOptions>,
+    text_factory: Option<&mut CalendarYearLegendTextFactory<'_>>,
+) -> Result<CalendarLayout> {
+    ensure(
+        o.mode == CalendarLayoutMode::FullYears,
+        "calendar year legend requires FullYears mode",
+    )?;
+    calendar_layout_impl(c, data, o, color_profile, year_legend, text_factory)
+}
+
+fn calendar_layout_impl(
+    c: &ChartConfig,
+    data: &[CalendarCell],
+    o: &CalendarLayoutOptions,
+    profile: impl Into<crate::ColorScaleProfile>,
+    year_legend: Option<&CalendarYearLegendOptions>,
+    mut text_factory: Option<&mut CalendarYearLegendTextFactory<'_>>,
+) -> Result<CalendarLayout> {
     c.validate()?;
     validate(o)?;
+    if let Some(legend) = year_legend {
+        ensure(
+            legend.offset.is_finite() && (-1024. ..=1024.).contains(&legend.offset),
+            "invalid calendar year legend offset",
+        )?;
+    }
     ensure(
         data.len() <= MAX_CALENDAR_LAYOUT_DAYS,
         "calendar input exceeds 12000 dates",
@@ -867,7 +948,7 @@ pub fn calendar_layout_with_color_profile(
             );
         }
         if show_years {
-            let label = year.map_or_else(
+            let mut label = year.map_or_else(
                 || {
                     if first_year == last_year {
                         first_year.to_string()
@@ -877,7 +958,18 @@ pub fn calendar_layout_with_color_profile(
                 },
                 |y| y.to_string(),
             );
-            let p = point(
+            if let Some(factory) = text_factory.as_mut() {
+                label = factory(&CalendarYearLegendContext {
+                    year: year.expect("year legend factory requires FullYears"),
+                    index,
+                    grid: rect(grid, vertical),
+                })?;
+                ensure(
+                    label.len() <= MAX_LABEL_BYTES,
+                    "calendar year legend text exceeds label byte budget",
+                )?;
+            }
+            let mut p = point(
                 [
                     canonical.margin.left + o.weekday_space,
                     canonical.margin.top
@@ -886,15 +978,38 @@ pub fn calendar_layout_with_color_profile(
                 ],
                 vertical,
             );
-            text(
-                &mut scene,
-                c,
-                p,
-                label,
-                TextAnchor::Start,
-                &o.year_style,
-                None,
-            );
+            let mut style = o.year_style.clone();
+            let anchor = if let Some(legend) = year_legend {
+                let bounds = rect(grid, vertical);
+                let before = legend.position == CalendarLegendPosition::Before;
+                p = if vertical {
+                    [
+                        bounds.x + bounds.width / 2.,
+                        if before {
+                            bounds.y - legend.offset
+                        } else {
+                            bounds.y + bounds.height + legend.offset
+                        },
+                    ]
+                } else {
+                    style.rotation -= 90.;
+                    [
+                        if before {
+                            bounds.x - legend.offset
+                        } else {
+                            bounds.x + bounds.width + legend.offset
+                        },
+                        bounds.y + bounds.height / 2.,
+                    ]
+                };
+                // Keep the existing style validation range after composing the
+                // native placement rotation with the optional Rust rotation.
+                style.rotation = (style.rotation + 180.).rem_euclid(360.) - 180.;
+                TextAnchor::Middle
+            } else {
+                TextAnchor::Start
+            };
+            text(&mut scene, c, p, label, anchor, &style, None);
         }
     }
     if o.year_legend {

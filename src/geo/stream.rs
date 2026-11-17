@@ -4,6 +4,9 @@
 use super::path::Sampler;
 use super::*;
 use crate::{ClipPath, ClipRule, DrawItem, StrokeDash, ValueFormat};
+#[path = "usa_stream.rs"]
+mod usa_stream;
+pub use usa_stream::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GeoLineFeature {
@@ -209,6 +212,21 @@ fn pieces(a: V, b: V, o: &GeoMapOptions) -> Result<Vec<Vec<Sample>>> {
 }
 type RawLines = Vec<Vec<Vec<Sample>>>;
 fn source(data: &[GeoLineFeature], o: &GeoMapOptions, limit: usize) -> Result<RawLines> {
+    source_counted(data, o, limit).map(|(lines, _)| lines)
+}
+fn source_counted(
+    data: &[GeoLineFeature],
+    o: &GeoMapOptions,
+    limit: usize,
+) -> Result<(RawLines, usize)> {
+    source_metered(data, o, limit, |_| Ok(()))
+}
+fn source_metered(
+    data: &[GeoLineFeature],
+    o: &GeoMapOptions,
+    limit: usize,
+    mut charge: impl FnMut(usize) -> Result<()>,
+) -> Result<(RawLines, usize)> {
     ensure(
         data.len() <= 4096,
         "geographic line feature budget exceeded",
@@ -218,6 +236,7 @@ fn source(data: &[GeoLineFeature], o: &GeoMapOptions, limit: usize) -> Result<Ra
     let mut generated = 0usize;
     let mut output = vec![];
     for f in data {
+        charge(1)?;
         ensure(
             !f.id.trim().is_empty()
                 && f.id.len() <= 1000
@@ -236,6 +255,7 @@ fn source(data: &[GeoLineFeature], o: &GeoMapOptions, limit: usize) -> Result<Ra
         )?;
         let mut result: Vec<Vec<Sample>> = vec![];
         for line in &f.lines {
+            charge(1)?;
             ensure(
                 line.len() >= 2,
                 "geographic line requires at least two positions",
@@ -247,11 +267,13 @@ fn source(data: &[GeoLineFeature], o: &GeoMapOptions, limit: usize) -> Result<Ra
                 count <= MAX_POINTS,
                 "geographic line source budget exceeded",
             )?;
+            charge(line.len())?;
             for p in line {
                 valid_position(*p)?;
             }
             let mut current: Vec<Sample> = vec![];
             for pair in line.windows(2) {
+                charge(1)?;
                 if pair[0] == pair[1]
                     || (pair[0][1] == pair[1][1]
                         && ((pair[0][0] - pair[1][0]).abs() == 360. || pair[0][1].abs() == 90.))
@@ -266,6 +288,7 @@ fn source(data: &[GeoLineFeature], o: &GeoMapOptions, limit: usize) -> Result<Ra
                 )?;
                 let fragments = pieces(a, b, o)?;
                 for fragment in fragments {
+                    charge(fragment.len())?;
                     generated += fragment.len();
                     ensure(
                         generated <= limit,
@@ -293,7 +316,7 @@ fn source(data: &[GeoLineFeature], o: &GeoMapOptions, limit: usize) -> Result<Ra
         }
         output.push(result);
     }
-    Ok(output)
+    Ok((output, generated))
 }
 fn projected(
     data: &RawLines,
@@ -302,7 +325,25 @@ fn projected(
     options: &GeoPathOptions,
     capture_fit: bool,
 ) -> Result<(Vec<Vec<Ring>>, GeoPathStats, [f64; 4])> {
+    projected_seeded(
+        data,
+        projection,
+        scale,
+        options,
+        capture_fit,
+        GeoPathStats::default(),
+    )
+}
+fn projected_seeded(
+    data: &RawLines,
+    projection: GeoProjection,
+    scale: f64,
+    options: &GeoPathOptions,
+    capture_fit: bool,
+    initial: GeoPathStats,
+) -> Result<(Vec<Vec<Ring>>, GeoPathStats, [f64; 4])> {
     let mut sampler = Sampler::new(options, scale, projection)?;
+    sampler.stats = initial;
     sampler.capture_fit = capture_fit && projection.conic_kernel().is_some();
     let mut output = vec![];
     for feature in data {
@@ -464,6 +505,10 @@ impl GeoProjectionContext {
         data: &[GeoLineFeature],
         o: &GeoStreamOptions,
     ) -> Result<GeoStreamMetadata> {
+        ensure(
+            self.usa_projection().is_none(),
+            "Albers USA line overlays require add_usa_lines",
+        )?;
         scene.validate()?;
         ensure(
             [scene.width, scene.height] == self.dimensions,

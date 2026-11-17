@@ -3,3 +3,4 @@
 **/pkg/
 /node_modules/
 **/__pycache__/
+/artifacts/verification/

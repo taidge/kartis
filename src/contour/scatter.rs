@@ -388,6 +388,18 @@ fn compose(
             .ok_or_else(|| ChartError("density label font refers to a missing slot".into()))?;
         scene.typography.labels.insert(new, font.clone());
     }
+    for (old, stroke) in &contours.scene.typography.label_strokes {
+        let new = *label_slots
+            .get(old)
+            .ok_or_else(|| ChartError("density label stroke refers to missing slot".into()))?;
+        scene.typography.label_strokes.insert(new, *stroke);
+    }
+    for (old, mode) in &contours.scene.typography.label_whitespace {
+        let new = *label_slots
+            .get(old)
+            .ok_or_else(|| ChartError("density whitespace refers to missing slot".into()))?;
+        scene.typography.label_whitespace.insert(new, *mode);
+    }
     for (old, clip) in &contours.scene.label_clips {
         let new = *label_slots
             .get(old)

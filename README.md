@@ -4,7 +4,51 @@
 
 Kartis is a Rust chart library for Glory. Layouts produce a shared `Scene` for standalone SVG, browser Canvas, Glory widgets, and optional CPU raster output. Layout and interaction run in Rust without a JavaScript charting library. The API draws on D3 and Nivo. [Architecture](docs/architecture.md) · [Third-party notices](docs/third-party-notices.md)
 
+[Live gallery](https://kartis.taidge.org) · [Showcase source and deployment](https://github.com/taidge/kartis/tree/main/site)
+
 ## Getting started
+
+Kartis 0.2.0 includes:
+[parallel-axis filtering](docs/parallel-filtering.md) and
+[custom Funnel stages](docs/funnel-custom.md), and
+[measured text wrapping](docs/text-wrapping.md), with an explicit
+[label whitespace policy](docs/text-whitespace.md).
+Also included: [custom Waffle cells](docs/waffle-custom.md)
+and [Calendar year labels](docs/calendar-year-legend.md).
+[Custom Bullet parts](docs/bullet-custom.md) cover ranges, measures and markers.
+[Bump endpoint text](docs/bump-endpoint-labels.md) composes with custom points.
+[Albers USA maps, lines, graticules and region overlays](docs/geo-albers-usa.md)
+include fitted contexts, shared interaction ownership and host inverse picking.
+[Typed live Widget slots](docs/typed-plot-widgets.md) keep accepted geometry and
+owned data together, including [Bullet role overlays](docs/bullet-widgets.md).
+[Transactional Widget composition](docs/widget-composition.md) additionally
+replaces selected mark ink after candidate children build successfully.
+[Scene-order browser Widgets](docs/ordered-widgets.md) interleave source paint
+and live components, with shared group opacity and Canvas-pixel input occlusion.
+[Typed HeatMap and Waffle cell Widgets](docs/cell-widgets.md) preserve nullable
+input, original input indices and empty-cell identity in actual components.
+[Typed CPU image input](docs/raster-chart-bindings.md) retains source bindings
+and the accepted image camera alongside these Widgets.
+[Stream dot components](docs/stream-widgets.md) retain original sampling data,
+stack intervals and actual typed Path anchors in live Glory children.
+[Waffle group event areas](docs/waffle-regions.md) select occupied groups across
+cell padding while reporting actual painted hits separately.
+[Waffle group functions and owned application data](docs/waffle-functions.md)
+share resolved colors, borders and value text across native ink, legends,
+interaction and retained Glory cell components.
+[Literal Waffle SVG layers](docs/waffle-svg-layers.md) add ordered cells, transparent group areas,
+legends and retained whole-layer Glory subtrees with typed native input and shared tooltips.
+[Scatter node components](docs/scatter-widgets.md) retain complete original
+series, typed XY values and computed sites in live children.
+[Bar components](docs/bar-widgets.md) retain nullable source series, stack
+intervals, unclipped geometry and current label metadata.
+[Bump point components](docs/bump-widgets.md) preserve typed categories, nullable
+ranks and the original owned series alongside custom point geometry.
+[Hierarchy node components](docs/hierarchy-widgets.md) retain original tree weights,
+computed aggregates and focus metadata across Treemap, CirclePacking and Icicle.
+[Funnel SVG function layers](docs/funnel-svg-layers.md) add literal omissions,
+repeats and retained Glory subtrees with complete source data and current-part
+commands. This API is included in 0.2.0.
 
 Kartis requires Rust 1.95 or newer. Build a chart from data and pass its scene to `chart`. The example uses Glory’s in-memory host. Applications can select a Glory host appropriate to their platform.
 
@@ -12,7 +56,7 @@ Add the crates.io dependencies to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-kartis = "0.1.0"
+kartis = "0.2.0"
 glory = { version = "0.8.0", default-features = false }
 ```
 
@@ -92,7 +136,7 @@ Use `combo_layout_with_scale_options` for mixed charts with independently config
 
 Pie and RadialBar labels accept `ArcLabelRadiusMeasure::RingThickness` to match Nivo's thickness-based `skipRadius` filter. `OuterRadius` preserves their original behavior. Both typed layouts expose validated interaction bindings with original values and polar anchors, including active slice expansion and rounded arcs.
 
-`funnel_layout` exposes each stage’s source data, projected profile, separators, and interaction target. Configure the direction, linear or smooth sides, stage spacing, and controlled highlighting.
+`funnel_layout` exposes each stage’s source data, projected profile, separators, and interaction target. Configure the direction, linear or smooth sides, stage spacing, and controlled highlighting. Kartis 0.2.0 adds [style and formatter functions and live Funnel roles](docs/funnel-widgets.md) for actual body, border and separator marks, with shared typed layer data.
 
 `waffle_layout` exposes the grid slots and each group’s allocation. It supports four fill directions, independently rounded counts or largest-remainder allocation, and either padded cells or solid group areas.
 
@@ -104,13 +148,15 @@ Sunburst also offers measured `label_candidates` and `place_labels`. Supply rota
 
 `bump_layout` maps typed categories and distinct ranks to independent point scales. It retains the transition shoulders and missing slots. `bump_layout_with_point_factory` draws custom points while keeping their original interaction anchors.
 
-`stream_layout` exposes the source values, stack boundaries, projected samples, and layers. Configure stack order, offset, curve, axes, and dots. Use `into_scene_interaction` for layer picking or `into_slice_interaction` for sample slices, including samples whose dots are hidden.
+`stream_layout` exposes the source values, stack boundaries, projected samples, and layers. Configure stack order, offset, curve, axes, and dots. Kartis 0.2.0 adds [eight borrowed Stream functions](docs/stream-functions.md) for labels, colors, formatting and dot styles. Use `into_scene_interaction` for layer picking or `into_slice_interaction` for sample slices, including samples whose dots are hidden.
 
 `StreamDotOptions::glyph` selects a shared filled or stroked symbol. `stream_layout_with_dot_factory` accepts custom point geometry and paint. Start, center, and end positions keep their stack anchors, including when the painted point is offset. Exact picking follows the point's ink and clip; nearest picking and slices retain the original data position.
 
 ### Full-breakpoint scales and geographic inverse
 
 `PiecewiseScaleOptions` retains full numeric or UTC domain and range stops. Use `line_layout_with_piecewise_scale_options` or `ScatterAxisScale::Piecewise` for actual chart axes, geometry and typed picking. Their range stops are plot fractions starting at 0 and ending at 1. Domain viewports rescale every knot and pass `piecewise_domains` to the layout callback. Turning ranges support forward drawing and an explicit `invert_segment`; a global inverse and data viewport require a strictly monotonic range. [Scale and inverse guide](docs/advanced-scales.md)
+
+The 0.2.0 numeric core accepts repeated domain knots and static constant domains, with D3's transformed-coordinate tie selection and whole-domain clamp. Line and Scatter retain every viewport breakpoint, including constant windows and reset; native and four-browser SVG/Canvas acceptance is complete for the documented profiles. A unique inverse range branch does not imply a bijection, and transcendental results can differ between runtimes near a jump. [Repeated piecewise knots](docs/piecewise-repeated.md)
 
 ```rust
 # use kartis::*;
@@ -244,7 +290,17 @@ assert_eq!(format.format(0.)?, "1970年1月1日 08:00 +0800");
 
 ### Tree, parallel coordinates, and networks
 
-Tree layouts offer configurable link curves, node geometry, and labels. Hierarchy layouts can focus on a subtree. Explicit graph relations support highlighting in Tree, Network, Chord, and Sankey.
+Tree layouts offer configurable link curves, node geometry, and labels. Kartis 0.2.0 adds [typed Tree node and link components](docs/tree-widgets.md), complete topology and original source anchors, including zero-radius nodes. [Five Tree functions](docs/tree-functions.md) additionally configure node diameter/fill, link width/color and drawing labels. [Tree activity](docs/tree-activity.md) adds current-node modifiers, inherited colors and a BrowserTree owner with retained Widgets. [Tree label components](docs/tree-label-components.md) add real label targets and mixed node/link/label composition. [Native Tree Canvas renderers](docs/tree-canvas.md) add shared-context drawing callbacks, repeatable custom layers and sealed bitmap preparation. Its [pointer lifecycle](docs/tree-input-lifecycle.md) defers automatic activity during a native press and distinguishes accepted updates from rejected candidates. Hierarchy layouts can focus on a subtree. Explicit graph relations support highlighting in Tree, Network, Chord, and Sankey.
+
+Kartis 0.2.0 also adds opt-in [Tree node tooltips](docs/tree-tooltip.md), with complete raw/computed data, fixed or cursor positioning and real retained Glory content. Existing defaults stay unchanged. The opt-in browser profile is validated at DPR1/2 across Chrome, Firefox, WebKit, Edge and bundled Chromium; the guide documents its source-layout, input and export limits.
+
+0.2.0 [Tree SVG function layers](docs/tree-svg-layers.md) preserve literal omissions, repeats and order alongside retained, plot-local Glory subtrees. Source components and tooltips share their adoption boundary; an actual Mesh layer determines nearest-node input coverage. The SVG adapter uses foreignObject/XHTML and has explicit animation, raw SVG and export limits.
+
+0.2.0 [Tree native mouse hooks](docs/tree-events.md) add seven independent handlers for nodes and links, shared typed event data and explicit Glory element bindings. SVG, Mesh and Canvas source-model routing have separate contracts; the optional native component profile and handled-target double-click policy preserve existing defaults. The native input contract is verified across five browser configurations at two DPRs.
+
+0.2.0 [SVG Tree link tooltips](docs/tree-link-tooltip.md) add cursor placement, complete endpoint data and a retained Glory component alongside the existing node presentation. Requested and resolved anchors are distinct; node and link cards share an adoption boundary. The checked browser matrix covers SVG path input, retained state, positioning and rejection recovery.
+
+0.2.0 [Tree property springs](docs/tree-motion.md) add automatic SVG animation, exact manual stepping, velocity-preserving retargeting and retained Glory component exits. Sampled ink and target data share source/layer/tooltip adoption; animated components retain local state across motion and reentry. Canvas springs, Radial animation and GPU/worker rendering remain deferred.
 
 `HierarchyFocusMotion` animates subtree changes in treemap, circle packing, and icicle layouts. It exposes the accepted target layout separately from the sampled geometry. `frame_interaction` pairs the current frame with typed data and anchors for picking.
 
@@ -428,3 +484,25 @@ BoxPlot accepts borrowed per-summary RGBA and ByLabel caption factories through 
 Calendar FullYears layouts support explicit month spacing in both orientations, shared by day cells, month outlines and labels. Zero preserves the existing layout. [Calendar month spacing](docs/calendar-month-spacing.md)
 
 Radar point labels accept a borrowed text factory with axis and series identities, raw values and formatted values. Label and geometry factories can be combined with shared value scales. [Radar point labels](docs/radar-point-labels.md)
+
+0.2.0 Swarm node factories replace geometry after packing while retaining data origins and collision discs. Exact picking follows the new ink; nearest picking retains the original position. Solid semantic Chart controls and SVG/Canvas/raster share the checked frame. [Custom Swarm nodes](docs/swarm-custom.md)
+
+0.2.0 Network link factories compose with node glyphs and explicit relation identities. The browser force driver retains the factory and rebuilds links on tick, drag, resize and replacement, preserving accepted frames on rejection. [Custom network links](docs/network-link-custom.md)
+
+See [original values in retained Widgets](docs/widget-source-values.md) for data-only updates with stable paint and child identity (0.2.0).
+
+See [live Swarm node Widgets](docs/swarm-widgets.md) for retained components with original source data, packed anchors and SVG/Canvas composition (0.2.0).
+
+See [live force-network node Widgets](docs/network-widgets.md) for typed components coupled to accepted force ticks, drag and responsive layout (0.2.0).
+
+See [live Network link and node components](docs/network-link-widgets.md) for a shared strict force/Scene/component stage (0.2.0).
+
+0.2.0 Funnel native hooks and source-coherent standard/custom tooltips are described in the [tooltip guide](docs/funnel-tooltip.md).
+
+0.2.0 source-bound Funnel annotations support typed matching, independent SVG
+layers and shared SVG/Canvas/CPU paint. See the [annotation guide](docs/funnel-annotations.md)
+for the current API and verification scope.
+
+0.2.0 owned Funnel application data and typed browser adapters are described in the [raw-data guide](docs/funnel-data.md).
+
+0.2.0 Funnel property springs and browser clocks are described in the [motion guide](docs/funnel-motion.md).

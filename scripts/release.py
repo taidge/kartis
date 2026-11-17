@@ -41,7 +41,7 @@ def verify(tag, require_published=False):
         raise ValueError("The packaged crate must record the clean release commit; rerun cargo package")
     checksum = hashlib.sha256(crate.read_bytes()).hexdigest()
     url = f"https://crates.io/api/v1/crates/{package['name']}/{version}"
-    request = urllib.request.Request(url, headers={"User-Agent": "kartis-release-check/0.1.0"})
+    request = urllib.request.Request(url, headers={"User-Agent": f"kartis-release-check/{version}"})
     try:
         with urllib.request.urlopen(request, timeout=60) as response:
             published = json.load(response)["version"]
@@ -64,7 +64,7 @@ def verify(tag, require_published=False):
         "checksum_path": str(crate.parent / "SHA256SUMS"),
         "source_commit": head,
     }
-    (crate.parent / "SHA256SUMS").write_text(f"{checksum}  {crate.name}\n", encoding="utf-8")
+    (crate.parent / "SHA256SUMS").write_text(f"{checksum}  {crate.name}\n", encoding="utf-8", newline="\n")
     output = os.environ.get("GITHUB_OUTPUT")
     if output:
         with open(output, "a", encoding="utf-8") as stream:

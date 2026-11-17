@@ -785,6 +785,13 @@ fn line_impl(
     let yb = [yd[0].min(yd[1]), yd[0].max(yd[1])];
     cartesian_axes(&mut scene, config, &x, &y, &options.axes)?;
     let clip = ClipRect::plot(config);
+    let repeated_x = x.is_piecewise() && x.domain_stops().windows(2).any(|p| p[0] == p[1]);
+    let repeated_y = y.is_piecewise() && y.domain_stops().windows(2).any(|p| p[0] == p[1]);
+    // Repeated knots can jump or map an entire extrapolated edge into the
+    // plot. Clip the actual projected line, as D3's line generator does, rather
+    // than discarding source values against the outer domain or substituting
+    // the ordinary constant-scale virtual midpoint.
+    let projected_clip = repeated_x || repeated_y;
     for (si, s) in visible {
         legend(&mut scene, config, si, &s.id);
         let series_start = scene.marks.len();
@@ -807,11 +814,15 @@ fn line_impl(
         };
         let transform_x = LinearScale::new(tx, x.range())?;
         let transform_y = LinearScale::new(ty, y.range())?;
-        let data_clip = ClipRect {
-            x: tx[0].min(tx[1]),
-            y: ty[0].min(ty[1]),
-            width: (tx[1] - tx[0]).abs(),
-            height: (ty[1] - ty[0]).abs(),
+        let data_clip = if projected_clip {
+            clip
+        } else {
+            ClipRect {
+                x: tx[0].min(tx[1]),
+                y: ty[0].min(ty[1]),
+                width: (tx[1] - tx[0]).abs(),
+                height: (ty[1] - ty[0]).abs(),
+            }
         };
         for (pi, point) in s.data.iter().enumerate() {
             let Some(value) = point.y else {
@@ -835,29 +846,39 @@ fn line_impl(
             } else {
                 value
             };
-            let inside = (constant_x || px_value >= xb[0] && px_value <= xb[1])
-                && (constant_y || py_value >= yb[0] && py_value <= yb[1]);
-            let raw = (
-                if constant_x {
-                    0.5
-                } else {
-                    x.transformed(px_value)
-                },
-                if constant_y {
-                    0.5
-                } else {
-                    y.transformed(py_value)
-                },
-            );
+            let raw = if projected_clip {
+                (x.map(point.x), y.map(value))
+            } else {
+                (
+                    if constant_x {
+                        0.5
+                    } else {
+                        x.transformed(px_value)
+                    },
+                    if constant_y {
+                        0.5
+                    } else {
+                        y.transformed(py_value)
+                    },
+                )
+            };
             ensure(
                 raw.0.is_finite() && raw.1.is_finite(),
                 "scale transform overflow",
             )?;
+            let inside = if projected_clip {
+                clip.contains(raw.0, raw.1)
+            } else {
+                (constant_x || px_value >= xb[0] && px_value <= xb[1])
+                    && (constant_y || py_value >= yb[0] && py_value <= yb[1])
+            };
             if options.curve == Curve::Linear {
                 if let Some(prev) = previous {
                     if let Some([a, b]) = crate::clipping::clip_segment(prev, raw, data_clip)? {
                         let project = |p: (f64, f64)| {
-                            if resolved.is_some() {
+                            if projected_clip {
+                                P::new(p.0, p.1)
+                            } else if resolved.is_some() {
                                 P::new(x.map_transformed(p.0), y.map_transformed(p.1))
                             } else {
                                 P::new(transform_x.map(p.0), transform_y.map(p.1))
@@ -978,7 +999,11 @@ fn line_impl(
                         Cmd::Close => first,
                     };
                     if !options.curve.closed() {
-                        let baseline = y.map(options.baseline.clamp(yb[0], yb[1]));
+                        let baseline = y.map(if repeated_y {
+                            options.baseline
+                        } else {
+                            options.baseline.clamp(yb[0], yb[1])
+                        });
                         area.extend([
                             Cmd::Line(P::new(last.x, baseline)),
                             Cmd::Line(P::new(first.x, baseline)),

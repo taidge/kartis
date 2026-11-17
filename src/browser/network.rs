@@ -5,7 +5,16 @@ use super::*;
 use crate::network::{
     ForceNodeState, ForceSimulation, NetworkDragController, NetworkDragMapping, NetworkDragOptions,
 };
-use crate::network_glyphs::{NetworkGlyphOptions, pick_network_glyph_node};
+use crate::network_glyphs::{
+    NetworkGlyphOptions, NetworkLinkContext, NetworkLinkGeometry,
+    network_glyph_layout_with_link_factory, pick_network_glyph_node,
+};
+#[path = "network_widgets.rs"]
+mod widgets;
+pub use widgets::{BrowserNetworkNodeWidgetOptions, BrowserNetworkWidgetOptions};
+use widgets::{NodeWidgetMount, NodeWidgets, PublishingData, RenderedFrame};
+
+type LinkFactory = dyn FnMut(&NetworkLinkContext<'_>) -> Result<NetworkLinkGeometry>;
 #[derive(Clone, Debug, PartialEq)]
 pub struct BrowserNetworkOptions {
     pub chart: BrowserOptions,
@@ -50,6 +59,7 @@ struct Data {
     glyphs: Option<Rc<NetworkGlyphOptions>>,
     mapping: Option<NetworkDragMapping>,
     start: Option<[f64; 2]>,
+    widget_revision: u64,
 }
 struct Replacement {
     simulation: ForceSimulation,
@@ -60,7 +70,14 @@ fn layout_for(
     simulation: &ForceSimulation,
     config: &ChartConfig,
     glyphs: Option<&NetworkGlyphOptions>,
+    factory: Option<&mut LinkFactory>,
 ) -> Result<SceneInteraction> {
+    if let Some(factory) = factory {
+        let glyphs = glyphs
+            .ok_or_else(|| ChartError("custom network links require a typed node frame".into()))?;
+        return network_glyph_layout_with_link_factory(config, simulation, glyphs, factory)
+            .map(Into::into);
+    }
     match glyphs {
         Some(glyphs) => simulation.scene_with_glyphs(config, glyphs).map(Into::into),
         None => simulation.scene(config).map(Into::into),
@@ -97,6 +114,13 @@ struct Driver {
     window: Window,
     surface: HtmlElement,
     data: RefCell<Data>,
+    link_factory: RefCell<Option<Box<LinkFactory>>>,
+    rendering_links: Cell<bool>,
+    node_widgets: Option<NodeWidgets>,
+    staging_widgets: Cell<bool>,
+    publishing_data: RefCell<Option<PublishingData>>,
+    widget_revision_pending: Cell<Option<u64>>,
+    reheat_pending: Cell<Option<f64>>,
     ticks_per_frame: usize,
     alive: Cell<bool>,
     processing: Cell<bool>,
@@ -133,7 +157,7 @@ impl BrowserNetwork {
         config: ChartConfig,
         options: BrowserNetworkOptions,
     ) -> Result<Self> {
-        Self::mount_inner(root, simulation, config, options, None)
+        Self::mount_inner(root, simulation, config, options, None, None, None)
     }
 
     /// Mount a force chart with per-node visual glyphs. The driver owns the
@@ -150,7 +174,44 @@ impl BrowserNetwork {
             options.chart.interaction_data.is_none(),
             "network glyph driver supplies its own interaction binding",
         )?;
-        Self::mount_inner(root, simulation, config, options, Some(Rc::new(glyphs)))
+        Self::mount_inner(
+            root,
+            simulation,
+            config,
+            options,
+            Some(Rc::new(glyphs)),
+            None,
+            None,
+        )
+    }
+
+    /// Retain an explicit link factory and rebuild its ink from the current
+    /// simulation on tick, drag, resize and replacement candidates. Node glyphs
+    /// still determine drag picking. Link ink remains decorative and does not
+    /// alter forces or link endpoints. Errors preserve the accepted frame and
+    /// force state; external factory side effects cannot be rolled back.
+    /// Replacement admission may invoke the factory before its later RAF call.
+    pub fn mount_with_link_factory(
+        root: Element,
+        simulation: ForceSimulation,
+        config: ChartConfig,
+        options: BrowserNetworkOptions,
+        glyphs: NetworkGlyphOptions,
+        factory: impl FnMut(&NetworkLinkContext<'_>) -> Result<NetworkLinkGeometry> + 'static,
+    ) -> Result<Self> {
+        scene::ensure(
+            options.chart.interaction_data.is_none(),
+            "network link driver supplies its own interaction binding",
+        )?;
+        Self::mount_inner(
+            root,
+            simulation,
+            config,
+            options,
+            Some(Rc::new(glyphs)),
+            Some(Box::new(factory)),
+            None,
+        )
     }
 
     fn mount_inner(
@@ -159,6 +220,8 @@ impl BrowserNetwork {
         config: ChartConfig,
         options: BrowserNetworkOptions,
         glyphs: Option<Rc<NetworkGlyphOptions>>,
+        mut link_factory: Option<Box<LinkFactory>>,
+        mut widget_mount: Option<NodeWidgetMount>,
     ) -> Result<Self> {
         let BrowserNetworkOptions {
             chart: mut chart_options,
@@ -175,12 +238,38 @@ impl BrowserNetwork {
             "force dragging requires a Scene-transform BrowserChart",
         )?;
         let controller = NetworkDragController::new(simulation, drag)?;
-        let initial = layout_for(controller.simulation(), &config, glyphs.as_deref())?;
+        let widget_revision = widget_mount
+            .as_ref()
+            .map_or(0, |w| w.runtime.options.revision);
+        let initial = match widget_mount.as_mut() {
+            Some(widgets) => widgets.runtime.layout(
+                controller.simulation(),
+                &config,
+                glyphs.as_deref(),
+                link_factory.as_deref_mut(),
+                widget_revision,
+            )?,
+            None => RenderedFrame::plain(layout_for(
+                controller.simulation(),
+                &config,
+                glyphs.as_deref(),
+                link_factory.as_deref_mut(),
+            )?),
+        };
         if glyphs.is_some() {
-            chart_options.interaction_data = initial.interaction;
+            chart_options.interaction_data = initial.frame.interaction.clone();
             chart_options.highlight = BrowserHighlight::Controlled;
         }
-        let chart = BrowserChart::mount(root, initial.scene, chart_options)?;
+        let (chart, node_widgets) = match widget_mount {
+            Some(mut mount) => {
+                let chart = mount.mount(root, initial, chart_options)?;
+                (chart, Some(mount.runtime))
+            }
+            None => (
+                BrowserChart::mount(root, initial.frame.scene, chart_options)?,
+                None,
+            ),
+        };
         let surface = chart
             .engine
             .state
@@ -199,7 +288,15 @@ impl BrowserNetwork {
                 glyphs,
                 mapping: None,
                 start: None,
+                widget_revision,
             }),
+            link_factory: RefCell::new(link_factory),
+            rendering_links: Cell::new(false),
+            node_widgets,
+            staging_widgets: Cell::new(false),
+            publishing_data: RefCell::new(None),
+            widget_revision_pending: Cell::new(None),
+            reheat_pending: Cell::new(None),
             running: Cell::new(auto_start),
             suspended: Cell::new(false),
             ticks_per_frame,
@@ -228,32 +325,38 @@ impl BrowserNetwork {
         *driver.raf.borrow_mut() = Some(Closure::new(move |_: f64| {
             if let Some(driver) = weak.upgrade() {
                 driver.ticket.set(None);
-                if let Err(error) = driver.frame() {
+                if let Err(error) = driver.frame(false) {
                     driver.recover(error);
                 }
             }
         }));
-        let weak = Rc::downgrade(&driver);
-        owner
-            .chart
-            .on_resize_with_interaction(move |width, height| {
-                let driver = weak
-                    .upgrade()
-                    .ok_or_else(|| ChartError("network binding was dropped".into()))?;
-                scene::ensure(driver.alive.get(), "network binding is stopped")?;
-                let data = driver
-                    .data
-                    .try_borrow()
-                    .map_err(|_| ChartError("network layout is already in use".into()))?;
-                let mut config = data.config.clone();
-                config.width = width;
-                config.height = height;
-                layout_for(
-                    data.controller.simulation(),
-                    &config,
-                    data.glyphs.as_deref(),
-                )
-            });
+        if driver.node_widgets.is_none() {
+            let weak = Rc::downgrade(&driver);
+            owner
+                .chart
+                .on_resize_with_interaction(move |width, height| {
+                    let driver = weak
+                        .upgrade()
+                        .ok_or_else(|| ChartError("network binding was dropped".into()))?;
+                    scene::ensure(driver.alive.get(), "network binding is stopped")?;
+                    let data = driver
+                        .data
+                        .try_borrow()
+                        .map_err(|_| ChartError("network layout is already in use".into()))?
+                        .clone();
+                    let mut config = data.config.clone();
+                    config.width = width;
+                    config.height = height;
+                    driver
+                        .layout(
+                            data.controller.simulation(),
+                            &config,
+                            data.glyphs.as_deref(),
+                            data.widget_revision,
+                        )
+                        .map(|candidate| candidate.frame)
+                });
+        }
         let weak = Rc::downgrade(&driver);
         owner.chart.on_event(move |event| {
             if let Some(driver) = weak.upgrade()
@@ -309,6 +412,7 @@ impl BrowserNetworkHandle {
             .upgrade()
             .ok_or_else(|| ChartError("network owner was dropped".into()))?;
         scene::ensure(driver.alive.get(), "network owner is stopped")?;
+        driver.require_widget_mutation_ready()?;
         Ok(driver)
     }
     pub fn is_active(&self) -> bool {
@@ -351,7 +455,7 @@ impl BrowserNetworkHandle {
         if let Some(ticket) = driver.ticket.take() {
             driver.window.cancel_animation_frame(ticket).map_err(host)?;
         }
-        match driver.frame() {
+        match driver.frame(true) {
             Ok(()) => Ok(()),
             Err(error) => {
                 driver.recover(error.clone());
@@ -395,11 +499,24 @@ impl BrowserNetworkHandle {
     }
     pub fn reheat(&self, alpha: f64) -> Result<()> {
         let driver = self.driver()?;
-        let mut data = driver.data.borrow().clone();
+        let mut data = driver
+            .data
+            .try_borrow()
+            .map_err(|_| ChartError("network data is already in use".into()))?
+            .clone();
         data.controller.reheat(alpha)?;
         driver.request()?;
         driver.running.set(true);
-        *driver.data.borrow_mut() = data;
+        if driver.node_widgets.is_some() {
+            driver.reheat_pending.set(Some(
+                driver
+                    .reheat_pending
+                    .get()
+                    .map_or(alpha, |pending| pending.max(alpha)),
+            ));
+        } else {
+            *driver.data.borrow_mut() = data;
+        }
         Ok(())
     }
     /// Queue the latest complete graph without remounting. Scene admission and
@@ -526,6 +643,43 @@ impl BrowserNetworkHandle {
     }
 }
 impl Driver {
+    fn layout(
+        &self,
+        simulation: &ForceSimulation,
+        config: &ChartConfig,
+        glyphs: Option<&NetworkGlyphOptions>,
+        widget_revision: u64,
+    ) -> Result<RenderedFrame> {
+        scene::ensure(
+            !self.rendering_links.replace(true),
+            "network link factory is already in use",
+        )?;
+        struct Guard<'a>(&'a Cell<bool>);
+        impl Drop for Guard<'_> {
+            fn drop(&mut self) {
+                self.0.set(false);
+            }
+        }
+        let _guard = Guard(&self.rendering_links);
+        // Take the callback out so a callback can read accepted state or stop
+        // its owner without borrowing the factory cell recursively.
+        let mut factory = self.link_factory.borrow_mut().take();
+        let result = match &self.node_widgets {
+            Some(widgets) => widgets.layout(
+                simulation,
+                config,
+                glyphs,
+                factory.as_deref_mut(),
+                widget_revision,
+            ),
+            None => layout_for(simulation, config, glyphs, factory.as_deref_mut())
+                .map(RenderedFrame::plain),
+        };
+        if self.alive.get() {
+            *self.link_factory.borrow_mut() = factory;
+        }
+        result
+    }
     fn core(&self) -> Result<Rc<Engine>> {
         let core = self
             .core
@@ -564,16 +718,41 @@ impl Driver {
                 .ok_or_else(|| ChartError("browser chart is stopped".into()))?;
             config.width = state.model.scene().width;
             config.height = state.model.scene().height;
-            let candidate = layout_for(
-                &replacement.simulation,
-                &config,
-                replacement.glyphs.as_deref(),
-            )?;
-            if candidate.interaction.is_some() {
-                state.admit_interaction_scene(&candidate.scene, candidate.interaction.as_ref())?;
-                surface::validate_plot(state.model.options().plot, &candidate.scene)?;
+        }
+        // The retained user factory may read state, stop its owner or reject a
+        // nested replacement. Never execute it while holding the core state.
+        let widget_revision = self
+            .widget_revision_pending
+            .get()
+            .unwrap_or_else(|| self.data.borrow().widget_revision);
+        let candidate = self.layout(
+            &replacement.simulation,
+            &config,
+            replacement.glyphs.as_deref(),
+            widget_revision,
+        )?;
+        scene::ensure(
+            self.alive.get() && core.alive.get(),
+            "network stopped during link rendering",
+        )?;
+        {
+            let state = core
+                .state
+                .try_borrow()
+                .map_err(|_| ChartError("browser frame is in use".into()))?;
+            let state = state
+                .as_ref()
+                .ok_or_else(|| ChartError("browser chart is stopped".into()))?;
+            if let Some(widgets) = &self.node_widgets {
+                widgets.admit(state, &candidate)?;
+            } else if candidate.frame.interaction.is_some() {
+                state.admit_interaction_scene(
+                    &candidate.frame.scene,
+                    candidate.frame.interaction.as_ref(),
+                )?;
+                surface::validate_plot(state.model.options().plot, &candidate.frame.scene)?;
             } else {
-                state.admit_scene(&candidate.scene)?;
+                state.admit_scene(&candidate.frame.scene)?;
             }
         }
         self.request()?;
@@ -600,6 +779,18 @@ impl Driver {
             .data
             .try_borrow()
             .map_err(|_| ChartError("network data is already in use".into()))?;
+        let publishing = self
+            .publishing_data
+            .try_borrow()
+            .map_err(|_| ChartError("network publish snapshot is already in use".into()))?;
+        let data = publishing
+            .as_ref()
+            .filter(|pending| {
+                self.alive.get()
+                    && self.core.upgrade().is_some_and(|core| core.alive.get())
+                    && pending.stage.was_adopted()
+            })
+            .map_or(&*data, |pending| &pending.data);
         let simulation = data.controller.simulation();
         Ok(BrowserNetworkSnapshot {
             active: self.alive.get() && self.core.upgrade().is_some_and(|e| e.alive.get()),
@@ -612,7 +803,9 @@ impl Driver {
             ticks: simulation.total_ticks(),
             pending: !self.inputs.borrow().is_empty()
                 || self.cancel_pending.get()
-                || self.replacement.borrow().is_some(),
+                || self.replacement.borrow().is_some()
+                || self.widget_revision_pending.get().is_some()
+                || self.reheat_pending.get().is_some(),
             raf_pending: self.ticket.get().is_some(),
             suspended: self.suspended.get(),
             error: self.error.borrow().clone(),
@@ -633,6 +826,7 @@ impl Driver {
             let _ = self.window.cancel_animation_frame(ticket);
         }
         self.release_capture();
+        self.clear_publishing_data();
         self.listeners.borrow_mut().clear();
         if let Some((observer, _)) = self.observer.borrow_mut().take() {
             observer.disconnect();
@@ -640,10 +834,16 @@ impl Driver {
         self.inputs.borrow_mut().clear();
         self.cancel_pending.set(false);
         self.replacement.borrow_mut().take();
+        self.widget_revision_pending.set(None);
+        self.reheat_pending.set(None);
+        if let Some(widgets) = &self.node_widgets {
+            widgets.clear();
+        }
         self.events.borrow_mut().clear();
         let _ = self.data.borrow_mut().controller.cancel();
         self.event_callback.borrow_mut().take();
         self.step_callback.borrow_mut().take();
+        self.link_factory.borrow_mut().take();
         if let Ok(chart) = self.chart() {
             chart.stop();
         }
@@ -664,6 +864,7 @@ impl Driver {
             }
         }
         let _guard = Guard(&self.processing);
+        self.clear_publishing_data();
         if !self.core.upgrade().is_some_and(|e| e.alive.get()) {
             self.fatal(error);
             return;
@@ -676,6 +877,18 @@ impl Driver {
         self.inputs.borrow_mut().clear();
         self.cancel_pending.set(false);
         self.replacement.borrow_mut().take();
+        self.widget_revision_pending.set(None);
+        self.reheat_pending.set(None);
+        if self.node_widgets.is_some() {
+            // Preserve the complete accepted physics snapshot. Native capture
+            // is released now; cancellation is a future candidate, accepted
+            // only when its matching Widget/paint frame also succeeds.
+            self.cancel_pending
+                .set(self.data.borrow().controller.active().is_some());
+            self.record(error);
+            self.emit();
+            return;
+        }
         // Retain the last painted positions. A failed candidate must not
         // destroy the accepted chart or leave a released pointer heating a pin.
         {
@@ -759,7 +972,7 @@ impl Driver {
             }
         }
     }
-    fn frame(&self) -> Result<()> {
+    fn frame(&self, force_rebuild: bool) -> Result<()> {
         if !self.alive.get() {
             return Ok(());
         }
@@ -788,7 +1001,13 @@ impl Driver {
             self.release_capture();
             self.inputs.borrow_mut().clear();
             self.cancel_pending.set(false);
-            {
+            if self.node_widgets.is_some() {
+                // A hidden host cannot publish the matching Widget frame.
+                // Preserve accepted physics until restoration can commit the
+                // cancellation and its complete typed payload together.
+                self.cancel_pending
+                    .set(self.data.borrow().controller.active().is_some());
+            } else {
                 let mut data = self.data.borrow_mut();
                 data.controller.cancel()?;
                 data.mapping = None;
@@ -807,6 +1026,7 @@ impl Driver {
             return Ok(());
         }
         let mut data = self.data.borrow().clone();
+        let previous_size = [data.config.width, data.config.height];
         let replacement = self.replacement.borrow_mut().take();
         let replaced = replacement.is_some();
         if let Some(Replacement { simulation, glyphs }) = replacement {
@@ -819,7 +1039,39 @@ impl Driver {
             self.cancel_pending.set(false);
             self.running.set(true);
         }
-        let mapping = self.mapping(&data.config)?;
+        // Reheat is monotonic: coalesced requests retain their greatest heat
+        // and apply to the latest complete graph. Both remain tentative until
+        // this candidate's component/paint commit.
+        let reheated = self.reheat_pending.get().is_some();
+        if let Some(alpha) = self.reheat_pending.take() {
+            data.controller.reheat(alpha)?;
+        }
+        let mapping = if self.node_widgets.is_some() {
+            // Layout dimensions are untransformed CSS pixels. The screen
+            // rectangle below remains transformed for native pointer mapping.
+            // Treating its dimensions as layout would cancel an external CSS
+            // scale and change the physical size of every force world unit.
+            let [width, height] = self.widget_logical_size()?;
+            data.config.width = width;
+            data.config.height = height;
+            let model = self.accepted_model()?;
+            NetworkDragMapping::from_config(
+                &data.config,
+                ClipRect {
+                    x: bounds.x(),
+                    y: bounds.y(),
+                    width: bounds.width(),
+                    height: bounds.height(),
+                },
+                model.view(),
+            )?
+        } else {
+            self.mapping(&data.config)?
+        };
+        let revised = self.widget_revision_pending.get().is_some();
+        if let Some(revision) = self.widget_revision_pending.take() {
+            data.widget_revision = revision;
+        }
         data.config.width = mapping.scene_size[0];
         data.config.height = mapping.scene_size[1];
         if data.mapping.as_ref() != Some(&mapping) {
@@ -827,20 +1079,22 @@ impl Driver {
             data.mapping = Some(mapping.clone());
         }
         let hidden = self.chart()?.snapshot()?.hidden;
-        if data
+        let hidden_cancelled = data
             .controller
             .active()
-            .is_some_and(|s| hidden.contains(&s.node_id))
-        {
+            .is_some_and(|s| hidden.contains(&s.node_id));
+        if hidden_cancelled {
             data.controller.cancel()?;
             self.release_capture();
             self.inputs.borrow_mut().clear();
             self.cancel_pending.set(false);
         }
         let inputs = std::mem::take(&mut *self.inputs.borrow_mut());
+        let gesture_work = !inputs.is_empty();
         let mut clicks = vec![];
         let mut hover = None;
-        if self.cancel_pending.replace(false) {
+        let cancelled = self.cancel_pending.replace(false);
+        if cancelled {
             data.controller.cancel()?;
             data.start = None;
         }
@@ -907,8 +1161,46 @@ impl Driver {
         if tick {
             data.controller.tick(self.ticks_per_frame)?;
         }
+        let resized = [data.config.width, data.config.height] != previous_size;
+        if self.node_widgets.is_some()
+            && !force_rebuild
+            && !tick
+            && !replaced
+            && !reheated
+            && !revised
+            && !gesture_work
+            && !cancelled
+            && !hidden_cancelled
+            && !resized
+        {
+            // An accepted layout rebuilds the painted hit index and its frame
+            // token. A stationary PhysicalHover therefore reports that new
+            // frame, which schedules this driver. Do not answer a pure event
+            // with another identical layout/token and create an idle RAF loop.
+            // BrowserChart already flushed any actual view/hover input above.
+            // Explicit flush still rebuilds, so applications can reevaluate a
+            // retained placement callback without changing simulation state.
+            self.emit();
+            if self.alive.get()
+                && (!self.inputs.borrow().is_empty()
+                    || self.cancel_pending.get()
+                    || self.replacement.borrow().is_some()
+                    || self.widget_revision_pending.get().is_some()
+                    || self.reheat_pending.get().is_some()
+                    || !self.events.borrow().is_empty())
+            {
+                self.request()?;
+            }
+            return Ok(());
+        }
         let simulation = data.controller.simulation();
-        let candidate = layout_for(simulation, &data.config, data.glyphs.as_deref())?;
+        let candidate = self.layout(
+            simulation,
+            &data.config,
+            data.glyphs.as_deref(),
+            data.widget_revision,
+        )?;
+        scene::ensure(self.alive.get(), "network stopped during node rendering")?;
         let replacement_hidden = replaced.then(|| {
             hidden
                 .into_iter()
@@ -917,10 +1209,23 @@ impl Driver {
         });
         // SurfaceModel clones retain the accepted Scene by Rc. Compare its
         // identity after painting so a rejected typed layout cannot advance
-        // the force positions or become the next drag target.
+        // the force positions or become the next drag target. SurfaceModel
+        // allocates a fresh Scene Rc on every accepted set_layout, even for
+        // identical paint (fixed nodes with tick/heat-only Widget data).
         let before = if data.glyphs.is_some() {
             let accepted = self.accepted_model()?;
-            chart.set_layout(candidate)?;
+            if let Some(widgets) = &self.node_widgets {
+                self.staging_widgets.set(true);
+                let result = widgets.publish(&chart, candidate);
+                self.staging_widgets.set(false);
+                let stage = result?;
+                *self.publishing_data.borrow_mut() = Some(PublishingData {
+                    data: data.clone(),
+                    stage,
+                });
+            } else {
+                chart.set_layout(candidate.frame)?;
+            }
             if let Some(hidden) = replacement_hidden {
                 chart.set_hidden(hidden)?;
             }
@@ -929,7 +1234,7 @@ impl Driver {
             if let Some(hidden) = replacement_hidden {
                 chart.set_hidden(hidden)?;
             }
-            chart.set_scene(candidate.scene)?;
+            chart.set_scene(candidate.frame.scene)?;
             None
         };
         if let Some((id, client)) = hover {
@@ -945,7 +1250,10 @@ impl Driver {
             self.core()?
                 .try_enqueue(Input::Activate(format!("force-node:{node}")))?;
         }
-        self.chart()?.flush()?;
+        self.staging_widgets.set(self.node_widgets.is_some());
+        let painted = self.chart().and_then(|chart| chart.flush());
+        self.staging_widgets.set(false);
+        painted?;
         if !self.alive.get() {
             return Ok(());
         }
@@ -957,6 +1265,7 @@ impl Driver {
             )?;
         }
         *self.data.borrow_mut() = data;
+        self.clear_publishing_data();
         self.emit();
         if !self.alive.get() {
             return Ok(());
@@ -977,6 +1286,8 @@ impl Driver {
                 || !self.inputs.borrow().is_empty()
                 || self.cancel_pending.get()
                 || self.replacement.borrow().is_some()
+                || self.widget_revision_pending.get().is_some()
+                || self.reheat_pending.get().is_some()
                 || !self.events.borrow().is_empty())
         {
             self.request()?;
@@ -996,6 +1307,20 @@ impl Driver {
             if driver.captured.get().is_some() || driver.cancel_pending.get() {
                 event.prevent_default();
                 event.stop_immediate_propagation();
+                return;
+            }
+            if driver.node_widgets.is_some()
+                && event
+                    .target()
+                    .and_then(|target| target.dyn_into::<Element>().ok())
+                    .is_some_and(|element| {
+                        element
+                            .closest(".kartis-plot-widget-slot")
+                            .ok()
+                            .flatten()
+                            .is_some()
+                    })
+            {
                 return;
             }
             if p.button() != 0 || !p.is_primary() || p.shift_key() {
@@ -1020,12 +1345,21 @@ impl Driver {
                     .as_ref()
                     .ok_or_else(|| ChartError("browser chart is stopped".into()))?;
                 let hidden = state.model.hidden();
+                let painted = driver.node_widgets.as_ref().map(|_| {
+                    state
+                        .model
+                        .scene()
+                        .without_mark_ink(state.model.widget_replacements())
+                });
                 let picked = if data.glyphs.is_some() {
                     if driver.suspended.get() {
                         return Ok(None);
                     }
+                    // Filter before picking, rather than discarding only the
+                    // topmost answer: an unreplaced contour underneath a
+                    // replaced node must remain a valid native drag target.
                     pick_network_glyph_node(
-                        state.model.scene(),
+                        painted.as_ref().unwrap_or(state.model.scene()),
                         [point.0, point.1],
                         &mapping,
                         hidden,

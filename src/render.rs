@@ -1,7 +1,7 @@
 //! Shared scene rendering. Inspired by Nivo's compute/render split in
 //! `packages/bar/src/BarCanvas.tsx` and `renderBar.ts`; no JavaScript runtime
 //! or d3 dependency is required. Canvas and SVG replay identical cubic paths.
-use crate::{ClipPath, ClipRule, FillPaint, ResolvedFont, StrokeDash};
+use crate::{ClipPath, ClipRule, FillPaint, LabelWhitespace, ResolvedFont, StrokeDash};
 #[cfg(all(feature = "canvas", target_arch = "wasm32"))]
 mod pattern_browser;
 use std::fmt::Write;
@@ -291,7 +291,9 @@ fn to_svg_inner(
                 }
             }
             DrawItem::Label(index) => {
-                let label = &scene.labels[index];
+                let whitespace = scene.typography.label_whitespace(index);
+                let drawable = whitespace.drawable_label(&scene.labels[index]);
+                let label = drawable.as_ref();
                 let font = scene.resolved_label_font(index);
 
                 if let Some(clip) = scene.label_clips.get(&index) {
@@ -299,6 +301,12 @@ fn to_svg_inner(
                 }
                 write!(out,"<text x=\"{}\" y=\"{}\" fill=\"{}\" font-family=\"{}\" font-size=\"{}\" text-anchor=\"{}\"",label.x,label.y,css_color(label.color),escape(&font.css_family()),label.size,anchor(label.anchor)).expect("String write");
                 write!(out, " font-weight=\"{}\"", font.weight).expect("String write");
+                if let Some(stroke) = scene.typography.label_strokes.get(&index) {
+                    write!(out, " stroke=\"{}\" stroke-width=\"{}\" stroke-linejoin=\"round\" paint-order=\"fill stroke\"", css_color(stroke.color), stroke.width).expect("String write");
+                }
+                if whitespace == LabelWhitespace::Preserve {
+                    out.push_str(" style=\"white-space:pre\"");
+                }
                 if label.rotation != 0. {
                     write!(
                         out,
@@ -428,6 +436,14 @@ pub trait Canvas {
     fn supports_text_fonts(&self) -> bool {
         false
     }
+    /// Opt in only if literal leading, trailing and repeated single-line spaces
+    /// are painted without collapsing. Preserve input is normalized before replay.
+    fn supports_text_whitespace(&self) -> bool {
+        false
+    }
+    fn supports_text_stroke(&self) -> bool {
+        false
+    }
     fn supports_clipping(&self) -> bool {
         false
     }
@@ -456,6 +472,19 @@ pub trait Canvas {
             "Canvas backend does not support text fonts",
         )?;
         self.text(label)
+    }
+    /// `explicit_font` preserves registration-order font selection for raster
+    /// clients that never authored a family/weight declaration.
+    fn text_with_stroke(
+        &mut self,
+        _label: &Label,
+        _font: &ResolvedFont,
+        _explicit_font: bool,
+        _stroke: crate::LabelStroke,
+    ) -> Result<()> {
+        Err(ChartError(
+            "Canvas backend does not support label strokes".into(),
+        ))
     }
     fn finish(&mut self) -> Result<()>;
 }
@@ -518,6 +547,16 @@ pub fn draw_with_blends(
             || (0..scene.labels.len())
                 .all(|index| scene.resolved_label_font(index) == ResolvedFont::default()),
         "Canvas backend does not support text fonts",
+    )?;
+    ensure(
+        target.supports_text_whitespace()
+            || (0..scene.labels.len())
+                .all(|index| scene.typography.label_whitespace(index) == LabelWhitespace::Legacy),
+        "Canvas backend does not support preserved text whitespace",
+    )?;
+    ensure(
+        scene.typography.label_strokes.is_empty() || target.supports_text_stroke(),
+        "Canvas backend does not support label strokes",
     )?;
     ensure(
         !scene.marks.iter().any(|m| m.clip.is_some()) || target.supports_clipping(),
@@ -599,19 +638,26 @@ pub fn draw_with_blends(
                     painted_mark.and(restored_path).and(restored)?;
                 }
                 DrawItem::Label(index) => {
-                    let label = &scene.labels[index];
+                    let whitespace = scene.typography.label_whitespace(index);
+                    let drawable = whitespace.drawable_label(&scene.labels[index]);
+                    let label = drawable.as_ref();
                     let font = scene.resolved_label_font(index);
                     let explicit = scene.typography.has_label_font(index);
 
                     if let Some(clip) = scene.label_clips.get(&index) {
                         target.push_clip_path(clip)?;
-                        let painted = if explicit {
-                            target.text_with_font(label, &font)
-                        } else {
-                            target.text(label)
-                        };
+                        let painted =
+                            if let Some(stroke) = scene.typography.label_strokes.get(&index) {
+                                target.text_with_stroke(label, &font, explicit, *stroke)
+                            } else if explicit {
+                                target.text_with_font(label, &font)
+                            } else {
+                                target.text(label)
+                            };
                         let restored = target.pop_clip_path();
                         painted.and(restored)?;
+                    } else if let Some(stroke) = scene.typography.label_strokes.get(&index) {
+                        target.text_with_stroke(label, &font, explicit, *stroke)?;
                     } else if explicit {
                         target.text_with_font(label, &font)?;
                     } else {
@@ -942,6 +988,9 @@ impl Canvas for ScriptCanvas {
     fn supports_text_rotation(&self) -> bool {
         true
     }
+    fn supports_text_whitespace(&self) -> bool {
+        true
+    }
     fn supports_clipping(&self) -> bool {
         true
     }
@@ -1059,6 +1108,19 @@ impl Canvas for ScriptCanvas {
         }
         Ok(())
     }
+    fn supports_text_stroke(&self) -> bool {
+        true
+    }
+    fn text_with_stroke(
+        &mut self,
+        label: &Label,
+        font: &ResolvedFont,
+        _explicit_font: bool,
+        stroke: crate::LabelStroke,
+    ) -> Result<()> {
+        write!(self.code,"ctx.save();ctx.translate({},{});ctx.rotate({});ctx.globalAlpha=1;ctx.font={};ctx.textAlign={};ctx.textBaseline='alphabetic';if('fontKerning' in Object.getPrototypeOf(ctx))ctx.fontKerning='normal';ctx.fillStyle={};ctx.fillText({},0,0);ctx.strokeStyle={};if({}>0){{ctx.lineWidth={};ctx.lineJoin='round';ctx.strokeText({},0,0);}}ctx.restore();",label.x,label.y,label.rotation.to_radians(),js_string(&font.canvas_font(label.size)),js_string(match label.anchor{TextAnchor::Middle=>"center",TextAnchor::Start=>"start",TextAnchor::End=>"end"}),js_string(&css_color(label.color)),js_string(&label.text),js_string(&css_color(stroke.color)),stroke.width,stroke.width,js_string(&label.text)).expect("String write");
+        Ok(())
+    }
     fn finish(&mut self) -> Result<()> {
         if matches!(
             self.options.surface,
@@ -1156,3 +1218,5 @@ pub use browser::{
     draw_canvas, draw_canvas_with_blends, draw_canvas_with_transform,
     draw_canvas_with_transform_and_blends,
 };
+#[cfg(all(feature = "canvas", target_arch = "wasm32"))]
+pub(crate) use browser::{tree_canvas_label, tree_canvas_mark};

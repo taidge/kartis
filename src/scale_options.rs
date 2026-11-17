@@ -71,9 +71,16 @@ impl ContinuousScaleOptions {
 /// Explicit numeric breakpoints and their actual output coordinates. This
 /// additive profile leaves `ContinuousScaleOptions` small and `Copy`.
 ///
-/// Domain stops must be strictly monotonic, ascending or descending; range
-/// stops may turn or form plateaus. Such ranges support mapping and axes, but
-/// require an explicit `invert_segment` branch instead of a global inverse.
+/// Domain stops must be monotonic, ascending or descending, with repeated knots
+/// and fully constant domains accepted. Ties follow D3's bisect-right after
+/// orienting the native transformed domain. Range stops may turn or form
+/// plateaus; these require an explicit `invert_segment` branch. A strict range
+/// selects one inverse branch even when a repeated domain is not bijective.
+/// Explicit piecewise log/SymLog transforms and inverse primitives use fixed
+/// libm implementations, including after nice or viewport removes repetition.
+/// Signed powers retain the platform powf path. Transcendental results are not
+/// promised to have identical bits in every runtime; duplicate knots can make
+/// such a difference select different discontinuous branches.
 /// `reverse` reverses all range stops. Nice extends only the outer domain
 /// stops, preserving the interior stops exactly, as in D3. Ticks cover those
 /// outer endpoints in source value units. UTC stops follow the same bounded
@@ -176,6 +183,8 @@ impl ResolvedContinuousScale {
     pub fn is_piecewise(&self) -> bool {
         self.chart.is_piecewise()
     }
+    /// Whether the range selects one global inverse branch. Repeated domain
+    /// knots may still make the forward mapping non-bijective.
     pub fn is_invertible(&self) -> bool {
         self.chart.is_invertible()
     }

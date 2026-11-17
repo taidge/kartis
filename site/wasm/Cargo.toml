@@ -1,0 +1,29 @@
+[package]
+name = "kartis-site"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.95"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[workspace]
+resolver = "3"
+
+[dependencies]
+kartis = { path = "../..", features = ["web"] }
+wasm-bindgen = "=0.2.130"
+web-sys = { version = "=0.3.107", features = ["Window", "Document", "Element", "HtmlElement"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = "s"
+strip = "debuginfo"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = "warn"

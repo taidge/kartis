@@ -21,8 +21,8 @@ GitHub Actions 通过 OIDC 获取临时凭据，无需保存长期 registry toke
 创建并推送版本标签：
 
 ```sh
-git tag -a v0.1.0 -m "Kartis 0.1.0"
-git push origin v0.1.0
+git tag -a v0.2.0 -m "Kartis 0.2.0"
+git push origin v0.2.0
 ```
 
 发布工作流会在该标签上重新运行 CI，确认标签版本与清单一致，再生成 crate。
@@ -35,7 +35,7 @@ OIDC 登录 crates.io 并上传。只有 registry 验证成功后，才创建 Gi
 
 ```sh
 cargo +1.95.0 package --locked --all-features
-python scripts/release.py verify --tag v0.1.0 --require-published
+python scripts/release.py verify --tag v0.2.0 --require-published
 ```
 
 registry 包包含库源码、示例、文档、字体及许可证。大型开发参考数据保留在

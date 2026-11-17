@@ -1,0 +1,267 @@
+{
+  "passed": true,
+  "featureAccepted": false,
+  "broadGoalComplete": false,
+  "commit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "version": "0.99.0",
+  "scope": {
+    "executed": "Original InnerWaffle literal loop, WaffleCells/Cell/Areas/Area, full useWaffle, grid/polygon algorithms, area event callbacks, default SvgWrapper, BoxLegendSvg/LegendSvg/LegendSvgItem and symbol render functions. Real D3 line and original grid polygons.",
+    "adapters": "Cold useMemo/useRef/useEffect/useCallback, request-recording useTransition with current target values, JSX descriptor runtime without React key coercion; authored color/formatter callbacks and empty defs binding; static theme and Text token; no palette implementation or text layout.",
+    "excluded": "No React runtime/reconciliation/duplicate-key behavior, actual ReactSpring dynamics, browser/DOM/event dispatch/occlusion/CSS/native SVG hit testing, legend re-render after setState, Canvas, Rust or feature acceptance. Gap coverage is explicit pure geometry containment, not browser input."
+  },
+  "counts": {
+    "profiles": 384,
+    "sourceCases": 16,
+    "sourceBuilds": 384,
+    "eventFunctionCalls": 224,
+    "gapWitnessCases": 192,
+    "customContexts": 160,
+    "cellComponentCalls": 3072
+  },
+  "sources": {
+    "packages/waffle/src/Waffle.tsx": {
+      "sha256": "c3441147ae06280616c3c482f5b780c3a3fa562f77327bd0835214119bbf4037",
+      "bytes": 5513
+    },
+    "packages/waffle/src/WaffleCells.tsx": {
+      "sha256": "d5a7294aab94de55535a1cc2d14f2c789741c861a76741db6b9bc7cb386080fd",
+      "bytes": 1115
+    },
+    "packages/waffle/src/WaffleCell.tsx": {
+      "sha256": "6940dcc1a006ae0cdb98ec3508a6c38346a776aab59ab15f5cf6b69cc26e12db",
+      "bytes": 714
+    },
+    "packages/waffle/src/WaffleAreas.tsx": {
+      "sha256": "efc153008f2539533996b2c937c95df78cd43d3fd826ef050a1bae3a220fc185",
+      "bytes": 1560
+    },
+    "packages/waffle/src/WaffleArea.tsx": {
+      "sha256": "02fcb42e45807ad45a457625b042093584a361e45fcb817fdbbc35fa4e064101",
+      "bytes": 2039
+    },
+    "packages/waffle/src/WaffleTooltip.tsx": {
+      "sha256": "b93044ebb0388e91ac5054c34297768150c3458ca280528ca710b6f90bb826e3",
+      "bytes": 325
+    },
+    "packages/waffle/src/hooks.ts": {
+      "sha256": "66c84bd7b7d2c0d45b96fe33004370bcc5fa723dfe479cf46e436520618535ed",
+      "bytes": 11006
+    },
+    "packages/waffle/src/types.ts": {
+      "sha256": "b5d8f287211a915634de1a862e839eab150a2cb2c419e73ca54e242e9c1ffb98",
+      "bytes": 5228
+    },
+    "packages/waffle/src/defaults.ts": {
+      "sha256": "ad515c4266b136b0863d76c90c4b25fbe303188d6b59d6f1118e8bbcd34b7ddc",
+      "bytes": 1537
+    },
+    "packages/waffle/package.json": {
+      "sha256": "b998135def17fc7b827bed9129063ff0bccaeca2ed7ba5e6d62bf6a58ac908b3",
+      "bytes": 1481
+    },
+    "packages/waffle/LICENSE.md": {
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+      "bytes": 1054
+    },
+    "packages/grid/src/grid.ts": {
+      "sha256": "4f7b1a22971e28a6c2d61b60cb8ea8eb7ae2f2a8ce0a2a9ea5aa9da48380546d",
+      "bytes": 3143
+    },
+    "packages/grid/src/boundingBoxes.ts": {
+      "sha256": "540ae2b70cfd02edccd2ee6e411a379436f090ea63861550360b10b9b7b66d41",
+      "bytes": 417
+    },
+    "packages/grid/src/polygon.ts": {
+      "sha256": "4bde4827c7ad237c472ceaf1e84b83fa5287416b9c20f32e4c5ac7a508dfa08f",
+      "bytes": 3055
+    },
+    "packages/grid/src/types.ts": {
+      "sha256": "8f19a75ef1b7da5c6240d7e86b5da9c14ea4cec0762bc8d2d65eb1bf25db1175",
+      "bytes": 1515
+    },
+    "packages/grid/LICENSE.md": {
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+      "bytes": 1054
+    },
+    "packages/core/src/hooks/useDimensions.js": {
+      "sha256": "fb02c33e5e6732555978abc01231f46bb4fe1241806fde4b37609473bac408a5",
+      "bytes": 533
+    },
+    "packages/core/src/defaults/index.js": {
+      "sha256": "f78fb27d26acf6b574058f5be2fd47923485c64d0db39aa3b1e888948ae3a67c",
+      "bytes": 417
+    },
+    "packages/core/src/components/SvgWrapper.js": {
+      "sha256": "50fbb29fe0bb2dba625d51d6c63513f6d4e7453e5fd422d6ea01caed389855b8",
+      "bytes": 1161
+    },
+    "packages/core/LICENSE.md": {
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+      "bytes": 1054
+    },
+    "packages/legends/src/svg/BoxLegendSvg.tsx": {
+      "sha256": "a0be2d2b0dc4c1d2a6807be78097eb1967957ea5700a9944857d92ad8298c30a",
+      "bytes": 2113
+    },
+    "packages/legends/src/svg/LegendSvg.tsx": {
+      "sha256": "4d5a1616883bacd84b7857b84d772931cbcabb467946602d85844ad11a8d1ae1",
+      "bytes": 2164
+    },
+    "packages/legends/src/svg/LegendSvgItem.tsx": {
+      "sha256": "f36ef04a27a043645cbcc6fdd40517e72d1e97473f633dd9dd1b8a49913b0347",
+      "bytes": 4707
+    },
+    "packages/legends/src/svg/symbols/SymbolSquare.tsx": {
+      "sha256": "6671cd4dd9887dcd3663b0bfc1774275e51fc4e7947bf9b2bd4661d55457e421",
+      "bytes": 529
+    },
+    "packages/legends/src/svg/symbols/SymbolCircle.tsx": {
+      "sha256": "98dcea2cd2904de3f4f70abba6fc72b68b5ed20f98cfc18d9f33f5fa0a425fae",
+      "bytes": 529
+    },
+    "packages/legends/src/svg/symbols/SymbolDiamond.tsx": {
+      "sha256": "9e92437311e315106c417f1e4a191fc1fb873297e52b279ecf8ed9bc5e08859c",
+      "bytes": 784
+    },
+    "packages/legends/src/svg/symbols/SymbolTriangle.tsx": {
+      "sha256": "8e08961fe07b59b4b726a112df562dc56c5e6b5d4843ad65a25e0f9fb18a04c4",
+      "bytes": 698
+    },
+    "packages/legends/src/compute.ts": {
+      "sha256": "dad5f1339473dc92498d8e1429a4c8053d5db97668692fa620fa88af351bf368",
+      "bytes": 10742
+    },
+    "packages/legends/src/defaults.ts": {
+      "sha256": "ff35bf7f9825dc6fc01e16f9ba561f25ffc8e96d2a75de24af413ea0895842ac",
+      "bytes": 1866
+    },
+    "packages/legends/src/types.ts": {
+      "sha256": "a8f04dd65e82df523a5706bebe9f162902a4ca20cd03e819f03f3168ad2151c2",
+      "bytes": 4228
+    },
+    "packages/legends/LICENSE.md": {
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+      "bytes": 1054
+    },
+    "packages/colors/src/inheritedColor.ts": {
+      "sha256": "29750da2e66afd78cc3050a2d4856b0b6195078f19f3183ea35047538b5e9f6c",
+      "bytes": 4441
+    },
+    "packages/colors/src/scales/ordinalColorScale.ts": {
+      "sha256": "b5f826fc875ce0c99bc8cebaf4f1a7906241f8935dfb4eb34d6d898fea118fc4",
+      "bytes": 5456
+    },
+    "packages/colors/LICENSE.md": {
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+      "bytes": 1054
+    }
+  },
+  "dependencies": {
+    "d3-shape": {
+      "version": "3.2.0",
+      "files": {
+        "package.json": "c3d084a64bc3c85c407db4282be588a42484c4dc2639bb0a21424fe29ff38335",
+        "LICENSE": "faa682e3e430941f958d26180458f5934a62f58dac4d70ccdd15608c15d0f884",
+        "src/arc.js": "e657e8455af7c62613bde73cd45cea79709608d97759fe5e4c3e5ef6cdbd8deb",
+        "src/area.js": "a2b2a221aaac4ed5715ff22d5a8d2264dd2992bd7ba22b0973e1555f6c3fd85a",
+        "src/areaRadial.js": "c72c0a115b4cc3078f8b182334eb3955604005ae846bc5f720524729dc4d15b4",
+        "src/array.js": "2acfcf25c5cb21c4c631bdd605431564d44d8693729dc6cf091f4c206f0ec97a",
+        "src/constant.js": "a3fd5aae83ac9e867555a68c77473491daae75a4cde62101976d549051fbee39",
+        "src/curve/basis.js": "2b75b71399e8d92d021e28bb2b4f7d6c41e3d2dff89f69c877ea7f664698086b",
+        "src/curve/basisClosed.js": "d577db3caddaaca6b026cdf801feaebbc78f43227d5ef73130528bfe5261891e",
+        "src/curve/basisOpen.js": "d0e317ce9bff65684f69f734c2f61f0fe8d08e28782d9eb64236fd13287bd42b",
+        "src/curve/bump.js": "5c0b6fde8f33ec58e2017389a91be8eea9d071ec3698886419d8cb72b2461764",
+        "src/curve/bundle.js": "8ea2ba769352b26a109f89f0c67770cb552fe6346162ef1f783af70d48fe5e25",
+        "src/curve/cardinal.js": "0e9893ab95b71f4cfe52ddfdaa55de4997c1944774f6906c2fc5ea9f1421dffa",
+        "src/curve/cardinalClosed.js": "f2066fe1f82f92826ec5a3470a3143994adc75b3f897a1ab7c019ec84047c0a3",
+        "src/curve/cardinalOpen.js": "7b6cb6af9aa763f060b34db7554f1d4e617b5a9f6405c51273ba55a12e52068d",
+        "src/curve/catmullRom.js": "ce34a4dea067b85dd7d7e3c374dbeceb6424a0f31e7f2964943c6a8371c7a9cc",
+        "src/curve/catmullRomClosed.js": "75a9910094d5b757db0b6b1af9ffef2ae48a4b0808a10c58d4346004ddb80c2c",
+        "src/curve/catmullRomOpen.js": "f2916fcb03ec4867a0fda78486c31e2a72a38bb668543743da087cc8204c99dd",
+        "src/curve/linear.js": "e377d1440cd2547ad2e38050898e2cd765eb9d248cc5702f287763353ac43b87",
+        "src/curve/linearClosed.js": "40c4e61dc9afb03f89d3897208bfe62ea1a3d1996d89e2ec866fb1d6d05e0f34",
+        "src/curve/monotone.js": "6f6fe0f729d096814f8282128d4caf6337de0b13e2ea5cedc1c528223c64056c",
+        "src/curve/natural.js": "be8d0d5fa2627d733b2950ea88ec42c4bd5fc70ff64a8858bde68a51d6f27e62",
+        "src/curve/radial.js": "7babec77d74dc01aa724759a060acb6655f930f27bd31db29e90987a32b64672",
+        "src/curve/step.js": "ca0436ff3c69e55272927ef94c9f909280496f492e9649ffd4f4fded0c977c7b",
+        "src/descending.js": "53e053d929e47f6eae2f4695ffd308ba325633467d43c171a98e706492f36332",
+        "src/identity.js": "97f313a5604caca012249ba7b3477b4cd95e8a62411ba881addb5154472956ed",
+        "src/index.js": "af9cd9a1ba0f1d58d8458526ec8eb0d19b2745c9ca45248c23f889730b1c0700",
+        "src/line.js": "90eac879faa69aa2178a21e4ed2838c8f975e3d3282936dcc415b48573352da6",
+        "src/lineRadial.js": "27703a73b88fcd3a31f103e16f8fe24ebb65ec670db8531420fbb77f653ae89d",
+        "src/link.js": "2c423e973f3222c37ec215ad04d4441d36f1a88cc21a16d091ebc5fe091d5517",
+        "src/math.js": "876190a6d1250f781fa8ca8a1bd0fba1a3db718fe2355c5a69b034aac6caf490",
+        "src/noop.js": "bb88c2b91d4fbaa228252328f7ecad919a5a27117e81e7fe4755374570c58563",
+        "src/offset/diverging.js": "179b464f4e559549df4adc75c079aa67d57b3df52c629f2e2108f4c370386212",
+        "src/offset/expand.js": "685450893d08883da8bbac3222debcad3bf27c9055aa79a2fd859af08597c422",
+        "src/offset/none.js": "29f22a2172b248c02edf338ce4dca53f0712031c9ccbb0af60a766b9f3284099",
+        "src/offset/silhouette.js": "d8c478eff183a386f924f9e85f2c7f3adbdfd0c39cb71f65f0e7e21834443ad2",
+        "src/offset/wiggle.js": "7384d619603f2e48e61ff492d85dbda93e9280d19d5d7eb9a2af1bdaecac9ef6",
+        "src/order/appearance.js": "345efa9c6249ffea52d0036c6b145c518f7e376c9e9a823504f02c543e9b76d9",
+        "src/order/ascending.js": "beaeeff99e891ce2e2e1db5a7f74d40bc3773f9d245d605b4bed09add36a17a1",
+        "src/order/descending.js": "181703d5cb56757b1a48aa60d848e5adc69fd7e9b71ff4b19b1deae809a1a2b1",
+        "src/order/insideOut.js": "e7ed8be68f51c1debf71096319c552130e7f8d814d8164be7294c94638885dbe",
+        "src/order/none.js": "76fc17867678d56f1be890bb1bb3bd6ec9224f252174d63639a4558caa47cc19",
+        "src/order/reverse.js": "b22224a8cc95d6733a3f90780167f3f5b760cbcb84ed15dfeb8d0f1bce894f7d",
+        "src/path.js": "121bd97e99ead26d6bd84f20296c10040dc9caa9fceeca34d5ff917ef6e49065",
+        "src/pie.js": "5316912248e7e426fd41bab3af62719bada72fb0394a097c6cf251667f053c75",
+        "src/point.js": "779a4b8b14f835989d178a34c9e61174bf062abd5243c9d26393a754a9af7023",
+        "src/pointRadial.js": "972e68207d43b60656fff2a5d0d3a736ac410234521f16ee678b06ae4dc0a48b",
+        "src/stack.js": "d53a92ad2b8212cb90eb143e721a59c97a77031c9e86ee1880b3c0b7dedc6aa6",
+        "src/symbol/asterisk.js": "92c2c8cb95917454028874cd542aa21d08b75be4df1a28f985ccb472fafcae67",
+        "src/symbol/circle.js": "b2fa5824c1a50a9da2c1185e846c3cc6de21a102ab5b0bb0e14befbe3eb5dc76",
+        "src/symbol/cross.js": "3e807da072572d979f8dbbdd5e436f707aeb3eac7776c3dc368bf51eea1a74fd",
+        "src/symbol/diamond.js": "7e0943be5be2ea30b280f9918f812d55b67f9f815b4eda030e171d9b9d8cf047",
+        "src/symbol/diamond2.js": "f8252861157ae90799ab6ff8f178c8f1bca9fdd81ae39b24e56dcaccf151cb97",
+        "src/symbol/plus.js": "20fae722061d6035a2e316536c2a1dca4b4c42c4884224e5b37d1536c12dce59",
+        "src/symbol/square.js": "e72aaffdba0fc386105456ccb7de0059d2c441499d984964ef571212b3b47554",
+        "src/symbol/square2.js": "b609fc99645f682f62163a0adc3ddec73cda3c124623e23f0b46872f0e500e30",
+        "src/symbol/star.js": "6329b4d39e3c0a2453d5a2dfc5845e62fd04a13c51ca11cf948fdcab9a73482d",
+        "src/symbol/times.js": "29606b4f21e2cb79b9834693786e9267a9a706d78d833ae7ad25eafe5d1381a9",
+        "src/symbol/triangle.js": "8de7b9ac705bc88d3129a713c25667ea0a06238ddb490daeadcfa457e4cd1f0d",
+        "src/symbol/triangle2.js": "37dd3edf660c9777f26049b958ebac29058cb44f8737d0c488992fdf25596542",
+        "src/symbol/wye.js": "e35e51caebadbb3aaa7e87b604568b3ae507be5770e4ae0586f14a701a50270a",
+        "src/symbol.js": "0b4cdaee30f23496ec3d4d0603ba304ce7552694597efc0cf0732713228349c0"
+      }
+    },
+    "d3-path": {
+      "version": "3.1.1",
+      "files": {
+        "package.json": "37eb23c01f87ef042f0a68ead8318f8555eab92ccfad6402a20e054390e4074e",
+        "LICENSE": "f5dff44740d51a1849b4d16b657eccf60577fb5d28d8ee46d33dcc780a11f94a",
+        "dist/d3-path.js": "411d9ea240ac08e43d55b5b8c663bc1917a02d9531d5b8c0e3ab665f35091549",
+        "dist/d3-path.min.js": "36dda9df886369e3343fc53e4ec9e9d74250f8edaace324240f26ca15654c55e",
+        "dist/d3-path.min.mjs": "e1f7f12a2d823aff0f8430afc187e7f15af6fb0b37998ad21be2842299ecb4e6",
+        "dist/d3-path.mjs": "3ec8f253f34e9a54755da17b83a836b5300f96e20baa7e9d39779b43c7f8d005"
+      }
+    }
+  },
+  "artifacts": {
+    "outputs.json": {
+      "sha256": "e74cd5c7597f2f1e4abb5dc7d01c44fc23ae296463b8f4bc5f251e7325d806f9",
+      "bytes": 3991003
+    },
+    "source-cases.json": {
+      "sha256": "ff5402a1d74848689f37b2c88047a776fa0bfe5eabe04727cf07e6ed4c61cfa1",
+      "bytes": 287224
+    },
+    "extracts.json": {
+      "sha256": "dde7a890b189e0fc9f2803726efcc1c23d3ee13cdc133d20674b62fa9e00173e",
+      "bytes": 150632
+    },
+    "cases.tsv": {
+      "sha256": "23fa2f6b23a3add239cf25be00872a32cd74c38a9e6e1e95ad91f231abcb8d85",
+      "bytes": 21730
+    }
+  },
+  "runnerSha256": "b72b53f294797cb9294ce9369bbc46882d764211c26928fca2782f668870fcfb",
+  "vendoredSourceIndexSha256": "fba45755d2089151ac43b75c44f170330e4a687563f515b85ae4365b599ca2cf",
+  "sourceInput": "vendored-original",
+  "compiler": {
+    "node": "v24.3.0",
+    "nodeExecutableSha256": "f92545eb2742aff13dc8efe5b0ebcef77f789020ba15926252ed749b2cf0784d",
+    "playwright": "1.56.1",
+    "babelBundleSha256": "c4db9d9a327ec8021e2e8de7c7a7d80aa0e938f6492d353f8e01e6ffe4626169",
+    "babelImplementationSha256": "6c574f5dc54b97f4754395921bdca3fcd22b106d6d73a5bb4f68ceb1e2ae6f35"
+  }
+}

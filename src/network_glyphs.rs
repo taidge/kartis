@@ -14,6 +14,13 @@ use crate::{
     SceneInteraction, glyph_geometry, glyph_mark, network_relation_layout,
 };
 
+mod custom;
+mod link_widgets;
+mod widgets;
+pub use custom::*;
+pub use link_widgets::*;
+pub use widgets::*;
+
 /// Visual geometry and paint for one stable raw simulation node ID.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct NetworkNodeGlyph {

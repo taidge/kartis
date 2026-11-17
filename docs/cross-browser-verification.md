@@ -1031,3 +1031,896 @@ not silently skipped. This script does not build or install dependencies.
 - That historical run tests the listed twenty-seven suites. It does not claim all host viewport,
   navigation, layout, pinch, high-density or motion configurations on all
   browsers. No process RSS, cross-browser benchmark or 60 FPS claim is made.
+
+## Development Funnel and Parallel filtering
+
+Unreleased development APIs, not part of the published Kartis 0.1.0 package.
+
+ParallelFilterController provides transactional raw-value AND filters and actual
+scale inversion for pixel/Brush intervals. It renders from the full source,
+preserving domain/palette/group legend/source indices while removing rejected
+row ink, owned labels and interaction sites. This is a Rust extension that can
+connect to D3 Brush, not an existing Nivo Parallel filter prop. Automatic live
+host gesture wiring and categorical dimensions remain outside this acceptance.
+
+Funnel stage factories replace one bounded body and explicitly preserve or
+remove its original open-sided border. Exact picking follows custom ink;
+Nearest keeps the original center. Default gradient inheritance preserves the
+complete layout. Independent audit reproduced and fixed both default metadata
+drift and a cumulative-budget false rejection; the final 16,384 gradient stops
+and 200,000 command boundaries remain admitted with no raised limits.
+
+Native acceptance: 1,440 minimal tests, 1,707 all-feature tests and 17 doctests;
+native all-target Clippy, Rust 1.95 WASM Clippy and pinned nightly formatting
+passed. Records: `target/development-funnel-parallel-validation/`.
+
+The executable `funnel_custom` exports four directional/active frames, SVG,
+Canvas scripts and CPU PNG. Chrome, Firefox, WebKit and Edge at DPR 1/2 compare
+48 SVG-image/Canvas samples with CPU RGBA per context: 8 contexts and 384
+comparisons. These samples verify the tested offset geometry and controlled
+active expansion; they are not full-frame equality or retained-host/device
+acceptance. Final artifacts: `target/funnel-custom-sealed/`. The first browser
+run failed for a missing pinned Firefox executable; its log is retained, the
+pinned browser installation completed, and the complete cohort was rerun.
+
+Guides: [Funnel](funnel-custom.md), [Parallel filtering](parallel-filtering.md).
+Arbitrary React/Widget components, automatic host Brush mounting, GPU/worker
+and the remaining broader gap list are not closed by these results.
+
+## Development measured text wrapping
+
+Unreleased Rust extension, not a Nivo automatic-wrap prop and not included in
+crates.io 0.1.0. Full-candidate real measurements drive word/grapheme breaking;
+Scene replacement atomically remaps typography, ownership, clips and draw order.
+True FontRegistry advances/ink and font-defined line metrics supply the CPU
+wrapper. The primary face's line metrics are not HTML/CSS line-box metrics.
+
+Core 6, independent audit 6 and raster 6 tests cover combining/emoji graphemes,
+CRLF, ellipsis, non-monotonic advance, rotation, stale measurements, budgets,
+family/weight, empty registry rejection and transactional metadata. The audit
+reproduced and fixed discarded trailing-space mismeasurement and moved repeated
+clip-cost admission before copying. Raster-only 5 tests also passed.
+
+Complete regression: 1,452 minimal and 1,725 all-feature tests, 17 doctests;
+native all-target Clippy, Rust 1.95 WASM Clippy and fixed-nightly format checks.
+The first native Clippy run caught a new test's chunks_exact style; the corrected
+test and strict Clippy were rerun, preserving the failed log.
+
+The executable `text_wrapping` exports ordinary editable labels and separately
+outlined text plus a CPU PNG. Four browsers at DPR1/2 (8 contexts) verify all
+11 line strings, native column fit and SVG-path/Canvas-path ink bounding boxes
+against CPU (within the declared 1.5 logical-pixel bound). This does not compare
+entire RGBA images or establish ordinary SVG/Canvas text pixel equivalence.
+The original exact-advance probe (0.1 px) failed on Firefox: maximum difference
+0.38590502929687887 px. That failure is retained at
+`target/text-wrapping-browser-first.log`; its cause was not isolated. The later
+profile report separately records native column fit, advance differences and
+outline placement; it does not relabel that exact-advance criterion as passed.
+Final exports/reports: `target/text-wrapping-sealed/`.
+
+The initial wrapping acceptance preceded an explicit host whitespace policy.
+The subsequent development acceptance below supersedes that whitespace limitation;
+it does not resolve the retained Firefox exact-advance failure. Full CSS/UAX14,
+paragraph-wide bidi followed by breaking, automatic vertical wrapping and
+automatic host reflow remain open gaps. See [guide](text-wrapping.md).
+
+## Development explicit whitespace acceptance (2026-11-14)
+
+`LabelWhitespace::Legacy` preserves existing behavior. Explicit `Preserve`
+normalizes single-line control separators and retains repeated/leading/trailing
+spaces in standalone SVG, retained SVG, browser Canvas, CPU raster, and actual
+Glory ordinary Text. Scene wrapping marks every generated line Preserve.
+Measurement identity includes the mode; mode-only changes request fresh metrics.
+Filtering, painted-label conversion, motion, and managed-label placement preserve
+or remap the sparse policy with the labels.
+
+Complete regression passed: 1,468 minimal tests, 1,742 all-feature tests and
+17 doctests; native all-target strict Clippy and Rust 1.95 WASM strict Clippy.
+The public `SceneTypography` and `SemanticTextRequest` fields require updates to
+complete struct literals. This remains Unreleased and is not in published 0.1.0.
+
+The actual browser-widget fixture runs Legacy/Preserve/Legacy/Preserve with
+identical source text in Chrome, Firefox, WebKit and Edge at DPR1/2: 8 contexts,
+32 phases, unchanged retained text-node identity, restored Legacy styling,
+fresh mode-dependent measurements, and real Glory Text content/styles.
+Preserve SVG/HTML advance and DOM Range glyph widths agree within the declared
+1 logical-pixel bound. Sixteen Preserve phases compare actual Canvas ink bounds
+with serialized SVG-image ink bounds within 1.5 logical pixels. This is not
+whole-image RGBA equality, arbitrary-font/device certification, or a solution to
+the earlier CPU/native Firefox advance difference.
+
+Reports: `target/whitespace-browser-after-clippy.json` and
+`target/whitespace-final-validation/acceptance.json`. Initial fixture setup
+failures are retained: missing bootstrap mount root, an incorrectly hidden
+measurement host, and default Canvas selection where the retained-SVG fixture
+required explicit SVG. The final fixture uses a normally sized offscreen
+bootstrap host and explicit renderer selection; thresholds were not relaxed.
+A later fixture-only strict Clippy check rejected a nested conditional; its
+first failure is retained, the conditional was corrected, and the actual WASM
+fixture and all 8 browser contexts were rebuilt and rerun successfully.
+See the [policy guide](text-whitespace.md) and [中文指南](text-whitespace.zh-CN.md).
+
+
+## Development Waffle cells and Calendar year labels
+
+Unreleased additions, not included in the published 0.1.0 package. The borrowed
+Waffle cell factory preserves physical slot identity and default whole-layout
+output, styles real empty cells without creating typed data sites, and separates
+custom ink picking from the original logical slot. In Areas mode only empty
+cell marks invoke it; retained solid group unions count toward the final budget.
+Seven core tests and five independent audit tests cover identity, traversal,
+paint/site/source-color separation, dashed ink, extreme Rect round-off, animated
+Path anchors, rejection recovery, and exact 200,000-command/16,384-stop budgets.
+
+The Calendar entry composes FullYears year-label Before/After placement, signed
+finite offsets and a borrowed text factory with existing day colors. Old entries,
+panel allocation, dates/months and Scene.legend remain unchanged. Compact rejects
+the new entry. Six minimal/seven raster tests cover negative offsets, rotation,
+month spacing, text budgets, empty output and actual Lato raster ink.
+
+Full regression passed 1,486 minimal tests, 1,761 all-feature tests and 17
+doctests; Rust 1.95 WASM strict Clippy passed. Native strict Clippy first caught
+new test-expression issues (fixed-size chunks and cloned singleton slices).
+Those first failures and one failed test-expression migration compile are kept.
+After correction, the affected Calendar 7 and Waffle audit 5 tests and native
+all-target strict Clippy passed. Production library code did not change during
+these test-only corrections.
+
+Four engines (Chrome, Firefox, WebKit, Edge), each at DPR1/2, passed these fresh
+export profiles:
+
+- Waffle: 16 frames cover four directions, Cells/Areas and a hidden group.
+  Every slot's logical origin and offset ink position is queried. Each context
+  compares 384 SVG-image/Canvas samples against CPU RGBA within 1 channel unit;
+  3,072 comparisons total. These samples are not whole-image equality.
+- Calendar: 24 frames cover two orientations, Before/After, offsets -12/0/20 and
+  month spacing 0/3, with two years per frame. The exact pinned original Nivo
+  computeYearLegendPositions function independently verifies 48 placement
+  anchors/rotations. The existing rotated size/3 alphabetic shift is removed
+  only for this anchor comparison: Nivo Canvas uses middle baseline, which is
+  not claimed equivalent. Supplied-font outlined SVG-image/Canvas ink bounding
+  boxes agree with CPU within 1.5 logical pixels (48 comparisons/context, 384
+  total). Ordinary editable chart SVGs are exported separately; outline checks
+  do not prove ordinary native-font pixels or full Nivo layout equality.
+
+Both scripts also support the bundled Chromium-only CI profile at DPR1/2;
+the gallery workflow now generates these examples and retains their reports and
+exports. The two-context CI profile is distinct from the eight-context manual
+matrix. Guides: [Waffle](waffle-custom.md), [Calendar](calendar-year-legend.md).
+Fresh reports live under `target/waffle-custom-v2/` and
+`target/calendar-year-legend-v2/`; aggregate acceptance is
+`target/waffle-calendar-final-validation/acceptance.json`. Initial 16-frame
+Calendar results are retained separately and not reused for the expanded matrix.
+GPU/worker, arbitrary components, broader platform input and other open gaps
+remain outside this acceptance.
+
+
+## Development Bullet part factories
+
+Unreleased API, not included in the published 0.1.0 package. One borrowed typed
+factory handles actual Range/Measure/Marker marks, including synthetic domain
+ranges, while preserving raw intervals, source indices, row domains and track
+clips. Rank includes omitted endpoints; source-row and visible-row indices stay
+separate. Metadata geometry is updated after callbacks so every callback sees
+original row snapshots. Default inheritance preserves the entire inner layout.
+
+Ten minimal/eleven all-feature core tests and five independent audit tests cover
+source/order identity, omitted and synthetic parts, actual offset ink versus
+original logical centers, scale composition, track clipping, paint/geometry
+rejection, late callback errors and exact 200,000-command/16,384-stop budgets.
+Inspection found a transparent-fill/visible-stroke representative-color issue;
+identity and custom ink now share the existing visibility-aware paint rule,
+without rewriting original identity marks. A regression verifies the red stroke
+site color and unchanged original transparent-fill layout.
+
+Actual Glory Memory mounting initially rejected the legacy interaction binding.
+The retained failed logs identify the initial host rejection; source inspection
+confirmed that chart_layout requires explicit PaintedGeometry. The new
+into_painted_scene_interaction conversion preflights that solid-ink profile.
+The ordinary conversion retains Legacy Geometry/Nearest behavior. Tests mount a
+real strict Glory chart and verify that strict Nearest and eligible gradient
+fills reject, while legacy gradient SVG/Canvas exports remain valid. These
+profiles are distinct; semantic Graphic/Text limits still apply.
+
+Full regression passed: 1,501 minimal tests, 1,777 all-feature tests, 17 doctests,
+native all-target strict Clippy and Rust 1.95 WASM strict Clippy. Formatting,
+hidden-file spelling and diff checks passed. Initial development failures remain
+retained: a new test counter's borrow lifetime, the initial host profile mismatch,
+and a test-only incorrect FillPaint variant spelling. The full final regression
+ran after all corrections, rather than reusing pre-correction suite results.
+
+The executable bullet_custom checks 16 profiles: horizontal/vertical, reverse,
+legacy/Linear/SymLog/Log, shared/per-row domains and a hidden row. Every profile
+mounts its full Scene in real Glory Memory, verifies semantic Graphic and typed
+control counts, and exercises Surface Exact/Nearest at custom ink and original
+centers. There are 144 actual controls and callback invocations across 16 mounts.
+Ink-only export clones remove ordinary labels before CPU/SVG/Canvas comparisons;
+this does not test font rendering. Each of 8 browser contexts (Chrome, Firefox,
+WebKit, Edge at DPR1/2) compares 432 SVG-image/Canvas samples with CPU RGBA within
+1 channel unit, 3,456 comparisons total. Samples are not whole-image equivalence.
+The separate bundled Chromium CI profile passed both DPRs (864 comparisons).
+
+CI now generates and retains this export profile alongside Waffle and Calendar.
+Original Nivo rangeComponent/measureComponent/markerComponent source contracts
+were checked against commit 0dae2c32052a573f9f1d66ec1b453b572119b265; this is not a
+React render oracle. Nivo removes zero endpoints and uses filtered sorted ranks;
+Kartis's original zero/negative/source-index contract remains. Arbitrary React
+components, animatedProps lifecycle, physical devices and broader parity remain
+outside this acceptance. See [guide](bullet-custom.md) and [中文指南](bullet-custom.zh-CN.md).
+Reports: target/bullet-custom-final/browser-report.json and
+ target/bullet-custom-final-validation/acceptance.json.
+
+
+## Development Bump endpoint text
+
+Unreleased addition, absent from published 0.1.0. Independent Start/End text
+factories compose with the existing point factory through BumpFactories. The
+source series/label, legend, tooltip, geometry, style and logical identity stay
+unchanged; only actual owned endpoint Label text is replaced. Default wrappers
+preserve the complete layout. Contexts expose original source indices, completed
+rows and both line and padded label positions. Source traversal remains explicit
+with reversed X. Hidden/disabled/missing ends skip callbacks; empty and zero-ink
+owned slots remain, with the shared 1,024-byte UTF-8 budget.
+
+Core 6 and independent audit 6 tests passed in both minimal and all-feature
+profiles, with the existing Bump 6 tests passing in both profiles. They cover
+source borrowing, missing and nonmatching source order, reverse, actual Memory
+Props::Text, owner/whitespace remapping, zero opacity/point size, callback order,
+failure stops and byte boundaries. The audit's initial helper missed an Ok
+wrapper required by the old point-factory signature; the compile failure was
+retained and corrected. No production-source correction was required.
+
+Full regression passed: 1,513 minimal tests, 1,789 all-feature tests and 17
+doctests; native all-target strict Clippy and Rust 1.95 WASM strict Clippy.
+Afterward, the export fixture was extended to execute ordinary Canvas text as
+well as outlined Canvas; it was rebuilt and its example-specific strict Clippy
+passed. Production library/tests did not change during this fixture extension.
+Formatting, hidden-file spelling and diff checks passed.
+
+The real-font fixture exercises 16 reverse/hidden/start/end/disabled profiles,
+combined rectangular point geometry, missing endpoints and an empty start label.
+It mounts the full Scene in 16 actual Glory Memory apps and checks 24 ordinary
+Text nodes, including eight empty slots, alongside 88 point and 24 endpoint
+callback invocations. Text-only export clones retain the accepted label data.
+Lato font bytes are explicitly bound for CPU and loaded in the real browser.
+
+Chrome, Firefox, WebKit and Edge at DPR1/2 passed eight contexts. Each checks all
+24 editable SVG labels/anchors and all 24 actual ordinary Canvas fillText calls
+(text, transformed anchor, alignment, alphabetic baseline and requested font),
+including eight empty calls. Native Canvas blank/nonblank states also match the
+expected six blank frames. No native-text advance or pixel equality is claimed.
+Separately, outlined SVG-image and Canvas bounds match actual CPU text ink within
+1.5 logical pixels: 32 checks/context, 256 total, including exact blank-state
+checks. Whole-image RGBA and ordinary native-font pixel equivalence remain outside
+this result. Bundled Chromium at both DPRs also passed the separate CI profile.
+
+The original Nivo startLabel/endLabel source contract was checked at commit
+0dae2c32052a573f9f1d66ec1b453b572119b265. Its position-separated hooks call the
+accessor before excluding missing endpoints; Rust's actual-label, series-first
+point→Start→End order differs deliberately. This is not a React execution or
+rendering oracle. Automatic label collision, arbitrary component lifecycle,
+physical-device acceptance and the broader gap list remain open.
+
+Guides: [English](bump-endpoint-labels.md), [中文](bump-endpoint-labels.zh-CN.md).
+Fresh exports and reports: target/bump-endpoint-labels-v2/;
+aggregate receipt: target/bump-endpoint-final-validation/acceptance.json.
+The first outline-only fixture profile remains separately retained. CI now
+creates the extended profile and uploads its exports/reports; its bundled
+Chromium profile was exercised directly, without claiming a new remote CI run.
+
+
+## Development Albers USA primitives and planar rectangle postclip
+
+**Foundation-stage acceptance only; full Albers USA integration remains open.**
+The Unreleased `GeoAlbersUsaProjection` point/inverse kernel and planar rectangle
+postclip APIs are implemented. They do not yet supply an Albers USA option to
+`GeoMapOptions`, fitted polygon maps, geographic line/graticule streams,
+GeoSymbol/glyph/label consumers or geographic host-coordinate adapters. This
+record does not close that feature gap or establish a complete USA map renderer.
+Published 0.1.0 does not contain these additions.
+
+The pinned original d3-geo 3.1.1 reference covers 9 scale/translation states,
+5,778 forward source-point records, 792 inverse records and 414 region-specific
+inverse records, including each child's window and visibility. The final kernel
+suite passed 6 minimal/7 all-feature tests. Forward clipping uses the original
+1e-6-final-pixel inset and exact window comparisons; no forward clip tolerance
+was added. Official serde_json float_roundtrip preserves the source binary64
+values; no custom JSON lexer remains.
+
+Inverse admission changed explicitly during development. The final contract
+checks the requested pixel's exact selected-region rectangle, checked inverse
+admission, the native child representative and an unclipped same-region residual.
+A recovered source may round one ULP outside strict forward visibility at an
+exact edge; forward point-stream visibility is therefore not a second inverse
+domain check. The original D3 inverse remains an unrestricted algebraic result;
+Rust's input-domain admission is a derived policy, not a claim that arbitrary
+far-away native inverse pixels are accepted. Schema 2 revises 44 derived strict
+expectations from None to a finite inverse whose candidate forward stream is
+not visible. Native forward/native inverse/region-inverse records, scales,
+translations and clip windows remain unchanged against the retained v1 data.
+The policy change is recorded in target/geo-usa-inverse-policy-change.json;
+target/geo-usa-kernel-v1-reference/ and the failed intermediate kernel logs are
+retained. Old-policy failures are not relabelled as passes of that old contract.
+
+The rectangle clipper uses native stream buffering, planar line clipping,
+boundary ordering and contour rejoining. It preserves native winding, closing
+duplicates and degenerate contacts, without assigning exterior/hole roles from
+list position. Seven minimal/eight all-feature tests cover concave splitting,
+holes through the window, whole-window coverage/removal, independent reentry,
+coincident edges, point contacts, finite arithmetic and resource limits. Its
+383-case original D3 differential includes the initial 63 cases plus 128 simple
+star-shaped rings, 128 folding open lines and 64 two-hole profiles. Contour and
+point counts/order agree, with each coordinate difference below 1e-8. The initial
+63-case reference and acceptance remain separately retained; expanding the
+reference required no production or comparison-threshold changes.
+
+An independent audit reproduced a work-budget bypass: empty input line headers
+previously consumed no work. The failing test is retained at
+target/geo-rect-clip-empty-header-before.log. Per-line/per-ring and winding-ring
+headers now consume work, while point-count semantics remain unchanged. Final
+native output points are bounded by max_points, intermediate buffering by twice
+that allowance, and scanning/copy/sort/traversal by max_work. Finite crossing
+endpoints follow D3's +/-1e9 numerical clamp; unrepresentable polygon winding
+arithmetic returns an error. Expanded acceptance is recorded in
+target/geo-rect-clip-expanded-acceptance.json.
+
+The final combined regression passed 1,526 minimal tests, 1,804 all-feature
+tests and 17 doctests. All five commands in
+ target/geo-usa-primitives-final-validation/state.json exited zero, including
+native all-target strict Clippy and Rust 1.95 WASM strict Clippy. The focused kernel and rectangle suites also passed their owned-source
+formatting checks.
+
+The executable geo_usa_primitives exports 10 diagnostic frames: six polygon
+clip cases, one open-line reentry case and three manually authored regional
+circle/rectangle-clip cases. Its 37 authored probes check Scene hit results and
+CPU samples. Chrome, Firefox, WebKit and Edge at DPR1/2 passed 8 contexts, each
+comparing 74 actual SVG-image/Canvas samples against CPU RGBA within one channel
+unit: 592 comparisons total. A distinct bundled Chromium profile passed 2
+contexts and 148 comparisons. These are sample checks, not whole-image equality.
+The three regional circles are manual Mark.clip diagnostics using kernel
+roundtrip coordinates; they are **not GeoSymbol/glyph/label pipeline acceptance**.
+There is no ordinary text, physical-device or integrated geographic host-input
+claim in this browser result.
+
+Fresh browser reports and exports: target/geo-usa-primitives-final/.
+Full regression logs: target/geo-usa-primitives-final-validation/.
+See [English integration guide](geo-albers-usa.md) and
+[中文说明](geo-albers-usa.zh-CN.md) for the remaining consumers and completion
+conditions. GPU/worker and the broader feature-gap list remain deferred/open.
+
+
+## Development Albers USA fitted maps and selected-region masks
+
+The separate `geo_usa_maps` export tests actual dedicated World/Data map entries
+and retained-context circle/glyph overlays: 20 frames, 168 probes, 336 actual
+SVG-image/Canvas versus CPU comparisons per context. Chrome, Firefox, WebKit and
+Edge each pass DPR1/2: eight contexts and 2,688 comparisons, within one RGBA
+channel unit. A distinct bundled Chromium CI profile passes two contexts and
+672 comparisons. Reports and exported SVG/PNG/Canvas HTML are retained under
+`target/geo-usa-maps-v5/`. Scene hit assertions agree with the authored probes.
+
+Each inset uses its own rectangle, including full original strokes; the broad
+Lower48 rectangle is not used as a union substitute. Final probes have
+12-pixel fill-interior and four-pixel clip-edge clearance. Initial fixed-radius
+Data-fit fixtures lacked visible spill, and earlier fill/stroke-edge probes
+showed a two-channel cross-engine difference. Those first failures and exports
+remain retained; no comparison threshold was increased and no earlier edge
+result was relabeled. Final sample count is explicitly 168 rather than the
+earlier 180. These checks establish sampled map/glyph interiors and region
+isolation, not whole-image edge equality, native browser editable text, new
+browser-host inverse runtime, or physical devices. Native CPU text clipping and
+Glory typed-host tests are separately described in
+[the combined verification](verification.md#development-albers-usa-fitted-maps-and-region-overlays).
+
+Original D3 multiplexed polygon/fit fixtures independently pass 32,890 coverage
+queries (22 explicitly retained fixed-band exclusions), 192 projection queries,
+fit bounds, contour signs and areas. This differs from the earlier manual
+primitive-circle diagnostic and is recorded as its own acceptance batch. USA
+component lines/graticules and their canonical ownership remain open; the
+complete Albers USA feature is not marked done. The Chromium export step is in
+the CI definition and was run locally; no remote CI run is claimed.
+
+
+The accompanying full regression passes 1,537 minimal tests, 1,821 all-feature
+tests and 17 doctests, with strict native/MSRV WASM Clippy, pinned formatting,
+typos and diff checks. Its logs and scoped acceptance are in
+`target/geo-usa-maps-final-validation/`.
+
+
+## Development Albers USA streams and browser hosts
+
+The fresh native-rectangle line/graticule export passes 37 frames/240 probes in
+Chrome, Firefox, WebKit and Edge at DPR1/2: eight contexts, 480 actual SVG/Canvas
+versus CPU samples each, 3,840 comparisons total. A distinct bundled Chromium
+profile passes another 960 comparisons. Solid/dashed paint and all three caps
+keep their original ink under independent region/plot rectangles. Full physical
+picking supplies expectations; probes exclude other strokes' AA fringes as well
+as clip edges. Earlier legacy-cap and crossing-AA failures are retained, not
+reclassified. Source/exports/reports: target/geo-usa-streams-native-rect/.
+
+The actual WASM host suite also passes eight contexts. Across them it verifies
+224 successful and 64 None native-pointer queries, actual paint bounds, region
+provenance and original D3 default/child inverses at 1e-7 for received event
+coordinates; requested pointer quantization is recorded separately. It covers
+trusted wheel/pan and keyboard, CSS scaling, stop/release, and 96 physical line
+parts sharing canonical controls through nullable/42 updates and rejected
+layouts. Thirty-two native editable-label checks inspect real SVG text, actual
+Canvas fillText calls and magenta pixels before/after regional clipping. No
+outlined surrogate establishes this claim. Reports are in
+ target/geo-usa-host-final/report.json and, for the separate Chromium CI profile,
+ target/geo-usa-host-ci-profile-final/report.json.
+
+Default mask profiles also mount actual Glory Memory and native Raster hosts;
+no clip_projection:false reduction substitutes for the default. The audit
+fixed unsupported generic rectangle masks, duplicate values, nullable tooltip
+fallback to live scalars, and metadata-only invalidation. The earlier 20 map
+frames were rebuilt and pass all 2,688 comparisons with native rectangles.
+Original D3 line/graticule geometry separately passes 6,520 bidirectional and
+18,002 coverage probes, with three recorded band exclusions, interleaved native
+events and tiny corner-contact differences explicitly retained. See
+[the combined record](verification.md#development-albers-usa-streams-and-host-integration)
+for contract details, source inventories and first failures. This is bounded
+profile acceptance, not exact native degenerate-contact/edge-image equivalence,
+physical-device testing, or completion of the broader Nivo gap list.
+
+The accompanying regression passes 1,549 minimal tests, 1,838 all-feature tests
+and 17 doctests; strict native/MSRV WASM Clippy, browser-host MSRV Clippy, pinned
+formatting, typos and diff checks pass. CI includes both focused Chromium gates,
+executed locally; no remote CI execution is claimed. New acceptance and source
+hashes are in target/geo-usa-streams-final-validation/.
+
+
+## Development Scene-order Widget composition
+
+Chrome, Firefox, WebKit and Edge at DPR1/2 verify actual interleaved SVG/Canvas
+and Glory Widget output: 256 screenshots, 320 native input/hover checks,
+128 rejection records and 80 lifecycle records. The exact contract, independent
+native color controls, received-event coordinate checks and retained first
+failures are described in [the verification record](verification.md#development-scene-order-live-widgets).
+The final script/WASM/glue hashes are checked unchanged during each run.
+This is bounded browser acceptance using Canvas-alpha hit proxies, including
+for SVG; it does not establish native same-layer UI input or exact SVG subpixel
+coverage. GPU/worker remains deferred.
+
+
+## Development HeatMap and Waffle cell Widgets
+
+Both role suites pass Chrome, Firefox, WebKit and Edge at DPR1/2 on one
+unchanged WASM/glue artifact. HeatMap verifies 208 frames, actual nullable
+metadata/tooltip behavior, 656 DOM placements and 96 rejected candidates;
+Waffle verifies 208 frames, 4,896 RGBA samples, real empty controls and
+112 rejected candidates. The wider original Chrome host CLI also passes its
+original strict piecewise screen gates. Historical matrix failures remain
+separate, and the complete catalog has not been reclassified for other engines.
+[Scope, raw evidence and limitations](verification.md#development-cell-widgets-and-complete-chrome-host-cli).
+
+## Development CPU image Chart input
+
+The actual Glory web Image/View input suite passes Chrome, Firefox, WebKit and
+Edge at DPR1/2 on one unchanged artifact. Its 72 accepted frames and 120 trusted
+pointer groups cover absolute image cameras, source aliases, nullable controls,
+real Widget state, nonuniform viewport scaling and atomic PNG publication
+rollback. All 72 received-coordinate inverse checks have zero error. The
+Chromium gate is included in CI; four injected failures verify that the suite
+rejects incorrect pixels, nullable values, identities and publication behavior.
+Earlier aborted attempts remain separate. This does not establish native OS
+input or rerun the complete SVG/Canvas catalog.
+[Evidence and harness diagnostics](verification.md#development-cpu-image-chart-bindings).
+
+## Development Stream dot components
+
+Chrome, Firefox, WebKit and Edge at DPR1/2 pass the scoped dot-component suite
+on one artifact: 208 frames, 64 trusted input groups and 112 complete candidate
+rollbacks. The 1,248 gated Widget/source-interior/restored-dot RGBA samples
+retain the channel limit of one. Sixteen disabled zero-height area-boundary
+probes are separate diagnostics, including one unresolved strict Firefox DPR2
+AA mismatch; this is not full source-edge pixel equivalence. Frozen original
+Nivo function replay and the Chromium component gate are part of CI.
+[Scope and evidence](verification.md#development-stream-dot-components-and-bound-chart-anchors).
+
+
+## Waffle group regions: current focused matrix
+
+Chrome, Firefox, WebKit and Edge passed DPR 1/2 for both SVG and Canvas in
+`scripts/waffle-regions-acceptance.mjs`: 128 frames, 160 trusted input groups,
+64 rejected candidates and 400 interior RGBA samples (maximum channel error 0,
+allowed ±1). The independent CI subset repeats Chromium at both DPRs with the
+same driver/helper/WASM/glue fingerprints.
+
+The matrix distinguishes full-slot business selection from actual painted hits,
+checks fresh per-click activation, exact keyboard group identity, hidden groups,
+transparent cells, physical aliases, custom offset Path interiors and raw
+state/DOM/focus/PNG rollback. It does not assert React lifecycle, OS transport,
+Nivo shared-edge equivalence, arbitrary Widget export or the whole catalog.
+
+Firefox blank-page input controls reproduce native request quantization up to
+0.817 CSS px. The driver admits at most 1 CSS px for that screen delivery step,
+then recomputes business membership from received coordinates. Actual physical
+Scene positions retain a 1/32 logical-pixel gate; screenshot channels retain ±1.
+This does not alter production picking or any prior failed raster-edge report.
+See [verification](verification.md#development-waffle-occupied-group-event-regions)
+and the [group area guide](waffle-regions.md).
+
+
+## Scatter node components: current focused matrix
+
+The current Scatter driver passes Chrome, Firefox, WebKit and Edge at DPR1/2:
+176 SVG/Canvas frames, 48 trusted input groups, 112 rejected candidates and
+10,416 RGBA samples (maximum channel error 1, allowed ±1). Real DOM button
+bounds retain a separate 1/32 logical-pixel gate. Original typed XY and owned
+series data, state/focus retention, legitimate revision rebuild, exact active
+stop cleanup, source restoration and custom offset Path ink are checked.
+The CI subset independently repeats Chromium at both DPRs with the same protected
+driver/helper/WASM/glue. Four mutated-driver controls fail at intended gates.
+
+The initial WebKit rollback witness failure remains archived. Its revision
+increment reproduced without any candidate; corrected pointer settling and
+screenshot-first observation pass the WebKit control and the new complete matrix.
+The exact raw frame/DOM/focus/PNG comparison is retained. Screen request
+quantization allowance (1 CSS px) is separate from DOM geometry and RGBA gates.
+This result does not establish React/spring runtime equivalence, native OS input,
+arbitrary Widget exports or whole-catalog compositor acceptance.
+See [verification](verification.md#development-scatter-live-node-components) and
+[the node component guide](scatter-widgets.md).
+
+
+## Bar live components: focused solid-color matrix
+
+Chrome, Firefox, WebKit and Edge pass DPR1/2 in SVG/Canvas: 240 paint frames,
+48 label-metadata frames, 48 trusted input groups, 112 rejected candidates and
+14,736 gated RGBA samples (maximum channel error0, allowed ±1). Actual Button
+bounds retain a 1/32 logical-pixel gate. Source snapshots, original rectangles,
+stack/percent intervals, zero/hidden/cropped roles, live label data and dimmed
+input state, revisions, exact active stop cleanup and source-ink restoration are
+checked. The independent Chromium CI subset uses the same protected artifact;
+four mutated-driver controls fail at their intended data, pixel, DOM and full
+rollback gates.
+
+The fixture explicitly uses solid-color Buttons with font-size0 while preserving
+DOM text for data/state checks. Original font8 text in a specific actual Canvas
+compositor has an unaccepted two-unit green-channel diagnostic. Font8/0/8 toggles
+98/100/98 with identical state/revision/bounds; a blank native Button does not
+reproduce it. No strict text-equivalence or general font-error claim is made,
+and the old failed glyph report remains failed. An earlier baseline-position
+error was corrected through explicit display:block in the application fixture.
+Production geometry/input and pixel/DOM gates were unchanged.
+See [verification](verification.md#development-bar-live-component-roles) and
+[the Bar component guide](bar-widgets.md). React/spring runtime, arbitrary Widget
+exports, native OS transport and whole-catalog compositor acceptance remain
+outside this result.
+
+## Exact viewport screenshot sampling
+
+The native-only sampling matrix passes Chrome, Firefox, WebKit and Edge at
+DPR1/2: 48 frames, 80 exact hard RGBA samples, 24 independent native-marker
+coordinate/index observations, 120 rejection controls and eight padded-element
+crop counterexamples. Chromium separately passes the two-context CI subset.
+Four mutant copies fail their intended index, scale, geometry-race and offscreen
+checks. These results validate the new full-viewport sampler within its positive
+axis-aligned contract; they do not reclassify the historical catalog reports.
+
+The scrolled fixed-Canvas palette is explicitly ungated: Firefox fractional
+scroll changes its native raster phase, while independently laid-out marker
+indices and broad cyan CSS colors retain their hard gates. Fractional-origin
+unscaled CSS rows at DPR2 are hard gates; other fine rows are diagnostic. No nearby expected pixel or wider tolerance is
+used. The Bar font8 failure still reproduces with correct viewport sampling;
+scriptless native DOM plus a transparent activated Canvas can reproduce it.
+A separate diagnostic non-LCD native text profile matches the local glyph
+region, without changing production flags or claiming a text fix.
+See [the sampling guide](viewport-sampling.md) and
+[the detailed evidence](verification.md#development-exact-viewport-sampling-and-native-text-diagnosis).
+
+## Bump live point components: focused matrix
+
+Chrome, Firefox, WebKit and Edge pass DPR1/2 in SVG/Canvas: 192 frames,
+48 trusted input groups, 112 rejected candidates and 11,856 gated RGBA samples
+(maximum channel error0, allowed ±1). An independent real-DOM geometry gate
+remains 1/32 logical pixel. The new read-only viewport sampler maps actual
+logical coordinates to physical PNG indices without fitting padded element crops.
+
+Owned raw series/categories/ranks, original -0 bits, gap insertion, hidden
+series, zero-size/transparent points, reverse scales, ordinary/offset Path paint,
+source restoration and retained child state are checked. Legitimate revisions
+rebuild children; stop cleans actual active children exactly once. Four mutated
+drivers fail the intended color, independently checked data, real geometry and
+full rejection-witness gates. The separate Chromium subset uses the same bound
+package. This solid-color font0 fixture does not establish arbitrary text parity,
+React/Spring runtime behavior, native OS input or full-catalog acceptance.
+See [verification](verification.md#development-bump-live-point-components) and
+[the guide](bump-widgets.md). New work remains Unreleased.
+
+## Live hierarchy nodes: three-family matrix
+
+Chrome, Firefox, WebKit and Edge pass DPR1/2 for Treemap, CirclePacking and
+Icicle in separate fresh contexts: 24 cases, 624 SVG/Canvas frames, 144 trusted
+input groups, 336 rejected candidates and 20,832 gated RGBA samples (maximum
+channel error0, allowed ±1). Actual Button geometry retains a separate 1/32
+logical-pixel gate. The full-viewport sampler maps actual DOM geometry and DPR
+with one physical floor; all input remains native trusted browser input.
+
+Owned full-tree raw weights/indices, computed leaf values, parent/focus metadata,
+zero-to-positive insertion, hidden/focused roles, transparency, layout variants,
+identity/state retention and exact stop cleanup are checked. Raw-bit-only -0/+0
+updates also refresh actual components with identical source SVG/mark geometry.
+The separate Chromium subset repeats all three families at both DPRs on the
+same protected artifact. Four independently mutated drivers fail intended
+color, raw-data, real-DOM and complete rejection-witness gates. Native parent
+raw/aggregate roles and managed labels are covered separately by Rust/Memory;
+the browser matrix primarily exercises leaf components with source labels off.
+
+This font0 solid-color fixture does not establish arbitrary glyph equivalence,
+React/Spring/D3 layout runtime parity, automatic sampled-motion components,
+native OS input or whole-catalog acceptance. Nivo's zero/invisible component and
+label-ownership rules remain distinct from Rust's actual-Mark model.
+See [verification](verification.md#development-live-hierarchy-node-components)
+and [the guide](hierarchy-widgets.md). New work remains Unreleased.
+
+## Original-value updates: separate functional oracle
+
+The new source-values driver checks exact original bits in actual retained role
+children, source renderer eligibility, real DOM geometry, foreground colors and
+complete accepted-state rollback. Rejection witnesses compare complete root DOM,
+computed SVG styles, native Canvas backing bytes and viewport geometry exactly.
+Business error reasons are checked; TypeError and WASM traps fail the run.
+
+Whole-viewport PNG hashes remain diagnostic in this distinct driver. The earlier
+strict whole-viewport run remains failed. Independent no-candidate and script-free
+native carriers reproduced one changing SVG antialias pixel; the prescribed
+integer alignment did not fix it. No arbitrary glyph or full-catalog acceptance
+is inferred. See [the paired guide](widget-source-values.md) and
+[verification](verification.md#development-original-values-in-retained-widgets).
+
+Final results: four browsers × two DPRs × six roles pass 48 contexts, 480 frames,
+96 trusted input groups, 480 rejected candidates and 4320 foreground samples.
+The same-artifact Chromium subset passes 12 contexts, 120 frames and 1080 samples.
+Five negative controls plus a separate deep-witness diagnostic reject intended
+faults, including a hidden Canvas backing edit that leaves the full screenshot
+unchanged. Two whole-viewport hash mismatches are retained as diagnostics in the
+full matrix; none occur in the CI subset. This does not pass the old strict gate.
+
+## Live Swarm nodes: packed source metadata and component matrix
+
+Chrome/Firefox/WebKit/Edge pass DPR1/2 SVG/Canvas: 8 contexts, 272 frames,
+48 trusted input groups, 112 rejected candidates, 10,800 foreground and
+32 restored-source RGBA samples. Maximum channel error is zero (allowed ±1);
+actual DOM geometry keeps its separate 1/32 logical-pixel gate. The same-artifact
+Chromium subset passes 2 contexts and 68 frames. Independent PNG decoding
+recomputes exact viewport/DPR indices for both reports.
+
+Full source data, raw signed-zero changes, reorder/resize, empty/hidden/cull/skip/
+zero/transparent roles, original packed anchors for offset Paths, revision
+rebuilds, source picking and stop cleanup are covered. Five mutations and a
+separate deep-witness variant reject independently forged data, real colors,
+smaller actual Buttons and accepted updates disguised as errors. Hidden Canvas
+backing corruption is detected even when all foreground/full PNG bytes agree.
+
+State/DOM/SVG styles/Canvas backing/geometry rollback is exact; whole-viewport
+PNG equality is diagnostic. Zero diagnostic mismatches here do not resolve
+historical strict compositor/glyph failures. This font-zero fixture does not
+establish arbitrary text, OS input, React/Spring/force or full-catalog parity.
+See [verification](verification.md#development-live-swarm-node-components) and
+[the guide](swarm-widgets.md). This work remains Unreleased.
+
+## Live Network nodes: actual force/Scene/component matrix
+
+The final single-cohort Chrome/Firefox/WebKit/Edge matrix passes DPR1/2 and four
+ordered/top-layer, replace/keep profiles: 32 contexts,
+1216 SVG/Canvas frames and 31,680 RGBA samples. The same-artifact
+Chromium subset passes 8 contexts/304 frames/7,920 samples.
+Independent Pillow readback checks all 1,520 saved frame PNGs.
+Maximum channel error is 0 (allowed ±1); actual DOM and world mapping retain
+the separate 1/32 logical-pixel gate.
+
+Actual ticks, trusted node dragging, CSS scale/resize, graph replacement,
+heat/revision and coherent retained owner/Bond snapshots are exercised. Accepted
+state/DOM/SVG paint/Canvas backing/geometry rejection is exact, including active
+drag and cold heat failure. Stop/cleanup and idle-hover termination are checked.
+Six negative controls reject joint data forgery, wrong color, smaller actual DOM,
+accepted updates disguised as errors and hidden one-pixel Canvas corruption.
+
+The earlier thin-link RED stays recorded; this fixture explicitly authors 6px
+for a solid interior link sample. Firefox pointer expectations use trusted
+delivered endpoints and preserved grab offset, not the ideal requested delta;
+an independent plain DOM control reproduces the delivered coordinates. Neither
+the pixel allowance nor world/DOM geometry tolerance was widened.
+
+Whole-viewport equality remains diagnostic, with
+19 full-matrix and 0 CI mismatches.
+No arbitrary glyph/OS input/force-React-Spring/full-catalog or historical strict
+compositor acceptance is inferred. See
+[verification](verification.md#development-live-network-node-components) and
+[the guide](network-widgets.md). This work remains Unreleased.
+
+## Live Network links and one-stage node/link composition
+
+The final strict script passes Chrome/Firefox/WebKit/Edge at DPR1/2 with four
+ordered/top and replace/keep profiles: 32 contexts, 832 SVG/Canvas
+frames and 32,448 samples. Chromium CI adds 8 contexts,
+208 frames and 8,112 samples. Independent Python/Pillow reconstructs
+the authored source/Widget order for all 1,040 saved frame PNGs;
+max channel difference is 0 (allowed ±1), with a separate 1/32
+logical-pixel DOM/world gate. Source ink can cover link Widgets and block native
+activation in ordered mode; exposed points and the top-layer profile are tested.
+
+Complete current source bits, original midpoint versus offset Path bounds,
+parallel/self/zero/transparent roles, live ticks, real dragging, resize,
+replacement/index-local reorder and revision are checked. Full accepted state,
+DOM, SVG styles, Canvas backing and geometry rollback are exact. Eight target
+controls reject forged metadata, real paint/DOM changes, committed graph updates
+disguised as errors, hidden backing corruption and native exceptions after stop.
+The original node-only API separately passes 8 contexts/304 frames on the same WASM.
+
+Whole-viewport hashes remain diagnostic: 29 full-matrix and
+0 CI mismatches are preserved. No arbitrary glyph, OS input,
+React/Spring/force or historical strict compositor acceptance is inferred.
+See [verification](verification.md#development-live-network-link-and-mixed-node-components)
+and [the guide](network-link-widgets.md). This work remains Unreleased.
+
+## Literal Funnel SVG layers
+
+The dedicated SVG owner passes Chrome, Edge, Chromium, Firefox and WebKit at
+DPR1/2: 40 direction/interpolation profiles, 1,610 accepted frames, 560 rejected
+transactions, 20 actual DOM paint/camera negative controls and 2,800 saved PNGs.
+RGBA tolerance remains one channel unit, separate from the 1/30 + 0.0001 CSS-pixel
+geometry gate. Retained source/Cage cohorts, literal source layers, actual input,
+failed UI isolation, Glory batch refresh and explicit component reconstruction
+are checked. A plain SVG control preserves WebKit's missing window-exit events
+after stationary path replacement; the delivered-exit check samples the accepted
+body with a real Move first. This remaining input limitation is explicit.
+
+Native and same-artifact regression scope, upstream adapters, remaining gaps and
+local CI verification are recorded in [verification](verification.md#development-funnel-literal-svg-layers).
+This work remains Unreleased and does not claim full Nivo, React/Spring or OS input
+compatibility. GPU/worker remains deferred.
+
+
+## Funnel native hooks and retained tooltips
+
+The dedicated SVG owner passes five configurations (Chrome, Edge, Chromium,
+Firefox and WebKit) at DPR1/2: 40 direction/interpolation profiles, 2,000 accepted
+frames, 160 rejected transactions, 20 paint/placement negative controls and 2,360
+saved PNGs. Original MouseEvent identity, Window bubble phase, immutable admission data,
+independent held Moves, stable occurrence replacement, registration lifecycle,
+reentrant callbacks and cleanup are covered. Standard literal text and retained
+Glory tooltips cover nine natural-size anchors, state and keyboard focus,
+accepted-source rebinding, joint source/layer/tooltip adoption and failed-UI latching.
+
+RGBA tolerance is one channel unit and geometry tolerance is 1/30 + 0.0001 CSS
+pixels. A fixed plain-HTML calibration chooses one percent-reference model per
+context and verifies 36 separate holdouts before product frames. Independent
+readback reconstructs expected geometry and source-over pixels from archived
+records. Rejected transaction viewport PNGs remain exactly equal. Chromium-family
+contexts explicitly disable GPU; earlier GPU-enabled one-pixel antialias failures
+remain preserved diagnostics. Hardware compositor behavior is outside this result.
+
+The same package passes the prior full literal Funnel SVG suite and Chromium
+DPR1/2 Tree node/link tooltip regressions. Hover is primary/non-touch and click
+excludes touch. Stationary hovered-path replacement can leave WebKit without a
+delivered window-exit event; no missing Enter/Leave is fabricated. Current tooltip
+data rebases to accepted source while callback frames retain admission provenance.
+No React/Spring/OS input, rotated/skewed CSS or arbitrary item-widget equivalence
+is inferred. See [verification](verification.md#development-funnel-native-events-and-tooltips),
+[events](funnel-events.md) and [tooltips](funnel-tooltip.md). This work is Unreleased;
+GPU/worker remains deferred.
+
+## Funnel bound annotations (Unreleased)
+
+One frozen source-bound consumer and driver pass Chrome, Edge, bundled Chromium,
+Firefox and WebKit at DPR1/2 across vertical/horizontal and linear/smooth profiles:
+40 profiles, 900 frames, 120 rejected candidates, 20 actual DOM negative controls
+and 40 glyph-stroke paint-contribution controls. The original matrix terminal
+exits 0 and the complete source/package fence stays unchanged. Independent
+readback decodes every original PNG, including isolated native reference pages.
+
+The same two geometrically selected dot cells compare at RGBA1 to the committed
+original Nivo native-circle component at each authored pose. Reference inputs
+contain no product paths or pixels; source, compiler, Node executable, HTML,
+DOM, PNG and worker terminals are archived. The earlier Firefox pure-fill
+expectation was disproved in plain native SVG as well as foreignObject, with
+failed attempts preserved. This correction does not change the authored
+geometry, sample cells or tolerances, and proves no whole-primitive antialias
+or compositor equivalence. Chromium contexts explicitly disable GPU.
+
+Source, layer and tooltip adoption, actual business input occlusion, repeated
+and omitted layers, camera/CSS, hidden sources, raw-only values, reordering,
+custom notes, local state and cleanup remain part of the same full matrix.
+The same package passes Chromium DPR1/2 legacy Funnel literal/event/tooltip,
+Tree Canvas/Widgets and SVG Tree motion regressions. GPU/worker, annotation
+Spring/exit, per-note retained Widgets and arbitrary live UI export remain
+separate. See [verification](verification.md#development-funnel-bound-annotations)
+and the [bilingual guide](funnel-annotations.zh-CN.md).
+
+## Funnel owned application data (Unreleased)
+
+The same frozen package and authored driver pass Chrome, Edge, bundled Chromium,
+Firefox and WebKit at DPR1/2 for vertical/horizontal and linear/smooth Funnel
+profiles. All 40 profiles, 2,010 frames, 360 rejected candidates and ten actual
+DOM paint negatives pass. Independent offline readback decodes all 2,020 original
+PNGs and verifies 240 synchronous presentation proofs, raw fields and numeric
+bits, native admission provenance, retained component cohorts, focus, cleanup
+and accepted-source recovery. Original matrix and reader processes both exit 0.
+
+The deliberately traitless application datum includes nested business fields,
+signed zero and Rc/Cell. Raw-only updates change actual Glory paint while keeping
+the projection unchanged; historical events retain the admitted source and
+tooltip selection rebases. A capture-to-bubble source replacement drops the
+stale native event. Source, layers and tooltip share one accepted complete frame.
+Incremental native logging preserves original sequence conservation, including
+explicit boundary records. Presentation-only commands are measured synchronously;
+later delivered native Enter/Leave remains a separate source transaction.
+
+The same package passes five selected legacy Funnel and Tree tooltip lanes.
+Chromium-family contexts explicitly disable GPU. The typed dedicated owner is
+SVG-only; existing pure Scene and role APIs serve Canvas/raster. Spring/exit,
+item mixing, arbitrary live UI export and GPU/worker remain separate. See
+[verification](verification.md#development-funnel-owned-application-data),
+[English guide](funnel-data.md) and [中文指南](funnel-data.zh-CN.md).
+
+## Funnel Scene-role property springs (Unreleased)
+
+One frozen source-bound package and driver pass Chrome, Edge, bundled Chromium,
+Firefox and WebKit at DPR1/2 across vertical/horizontal and linear/smooth
+profiles. The original coordinator and five browser lane processes all exit 0:
+40 profiles, 1,930 frames, 200 rejected candidates and ten real DOM paint
+negatives. Independent offline readback also exits 0, decoding all 2,340
+original PNGs and verifying 2,472 full lossless event batches, 13,018 original
+entries and 11,858 unique accepted owner observations.
+
+Exact Manual intervals verify independent physical values and velocities,
+previous-target path resets, changed command topology, labels, separators and
+bound annotations. Actual native path/text attributes, retained Glory paint,
+local state, focus and same-Cage peers are checked. Real sample-only cells admit
+trusted input, target-only cells do not, and capture-to-bubble physical
+publication changes invalidate the old observation. All 40 matched-hidden
+samples and 120 actual native-node stability observations pass. A real DOM
+failure after leaf placement restores the whole viewport, attributes, child
+nodes, positions and focused application component.
+
+Automatic clocks advance relative serials, pause at zero BCR and synchronize
+system motion preferences after hidden/settled restoration. Original numeric
+process terminals, source/package/helper fences, PNG bytes and complete event
+batches remain bound to the evidence. Earlier Clippy and JSON-size failures
+are retained and do not supply partial profiles to this accepted matrix.
+
+That matrix verifies the earlier captured Scene-role spring scope. Dormant Part
+memory is covered by the extension below; complete React component lifetime
+equivalence is not asserted.
+The dedicated owner is SVG-only; Canvas is a direct sampled-Scene preview.
+Chromium-family contexts explicitly disable GPU. Mutable D3 generators,
+item-widget mixing, arbitrary live UI export and GPU/worker remain separate.
+See [verification](verification.md#development-funnel-property-springs),
+[English guide](funnel-motion.md) and [中文指南](funnel-motion.zh-CN.md).
+
+## Development: dormant Funnel role memory
+
+The focused extension passes five engines, two DPRs and four profiles:
+**40 profiles / 560 frames / 880 operations**. Independent Python spring algebra
+and original D3 templates verify default and collapsed geometry, previous-target
+path resets, style velocity, source removal/reentry, native path membership and
+40 real no-body input negatives. Its 560 original PNGs are SHA checked and
+decoded for structure; they are diagnostics, with no standalone pixel claim.
+
+A fresh complete ordinary-motion matrix on the same source-bound package also
+passes **40 profiles / 1930 frames / 2340 original PNGs**, including 5720 RGBA
+checks, 200 rejected transactions, 10 DOM negative controls, 120 retained-node
+observations and 40 physical-input pairs. Independent streamed readback checks
+2432 complete gzip event batches containing 11,525 entries, including all 11,005
+effects. All five original engine processes and the coordinator exit 0. The
+independent ordinary reader and numeric replay retain their previously frozen
+assertions byte for byte.
+
+The first ordinary attempt is retained. The revised hidden-clock precondition
+hides before retargeting and requires an unsettled hidden target; the remaining
+pause/resume gates are unchanged. No successful profiles are spliced from that
+attempt. Current evidence is retained in
+`artifacts/verification/funnel-dormant-browser-matrix-first`,
+`artifacts/verification/funnel-dormant-motion-regression-second`,
+`artifacts/verification/funnel-dormant-independent-focused-final` and
+`artifacts/verification/funnel-dormant-independent-motion-final`.
+
+Twelve native tests cover custom all-source capture, uncalled legacy factories,
+typed raw data, transparent explicit colors, invalid latent paint and budgets.
+Default/all-feature/doctest counts are 2077/2422/18. This remains Unreleased;
+the dedicated owner is SVG, pure sampled Scenes render through Canvas/raster,
+and GPU/worker remains deferred. See [verification](verification.md#development-funnel-dormant-source-role-motion),
+[English](funnel-dormant-motion.md) and [中文](funnel-dormant-motion.zh-CN.md).

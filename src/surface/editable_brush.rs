@@ -190,7 +190,7 @@ impl SurfaceModel {
         let transform = self.paint_transform();
         let mut ids = Vec::new();
         for mark in &self.scene.marks {
-            if !self.data(mark) {
+            if !self.pointer_data(mark) {
                 continue;
             }
             let Some([x, y]) = self.current_anchor(mark) else {

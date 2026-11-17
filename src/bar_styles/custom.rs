@@ -1,4 +1,6 @@
 //! A typed single-Scene-mark extension, not a React/Widget component protocol.
+use std::sync::Arc;
+
 use super::*;
 pub use crate::ScatterNodeGeometry as BarDatumGeometry;
 use crate::{
@@ -82,6 +84,7 @@ pub(super) struct FactoryState<'a> {
     anchors: BTreeMap<String, InteractionAnchor>,
     positions: BTreeMap<String, [f64; 2]>,
     colors: BTreeMap<String, Color>,
+    widget_placements: BTreeMap<String, BarWidgetPlacementSource>,
     commands: usize,
     stops: usize,
     dash_commands: usize,
@@ -99,6 +102,7 @@ impl<'a> FactoryState<'a> {
             anchors: Default::default(),
             positions: Default::default(),
             colors: Default::default(),
+            widget_placements: Default::default(),
             commands: 0,
             stops: 0,
             dash_commands: 0,
@@ -174,6 +178,15 @@ impl<'a> FactoryState<'a> {
         }
         self.colors.insert(c.mark_id.into(), prepared.color);
         self.positions.insert(c.mark_id.into(), c.position);
+        self.widget_placements.insert(
+            c.mark_id.into(),
+            BarWidgetPlacementSource {
+                position: c.position,
+                original_rect: c.original_rect,
+                endpoints: c.endpoints,
+                horizontal: c.horizontal,
+            },
+        );
         Ok(prepared.mark)
     }
 }
@@ -195,18 +208,36 @@ struct PaintedBarSource {
     opacity: f64,
     label: Option<(usize, Color)>,
 }
+#[derive(Clone, Copy, Debug)]
+pub(super) struct BarWidgetPlacementSource {
+    pub position: [f64; 2],
+    pub original_rect: Option<ClipRect>,
+    pub endpoints: [Option<f64>; 2],
+    pub horizontal: bool,
+}
+#[derive(Clone, Debug)]
+pub(super) struct BarWidgetSource {
+    pub categories: Arc<Vec<String>>,
+    pub series: Vec<Arc<BarSeries>>,
+    pub plot: ClipRect,
+    pub placements: BTreeMap<String, BarWidgetPlacementSource>,
+}
 #[derive(Clone, Debug)]
 pub struct CustomBarLayout {
     pub layout: StyledBarLayout,
     accepted: StyledBarLayout,
     base_marks: Vec<PaintedBarSource>,
     binding: InteractionBinding,
+    pub(super) widget_source: Arc<BarWidgetSource>,
 }
 impl CustomBarLayout {
     fn freeze(
         layout: StyledBarLayout,
         state: FactoryState<'_>,
         formatter: &ValueFormat,
+        categories: &[String],
+        data: &[BarSeries],
+        plot: ClipRect,
     ) -> Result<Self> {
         let mut base_marks = Vec::new();
         let mut sites = Vec::new();
@@ -248,6 +279,12 @@ impl CustomBarLayout {
             layout,
             base_marks,
             binding,
+            widget_source: Arc::new(BarWidgetSource {
+                categories: Arc::new(categories.to_vec()),
+                series: data.iter().cloned().map(Arc::new).collect(),
+                plot,
+                placements: state.widget_placements,
+            }),
         })
     }
     fn validate(&self) -> Result<()> {
@@ -258,9 +295,12 @@ impl CustomBarLayout {
         self.layout.scene.validate()
     }
     pub fn interaction_binding(&self) -> Result<InteractionBinding> {
+        Ok(self.widget_binding()?.clone())
+    }
+    pub(super) fn widget_binding(&self) -> Result<&InteractionBinding> {
         self.validate()?;
         self.binding.validate(&self.layout.scene)?;
-        Ok(self.binding.clone())
+        Ok(&self.binding)
     }
     /// Dim inactive bars by a factor of their original opacity. Owned value-label
     /// alpha follows the same factor; totals/axes/legend remain independently owned.
@@ -328,6 +368,9 @@ pub fn bar_layout_with_bar_factory(
             .tooltip_format
             .as_ref()
             .unwrap_or(&o.value_axis.format),
+        categories,
+        data,
+        ClipRect::plot(c),
     )
 }
 pub fn bar_layout_with_scale_options_and_bar_factory(
@@ -362,13 +405,16 @@ pub fn bar_layout_with_scale_options_and_bar_factory(
                 .tooltip_format
                 .as_ref()
                 .unwrap_or(&o.value_axis.format),
+            categories,
+            data,
+            ClipRect::plot(c),
         )?,
         value_scale,
     })
 }
 
 fn paint_label_plan(
-    mut layout: StyledBarLayout,
+    (mut layout, plot): (StyledBarLayout, ClipRect),
     scale: &ChartScale,
     categories: &[String],
     data: &[BarSeries],
@@ -466,6 +512,9 @@ fn paint_label_plan(
             .tooltip_format
             .as_ref()
             .unwrap_or(&o.value_axis.format),
+        categories,
+        data,
+        plot,
     )
 }
 
@@ -502,7 +551,15 @@ pub fn bar_layout_with_factories(
             Ok((scale.clone(), scale))
         },
     )?;
-    paint_label_plan(layout, &scale, categories, data, o, style, factories)
+    paint_label_plan(
+        (layout, ClipRect::plot(c)),
+        &scale,
+        categories,
+        data,
+        o,
+        style,
+        factories,
+    )
 }
 
 pub fn bar_layout_with_scale_options_and_factories(
@@ -552,7 +609,7 @@ pub fn bar_layout_with_scale_options_and_factories(
         },
     )?;
     let layout = paint_label_plan(
-        layout,
+        (layout, ClipRect::plot(c)),
         value_scale.chart_scale(),
         categories,
         data,

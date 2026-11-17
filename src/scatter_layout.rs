@@ -11,8 +11,10 @@ use crate::scene::ensure;
 use crate::*;
 mod axes;
 mod custom;
+mod widgets;
 pub(crate) use custom::PreparedNode;
 pub use custom::{ScatterNodeContext, ScatterNodeGeometry};
+pub use widgets::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ScatterDatum {
@@ -1023,7 +1025,10 @@ impl ScatterLayout {
                 "piecewise scatter viewport requires its complete domain stops",
             )?;
             ensure(
-                domain.iter().all(|v| v.is_finite()) && domain[0] < domain[1],
+                domain.iter().all(|v| v.is_finite())
+                    && (domain[0] < domain[1]
+                        || matches!(authored, ScatterAxisScale::Piecewise { .. })
+                            && domain[0] == domain[1]),
                 "invalid scatter viewport domain",
             )?;
             let current = resolved.coordinate_domain();

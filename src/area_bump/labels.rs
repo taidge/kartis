@@ -27,6 +27,7 @@ pub struct AreaBumpLabelCandidate {
     /// The original label anchor, rotation, text, and authored paint.
     pub label: Label,
     pub font: crate::ResolvedFont,
+    pub whitespace: crate::LabelWhitespace,
 }
 
 impl AreaBumpLabelCandidate {
@@ -52,6 +53,7 @@ impl AreaBumpLabelCandidate {
             endpoint,
             label,
             font,
+            whitespace: crate::LabelWhitespace::Legacy,
         }
     }
 
@@ -70,7 +72,7 @@ impl AreaBumpLabelCandidate {
             label.y.to_bits(),
             self.endpoint[0].to_bits(),
             self.endpoint[1].to_bits(),
-            self.font.signature(),
+            self.whitespace.measurement_signature(&self.font),
         )
     }
 
@@ -142,6 +144,7 @@ pub(super) struct LabelBinding {
     opacity: f64,
     leader: Option<LeaderBinding>,
     font: Option<crate::FontOptions>,
+    whitespace: Option<crate::LabelWhitespace>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -158,6 +161,7 @@ impl LabelBinding {
             opacity,
             leader: None,
             font: None,
+            whitespace: None,
         }
     }
 }
@@ -213,6 +217,28 @@ fn leader_mark(
 }
 
 impl AreaBumpLayout {
+    /// Select single-line whitespace before measuring endpoint labels.
+    pub fn with_label_whitespace(&self, mode: crate::LabelWhitespace) -> Result<Self> {
+        self.scene.validate()?;
+        let any = self.active_ids.iter().any(|id| self.visible.contains(id));
+        self.validate_label_slots(any)?;
+        ensure(
+            self.endpoint_placements.is_empty(),
+            "select AreaBump whitespace before measured placement",
+        )?;
+        let mut result = self.clone();
+        for (candidate, binding) in result.endpoint_labels.iter_mut().zip(&mut result.labels) {
+            candidate.whitespace = mode;
+            binding.whitespace = Some(mode);
+            if let Some(slot) = binding.slot {
+                result.scene.typography.label_whitespace.insert(slot, mode);
+            }
+        }
+        result.scene.validate()?;
+        result.validate_label_slots(any)?;
+        Ok(result)
+    }
+
     /// Select fonts for native endpoint labels before obtaining ink measurements.
     pub fn with_label_font(&self, font: crate::FontOptions) -> Result<Self> {
         font.validate()?;
@@ -370,7 +396,8 @@ impl AreaBumpLayout {
                     .resolve(&crate::ResolvedFont::default()),
             );
             ensure(
-                font == candidate.font,
+                font == candidate.font
+                    && binding.whitespace.unwrap_or_default() == candidate.whitespace,
                 "AreaBump label font was changed before placement",
             )?;
             let Some(slot) = binding.slot else { continue };
@@ -422,7 +449,10 @@ impl AreaBumpLayout {
             };
             ensure(
                 self.scene.labels.get(slot) == Some(&expected)
+                    && !self.scene.typography.label_strokes.contains_key(&slot)
                     && self.scene.typography.labels.get(&slot) == binding.font.as_ref()
+                    && self.scene.typography.label_whitespace.get(&slot)
+                        == binding.whitespace.as_ref()
                     && self.scene.label_series.get(&slot) == Some(&candidate.series)
                     && !self.scene.label_clips.contains_key(&slot),
                 "AreaBump managed label was changed before placement",
@@ -480,6 +510,9 @@ impl AreaBumpLayout {
                 b.slot = Some(slot);
                 b.anchor = [c.label.x, y];
                 result.scene.label_series.insert(slot, c.series.clone());
+                if let Some(mode) = b.whitespace {
+                    result.scene.typography.label_whitespace.insert(slot, mode);
+                }
                 if let Some(font) = &b.font {
                     result.scene.typography.labels.insert(slot, font.clone());
                 }
@@ -571,6 +604,8 @@ fn retain_unmanaged(
     let mut series = mem::take(&mut scene.label_series);
     let mut clips = mem::take(&mut scene.label_clips);
     let mut fonts = mem::take(&mut scene.typography.labels);
+    let mut whitespace = mem::take(&mut scene.typography.label_whitespace);
+    let mut strokes = mem::take(&mut scene.typography.label_strokes);
     let label_slots = labels
         .into_iter()
         .enumerate()
@@ -585,6 +620,12 @@ fn retain_unmanaged(
             }
             if let Some(clip) = clips.remove(&i) {
                 scene.label_clips.insert(slot, clip);
+            }
+            if let Some(stroke) = strokes.remove(&i) {
+                scene.typography.label_strokes.insert(slot, stroke);
+            }
+            if let Some(mode) = whitespace.remove(&i) {
+                scene.typography.label_whitespace.insert(slot, mode);
             }
             if let Some(font) = fonts.remove(&i) {
                 scene.typography.labels.insert(slot, font);

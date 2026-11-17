@@ -22,18 +22,25 @@ use crate::presentation::{
 };
 use crate::presentation_layout::*;
 use crate::scene::*;
-use crate::{SceneInteraction, SurfacePhysicalHit, ZoomTransform};
-pub(crate) mod plot_widgets;
-pub use plot_widgets::{
-    MAX_PLOT_WIDGET_SLOTS, PlotWidgetContext, PlotWidgetFrame, PlotWidgetPlacement, PlotWidgetSlot,
-    PlotWidgetsLayout,
+use crate::{
+    SceneInteraction, SceneWidgetCompositionContext, SceneWidgetsComposition, SurfacePhysicalHit,
+    ZoomTransform,
 };
-use plot_widgets::{PlotWidgetsInput, PlotWidgetsState, PreparedSlot};
+pub(crate) mod plot_widgets;
+use plot_widgets::composition::{CompositionManager, CompositionStage};
+pub use plot_widgets::{
+    MAX_PLOT_WIDGET_SLOTS, PlotWidgetCompositionContext, PlotWidgetContext, PlotWidgetFrame,
+    PlotWidgetPlacement, PlotWidgetSlot, PlotWidgetsComposition, PlotWidgetsData,
+    PlotWidgetsLayout, TypedPlotWidgetContext, TypedPlotWidgetFrame,
+};
+use plot_widgets::{
+    PlotWidgetsInput, PlotWidgetsPacket, PlotWidgetsSource, PlotWidgetsState, PreparedSlot,
+};
 pub(crate) mod plot_pointer;
 mod semantic_labels;
 use semantic_labels::{
     SemanticLabelsFrame, SemanticLabelsInput, SemanticLabelsState, ordinary_container,
-    ordinary_text_style, rectangular_clip, relative_to_clip,
+    ordinary_content, ordinary_text_style, rectangular_clip, relative_to_clip,
 };
 
 type CallbackFn<T> = Box<dyn FnMut(T)>;
@@ -153,6 +160,7 @@ pub struct Chart {
     data_control_pointer: Vary<bool>,
     physical_hover: Option<CallbackFn<Option<SurfacePhysicalHit>>>,
     plot_widgets: Option<PlotWidgetsInput>,
+    composition: Option<CompositionConfig>,
     hidden: Option<Vary<BTreeSet<String>>>,
     default_hidden: BTreeSet<String>,
     selected: Option<Vary<Option<String>>>,
@@ -203,6 +211,7 @@ pub fn chart(scene: impl Into<Vary<Scene>>) -> Chart {
         data_control_pointer: Vary::Value(true),
         physical_hover: None,
         plot_widgets: None,
+        composition: None,
         hidden: None,
         default_hidden: BTreeSet::new(),
         selected: None,
@@ -239,8 +248,9 @@ pub fn chart(scene: impl Into<Vary<Scene>>) -> Chart {
         tooltip_renderer: None,
     }
 }
-/// Atomically bind a strict painted-geometry layout to the original semantic
-/// Graphic chart. One site remains one keyboard control; parts are physical ink.
+/// Atomically bind a strict painted-geometry layout to a semantic Graphic chart
+/// or an optional CPU image chart. One site remains one keyboard control;
+/// parts retain their physical ink identity.
 /// This opt-in requires a host supporting finite PlotPointer observations.
 pub fn chart_layout(layout: impl Into<Vary<SceneInteraction>>) -> Chart {
     // This placeholder is never read or painted on the bound-layout path.
@@ -406,13 +416,68 @@ impl Chart {
     pub fn plot_widgets<W: Widget>(
         mut self,
         layout: impl Into<Vary<PlotWidgetsLayout>>,
-        mut factory: impl FnMut(PlotWidgetContext) -> Result<W> + 'static,
+        factory: impl FnMut(PlotWidgetContext) -> Result<W> + 'static,
     ) -> Self {
         self.plot_widgets = Some(PlotWidgetsInput {
-            layout: layout.into(),
-            factory: Box::new(move |context| Ok(Box::new(factory(context)?))),
+            source: plot_widgets::PlotWidgetsSource::plain(layout.into()),
+            factory: plot_widgets::plain_factory(factory),
         });
         self
+    }
+
+    /// Mount typed Widgets whose source data and geometry are accepted as one
+    /// packet. Data keys must exactly match slot mark IDs. Changing metadata
+    /// updates the live frame without recreating the child or changing its key.
+    /// Rejected Scene/slot/metadata proposals preserve the preceding accepted
+    /// frame. A child factory/build error still follows `plot_widgets`' local
+    /// revision retention policy; it does not roll back the chart's whole frame.
+    pub fn plot_widgets_with_data<T: Clone + PartialEq + 'static, W: Widget>(
+        mut self,
+        source: impl Into<Vary<PlotWidgetsData<T>>>,
+        factory: impl FnMut(TypedPlotWidgetContext<T>) -> Result<W> + 'static,
+    ) -> Self {
+        self.plot_widgets = Some(PlotWidgetsInput {
+            source: plot_widgets::PlotWidgetsSource::typed(source.into()),
+            factory: plot_widgets::typed_factory(factory),
+        });
+        self
+    }
+
+    /// Finish a chart with transactional live Widget composition. New or revised
+    /// children are built hidden before paint publication; any factory, build,
+    /// placement or publisher error rejects the whole candidate. Original Scene
+    /// data and labels remain; only `replace_ink` mark bodies and physical picking
+    /// are suppressed. Candidate-build contexts are tentative until commit.
+    pub fn plot_widgets_composed<T: Clone + PartialEq + 'static, W: Widget>(
+        mut self,
+        source: impl Into<Vary<PlotWidgetsComposition<T>>>,
+        factory: impl FnMut(PlotWidgetCompositionContext<T>) -> Result<W> + 'static,
+    ) -> impl Widget {
+        self.plot_widgets = None;
+        ComposedChart {
+            chart: Some(self),
+            source: PlotWidgetsSource::composition(source.into()),
+            factory: Some(plot_widgets::composition_factory(factory)),
+        }
+    }
+
+    /// Compose live Glory children at real Scene mark and label targets.
+    /// Slot keys retain child identity independently of label ordinals. All
+    /// factories, placement and paint changes share one transaction. Replacing
+    /// label ink preserves its source metadata and does not remove node picking.
+    /// Native hosts accept axis-aligned slots; automatic rotated label placement
+    /// requires the BrowserChart affine carrier.
+    pub fn scene_widgets_composed<T: Clone + PartialEq + 'static, W: Widget>(
+        mut self,
+        source: impl Into<Vary<SceneWidgetsComposition<T>>>,
+        factory: impl FnMut(SceneWidgetCompositionContext<T>) -> Result<W> + 'static,
+    ) -> impl Widget {
+        self.plot_widgets = None;
+        ComposedChart {
+            chart: Some(self),
+            source: PlotWidgetsSource::scene_composition(source.into()),
+            factory: Some(plot_widgets::scene_composition_factory(factory)),
+        }
     }
 
     fn semantic_plot(&self) -> bool {
@@ -573,6 +638,10 @@ fn ui_error(_: ChartError) -> glory::ui::Error {
 fn validate(scene: &Scene, plot: bool, outlined: bool) -> Result<()> {
     scene.validate()?;
     ensure(
+        !plot || scene.typography.label_strokes.is_empty(),
+        "Glory semantic text does not support label strokes; use SVG/Canvas/raster",
+    )?;
+    ensure(
         !plot || scene.marks.iter().all(|mark| mark.fill_paint.is_none()),
         "Glory semantic Graphic has no gradient or pattern fill; use SVG/Canvas/raster",
     )?;
@@ -646,6 +715,93 @@ fn datum(mark: &Mark, hidden: &BTreeSet<String>, groups: &BTreeMap<String, f64>)
 }
 type NodeRef = Rc<Cage<Option<NodeId>>>;
 type Registry = Rc<RefCell<BTreeMap<String, NodeRef>>>;
+#[derive(Clone)]
+struct CompositionConfig {
+    source: PlotWidgetsSource,
+    manager: CompositionManager,
+    dimensions: Cage<[f64; 2]>,
+    profile: glory::style::Profile,
+}
+#[derive(Clone)]
+struct CompositionState {
+    config: CompositionConfig,
+    packet: Cage<PlotWidgetsPacket>,
+}
+struct CompositionCandidate {
+    stage: Rc<CompositionStage>,
+    packet: PlotWidgetsPacket,
+}
+struct ComposedChart {
+    chart: Option<Chart>,
+    source: PlotWidgetsSource,
+    factory: Option<plot_widgets::PlotWidgetFactory>,
+}
+impl Widget for ComposedChart {
+    fn build(&mut self, scope: &Scope) -> glory::ui::Result {
+        ensure(
+            self.source.is_local(scope),
+            "composition source belongs to a foreign runtime",
+        )
+        .map_err(ui_error)?;
+        let mut chart = self
+            .chart
+            .take()
+            .ok_or_else(|| ui_error(ChartError("composition chart mounts once".into())))?;
+        let source = self.source.clone();
+        ensure(
+            local(&chart.scene, scope)
+                && chart
+                    .bound_layout
+                    .as_ref()
+                    .is_none_or(|source| local(source, scope)),
+            "chart input belongs to a foreign runtime",
+        )
+        .map_err(ui_error)?;
+        let mut factory = self.factory.take();
+        glory::ui::view()
+            .class("kartis-composed-chart")
+            .style(Style::new().position(Position::Relative))
+            .fill(glory::ui::widget(move |scope| {
+                let initial = if let Some(bound) = &chart.bound_layout {
+                    bound.try_get()?.scene
+                } else {
+                    chart.scene.try_get()?
+                };
+                let dimensions = scope.cage([initial.width, initial.height]);
+                let style = scope.bond(move || {
+                    dimensions.with(|[width, height]| {
+                        Style::new()
+                            .position(Position::Absolute)
+                            .left(Length::Px(0.))
+                            .top(Length::Px(0.))
+                            .width(Length::Px(*width))
+                            .height(Length::Px(*height))
+                            .pointer_events(PointerEvents::None)
+                    })
+                });
+                let profile = scope.style_profile()?;
+                let manager = CompositionManager::new(
+                    scope,
+                    profile,
+                    factory.take().ok_or_else(|| {
+                        ui_error(ChartError("composition factory retired".into()))
+                    })?,
+                    style.into(),
+                    None,
+                )
+                .map_err(ui_error)?;
+                chart.composition = Some(CompositionConfig {
+                    source: source.clone(),
+                    manager: manager.clone(),
+                    dimensions,
+                    profile,
+                });
+                chart.build(scope)?;
+                manager.raise().map_err(ui_error)
+            }))
+            .show_in(scope)
+    }
+}
 struct AcceptedInputs {
     bound_plot: Option<plot_pointer::Prepared>,
     data_pointer: bool,
@@ -656,6 +812,8 @@ struct AcceptedInputs {
     #[cfg(feature = "raster")]
     paints: Option<crate::text_outline::PaintedLabels>,
     scene: Scene,
+    paint_scene: Scene,
+    composition: Option<CompositionCandidate>,
     plot_widgets: Option<Vec<PreparedSlot>>,
     hidden: Option<BTreeSet<String>>,
     selected: Option<Option<String>>,
@@ -710,6 +868,8 @@ struct State {
     #[cfg(feature = "raster")]
     raster: Option<crate::raster_widget::RasterState>,
     scene: Cage<Scene>,
+    paint_scene: Cage<Scene>,
+    composition: Option<CompositionState>,
     // One sparse index per accepted Scene; source changes replace it before
     // publishing the reactive Scene. Hidden-only updates reuse the same index.
     group_opacities: Rc<RefCell<BTreeMap<String, f64>>>,
@@ -791,9 +951,19 @@ impl State {
                     .as_ref()
                     .map(|state| state.frame.get_untracked().profile)
                     .unwrap_or_default();
-                let semantic = self.prepare_semantic_labels(&scene, &hidden, profile)?;
+                let paint_scene = self.paint_scene.get_untracked();
+                let packet = self
+                    .composition
+                    .as_ref()
+                    .map(|state| state.packet.get_untracked());
+                let semantic = self.prepare_semantic_labels(&paint_scene, &hidden, profile)?;
                 let layout = if self.legend_layout.is_some() || self.label_collision.is_some() {
-                    Some(self.prepare_layout(&scene, &hidden, semantic.as_ref())?)
+                    Some(self.prepare_layout(
+                        &paint_scene,
+                        &hidden,
+                        semantic.as_ref(),
+                        packet.as_ref(),
+                    )?)
                 } else {
                     None
                 };
@@ -821,7 +991,7 @@ impl State {
             #[cfg(feature = "raster")]
             if let Some(raster) = &self.raster {
                 let options = raster.options.get_untracked();
-                let result = raster.prepare(&accepted_scene, &hidden, &options);
+                let result = raster.prepare(&self.paint_scene.get_untracked(), &hidden, &options);
                 if !self.selection.alive.get() || self.scene.with(|scene| scene != &accepted_scene)
                 {
                     return;
@@ -954,6 +1124,14 @@ impl State {
         self.tooltip_value.get()
     }
     fn compute_tooltip(&self) -> Result<String> {
+        if !self.formatter.configured()
+            && let Some(bound) = &self.bound_plot
+        {
+            return bound.active_interaction(&self.tooltip_ids()).map_or_else(
+                || Ok(String::new()),
+                |active| crate::interaction_tooltip_text(&self.tooltip_options, &active),
+            );
+        }
         let marks = self.tooltip_data();
         if marks.is_empty() {
             return Ok(String::new());
@@ -967,16 +1145,7 @@ impl State {
         Ok(text)
     }
     fn tooltip_data(&self) -> Vec<Mark> {
-        let ids = self
-            .tooltip_marks
-            .map(|source| source.get())
-            .unwrap_or_else(|| {
-                self.hovered
-                    .get()
-                    .or_else(|| self.focused.get())
-                    .into_iter()
-                    .collect()
-            });
+        let ids = self.tooltip_ids();
         if let Some(bound) = &self.bound_plot {
             return ids.iter().filter_map(|id| bound.lookup(id)).collect();
         }
@@ -997,6 +1166,17 @@ impl State {
             })
         })
     }
+    fn tooltip_ids(&self) -> Vec<String> {
+        self.tooltip_marks
+            .map(|source| source.get())
+            .unwrap_or_else(|| {
+                self.hovered
+                    .get()
+                    .or_else(|| self.focused.get())
+                    .into_iter()
+                    .collect()
+            })
+    }
     fn measure(&self, text: String, style: PresentationText) -> Result<TextSize> {
         let size = self.measurer.call((text, style))?;
         size.validate()?;
@@ -1007,7 +1187,17 @@ impl State {
         scene: &Scene,
         hidden: &BTreeSet<String>,
         semantic: Option<&SemanticLabelsFrame>,
+        packet: Option<&PlotWidgetsPacket>,
     ) -> Result<PresentationLayout> {
+        let label_priorities: BTreeMap<usize, i32> = self
+            .label_priorities
+            .iter()
+            .filter_map(|(&index, &priority)| {
+                packet
+                    .map_or(Some(index), |packet| packet.paint_label_index(index))
+                    .map(|index| (index, priority))
+            })
+            .collect();
         let mut result = PresentationLayout::default();
         if let Some(options) = &self.legend_layout {
             let mut items = Vec::new();
@@ -1049,6 +1239,15 @@ impl State {
                 .collect();
         }
         if let Some(options) = &self.label_collision {
+            ensure(
+                semantic.is_some()
+                    || !scene
+                        .typography
+                        .label_whitespace
+                        .values()
+                        .any(|mode| *mode == crate::LabelWhitespace::Preserve),
+                "Preserve label collision requires a semantic text measurer",
+            )?;
             let mut labels = Vec::new();
             for (index, label) in scene.labels.iter().enumerate() {
                 if label.color.3 == 0
@@ -1072,7 +1271,7 @@ impl State {
                         labels.push(LabelCandidate {
                             id: index.to_string(),
                             rect: bounds,
-                            priority: *self.label_priorities.get(&index).unwrap_or(&0),
+                            priority: *label_priorities.get(&index).unwrap_or(&0),
                             offsets,
                         });
                     }
@@ -1104,7 +1303,7 @@ impl State {
                         width: size.width,
                         height: size.height,
                     },
-                    priority: *self.label_priorities.get(&index).unwrap_or(&0),
+                    priority: *label_priorities.get(&index).unwrap_or(&0),
                     offsets: vec![(0., -size.height - 2.), (0., size.height + 2.)],
                 });
             }
@@ -1155,6 +1354,12 @@ impl State {
                     .unwrap_or((options.viewport.x, options.viewport.y)),
             })
             .unwrap_or((options.viewport.x, options.viewport.y));
+        let anchor = if let Some(bound) = &self.bound_plot {
+            let ids = marks.iter().map(|mark| mark.id.clone()).collect::<Vec<_>>();
+            bound.tooltip_anchor(&ids)?.unwrap_or(anchor)
+        } else {
+            anchor
+        };
         let font = self.scene.with(|scene| {
             scene.typography.tooltip_font(
                 &self.tooltip_options.text.font,
@@ -1244,7 +1449,11 @@ impl Widget for Chart {
             || self
                 .plot_widgets
                 .as_ref()
-                .is_some_and(|input| !local(&input.layout, scope))
+                .is_some_and(|input| !input.source.is_local(scope))
+            || self
+                .composition
+                .as_ref()
+                .is_some_and(|input| !input.source.is_local(scope))
             || self.hidden.as_ref().is_some_and(|v| !local(v, scope))
             || self.selected.as_ref().is_some_and(|v| !local(v, scope))
             || self.hovered.as_ref().is_some_and(|v| !local(v, scope))
@@ -1284,15 +1493,16 @@ impl Widget for Chart {
             .transpose()?;
         if let Some(frame) = &initial_bound {
             plot_pointer::validate(frame).map_err(ui_error)?;
+            let supported = self.semantic_plot();
+            #[cfg(feature = "raster")]
+            let supported = supported || self.raster.is_some();
             ensure(
-                self.semantic_plot(),
-                "chart_layout requires the semantic Graphic plot",
+                supported,
+                "chart_layout requires a semantic Graphic plot or raster image",
             )
             .map_err(ui_error)?;
             if scope.capabilities()?.input && !scope.supports_plot_pointer()? {
-                return Err(
-                    glory::render::Error::Unsupported("finite semantic plot pointer").into(),
-                );
+                return Err(glory::render::Error::Unsupported("finite chart plot pointer").into());
             }
         }
         let initial = match &initial_bound {
@@ -1301,11 +1511,67 @@ impl Widget for Chart {
         };
         validate(
             &initial,
+            self.semantic_plot() && self.composition.is_none(),
+            self.accepts_rotated_labels(),
+        )
+        .map_err(ui_error)?;
+        let initial_hidden = match &self.hidden {
+            Some(value) => glory::core::untracked(|| value.try_get())?,
+            None => self.default_hidden.clone(),
+        };
+        validate_hidden(&initial_hidden).map_err(ui_error)?;
+        let initial_composition = if let Some(config) = &self.composition {
+            let has_plot = self.semantic_plot();
+            #[cfg(feature = "raster")]
+            let has_plot = has_plot || self.raster.is_some();
+            ensure(
+                has_plot,
+                "composed Widgets require a semantic plot or raster image",
+            )
+            .map_err(ui_error)?;
+            let packet = glory::core::untracked(|| config.source.read()).map_err(ui_error)?;
+            ensure(
+                packet.is_composition(),
+                "composition chart requires a composition packet",
+            )
+            .map_err(ui_error)?;
+            let view = ZoomTransform::default();
+            #[cfg(feature = "raster")]
+            let view = self
+                .raster
+                .as_ref()
+                .map(|input| glory::core::untracked(|| input.options.try_get()))
+                .transpose()?
+                .map_or(view, |options| options.view);
+            let rows = plot_widgets::prepare_packet(
+                &initial,
+                &packet,
+                config.profile,
+                view,
+                initial_bound
+                    .as_ref()
+                    .and_then(|frame| frame.interaction.as_ref()),
+            )
+            .map_err(ui_error)?;
+            let stage = config
+                .manager
+                .prepare(rows, initial_hidden.clone())
+                .map_err(ui_error)?;
+            Some(CompositionCandidate { stage, packet })
+        } else {
+            None
+        };
+        let initial_paint = initial_composition.as_ref().map_or_else(
+            || initial.clone(),
+            |candidate| candidate.packet.project_scene(&initial),
+        );
+        validate(
+            &initial_paint,
             self.semantic_plot(),
             self.accepts_rotated_labels(),
         )
         .map_err(ui_error)?;
-        let plot_widgets_source = self.plot_widgets.as_ref().map(|input| input.layout.clone());
+        let plot_widgets_source = self.plot_widgets.as_ref().map(|input| input.source.clone());
         let plot_widgets = if let Some(input) = self.plot_widgets.take() {
             let has_plot = self.semantic_plot();
             #[cfg(feature = "raster")]
@@ -1317,7 +1583,8 @@ impl Widget for Chart {
                 .into());
             }
             let profile = scope.style_profile()?;
-            let layout = glory::core::untracked(|| input.layout.try_get())?;
+            let packet = glory::core::untracked(|| input.source.read())
+                .map_err(|error| glory::render::Error::Backend(error.0))?;
             let view = ZoomTransform::default();
             #[cfg(feature = "raster")]
             let view = if let Some(input) = &self.raster {
@@ -1325,14 +1592,22 @@ impl Widget for Chart {
             } else {
                 view
             };
-            let rows = plot_widgets::prepare(&initial, &layout, profile, view)
-                .map_err(|error| glory::render::Error::Backend(error.0))?;
+            let rows = plot_widgets::prepare_packet(
+                &initial,
+                &packet,
+                profile,
+                view,
+                initial_bound
+                    .as_ref()
+                    .and_then(|frame| frame.interaction.as_ref()),
+            )
+            .map_err(|error| glory::render::Error::Backend(error.0))?;
             Some(PlotWidgetsState::new(scope, rows, profile, input.factory))
         } else {
             None
         };
         let initial_drawings = if self.semantic_plot() {
-            prepare_drawings(&initial).map_err(ui_error)?
+            prepare_drawings(&initial_paint).map_err(ui_error)?
         } else {
             Default::default()
         };
@@ -1344,7 +1619,7 @@ impl Widget for Chart {
             )
             .map_err(ui_error)?;
             ensure(self.label_collision.is_none(),"outline_labels requires explicit placement; automatic semantic-text collision metrics do not describe rotated glyph bounds").map_err(ui_error)?;
-            crate::text_outline::outline_labels(&initial, fonts, options).map_err(ui_error)?
+            crate::text_outline::outline_labels(&initial_paint, fonts, options).map_err(ui_error)?
         } else {
             Default::default()
         };
@@ -1360,7 +1635,7 @@ impl Widget for Chart {
                 "painted_labels requires explicit measured placement",
             )
             .map_err(ui_error)?;
-            crate::text_outline::painted_labels(&initial, fonts, options).map_err(ui_error)?
+            crate::text_outline::painted_labels(&initial_paint, fonts, options).map_err(ui_error)?
         } else {
             Default::default()
         };
@@ -1411,13 +1686,43 @@ impl Widget for Chart {
             .transpose()?
             .unwrap_or_default();
         validate_data_labels(&data_labels).map_err(ui_error)?;
-        let hidden = match &self.hidden {
-            Some(v) => glory::core::untracked(|| v.try_get())?,
-            None => self.default_hidden.clone(),
-        };
+        let hidden = initial_hidden;
         validate_hidden(&hidden).map_err(ui_error)?;
+        #[cfg(not(feature = "raster"))]
+        let image_view: Option<ZoomTransform> = None;
+        #[cfg(feature = "raster")]
+        let image_view = self
+            .raster
+            .as_ref()
+            .map(|input| glory::core::untracked(|| input.options.try_get()))
+            .transpose()?
+            .map(|options| options.view);
         let bound_plot = initial_bound
-            .map(|frame| plot_pointer::BoundPlot::new(scope, frame, &hidden))
+            .map(|frame| {
+                if image_view.is_some() {
+                    return plot_pointer::BoundPlot::new_projected(
+                        scope,
+                        frame,
+                        &hidden,
+                        initial_composition
+                            .as_ref()
+                            .map_or_else(BTreeSet::new, |candidate| {
+                                candidate.packet.replace_ink().clone()
+                            }),
+                        image_view,
+                    );
+                }
+                if let Some(candidate) = &initial_composition {
+                    plot_pointer::BoundPlot::new_masked(
+                        scope,
+                        frame,
+                        &hidden,
+                        candidate.packet.replace_ink().clone(),
+                    )
+                } else {
+                    plot_pointer::BoundPlot::new(scope, frame, &hidden)
+                }
+            })
             .transpose()
             .map_err(ui_error)?;
         if let Some(bound) = &bound_plot {
@@ -1448,7 +1753,7 @@ impl Widget for Chart {
                     scope,
                     input,
                     options,
-                    &initial,
+                    &initial_paint,
                     &hidden,
                     self.raster_source.take(),
                 )
@@ -1499,6 +1804,11 @@ impl Widget for Chart {
             #[cfg(feature = "raster")]
             raster,
             group_opacities: Rc::new(RefCell::new(initial.mark_group_opacities())),
+            paint_scene: scope.cage(initial_paint),
+            composition: self.composition.clone().map(|config| CompositionState {
+                config,
+                packet: scope.cage(initial_composition.as_ref().unwrap().packet.clone()),
+            }),
             scene: scope.cage(initial),
             plot_widgets,
             hidden: scope.cage(hidden),
@@ -1559,16 +1869,19 @@ impl Widget for Chart {
         })?;
         let initial_semantic = state
             .prepare_semantic_labels(
-                &state.scene.get_untracked(),
+                &state.paint_scene.get_untracked(),
                 &state.hidden.get_untracked(),
                 initial_semantic_profile,
             )
             .map_err(ui_error)?;
         let initial_layout = state
             .prepare_layout(
-                &state.scene.get_untracked(),
+                &state.paint_scene.get_untracked(),
                 &state.hidden.get_untracked(),
                 initial_semantic.as_ref(),
+                initial_composition
+                    .as_ref()
+                    .map(|candidate| &candidate.packet),
             )
             .map_err(ui_error)?;
         if !state.selection.alive.get() {
@@ -1577,6 +1890,14 @@ impl Widget for Chart {
         state.layout.revise(|old| *old = initial_layout);
         if let (Some(state), Some(frame)) = (&state.semantic_labels, initial_semantic) {
             state.frame.revise(|old| *old = frame);
+        }
+        if let (Some(config), Some(candidate)) = (&state.composition, initial_composition) {
+            candidate.stage.validate().map_err(ui_error)?;
+            config
+                .config
+                .manager
+                .commit(&candidate.stage)
+                .map_err(ui_error)?;
         }
         let source = self.scene.clone();
         let bound_source = self.bound_layout.clone();
@@ -1613,7 +1934,11 @@ impl Widget for Chart {
                     && data_pointer_source
                         .try_get()
                         .map_err(|error| ChartError(error.to_string()))?;
-                validate(&scene, show_plot, allow_outlined)?;
+                validate(
+                    &scene,
+                    show_plot && observed.composition.is_none(),
+                    allow_outlined,
+                )?;
                 #[cfg(feature = "raster")]
                 let raster_options = raster_source
                     .as_ref()
@@ -1626,23 +1951,19 @@ impl Widget for Chart {
                 let plot_widgets = if let (Some(source), Some(widgets)) =
                     (&plot_widgets_source, &observed.plot_widgets)
                 {
-                    let layout = source
-                        .try_get()
-                        .map_err(|error| ChartError(error.to_string()))?;
+                    let packet = source.read()?;
                     let view = ZoomTransform::default();
                     #[cfg(feature = "raster")]
                     let view = raster_options.as_ref().map_or(view, |options| options.view);
-                    Some(plot_widgets::prepare(
+                    Some(plot_widgets::prepare_packet(
                         &scene,
-                        &layout,
+                        &packet,
                         widgets.profile,
                         view,
+                        bound_layout
+                            .as_ref()
+                            .and_then(|frame| frame.interaction.as_ref()),
                     )?)
-                } else {
-                    None
-                };
-                let drawings = if show_plot && observed.scene.get_untracked() != scene {
-                    Some(prepare_drawings(&scene)?)
                 } else {
                     None
                 };
@@ -1687,13 +2008,75 @@ impl Widget for Chart {
                 if let Some(labels) = &data_labels {
                     validate_data_labels(labels)?;
                 }
-                let candidate_hidden = hidden
-                    .as_ref()
-                    .cloned()
-                    .unwrap_or_else(|| observed.hidden.get_untracked());
+                let candidate_hidden = hidden.as_ref().cloned().unwrap_or_else(|| {
+                    if observed.composition.is_some() {
+                        observed.hidden.get()
+                    } else {
+                        observed.hidden.get_untracked()
+                    }
+                });
+                let composition = if let Some(config) = &observed.composition {
+                    let packet = config.config.source.read()?;
+                    ensure(
+                        packet.is_composition(),
+                        "composition chart requires a composition packet",
+                    )?;
+                    let view = ZoomTransform::default();
+                    #[cfg(feature = "raster")]
+                    let view = raster_options.as_ref().map_or(view, |options| options.view);
+                    let rows = plot_widgets::prepare_packet(
+                        &scene,
+                        &packet,
+                        config.config.profile,
+                        view,
+                        bound_layout
+                            .as_ref()
+                            .and_then(|frame| frame.interaction.as_ref()),
+                    )?;
+                    let stage = config
+                        .config
+                        .manager
+                        .prepare(rows, candidate_hidden.clone())?;
+                    Some(CompositionCandidate { stage, packet })
+                } else {
+                    None
+                };
+                let paint_scene = composition.as_ref().map_or_else(
+                    || scene.clone(),
+                    |candidate| candidate.packet.project_scene(&scene),
+                );
+                validate(&paint_scene, show_plot, allow_outlined)?;
+                let drawings = if show_plot && observed.paint_scene.get_untracked() != paint_scene {
+                    Some(prepare_drawings(&paint_scene)?)
+                } else {
+                    None
+                };
                 let bound_plot =
                     if let (Some(bound), Some(frame)) = (&observed.bound_plot, bound_layout) {
-                        Some(bound.prepare(frame, &candidate_hidden)?)
+                        #[cfg(not(feature = "raster"))]
+                        let image_view: Option<ZoomTransform> = None;
+                        #[cfg(feature = "raster")]
+                        let image_view = raster_options.as_ref().map(|options| options.view);
+                        Some(if image_view.is_some() {
+                            bound.prepare_projected(
+                                frame,
+                                &candidate_hidden,
+                                composition
+                                    .as_ref()
+                                    .map_or_else(BTreeSet::new, |candidate| {
+                                        candidate.packet.replace_ink().clone()
+                                    }),
+                                image_view,
+                            )?
+                        } else if let Some(candidate) = &composition {
+                            bound.prepare_masked(
+                                frame,
+                                &candidate_hidden,
+                                candidate.packet.replace_ink().clone(),
+                            )?
+                        } else {
+                            bound.prepare(frame, &candidate_hidden)?
+                        })
                     } else {
                         None
                     };
@@ -1714,27 +2097,43 @@ impl Widget for Chart {
                     })
                     .transpose()?
                     .unwrap_or_default();
+                // Mark-only replacement keeps the old presentation callback
+                // policy. Only a changed source or label projection needs new
+                // semantic/collision caches; labels use paint-pool ordinals.
+                let label_projection_changed = composition.as_ref().is_some_and(|candidate| {
+                    observed
+                        .composition
+                        .as_ref()
+                        .unwrap()
+                        .packet
+                        .get_untracked()
+                        .replaced_label_indices()
+                        != candidate.packet.replaced_label_indices()
+                });
+                let presentation_changed =
+                    observed.scene.get_untracked() != scene || label_projection_changed;
                 let semantic_labels = if observed
                     .semantic_labels
                     .as_ref()
                     .is_some_and(|state| state.frame.get_untracked().profile != profile)
-                    || observed.scene.get_untracked() != scene
+                    || presentation_changed
                     || observed.hidden.get_untracked() != candidate_hidden
                 {
-                    observed.prepare_semantic_labels(&scene, &candidate_hidden, profile)?
+                    observed.prepare_semantic_labels(&paint_scene, &candidate_hidden, profile)?
                 } else {
                     None
                 };
                 let layout = if (observed.legend_layout.is_some()
                     || observed.label_collision.is_some())
-                    && (observed.scene.get_untracked() != scene
+                    && (presentation_changed
                         || observed.hidden.get_untracked() != candidate_hidden
                         || semantic_labels.is_some())
                 {
                     Some(observed.prepare_layout(
-                        &scene,
+                        &paint_scene,
                         &candidate_hidden,
                         semantic_labels.as_ref(),
+                        composition.as_ref().map(|candidate| &candidate.packet),
                     )?)
                 } else {
                     None
@@ -1747,11 +2146,21 @@ impl Widget for Chart {
                             .cloned()
                             .unwrap_or_else(|| observed.hidden.get_untracked());
                         if observed.scene.get_untracked() != scene
+                            || observed.paint_scene.get_untracked() != paint_scene
+                            || composition.as_ref().is_some_and(|candidate| {
+                                observed
+                                    .composition
+                                    .as_ref()
+                                    .unwrap()
+                                    .packet
+                                    .get_untracked()
+                                    != candidate.packet
+                            })
                             || observed.hidden.get_untracked() != candidate_hidden
                             || &raster.options.get_untracked() != options
                         {
                             Some((
-                                raster.prepare(&scene, &candidate_hidden, options)?,
+                                raster.prepare(&paint_scene, &candidate_hidden, options)?,
                                 options.clone(),
                             ))
                         } else {
@@ -1762,9 +2171,11 @@ impl Widget for Chart {
                     };
                 #[cfg(feature = "raster")]
                 let outlines = if let Some(config) = &observed.outlined {
-                    if observed.scene.get_untracked() != scene {
+                    if presentation_changed {
                         Some(crate::text_outline::outline_labels(
-                            &scene, &config.0, &config.1,
+                            &paint_scene,
+                            &config.0,
+                            &config.1,
                         )?)
                     } else {
                         None
@@ -1774,9 +2185,11 @@ impl Widget for Chart {
                 };
                 #[cfg(feature = "raster")]
                 let paints = if let Some(config) = &observed.painted {
-                    if observed.scene.get_untracked() != scene {
+                    if presentation_changed {
                         Some(crate::text_outline::painted_labels(
-                            &scene, &config.0, &config.1,
+                            &paint_scene,
+                            &config.0,
+                            &config.1,
                         )?)
                     } else {
                         None
@@ -1784,6 +2197,23 @@ impl Widget for Chart {
                 } else {
                     None
                 };
+                // Publisher/measurement callbacks may stop or supersede a
+                // candidate. Retarget validates its epoch without changing any
+                // accepted child Cage or running its factory again.
+                let composition = composition
+                    .map(|candidate| {
+                        let manager = &observed.composition.as_ref().unwrap().config.manager;
+                        let stage = manager.retarget(
+                            &candidate.stage,
+                            candidate.stage.rows().to_vec(),
+                            candidate_hidden.clone(),
+                        )?;
+                        Ok::<_, ChartError>(CompositionCandidate {
+                            stage,
+                            packet: candidate.packet,
+                        })
+                    })
+                    .transpose()?;
                 Ok(AcceptedInputs {
                     bound_plot,
                     data_pointer,
@@ -1794,6 +2224,8 @@ impl Widget for Chart {
                     #[cfg(feature = "raster")]
                     paints,
                     scene,
+                    paint_scene,
+                    composition,
                     plot_widgets,
                     hidden,
                     selected,
@@ -1816,6 +2248,8 @@ impl Widget for Chart {
                     #[cfg(feature = "raster")]
                     paints,
                     scene,
+                    paint_scene,
+                    composition,
                     plot_widgets,
                     hidden,
                     selected,
@@ -1828,6 +2262,21 @@ impl Widget for Chart {
                 }) => glory::core::untracked(|| {
                     if !observed.selection.alive.get() {
                         return;
+                    }
+                    if let (Some(config), Some(candidate)) = (&observed.composition, composition) {
+                        if let Err(error) = config.config.manager.commit(&candidate.stage) {
+                            if has_rejection {
+                                rejection.emit(error);
+                            } else {
+                                scope.report_error(ui_error(error));
+                            }
+                            return;
+                        }
+                        config.packet.revise(|old| *old = candidate.packet);
+                        let dimensions = [scene.width, scene.height];
+                        if config.config.dimensions.get_untracked() != dimensions {
+                            config.config.dimensions.revise(|old| *old = dimensions);
+                        }
                     }
                     let bound_events = if let (Some(bound), Some(candidate)) =
                         (&observed.bound_plot, bound_plot)
@@ -1866,6 +2315,9 @@ impl Widget for Chart {
                     if observed.scene.with(|old| old != &scene) {
                         *observed.group_opacities.borrow_mut() = scene.mark_group_opacities();
                         observed.scene.revise(|old| *old = scene);
+                    }
+                    if observed.paint_scene.with(|old| old != &paint_scene) {
+                        observed.paint_scene.revise(|old| *old = paint_scene);
                     }
                     if let Some(labels) = data_labels
                         && observed.data_labels.with(|old| old != &labels)
@@ -1962,7 +2414,7 @@ impl Widget for Chart {
                 if let Some(raster) = &state.raster {
                     let frame = raster.frame;
                     let scene = state.scene;
-                    glory::ui::image()
+                    let image = glory::ui::image()
                         .class("kartis-raster-image")
                         .source(scope.bond(move || frame.with(|frame| frame.source.clone())))
                         .alt(scope.bond(move || scene.with(|scene| scene.title.clone())))
@@ -1972,8 +2424,40 @@ impl Widget for Chart {
                                     .width(Length::Px(frame.width))
                                     .height(Length::Px(frame.height))
                             })
-                        }))
-                        .show_in(scope)?;
+                        }));
+                    if state.bound_plot.is_some() {
+                        let pointer = state.clone();
+                        glory::ui::view()
+                            .class("kartis-raster-plot")
+                            .style(scope.bond(move || {
+                                frame.with(|frame| Style {
+                                    overflow_x: Some(Overflow::Hidden),
+                                    overflow_y: Some(Overflow::Hidden),
+                                    ..Style::new()
+                                        .position(Position::Relative)
+                                        .width(Length::Px(frame.width))
+                                        .height(Length::Px(frame.height))
+                                })
+                            }))
+                            .on(EventKind::PlotPointer, move |event| {
+                                if let Event::PlotPointer { pointer: point, .. } = event {
+                                    pointer.bound_pointer(point);
+                                }
+                            })
+                            .fill(
+                                image.style(
+                                    Style::new()
+                                        .position(Position::Absolute)
+                                        .left(Length::Px(0.))
+                                        .top(Length::Px(0.))
+                                        .width(Length::Percent(100.))
+                                        .height(Length::Percent(100.)),
+                                ),
+                            )
+                            .show_in(scope)?;
+                    } else {
+                        image.show_in(scope)?;
+                    }
                 }
                 if show_plot {
                     build_plot(scope, state.clone())?;
@@ -2296,7 +2780,7 @@ fn build_opacity_group(scope: &Scope, item: Cage<PaintRow>, state: State) -> glo
         .show_in(scope)
 }
 fn build_plot(scope: &Scope, state: State) -> glory::ui::Result {
-    let scene = state.scene;
+    let scene = state.paint_scene;
     let plot = glory::ui::view()
         .class("kartis-plot")
         .style(scope.bond(move || {
@@ -2468,7 +2952,7 @@ fn build_label(
         .class("kartis-label-clip kartis-paint-item")
         .style(scope.bond(move || {
             label.with(|(index, _, series)| {
-                state.scene.with(|scene| {
+                state.paint_scene.with(|scene| {
                     // On removal, the keyed list replaces this wrapper. A
                     // transient read of the new Scene still has valid bounds.
                     let rect = rectangular_clip(scene, *index).unwrap_or(ClipRect {
@@ -2517,6 +3001,7 @@ fn build_label_contents(
         return build_outline_label(scope, label, state, clipped);
     }
     let text_state = state.clone();
+    let content_state = state.clone();
     let hidden = state.hidden;
     glory::ui::view()
         .class(if clipped {
@@ -2543,7 +3028,9 @@ fn build_label_contents(
         }))
         .fill(
             glory::ui::text()
-                .content(scope.bond(move || label.with(|(_, label, _)| label.text.clone())))
+                .content(scope.bond(move || {
+                    label.with(|(index, label, _)| ordinary_content(*index, label, &content_state))
+                }))
                 .style(scope.bond(move || {
                     label.with(|(index, label, _)| ordinary_text_style(*index, label, &text_state))
                 })),
@@ -2557,8 +3044,9 @@ fn build_outline_label(
     state: State,
     clipped: bool,
 ) -> glory::ui::Result {
-    let scene = state.scene;
+    let scene = state.paint_scene;
     let text_state = state.clone();
+    let content_state = state.clone();
     let hidden = state.hidden;
     let outlines = state.outlines;
     let paints = state.paints;
@@ -2645,7 +3133,9 @@ fn build_outline_label(
         .fill((
             glory::ui::text()
                 .class("kartis-outline-text")
-                .content(scope.bond(move || label.with(|(_, label, _)| label.text.clone())))
+                .content(scope.bond(move || {
+                    label.with(|(index, label, _)| ordinary_content(*index, label, &content_state))
+                }))
                 .style(scope.bond(move || {
                     label.with(|(index, label, _)| {
                         if if painted {

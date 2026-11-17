@@ -40,7 +40,16 @@ mod conic_kernel;
 mod conic_mask;
 mod conic_seam;
 mod inverse;
+mod rect_clip;
+mod usa;
+mod usa_map;
 pub use conic::GeoConicParallels;
+pub use rect_clip::{
+    GeoRectClipOptions, GeoRectClipResult, GeoRectClipStats, GeoRectLineClipResult,
+    clip_geo_planar_lines, clip_geo_planar_polygon,
+};
+pub use usa::{GeoAlbersUsaProjection, GeoUsaInverse, GeoUsaProjectedPoint, GeoUsaRegion};
+pub use usa_map::*;
 type Ring = Vec<[f64; 2]>;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -129,6 +138,8 @@ pub struct GeoProjectionContext {
     dimensions: [f64; 2],
     plot: crate::ClipRect,
     path_options: Option<GeoPathOptions>,
+    usa: Option<GeoAlbersUsaProjection>,
+    usa_stats: Option<GeoUsaMapStats>,
 }
 /// The logical-pixel circular boundary of an azimuthal projection, after
 /// fitting, scaling and translation. Non-azimuthal projections have no disk.
@@ -139,6 +150,9 @@ pub struct GeoProjectionDisk {
 }
 impl GeoProjectionContext {
     pub fn projection_disk(&self) -> Option<GeoProjectionDisk> {
+        if self.usa.is_some() {
+            return None;
+        }
         self.view
             .projection
             .hemisphere()
@@ -152,6 +166,9 @@ impl GeoProjectionContext {
     /// Longitude wraps once about the camera through spherical atan2, just as
     /// the map's antimeridian clipping does; points are not duplicated at seams.
     pub fn project(&self, position: [f64; 2]) -> Result<Option<[f64; 2]>> {
+        if let Some(usa) = self.usa {
+            return usa.project(position).map(|point| point.map(|p| p.position));
+        }
         project_geo_point(position, &self.view)?
             .map(|point| {
                 let point = self.map_raw(point);
@@ -186,6 +203,62 @@ impl GeoProjectionContext {
     }
     pub fn plot(&self) -> crate::ClipRect {
         self.plot
+    }
+
+    pub fn usa_projection(&self) -> Option<GeoAlbersUsaProjection> {
+        self.usa
+    }
+
+    /// Aggregate sampling/postclip admission used to construct this USA map.
+    pub fn usa_map_stats(&self) -> Option<GeoUsaMapStats> {
+        self.usa_stats
+    }
+
+    pub fn project_usa(&self, position: [f64; 2]) -> Result<Option<GeoUsaProjectedPoint>> {
+        self.usa
+            .ok_or_else(|| ChartError("projection context is not Albers USA".into()))?
+            .project(position)
+    }
+
+    pub fn invert_usa(&self, point: [f64; 2]) -> Result<Option<GeoUsaInverse>> {
+        self.usa
+            .ok_or_else(|| ChartError("projection context is not Albers USA".into()))?
+            .invert(point)
+    }
+
+    pub fn invert_usa_in_region(
+        &self,
+        region: GeoUsaRegion,
+        point: [f64; 2],
+    ) -> Result<Option<[f64; 2]>> {
+        self.usa
+            .ok_or_else(|| ChartError("projection context is not Albers USA".into()))?
+            .invert_in_region(region, point)
+    }
+
+    pub(super) fn usa_component(&self, region: GeoUsaRegion) -> Result<Self> {
+        let usa = self
+            .usa
+            .ok_or_else(|| ChartError("projection context is not Albers USA".into()))?;
+        let spec = usa::component_spec(region);
+        let mut view = self.view.clone();
+        view.projection = spec.projection;
+        view.center = spec.center;
+        view.rotation = 0.;
+        view.clip_angle = None;
+        view.scale = Some(usa.component_scale(region));
+        view.translate = Some(usa.component_translate(region));
+        Ok(Self {
+            view,
+            center: spec.raw_origin,
+            scale: usa.component_scale(region),
+            translate: usa.component_translate(region),
+            dimensions: self.dimensions,
+            plot: self.plot,
+            path_options: self.path_options.clone(),
+            usa: None,
+            usa_stats: None,
+        })
     }
 }
 
@@ -935,6 +1008,8 @@ fn fitted_context(
         dimensions: [c.width, c.height],
         plot: crate::ClipRect::plot(c),
         path_options: path_options.cloned(),
+        usa: None,
+        usa_stats: None,
     })
 }
 fn render(

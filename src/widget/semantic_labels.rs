@@ -31,7 +31,11 @@ pub(super) fn relative_to_clip(
     state: &State,
     clipped: bool,
 ) -> Style {
-    if clipped && let Some(clip) = state.scene.with(|scene| rectangular_clip(scene, index)) {
+    if clipped
+        && let Some(clip) = state
+            .paint_scene
+            .with(|scene| rectangular_clip(scene, index))
+    {
         if let Some(Length::Px(left)) = style.left {
             style.left = Some(Length::Px(left - clip.x));
         }
@@ -95,7 +99,12 @@ impl SemanticLabelsState {
                 continue;
             }
             ensure(label.rotation == 0., "ordinary semantic Text cannot rotate")?;
-            let request = profile.request(label, &scene.resolved_label_font(index))?;
+            let request = SemanticTextRequest::for_label_with_whitespace(
+                label,
+                &scene.resolved_label_font(index),
+                &profile,
+                scene.typography.label_whitespace(index),
+            )?;
             input_bytes += request.text.len()
                 + request
                     .font
@@ -204,7 +213,9 @@ pub(super) fn ordinary_container(index: usize, label: &Label, state: &State) -> 
                 .pointer_events(PointerEvents::None)
         }
     } else {
-        let mut style = state.scene.with(|scene| label_container(label, scene));
+        let mut style = state
+            .paint_scene
+            .with(|scene| label_container(label, scene));
         if let Some(placement) = state
             .layout
             .with(|layout| layout.labels.get(&index).copied())
@@ -233,7 +244,9 @@ pub(super) fn ordinary_text_style(index: usize, label: &Label, state: &State) ->
                 .map(|measurement| measurement.request().line_height)
         })
     });
-    let font = state.scene.with(|scene| scene.resolved_label_font(index));
+    let font = state
+        .paint_scene
+        .with(|scene| scene.resolved_label_font(index));
     Style {
         color: Some(label.color),
         font_size: Some(label.size),
@@ -242,8 +255,24 @@ pub(super) fn ordinary_text_style(index: usize, label: &Label, state: &State) ->
         line_height: Some(line_height.unwrap_or(1.)),
         display: line_height.map(|_| Display::Block),
         letter_spacing: line_height.map(|_| 0.),
-        white_space: Some(WhiteSpace::NoWrap),
+        white_space: Some(state.paint_scene.with(|scene| {
+            match scene.typography.label_whitespace(index) {
+                crate::LabelWhitespace::Legacy => WhiteSpace::NoWrap,
+                crate::LabelWhitespace::Preserve => WhiteSpace::Pre,
+            }
+        })),
         shrink: Some(0.),
         ..Style::new()
     }
+}
+
+/// Keep raw source data in Scene; normalize only the displayed single-line run.
+pub(super) fn ordinary_content(index: usize, label: &Label, state: &State) -> String {
+    state.paint_scene.with(|scene| {
+        scene
+            .typography
+            .label_whitespace(index)
+            .normalize(&label.text)
+            .into_owned()
+    })
 }

@@ -1,0 +1,23 @@
+{
+  "commit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "version": "0.99.0",
+  "origin": "https://github.com/plouc/nivo",
+  "scope": "Exact original DotAnnotationOutline and defaultProps; cold numeric Spring/JSX adapter does not claim React or Spring time integration.",
+  "files": {
+    "DotAnnotationOutline.tsx": {
+      "upstream": "packages/annotations/src/DotAnnotationOutline.tsx",
+      "sha256": "75ca2a6d75ec82215de238d81ff72a3c0230bb8b4b7b9256fe3f25019e76aea1",
+      "bytes": 1453
+    },
+    "props.ts": {
+      "upstream": "packages/annotations/src/props.ts",
+      "sha256": "af6a2b4a585a27ea6138255ae5f4473e90e608a8e1a839d6be4b63b1a04e1551",
+      "bytes": 110
+    },
+    "NIVO-LICENSE.md": {
+      "upstream": "packages/annotations/LICENSE.md",
+      "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+      "bytes": 1054
+    }
+  }
+}

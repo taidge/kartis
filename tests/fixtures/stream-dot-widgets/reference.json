@@ -1,0 +1,1397 @@
+{
+  "scope": "Original getDotY and data.map executed unchanged; createElement arguments before React reserved-key handling. No React lifecycle, pixel oracle, or official nullable-prop claim.",
+  "package": "0.99.0",
+  "commit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "originalSources": {
+    "StreamDots.tsx": {
+      "sha256": "4d9e18a61072370cf89aedcc6174b13cb091bf30dec09cc824e86e023698043c",
+      "bytes": 1538
+    },
+    "StreamDotsItem.tsx": {
+      "sha256": "9f33018663ada2897bdfa5d1d8baaa772167465c0c74151b1784556944db2f9d",
+      "bytes": 890
+    },
+    "Stream.tsx": {
+      "sha256": "f9071317b7cca3b8015f36e93ba0b72eaaa414ee96799434748a2ab5ff2f819f",
+      "bytes": 7535
+    },
+    "hooks.ts": {
+      "sha256": "01de6eafa33f80a70fe8262db6c160f0b2e23ffd54a2261e2e69b0334128fa5b",
+      "bytes": 6935
+    },
+    "types.ts": {
+      "sha256": "c81828debb128618f73caac545b9ad9869566b419643540c36895712bfd16236",
+      "bytes": 3927
+    },
+    "props.ts": {
+      "sha256": "29c4dc57d5ad87c944a9ecccdaf0bb1131eaea9a9c2d2e3d9f95d9455c4ad2e7",
+      "bytes": 1463
+    }
+  },
+  "license": {
+    "file": "original/LICENSE.md",
+    "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+    "bytes": 1054
+  },
+  "producer": {
+    "file": "scripts/stream-dot-widget-reference.mjs",
+    "sha256": "e47e54e07db5f34233ddb0abe1bc73eb1c970437dd737c4a942820c83b0ff7da"
+  },
+  "execution": {
+    "node": "v24.3.0",
+    "getDotY": "const getDotY = <RawDatum extends StreamDatum>(\n    datum: StreamLayerDatum,\n    position: StreamDotsProps<RawDatum>['position']\n) => {\n    let y = datum.y2\n    if (position === 'center') {\n        y = datum.y1 + (datum.y2 - datum.y1) / 2\n    } else if (position === 'start') {\n        y = datum.y1\n    }\n\n    return y\n}\n\n",
+    "map": "data.map((datum, i) => {\n            return createElement(dotComponent, {\n                key: i,\n                datum,\n                x: datum.x,\n                y: getDotY<RawDatum>(datum, position),\n                size: getSize(datum),\n                color: getColor(datum),\n                borderWidth: getBorderWidth(datum),\n                borderColor: getBorderColor(datum),\n            })\n        })",
+    "gate": "chartLayers.includes('dots') && enableDots",
+    "defaultCircleSpringInput": "{\n        x,\n        y,\n        radius: size * 0.5,\n        color,\n        config: springConfig,\n        immediate: !animate,\n    }"
+  },
+  "input": [
+    {
+      "layerId": "A",
+      "layerLabel": "alpha",
+      "index": 0,
+      "value": 4,
+      "formattedValue": "four",
+      "color": "#123456",
+      "x": 31,
+      "y1": 153,
+      "y2": 73
+    },
+    {
+      "layerId": "A",
+      "layerLabel": "alpha",
+      "index": 1,
+      "value": 0,
+      "formattedValue": "zero",
+      "color": "#123456",
+      "x": 136,
+      "y1": 93,
+      "y2": 93
+    },
+    {
+      "layerId": "A",
+      "layerLabel": "alpha",
+      "index": 2,
+      "value": -3,
+      "formattedValue": "negative",
+      "color": "#123456",
+      "x": 241,
+      "y1": 53,
+      "y2": 113
+    }
+  ],
+  "cases": [
+    {
+      "position": "start",
+      "size": "zero",
+      "nodes": [
+        {
+          "key": 0,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 0,
+            "value": 4,
+            "formattedValue": "four",
+            "color": "#123456",
+            "x": 31,
+            "y1": 153,
+            "y2": 73
+          },
+          "x": 31,
+          "y": 153,
+          "size": 0,
+          "color": "#123456",
+          "borderWidth": 0,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 1,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 1,
+            "value": 0,
+            "formattedValue": "zero",
+            "color": "#123456",
+            "x": 136,
+            "y1": 93,
+            "y2": 93
+          },
+          "x": 136,
+          "y": 93,
+          "size": 0,
+          "color": "#123456",
+          "borderWidth": 1,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 2,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 2,
+            "value": -3,
+            "formattedValue": "negative",
+            "color": "#123456",
+            "x": 241,
+            "y1": 53,
+            "y2": 113
+          },
+          "x": 241,
+          "y": 53,
+          "size": 0,
+          "color": "#123456",
+          "borderWidth": 2,
+          "borderColor": "#abcdef"
+        }
+      ],
+      "calls": [
+        [
+          "size",
+          0
+        ],
+        [
+          "color",
+          0
+        ],
+        [
+          "borderWidth",
+          0
+        ],
+        [
+          "borderColor",
+          0
+        ],
+        [
+          "createElement",
+          0
+        ],
+        [
+          "size",
+          1
+        ],
+        [
+          "color",
+          1
+        ],
+        [
+          "borderWidth",
+          1
+        ],
+        [
+          "borderColor",
+          1
+        ],
+        [
+          "createElement",
+          1
+        ],
+        [
+          "size",
+          2
+        ],
+        [
+          "color",
+          2
+        ],
+        [
+          "borderWidth",
+          2
+        ],
+        [
+          "borderColor",
+          2
+        ],
+        [
+          "createElement",
+          2
+        ]
+      ]
+    },
+    {
+      "position": "start",
+      "size": "six",
+      "nodes": [
+        {
+          "key": 0,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 0,
+            "value": 4,
+            "formattedValue": "four",
+            "color": "#123456",
+            "x": 31,
+            "y1": 153,
+            "y2": 73
+          },
+          "x": 31,
+          "y": 153,
+          "size": 6,
+          "color": "#123456",
+          "borderWidth": 0,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 1,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 1,
+            "value": 0,
+            "formattedValue": "zero",
+            "color": "#123456",
+            "x": 136,
+            "y1": 93,
+            "y2": 93
+          },
+          "x": 136,
+          "y": 93,
+          "size": 6,
+          "color": "#123456",
+          "borderWidth": 1,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 2,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 2,
+            "value": -3,
+            "formattedValue": "negative",
+            "color": "#123456",
+            "x": 241,
+            "y1": 53,
+            "y2": 113
+          },
+          "x": 241,
+          "y": 53,
+          "size": 6,
+          "color": "#123456",
+          "borderWidth": 2,
+          "borderColor": "#abcdef"
+        }
+      ],
+      "calls": [
+        [
+          "size",
+          0
+        ],
+        [
+          "color",
+          0
+        ],
+        [
+          "borderWidth",
+          0
+        ],
+        [
+          "borderColor",
+          0
+        ],
+        [
+          "createElement",
+          0
+        ],
+        [
+          "size",
+          1
+        ],
+        [
+          "color",
+          1
+        ],
+        [
+          "borderWidth",
+          1
+        ],
+        [
+          "borderColor",
+          1
+        ],
+        [
+          "createElement",
+          1
+        ],
+        [
+          "size",
+          2
+        ],
+        [
+          "color",
+          2
+        ],
+        [
+          "borderWidth",
+          2
+        ],
+        [
+          "borderColor",
+          2
+        ],
+        [
+          "createElement",
+          2
+        ]
+      ]
+    },
+    {
+      "position": "start",
+      "size": "accessor",
+      "nodes": [
+        {
+          "key": 0,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 0,
+            "value": 4,
+            "formattedValue": "four",
+            "color": "#123456",
+            "x": 31,
+            "y1": 153,
+            "y2": 73
+          },
+          "x": 31,
+          "y": 153,
+          "size": 0,
+          "color": "#123456",
+          "borderWidth": 0,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 1,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 1,
+            "value": 0,
+            "formattedValue": "zero",
+            "color": "#123456",
+            "x": 136,
+            "y1": 93,
+            "y2": 93
+          },
+          "x": 136,
+          "y": 93,
+          "size": 2,
+          "color": "#123456",
+          "borderWidth": 1,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 2,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 2,
+            "value": -3,
+            "formattedValue": "negative",
+            "color": "#123456",
+            "x": 241,
+            "y1": 53,
+            "y2": 113
+          },
+          "x": 241,
+          "y": 53,
+          "size": 4,
+          "color": "#123456",
+          "borderWidth": 2,
+          "borderColor": "#abcdef"
+        }
+      ],
+      "calls": [
+        [
+          "size",
+          0
+        ],
+        [
+          "color",
+          0
+        ],
+        [
+          "borderWidth",
+          0
+        ],
+        [
+          "borderColor",
+          0
+        ],
+        [
+          "createElement",
+          0
+        ],
+        [
+          "size",
+          1
+        ],
+        [
+          "color",
+          1
+        ],
+        [
+          "borderWidth",
+          1
+        ],
+        [
+          "borderColor",
+          1
+        ],
+        [
+          "createElement",
+          1
+        ],
+        [
+          "size",
+          2
+        ],
+        [
+          "color",
+          2
+        ],
+        [
+          "borderWidth",
+          2
+        ],
+        [
+          "borderColor",
+          2
+        ],
+        [
+          "createElement",
+          2
+        ]
+      ]
+    },
+    {
+      "position": "center",
+      "size": "zero",
+      "nodes": [
+        {
+          "key": 0,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 0,
+            "value": 4,
+            "formattedValue": "four",
+            "color": "#123456",
+            "x": 31,
+            "y1": 153,
+            "y2": 73
+          },
+          "x": 31,
+          "y": 113,
+          "size": 0,
+          "color": "#123456",
+          "borderWidth": 0,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 1,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 1,
+            "value": 0,
+            "formattedValue": "zero",
+            "color": "#123456",
+            "x": 136,
+            "y1": 93,
+            "y2": 93
+          },
+          "x": 136,
+          "y": 93,
+          "size": 0,
+          "color": "#123456",
+          "borderWidth": 1,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 2,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 2,
+            "value": -3,
+            "formattedValue": "negative",
+            "color": "#123456",
+            "x": 241,
+            "y1": 53,
+            "y2": 113
+          },
+          "x": 241,
+          "y": 83,
+          "size": 0,
+          "color": "#123456",
+          "borderWidth": 2,
+          "borderColor": "#abcdef"
+        }
+      ],
+      "calls": [
+        [
+          "size",
+          0
+        ],
+        [
+          "color",
+          0
+        ],
+        [
+          "borderWidth",
+          0
+        ],
+        [
+          "borderColor",
+          0
+        ],
+        [
+          "createElement",
+          0
+        ],
+        [
+          "size",
+          1
+        ],
+        [
+          "color",
+          1
+        ],
+        [
+          "borderWidth",
+          1
+        ],
+        [
+          "borderColor",
+          1
+        ],
+        [
+          "createElement",
+          1
+        ],
+        [
+          "size",
+          2
+        ],
+        [
+          "color",
+          2
+        ],
+        [
+          "borderWidth",
+          2
+        ],
+        [
+          "borderColor",
+          2
+        ],
+        [
+          "createElement",
+          2
+        ]
+      ]
+    },
+    {
+      "position": "center",
+      "size": "six",
+      "nodes": [
+        {
+          "key": 0,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 0,
+            "value": 4,
+            "formattedValue": "four",
+            "color": "#123456",
+            "x": 31,
+            "y1": 153,
+            "y2": 73
+          },
+          "x": 31,
+          "y": 113,
+          "size": 6,
+          "color": "#123456",
+          "borderWidth": 0,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 1,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 1,
+            "value": 0,
+            "formattedValue": "zero",
+            "color": "#123456",
+            "x": 136,
+            "y1": 93,
+            "y2": 93
+          },
+          "x": 136,
+          "y": 93,
+          "size": 6,
+          "color": "#123456",
+          "borderWidth": 1,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 2,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 2,
+            "value": -3,
+            "formattedValue": "negative",
+            "color": "#123456",
+            "x": 241,
+            "y1": 53,
+            "y2": 113
+          },
+          "x": 241,
+          "y": 83,
+          "size": 6,
+          "color": "#123456",
+          "borderWidth": 2,
+          "borderColor": "#abcdef"
+        }
+      ],
+      "calls": [
+        [
+          "size",
+          0
+        ],
+        [
+          "color",
+          0
+        ],
+        [
+          "borderWidth",
+          0
+        ],
+        [
+          "borderColor",
+          0
+        ],
+        [
+          "createElement",
+          0
+        ],
+        [
+          "size",
+          1
+        ],
+        [
+          "color",
+          1
+        ],
+        [
+          "borderWidth",
+          1
+        ],
+        [
+          "borderColor",
+          1
+        ],
+        [
+          "createElement",
+          1
+        ],
+        [
+          "size",
+          2
+        ],
+        [
+          "color",
+          2
+        ],
+        [
+          "borderWidth",
+          2
+        ],
+        [
+          "borderColor",
+          2
+        ],
+        [
+          "createElement",
+          2
+        ]
+      ]
+    },
+    {
+      "position": "center",
+      "size": "accessor",
+      "nodes": [
+        {
+          "key": 0,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 0,
+            "value": 4,
+            "formattedValue": "four",
+            "color": "#123456",
+            "x": 31,
+            "y1": 153,
+            "y2": 73
+          },
+          "x": 31,
+          "y": 113,
+          "size": 0,
+          "color": "#123456",
+          "borderWidth": 0,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 1,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 1,
+            "value": 0,
+            "formattedValue": "zero",
+            "color": "#123456",
+            "x": 136,
+            "y1": 93,
+            "y2": 93
+          },
+          "x": 136,
+          "y": 93,
+          "size": 2,
+          "color": "#123456",
+          "borderWidth": 1,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 2,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 2,
+            "value": -3,
+            "formattedValue": "negative",
+            "color": "#123456",
+            "x": 241,
+            "y1": 53,
+            "y2": 113
+          },
+          "x": 241,
+          "y": 83,
+          "size": 4,
+          "color": "#123456",
+          "borderWidth": 2,
+          "borderColor": "#abcdef"
+        }
+      ],
+      "calls": [
+        [
+          "size",
+          0
+        ],
+        [
+          "color",
+          0
+        ],
+        [
+          "borderWidth",
+          0
+        ],
+        [
+          "borderColor",
+          0
+        ],
+        [
+          "createElement",
+          0
+        ],
+        [
+          "size",
+          1
+        ],
+        [
+          "color",
+          1
+        ],
+        [
+          "borderWidth",
+          1
+        ],
+        [
+          "borderColor",
+          1
+        ],
+        [
+          "createElement",
+          1
+        ],
+        [
+          "size",
+          2
+        ],
+        [
+          "color",
+          2
+        ],
+        [
+          "borderWidth",
+          2
+        ],
+        [
+          "borderColor",
+          2
+        ],
+        [
+          "createElement",
+          2
+        ]
+      ]
+    },
+    {
+      "position": "end",
+      "size": "zero",
+      "nodes": [
+        {
+          "key": 0,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 0,
+            "value": 4,
+            "formattedValue": "four",
+            "color": "#123456",
+            "x": 31,
+            "y1": 153,
+            "y2": 73
+          },
+          "x": 31,
+          "y": 73,
+          "size": 0,
+          "color": "#123456",
+          "borderWidth": 0,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 1,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 1,
+            "value": 0,
+            "formattedValue": "zero",
+            "color": "#123456",
+            "x": 136,
+            "y1": 93,
+            "y2": 93
+          },
+          "x": 136,
+          "y": 93,
+          "size": 0,
+          "color": "#123456",
+          "borderWidth": 1,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 2,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 2,
+            "value": -3,
+            "formattedValue": "negative",
+            "color": "#123456",
+            "x": 241,
+            "y1": 53,
+            "y2": 113
+          },
+          "x": 241,
+          "y": 113,
+          "size": 0,
+          "color": "#123456",
+          "borderWidth": 2,
+          "borderColor": "#abcdef"
+        }
+      ],
+      "calls": [
+        [
+          "size",
+          0
+        ],
+        [
+          "color",
+          0
+        ],
+        [
+          "borderWidth",
+          0
+        ],
+        [
+          "borderColor",
+          0
+        ],
+        [
+          "createElement",
+          0
+        ],
+        [
+          "size",
+          1
+        ],
+        [
+          "color",
+          1
+        ],
+        [
+          "borderWidth",
+          1
+        ],
+        [
+          "borderColor",
+          1
+        ],
+        [
+          "createElement",
+          1
+        ],
+        [
+          "size",
+          2
+        ],
+        [
+          "color",
+          2
+        ],
+        [
+          "borderWidth",
+          2
+        ],
+        [
+          "borderColor",
+          2
+        ],
+        [
+          "createElement",
+          2
+        ]
+      ]
+    },
+    {
+      "position": "end",
+      "size": "six",
+      "nodes": [
+        {
+          "key": 0,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 0,
+            "value": 4,
+            "formattedValue": "four",
+            "color": "#123456",
+            "x": 31,
+            "y1": 153,
+            "y2": 73
+          },
+          "x": 31,
+          "y": 73,
+          "size": 6,
+          "color": "#123456",
+          "borderWidth": 0,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 1,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 1,
+            "value": 0,
+            "formattedValue": "zero",
+            "color": "#123456",
+            "x": 136,
+            "y1": 93,
+            "y2": 93
+          },
+          "x": 136,
+          "y": 93,
+          "size": 6,
+          "color": "#123456",
+          "borderWidth": 1,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 2,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 2,
+            "value": -3,
+            "formattedValue": "negative",
+            "color": "#123456",
+            "x": 241,
+            "y1": 53,
+            "y2": 113
+          },
+          "x": 241,
+          "y": 113,
+          "size": 6,
+          "color": "#123456",
+          "borderWidth": 2,
+          "borderColor": "#abcdef"
+        }
+      ],
+      "calls": [
+        [
+          "size",
+          0
+        ],
+        [
+          "color",
+          0
+        ],
+        [
+          "borderWidth",
+          0
+        ],
+        [
+          "borderColor",
+          0
+        ],
+        [
+          "createElement",
+          0
+        ],
+        [
+          "size",
+          1
+        ],
+        [
+          "color",
+          1
+        ],
+        [
+          "borderWidth",
+          1
+        ],
+        [
+          "borderColor",
+          1
+        ],
+        [
+          "createElement",
+          1
+        ],
+        [
+          "size",
+          2
+        ],
+        [
+          "color",
+          2
+        ],
+        [
+          "borderWidth",
+          2
+        ],
+        [
+          "borderColor",
+          2
+        ],
+        [
+          "createElement",
+          2
+        ]
+      ]
+    },
+    {
+      "position": "end",
+      "size": "accessor",
+      "nodes": [
+        {
+          "key": 0,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 0,
+            "value": 4,
+            "formattedValue": "four",
+            "color": "#123456",
+            "x": 31,
+            "y1": 153,
+            "y2": 73
+          },
+          "x": 31,
+          "y": 73,
+          "size": 0,
+          "color": "#123456",
+          "borderWidth": 0,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 1,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 1,
+            "value": 0,
+            "formattedValue": "zero",
+            "color": "#123456",
+            "x": 136,
+            "y1": 93,
+            "y2": 93
+          },
+          "x": 136,
+          "y": 93,
+          "size": 2,
+          "color": "#123456",
+          "borderWidth": 1,
+          "borderColor": "#abcdef"
+        },
+        {
+          "key": 2,
+          "datum": {
+            "layerId": "A",
+            "layerLabel": "alpha",
+            "index": 2,
+            "value": -3,
+            "formattedValue": "negative",
+            "color": "#123456",
+            "x": 241,
+            "y1": 53,
+            "y2": 113
+          },
+          "x": 241,
+          "y": 113,
+          "size": 4,
+          "color": "#123456",
+          "borderWidth": 2,
+          "borderColor": "#abcdef"
+        }
+      ],
+      "calls": [
+        [
+          "size",
+          0
+        ],
+        [
+          "color",
+          0
+        ],
+        [
+          "borderWidth",
+          0
+        ],
+        [
+          "borderColor",
+          0
+        ],
+        [
+          "createElement",
+          0
+        ],
+        [
+          "size",
+          1
+        ],
+        [
+          "color",
+          1
+        ],
+        [
+          "borderWidth",
+          1
+        ],
+        [
+          "borderColor",
+          1
+        ],
+        [
+          "createElement",
+          1
+        ],
+        [
+          "size",
+          2
+        ],
+        [
+          "color",
+          2
+        ],
+        [
+          "borderWidth",
+          2
+        ],
+        [
+          "borderColor",
+          2
+        ],
+        [
+          "createElement",
+          2
+        ]
+      ]
+    }
+  ],
+  "gateCases": [
+    {
+      "chartLayers": [],
+      "enableDots": false,
+      "isInteractive": false,
+      "result": false
+    },
+    {
+      "chartLayers": [],
+      "enableDots": false,
+      "isInteractive": true,
+      "result": false
+    },
+    {
+      "chartLayers": [],
+      "enableDots": true,
+      "isInteractive": false,
+      "result": false
+    },
+    {
+      "chartLayers": [],
+      "enableDots": true,
+      "isInteractive": true,
+      "result": false
+    },
+    {
+      "chartLayers": [
+        "dots"
+      ],
+      "enableDots": false,
+      "isInteractive": false,
+      "result": false
+    },
+    {
+      "chartLayers": [
+        "dots"
+      ],
+      "enableDots": false,
+      "isInteractive": true,
+      "result": false
+    },
+    {
+      "chartLayers": [
+        "dots"
+      ],
+      "enableDots": true,
+      "isInteractive": false,
+      "result": true
+    },
+    {
+      "chartLayers": [
+        "dots"
+      ],
+      "enableDots": true,
+      "isInteractive": true,
+      "result": true
+    },
+    {
+      "chartLayers": [
+        "layers",
+        "dots",
+        "slices"
+      ],
+      "enableDots": false,
+      "isInteractive": false,
+      "result": false
+    },
+    {
+      "chartLayers": [
+        "layers",
+        "dots",
+        "slices"
+      ],
+      "enableDots": false,
+      "isInteractive": true,
+      "result": false
+    },
+    {
+      "chartLayers": [
+        "layers",
+        "dots",
+        "slices"
+      ],
+      "enableDots": true,
+      "isInteractive": false,
+      "result": true
+    },
+    {
+      "chartLayers": [
+        "layers",
+        "dots",
+        "slices"
+      ],
+      "enableDots": true,
+      "isInteractive": true,
+      "result": true
+    }
+  ],
+  "defaultCircleInputs": [
+    {
+      "size": 0,
+      "result": {
+        "x": 31,
+        "y": 93,
+        "radius": 0,
+        "color": "#123456",
+        "config": {
+          "mass": 1
+        },
+        "immediate": true
+      }
+    },
+    {
+      "size": 6,
+      "result": {
+        "x": 31,
+        "y": 93,
+        "radius": 3,
+        "color": "#123456",
+        "config": {
+          "mass": 1
+        },
+        "immediate": true
+      }
+    },
+    {
+      "size": 12,
+      "result": {
+        "x": 31,
+        "y": 93,
+        "radius": 6,
+        "color": "#123456",
+        "config": {
+          "mass": 1
+        },
+        "immediate": true
+      }
+    }
+  ],
+  "runtimeNullOutsidePublicType": [
+    {
+      "key": 0,
+      "datum": {
+        "layerId": "A",
+        "layerLabel": "alpha",
+        "index": 1,
+        "value": null,
+        "formattedValue": "zero",
+        "color": "#123456",
+        "x": 136,
+        "y1": 93,
+        "y2": 93
+      },
+      "x": 136,
+      "y": 93,
+      "size": 0,
+      "color": "#123456",
+      "borderWidth": 0,
+      "borderColor": "#abcdef"
+    }
+  ]
+}

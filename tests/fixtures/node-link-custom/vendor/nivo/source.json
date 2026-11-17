@@ -1,0 +1,22 @@
+{
+  "repository": "https://github.com/plouc/nivo",
+  "commit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+  "files": [
+    "network/package.json",
+    "network/src/types.ts",
+    "network/src/defaults.ts",
+    "network/src/hooks.ts",
+    "network/src/renderCanvasLink.ts",
+    "network/src/NetworkLink.tsx",
+    "network/src/NetworkLinks.tsx",
+    "network/src/NetworkCanvas.tsx",
+    "swarmplot/package.json",
+    "swarmplot/src/types.ts",
+    "swarmplot/src/props.ts",
+    "swarmplot/src/compute.ts",
+    "swarmplot/src/hooks.ts",
+    "swarmplot/src/Circles.tsx",
+    "swarmplot/src/CircleSvg.tsx",
+    "swarmplot/src/SwarmPlotCanvas.tsx"
+  ]
+}

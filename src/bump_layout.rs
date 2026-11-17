@@ -1,7 +1,9 @@
 //! Discrete rank lines with the shoulder construction used by Nivo Bump.
+mod widgets;
 use std::collections::{BTreeMap, BTreeSet};
 
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as C, StrokeCap};
+pub use widgets::*;
 
 use crate::cartesian::path;
 use crate::line_scales::category_text;
@@ -316,14 +318,52 @@ impl BumpPointContext<'_> {
         }
     }
 }
-type PointFactory<'a> = dyn FnMut(&BumpPointContext<'_>) -> Result<LinePointGeometry> + 'a;
+/// A point callback borrowed only during layout construction.
+pub type BumpPointFactory<'a> = dyn FnMut(&BumpPointContext<'_>) -> Result<LinePointGeometry> + 'a;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum BumpEndpoint {
+    Start,
+    End,
+}
+
+/// Original series and accepted endpoint geometry for one actual owned label.
+/// Endpoints follow source traversal and the existing shoulder construction,
+/// rather than selecting the geometrically leftmost/rightmost input datum.
+#[derive(Clone, Copy, Debug)]
+pub struct BumpEndpointLabelContext<'a> {
+    pub series: &'a BumpSeries,
+    pub computed: &'a BumpComputedSeries,
+    /// Index in the original source slice, including hidden series.
+    pub series_index: usize,
+    pub endpoint: BumpEndpoint,
+    /// Final label position after the endpoint's configured signed padding.
+    pub position: [f64; 2],
+    /// The original first/last line point, before label padding.
+    pub line_position: [f64; 2],
+    pub default_text: &'a str,
+}
+
+pub type BumpEndpointLabelFactory<'a> =
+    dyn FnMut(&BumpEndpointLabelContext<'_>) -> Result<String> + 'a;
+
+/// Borrowed callbacks; none are retained by the returned layout. Each series
+/// runs its point callbacks in source order, then Start and End label callbacks.
+/// Only actual endpoint labels invoke the label callback. Hidden, disabled or
+/// missing endpoints do not. Errors return no candidate layout; callback-owned
+/// external side effects cannot be rolled back.
+#[derive(Default)]
+pub struct BumpFactories<'a> {
+    pub point: Option<&'a mut BumpPointFactory<'a>>,
+    pub endpoint_label: Option<&'a mut BumpEndpointLabelFactory<'a>>,
+}
 
 pub fn bump_layout(
     c: &ChartConfig,
     data: &[BumpSeries],
     o: &BumpLayoutOptions,
 ) -> Result<BumpLayout> {
-    layout(c, data, o, None)
+    layout(c, data, o, BumpFactories::default())
 }
 pub fn bump_layout_with_point_factory(
     c: &ChartConfig,
@@ -331,14 +371,52 @@ pub fn bump_layout_with_point_factory(
     o: &BumpLayoutOptions,
     mut factory: impl FnMut(&BumpPointContext<'_>) -> Result<LinePointGeometry>,
 ) -> Result<BumpLayout> {
-    layout(c, data, o, Some(&mut factory))
+    layout(
+        c,
+        data,
+        o,
+        BumpFactories {
+            point: Some(&mut factory),
+            endpoint_label: None,
+        },
+    )
+}
+
+/// Format Start and End independently without changing source text, legend,
+/// tooltip data, typography, paint or endpoint ownership. Empty results retain
+/// their owned label slots; text is bounded by the shared Scene byte budget.
+pub fn bump_layout_with_label_factory(
+    c: &ChartConfig,
+    data: &[BumpSeries],
+    o: &BumpLayoutOptions,
+    mut factory: impl FnMut(&BumpEndpointLabelContext<'_>) -> Result<String>,
+) -> Result<BumpLayout> {
+    layout(
+        c,
+        data,
+        o,
+        BumpFactories {
+            point: None,
+            endpoint_label: Some(&mut factory),
+        },
+    )
+}
+
+/// Compose point geometry and endpoint text in the same layout build.
+pub fn bump_layout_with_factories(
+    c: &ChartConfig,
+    data: &[BumpSeries],
+    o: &BumpLayoutOptions,
+    factories: BumpFactories<'_>,
+) -> Result<BumpLayout> {
+    layout(c, data, o, factories)
 }
 
 fn layout(
     c: &ChartConfig,
     data: &[BumpSeries],
     o: &BumpLayoutOptions,
-    mut factory: Option<&mut PointFactory<'_>>,
+    mut factories: BumpFactories<'_>,
 ) -> Result<BumpLayout> {
     let mut scene = c.scene()?;
     validate(data, o)?;
@@ -451,41 +529,41 @@ fn layout(
                     fill: (!is_stroked).then_some(fill),
                     stroke: style.point.border,
                 };
-                let (mut mark, anchor, point_color) = if let Some(factory) = factory.as_deref_mut()
-                {
-                    let prepared = factory(&context)?.prepare_at(
-                        &id,
-                        position,
-                        color,
-                        200_000usize.saturating_sub(commands),
-                    )?;
-                    (prepared.mark, prepared.anchor, prepared.color)
-                } else if let Some(glyph) = &style.point.glyph {
-                    let geometry = glyph_geometry(position, glyph)?;
-                    let mark = glyph_mark(&id, &geometry, context.fill, style.point.border)?;
-                    let anchor = matches!(mark.geometry, Geometry::Path(_))
-                        .then(|| {
-                            InteractionAnchor::path_points(
-                                &mark.geometry,
-                                position,
-                                &geometry.anchor_indices,
-                            )
-                        })
-                        .transpose()?;
-                    (mark, anchor, fill)
-                } else {
-                    let mut mark = Mark::new(
-                        &id,
-                        Geometry::Circle {
-                            x: position[0],
-                            y: position[1],
-                            radius: style.point.size / 2.,
-                        },
-                        fill,
-                    );
-                    mark.stroke = style.point.border;
-                    (mark, None, fill)
-                };
+                let (mut mark, anchor, point_color) =
+                    if let Some(factory) = factories.point.as_deref_mut() {
+                        let prepared = factory(&context)?.prepare_at(
+                            &id,
+                            position,
+                            color,
+                            200_000usize.saturating_sub(commands),
+                        )?;
+                        (prepared.mark, prepared.anchor, prepared.color)
+                    } else if let Some(glyph) = &style.point.glyph {
+                        let geometry = glyph_geometry(position, glyph)?;
+                        let mark = glyph_mark(&id, &geometry, context.fill, style.point.border)?;
+                        let anchor = matches!(mark.geometry, Geometry::Path(_))
+                            .then(|| {
+                                InteractionAnchor::path_points(
+                                    &mark.geometry,
+                                    position,
+                                    &geometry.anchor_indices,
+                                )
+                            })
+                            .transpose()?;
+                        (mark, anchor, fill)
+                    } else {
+                        let mut mark = Mark::new(
+                            &id,
+                            Geometry::Circle {
+                                x: position[0],
+                                y: position[1],
+                                radius: style.point.size / 2.,
+                            },
+                            fill,
+                        );
+                        mark.stroke = style.point.border;
+                        (mark, None, fill)
+                    };
                 if let Geometry::Path(path) = &mark.geometry {
                     commands += path.len();
                 }
@@ -557,7 +635,15 @@ fn layout(
                 }
             }
             scene.marks.extend(points);
-            endpoint_labels(&mut scene, c, &row, style, &o.labels)?;
+            endpoint_labels(
+                &mut scene,
+                c,
+                series,
+                &row,
+                style,
+                &o.labels,
+                &mut factories.endpoint_label,
+            )?;
         }
         if o.legend {
             scene.legend.push(LegendItem {
@@ -681,9 +767,11 @@ fn validate(data: &[BumpSeries], o: &BumpLayoutOptions) -> Result<()> {
 fn endpoint_labels(
     scene: &mut Scene,
     c: &ChartConfig,
+    series: &BumpSeries,
     row: &BumpComputedSeries,
     style: &BumpSeriesStyle,
     options: &BumpEndpointLabels,
+    factory: &mut Option<&mut BumpEndpointLabelFactory<'_>>,
 ) -> Result<()> {
     for (enabled, start) in [(options.start, true), (options.end, false)] {
         if !enabled {
@@ -714,7 +802,7 @@ fn endpoint_labels(
             surface: row.color,
             backdrop: scene.background,
         })?;
-        let label = Label {
+        let mut label = Label {
             x: x + if start { -padding } else { padding },
             y: *y,
             rotation: 0.,
@@ -727,6 +815,25 @@ fn endpoint_labels(
                 TextAnchor::Start
             },
         };
+        if let Some(factory) = factory.as_deref_mut() {
+            label.text = factory(&BumpEndpointLabelContext {
+                series,
+                computed: row,
+                series_index: row.source_index,
+                endpoint: if start {
+                    BumpEndpoint::Start
+                } else {
+                    BumpEndpoint::End
+                },
+                position: [label.x, label.y],
+                line_position: [*x, *y],
+                default_text: &series.label,
+            })?;
+            ensure(
+                label.text.len() <= crate::MAX_LABEL_BYTES,
+                "Bump endpoint label text exceeds byte budget",
+            )?;
+        }
         scene
             .label_series
             .insert(scene.labels.len(), row.source.id.clone());

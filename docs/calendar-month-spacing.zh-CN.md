@@ -198,6 +198,6 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
 
 原版oracle实际执行Nivo0.99的完整 `computeLayout`、数据绑定及月/年图例位置函数，使用真实D3-time与Lodash，并保留原版Sunday-Jan1额外预留周。本库既有布局使用实际占用周列。因此这项功能不承诺逐prop的全局Nivo坐标相等。作者指定高度限格为10px的参考中，八组原始origin直接相等，两组2023多年范围保留独立计算的5px差异（原版54列、占用53列）。原始参考记录完整保留。
 
-年标签header位置及星期标签锚点继续使用本库策略。星期标签留在年panel旁，不逐月重复。月标签按已偏移的实际月份bounds定位，原有旋转和基线政策不变。任意首周日、长方日格、带padding的月份轮廓和显式时区聚合属于Rust扩展，与原版Sunday/正方格兼容子集分别测试。
+默认年标签 header 位置及星期标签锚点继续使用本库策略；开发版另提供[显式年份标签定位](calendar-year-legend.zh-CN.md)，保留既有年面板分配。星期标签留在年panel旁，不逐月重复。月标签按已偏移的实际月份bounds定位，原有旋转和基线政策不变。任意首周日、长方日格、带padding的月份轮廓和显式时区聚合属于Rust扩展，与原版Sunday/正方格兼容子集分别测试。
 
 参考范围和验收详情见[验收记录](verification.md)。

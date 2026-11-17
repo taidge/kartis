@@ -1,5 +1,6 @@
 //! Typed funnel stages using Nivo's band and separator geometry and the shared D3 curves.
 use std::collections::BTreeSet;
+use std::sync::Arc;
 
 use glory::render::{GraphicPoint as P, GraphicStroke, PathCommand as Cmd, StrokeCap};
 
@@ -11,6 +12,15 @@ use crate::{
     Label, LegendItem, Mark, OrdinalColorOptions, OrdinalColorScale, Result, Scene,
     SceneInteraction, TextAnchor, ValueFormat,
 };
+
+mod custom;
+pub use custom::*;
+mod factories;
+pub use factories::*;
+mod widgets;
+pub use widgets::*;
+mod paths;
+pub use paths::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct FunnelDatum {
@@ -203,6 +213,29 @@ impl FunnelLayoutOptions {
     }
 }
 
+/// Validate only constructor-independent Funnel inputs. This deliberately does
+/// not evaluate size/color/style functions, inherited contrast, or the final
+/// geometry. A successful check is not admission of a complete candidate:
+/// application functions may change otherwise unresolvable default paint.
+pub fn funnel_svg_validate_inputs(
+    config: &ChartConfig,
+    source: &[FunnelDatum],
+    options: &FunnelLayoutOptions,
+) -> Result<()> {
+    config.scene()?;
+    options.validate()?;
+    part_keys(source)?;
+    let frame = Frame::new(ClipRect::plot(config), options)?;
+    ensure(
+        source.is_empty() || frame.length - options.spacing * (source.len() - 1) as f64 > 0.,
+        "funnel spacing consumes the flow axis",
+    )?;
+    options
+        .colors
+        .resolve(source.iter().map(|datum| datum.id.clone()))?;
+    Ok(())
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum FunnelSeparatorSide {
     Before,
@@ -240,7 +273,7 @@ pub struct FunnelPart {
     pub profile: [FunnelProfilePoint; 4],
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone)]
 pub struct FunnelLayout {
     pub scene: Scene,
     pub parts: Vec<FunnelPart>,
@@ -251,9 +284,154 @@ pub struct FunnelLayout {
     pub colors: OrdinalColorScale,
     plot: ClipRect,
     interaction: InteractionBinding,
+    computed_styles: Vec<FunnelComputedPartStyle>,
+    motion_capture: Vec<FunnelPartMotionCapture>,
+    capture: Option<Arc<FunnelBuildCapture>>,
+}
+
+/// Constructor style results, including roles whose ink is absent. Current
+/// custom/edited Scene paint is deliberately a separate view.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct FunnelComputedPartStyle {
+    pub color: Color,
+    pub fill_opacity: f64,
+    pub border_width: f64,
+    pub border_color: Color,
+    pub border_opacity: f64,
+    pub label_color: Option<Color>,
+}
+
+/// Provenance of an immutable body geometry descriptor, independent of whether
+/// the current Scene contains a paint slot for that source role.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum FunnelMotionGeometryOrigin {
+    BuiltinProfile,
+    StageFactory,
+    /// The legacy drawable-only factory was not called for this collapsed body.
+    UncalledStageFactory,
+}
+#[derive(Clone, Debug)]
+pub(crate) struct FunnelMotionInk {
+    pub geometry: Geometry,
+    pub fill: Option<Color>,
+    pub fill_paint: Option<FillPaint>,
+    pub opacity: f64,
+    pub stroke: Option<GraphicStroke>,
+}
+#[derive(Clone, Debug)]
+pub(crate) struct FunnelPartMotionCapture {
+    pub body: Option<FunnelMotionInk>,
+    pub border: FunnelMotionInk,
+    pub origin: FunnelMotionGeometryOrigin,
+}
+
+#[derive(Clone)]
+struct FunnelBuildCapture {
+    config: ChartConfig,
+    source: Vec<FunnelDatum>,
+    options: FunnelLayoutOptions,
+    parts: Vec<FunnelPart>,
+    separators: Vec<FunnelSeparator>,
+    value_domain: [f64; 2],
+    size_range: [f64; 2],
+    bandwidth: f64,
+    colors: OrdinalColorScale,
+}
+
+// Keep the established public layout equality/debug surface. New authoritative
+// SVG frames use their own capture identity and read the complete style cache.
+impl PartialEq for FunnelLayout {
+    fn eq(&self, other: &Self) -> bool {
+        self.scene == other.scene
+            && self.parts == other.parts
+            && self.separators == other.separators
+            && self.value_domain == other.value_domain
+            && self.size_range == other.size_range
+            && self.bandwidth == other.bandwidth
+            && self.colors == other.colors
+            && self.plot == other.plot
+            && self.interaction == other.interaction
+    }
+}
+impl std::fmt::Debug for FunnelLayout {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("FunnelLayout")
+            .field("scene", &self.scene)
+            .field("parts", &self.parts)
+            .field("separators", &self.separators)
+            .field("value_domain", &self.value_domain)
+            .field("size_range", &self.size_range)
+            .field("bandwidth", &self.bandwidth)
+            .field("colors", &self.colors)
+            .field("plot", &self.plot)
+            .field("interaction", &self.interaction)
+            .finish()
+    }
 }
 
 impl FunnelLayout {
+    pub(crate) fn motion_capture(&self, index: usize) -> Result<&FunnelPartMotionCapture> {
+        self.motion_capture
+            .get(index)
+            .ok_or_else(|| ChartError("Funnel motion source capture is missing".into()))
+    }
+    pub(crate) fn all_stage_factory(
+        &self,
+        factory: &mut impl FnMut(&FunnelStageContext<'_>) -> Result<FunnelStageGeometry>,
+    ) -> Result<Self> {
+        let (config, source, options) = self.svg_source()?;
+        custom::customize_all_stages(&config, &source, &options, self.clone(), factory)
+    }
+    pub fn computed_part_styles(&self) -> &[FunnelComputedPartStyle] {
+        &self.computed_styles
+    }
+
+    fn refresh_svg_capture(&mut self) {
+        if let Some(capture) = &mut self.capture {
+            let capture = Arc::make_mut(capture);
+            capture.parts.clone_from(&self.parts);
+            capture.separators.clone_from(&self.separators);
+        }
+    }
+
+    pub(crate) fn svg_source(
+        &self,
+    ) -> Result<(ChartConfig, Vec<FunnelDatum>, FunnelLayoutOptions)> {
+        let capture = self
+            .capture
+            .as_ref()
+            .ok_or_else(|| ChartError("Funnel SVG requires constructor provenance".into()))?;
+        let datum_equal = |a: &FunnelDatum, b: &FunnelDatum| {
+            a == b
+                && crate::widget_source_eq::category(&a.id, &b.id)
+                && crate::widget_source_eq::number(a.value, b.value)
+                && crate::widget_source_eq::optional(a.size, b.size)
+                && crate::widget_source_eq::paint(a.paint.as_ref(), b.paint.as_ref())
+        };
+        ensure(
+            self.parts.len() == capture.parts.len()
+                && self
+                    .parts
+                    .iter()
+                    .zip(&capture.parts)
+                    .all(|(a, b)| a == b && datum_equal(&a.datum, &b.datum))
+                && self.separators == capture.separators
+                && self.value_domain == capture.value_domain
+                && self.size_range == capture.size_range
+                && self.bandwidth == capture.bandwidth
+                && self.colors == capture.colors
+                && self.plot == ClipRect::plot(&capture.config)
+                && self.scene.width == capture.config.width
+                && self.scene.height == capture.config.height
+                && self.computed_styles.len() == capture.source.len(),
+            "Funnel SVG constructor metadata changed",
+        )?;
+        Ok((
+            capture.config.clone(),
+            capture.source.clone(),
+            capture.options.clone(),
+        ))
+    }
     pub fn plot(&self) -> ClipRect {
         self.plot
     }
@@ -448,11 +626,12 @@ fn append_separators(
 
 /// Use an application-supplied cross-axis pixel width. The default scaled
 /// value and the space remaining between the separator reserves are supplied.
-pub fn funnel_layout_with_size(
+fn build_with_factories(
     c: &ChartConfig,
     data: &[FunnelDatum],
     o: &FunnelLayoutOptions,
     mut size: impl FnMut(FunnelSizeContext<'_>) -> Result<f64>,
+    factories: &mut FunnelFactories<'_>,
 ) -> Result<FunnelLayout> {
     let scene = c.scene()?;
     o.validate()?;
@@ -496,6 +675,9 @@ pub fn funnel_layout_with_size(
         value_domain: [0., max],
         size_range: [0., frame.available],
         interaction: InteractionBinding::default(),
+        computed_styles: Vec::with_capacity(data.len()),
+        motion_capture: Vec::with_capacity(data.len()),
+        capture: None,
     };
     append_separators(c, o, &frame, data, &keys, &sizes, &mut layout);
 
@@ -506,11 +688,27 @@ pub fn funnel_layout_with_size(
         let series = format!("funnel:{key}");
         let mark_id = format!("funnel:stage:{key}");
         let mapped_color = layout.colors.map_or_insert(datum.id.clone())?;
-        let color = datum
+        let default_color = datum
             .color
             .or(mapped_color)
             .ok_or_else(|| ChartError("missing funnel stage color".into()))?;
-        let formatted_value = o.value_format.format(datum.value)?;
+        let color = match &mut factories.color {
+            Some(factory) => factory(&FunnelColorContext {
+                datum,
+                source_index: i,
+                default_color,
+                plot: frame.plot,
+            })?,
+            None => default_color,
+        };
+        let formatted_value = match &mut factories.formatted_value {
+            Some(format) => format(datum.value)?,
+            None => o.value_format.format(datum.value)?,
+        };
+        ensure(
+            formatted_value.len() <= MAX_LABEL_BYTES,
+            "Funnel formatted value exceeds label budget",
+        )?;
         let label = if datum.label.is_empty() {
             key_label(&datum.id)
         } else {
@@ -557,12 +755,24 @@ pub fn funnel_layout_with_size(
             is_current,
             profile,
         };
-        append_part(c, o, curve, part, label, key, &mut layout)?;
+        append_part(c, o, curve, part, label, key, &mut layout, factories)?;
     }
     layout.interaction.validate(&layout.scene)?;
+    layout.capture = Some(Arc::new(FunnelBuildCapture {
+        config: c.clone(),
+        source: data.to_vec(),
+        options: o.clone(),
+        parts: layout.parts.clone(),
+        separators: layout.separators.clone(),
+        value_domain: layout.value_domain,
+        size_range: layout.size_range,
+        bandwidth: layout.bandwidth,
+        colors: layout.colors.clone(),
+    }));
     Ok(layout)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn append_part(
     c: &ChartConfig,
     o: &FunnelLayoutOptions,
@@ -571,35 +781,70 @@ fn append_part(
     label: String,
     key: &str,
     layout: &mut FunnelLayout,
+    factories: &mut FunnelFactories<'_>,
 ) -> Result<()> {
+    let colors = factories.colors(c, o, &part)?;
     let border_width = if part.is_current {
         o.current_border_width.unwrap_or(o.border_width)
     } else {
         o.border_width
     };
+    layout.computed_styles.push(FunnelComputedPartStyle {
+        color: part.color,
+        fill_opacity: o.fill_opacity,
+        border_width,
+        border_color: colors.border,
+        border_opacity: o.border_opacity,
+        label_color: colors.computed_label,
+    });
     let low = part.profile.map(|point| graphic_point(point.before));
     let high = part.profile.map(|point| graphic_point(point.after));
-    let context = InheritedColorContext {
-        inherited: part.color,
-        theme: c.theme.text,
-        surface: part.color,
-        backdrop: c.theme.background,
-    };
     let mut low_reverse = low;
     low_reverse.reverse();
-    if border_width > 0. && o.border_opacity > 0. {
-        let color = o.border_color.resolve_validated(context)?;
-        let mut high_reverse = high;
-        high_reverse.reverse();
-        let border = path(&low, curve)
+    let mut high_reverse = high;
+    high_reverse.reverse();
+    let border_geometry = Geometry::Path(
+        path(&low, curve)
             .into_iter()
             .chain(path(&high_reverse, curve))
-            .collect();
-        let mut mark = Mark::new(
-            format!("funnel:border:{key}"),
-            Geometry::Path(border),
-            color,
-        );
+            .collect(),
+    );
+    let mut area = path(&high, curve);
+    let side_len = area.len();
+    area.extend(
+        path(&low_reverse, curve)
+            .into_iter()
+            .map(|command| match command {
+                Cmd::Move(point) => Cmd::Line(point),
+                command => command,
+            }),
+    );
+    area.push(Cmd::Close);
+    let body_geometry = Geometry::Path(area);
+    layout.motion_capture.push(FunnelPartMotionCapture {
+        body: Some(FunnelMotionInk {
+            geometry: body_geometry.clone(),
+            fill: Some(part.color),
+            fill_paint: part.datum.paint.clone(),
+            opacity: o.fill_opacity,
+            stroke: None,
+        }),
+        border: FunnelMotionInk {
+            geometry: border_geometry.clone(),
+            fill: None,
+            fill_paint: None,
+            opacity: o.border_opacity,
+            stroke: Some(GraphicStroke {
+                color: colors.border,
+                width: border_width,
+                cap: StrokeCap::Butt,
+            }),
+        },
+        origin: FunnelMotionGeometryOrigin::BuiltinProfile,
+    });
+    if border_width > 0. && o.border_opacity > 0. {
+        let color = colors.border;
+        let mut mark = Mark::new(format!("funnel:border:{key}"), border_geometry, color);
         mark.fill = None;
         mark.label.clear();
         mark.series = part.series.clone();
@@ -613,18 +858,7 @@ fn append_part(
     }
 
     if low != high {
-        let mut area = path(&high, curve);
-        let side_len = area.len();
-        area.extend(
-            path(&low_reverse, curve)
-                .into_iter()
-                .map(|command| match command {
-                    Cmd::Move(point) => Cmd::Line(point),
-                    command => command,
-                }),
-        );
-        area.push(Cmd::Close);
-        let mut mark = Mark::new(&part.mark_id, Geometry::Path(area), part.color);
+        let mut mark = Mark::new(&part.mark_id, body_geometry, part.color);
         mark.series = part.series.clone();
         mark.label = label.clone();
         mark.value = part.datum.value;
@@ -662,10 +896,9 @@ fn append_part(
             y: part.center[1] + size * 0.35,
             text,
             size,
-            color: labels.color.resolve_validated(InheritedColorContext {
-                theme: c.theme.background,
-                ..context
-            })?,
+            color: colors
+                .label
+                .expect("enabled Funnel labels have resolved paint"),
             anchor: TextAnchor::Middle,
             rotation: 0.,
         });

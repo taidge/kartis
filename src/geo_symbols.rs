@@ -231,6 +231,8 @@ pub struct GeoSymbolOptions {
     /// Fill-only symbols retain the bounded geometric intersection profile.
     /// Conic families instead use their checked finite world footprint, masking
     /// the full original ink without a fake circular horizon or cut-edge stroke.
+    /// Albers USA uses the selected component's exact pixel rectangle, masking
+    /// full ink without joining the overlapping component windows.
     /// Other unsupported projections reject this option. Disk radii must be
     /// 0.01..=1,000,000 logical pixels and centers
     /// within Scene's coordinate bounds. Circular boundaries use small cubic
@@ -238,7 +240,8 @@ pub struct GeoSymbolOptions {
     /// Size/color legends remain complete. Text clipping is independently opt-in.
     pub clip_to_projection: bool,
     /// Mask only newly appended location labels to the projection disk. This
-    /// supports the same azimuthal disk or conic finite footprint. Legend labels
+    /// supports the same azimuthal disk, conic finite footprint or selected
+    /// Albers USA component rectangle. Legend labels
     /// remain complete.
     pub clip_labels_to_projection: bool,
     pub size_legend: Option<GeoSizeLegend>,
@@ -566,13 +569,15 @@ impl GeoProjectionContext {
         )?;
         // Conic finite footprints are not azimuthal disks. Preserve the old
         // disk intersection/masking profile below; conics always mask full ink.
-        let conic = matches!(
-            self.view.projection,
-            super::GeoProjection::ConicEqualArea(_)
-                | super::GeoProjection::ConicEquidistant(_)
-                | super::GeoProjection::ConicConformal(_)
-                | super::GeoProjection::Albers
-        );
+        let usa = self.usa_projection();
+        let conic = usa.is_none()
+            && matches!(
+                self.view.projection,
+                super::GeoProjection::ConicEqualArea(_)
+                    | super::GeoProjection::ConicEquidistant(_)
+                    | super::GeoProjection::ConicConformal(_)
+                    | super::GeoProjection::Albers
+            );
         let conic_mask = if conic && (o.clip_to_projection || o.clip_labels_to_projection) {
             self.projection_clip_path(0.25, 4096)?
                 .ok_or_else(|| crate::ChartError("missing finite conic footprint".into()))
@@ -583,7 +588,9 @@ impl GeoProjectionContext {
         // Reserve existing Scene clip work before cloning each real conic mask.
         // Do not multiply the input count: missing/hidden/culled rows can skip ink.
         let mut conic_usage = (0usize, 0usize, 0usize);
-        if conic_mask.is_some() {
+        if conic_mask.is_some()
+            || usa.is_some() && (o.clip_to_projection || o.clip_labels_to_projection)
+        {
             for clip in scene
                 .label_clips
                 .values()
@@ -609,17 +616,18 @@ impl GeoProjectionContext {
             conic_usage = next;
             Ok(())
         };
-        let disk = if (o.clip_to_projection || o.clip_labels_to_projection) && !conic {
-            let disk = self.projection_disk().ok_or_else(|| {
-                crate::ChartError(
-                    "projection-clipped symbols require an azimuthal projection".into(),
-                )
-            })?;
-            disk_clip::validate(disk)?;
-            Some(disk)
-        } else {
-            None
-        };
+        let disk =
+            if (o.clip_to_projection || o.clip_labels_to_projection) && !conic && usa.is_none() {
+                let disk = self.projection_disk().ok_or_else(|| {
+                    crate::ChartError(
+                        "projection-clipped symbols require an azimuthal projection".into(),
+                    )
+                })?;
+                disk_clip::validate(disk)?;
+                Some(disk)
+            } else {
+                None
+            };
         ensure(
             o.radius_range.iter().copied().all(radius_valid)
                 && o.radius_range[0] <= o.radius_range[1]
@@ -790,7 +798,25 @@ impl GeoProjectionContext {
                 )?;
                 continue;
             }
-            let Some([x, y]) = self.project(symbol.position)? else {
+            let (position, region_clip) = if let Some(usa) = usa {
+                let Some(projected) = usa.project(symbol.position)? else {
+                    continue;
+                };
+                let rect = usa.region_clip(projected.region);
+                (Some(projected.position), Some(rect))
+            } else {
+                (self.project(symbol.position)?, None)
+            };
+            let region_mask = region_clip.map(|rect| crate::ClipPath {
+                geometry: Geometry::Rect {
+                    x: rect.x,
+                    y: rect.y,
+                    width: rect.width,
+                    height: rect.height,
+                },
+                rule: crate::ClipRule::NonZero,
+            });
+            let Some([x, y]) = position else {
                 continue;
             };
             let extent = extent(o, glyph, r)?;
@@ -845,6 +871,22 @@ impl GeoProjectionContext {
                 mark.stroke = o.stroke;
             }
             mark.clip = o.clip.then_some(self.plot);
+            if o.clip_to_projection
+                && let Some(region) = region_clip
+            {
+                mark.clip = Some(if let Some(plot) = mark.clip {
+                    let x = region.x.max(plot.x);
+                    let y = region.y.max(plot.y);
+                    crate::ClipRect {
+                        x,
+                        y,
+                        width: ((region.x + region.width).min(plot.x + plot.width) - x).max(0.),
+                        height: ((region.y + region.height).min(plot.y + plot.height) - y).max(0.),
+                    }
+                } else {
+                    region
+                });
+            }
             if let Some(disk) =
                 disk.filter(|_| o.clip_to_projection && (o.stroke.is_some() || glyph.is_some()))
             {
@@ -876,7 +918,7 @@ impl GeoProjectionContext {
             push_mark(&mut next, mark, custom);
             if o.labels {
                 if o.clip_labels_to_projection
-                    && let Some(mask) = &conic_mask
+                    && let Some(mask) = region_mask.as_ref().or(conic_mask.as_ref())
                 {
                     reserve_conic(mask)?;
                     next.label_clips.insert(next.labels.len(), mask.clone());

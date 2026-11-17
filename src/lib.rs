@@ -31,11 +31,21 @@ pub mod geo;
 pub use geo::*;
 pub mod layers;
 pub use layers::*;
+pub mod waffle_data;
+pub use waffle_data::*;
+pub mod waffle_svg;
+pub use waffle_svg::*;
+pub mod widget_paint_plan;
+pub use widget_paint_plan::*;
+pub mod scene_widgets;
+pub use scene_widgets::*;
 pub mod category_viewport;
 pub mod clock;
 pub mod format;
 pub mod surface;
 pub mod viewport;
+#[cfg(any(test, all(feature = "web", target_arch = "wasm32")))]
+mod widget_hit_mask;
 pub use category_viewport::*;
 pub use viewport::*;
 pub mod blend;
@@ -103,6 +113,14 @@ pub mod chord_layout;
 pub use chord_layout::*;
 pub mod funnel_layout;
 pub use funnel_layout::*;
+pub mod funnel_data;
+pub use funnel_data::*;
+pub mod funnel_annotations;
+pub use funnel_annotations::*;
+pub mod funnel_svg;
+pub use funnel_svg::*;
+pub mod funnel_motion;
+pub use funnel_motion::*;
 pub mod calendar_layout;
 pub use calendar_layout::*;
 pub mod area_bump;
@@ -111,6 +129,20 @@ pub mod bump_layout;
 pub use bump_layout::*;
 pub mod marimekko_layout;
 pub use marimekko_layout::*;
+pub mod tree_canvas;
+pub use tree_canvas::*;
+pub mod tree_events;
+pub use tree_events::*;
+pub mod tree_motion;
+pub use tree_motion::*;
+pub mod tree_motion_paint;
+pub use tree_motion_paint::*;
+pub mod tree_tooltip;
+pub use tree_tooltip::*;
+pub mod tree_link_tooltip;
+pub use tree_link_tooltip::*;
+pub mod tree_svg;
+pub use tree_svg::*;
 pub mod hierarchy_layout;
 pub use hierarchy_layout::*;
 pub mod hierarchy_focus;
@@ -128,6 +160,8 @@ pub use sunburst_layout::*;
 pub mod waffle_layout;
 pub use waffle_layout::*;
 pub mod scene;
+pub mod text_wrap;
+pub use text_wrap::*;
 pub mod specialized;
 pub use sankey_styles::*;
 pub mod line_styles;
@@ -150,6 +184,7 @@ pub use datetime::*;
 #[cfg(feature = "raster")]
 pub mod raster_surface;
 pub mod widget;
+mod widget_source_eq;
 pub use axes::*;
 #[cfg(feature = "raster")]
 pub use raster_surface::*;
@@ -165,6 +200,7 @@ pub use specialized::*;
 pub use surface::{SurfaceFrameToken, SurfacePhysicalHit};
 pub use time::{MAX_TIMESTAMP_MS, TimeTick, UtcTimeScale, format_utc};
 pub use widget::{
-    Chart, MAX_PLOT_WIDGET_SLOTS, PlotWidgetContext, PlotWidgetFrame, PlotWidgetPlacement,
-    PlotWidgetSlot, PlotWidgetsLayout, chart, chart_layout,
+    Chart, MAX_PLOT_WIDGET_SLOTS, PlotWidgetCompositionContext, PlotWidgetContext, PlotWidgetFrame,
+    PlotWidgetPlacement, PlotWidgetSlot, PlotWidgetsComposition, PlotWidgetsData,
+    PlotWidgetsLayout, TypedPlotWidgetContext, TypedPlotWidgetFrame, chart, chart_layout,
 };

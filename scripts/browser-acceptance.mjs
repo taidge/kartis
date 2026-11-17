@@ -85,9 +85,9 @@ try {
     const verify = (0, eval)(await readFile(new URL('./flow-layouts-browser-acceptance.js', import.meta.url), 'utf8'));
     report.flowLayouts = await runSuite('flowLayouts', () => verify(page));
     const typography = (0, eval)(await readFile(new URL('./typography-browser-acceptance.js', import.meta.url), 'utf8'));
-    report.typography = await runSuite('typography', () => typography(page));
+    report.typography = await runSuite('typography', () => typography(page, url));
     const textBaseline = (0, eval)(await readFile(new URL('./text-baseline-browser-acceptance.js', import.meta.url), 'utf8'));
-    report.textBaseline = await runSuite('textBaseline', () => textBaseline(page));
+    report.textBaseline = await runSuite('textBaseline', () => textBaseline(page, url));
     const editableBrush = (0, eval)(await readFile(new URL('./editable-brush-browser-acceptance.js', import.meta.url), 'utf8'));
     report.editableBrush = await runSuite('editableBrush', () => editableBrush(page));
     for (const [suite,file] of [['nonlinearColors','nonlinear-colors-browser-acceptance.js'],['geoInverse','geo-inverse-browser-acceptance.js'],['piecewiseScales','piecewise-scales-browser-acceptance.js'],['contourDensity','contour-density-browser-acceptance.js'],['sequentialQuantile','sequential-quantile-browser-acceptance.js'],['svgTransactions','svg-transactions-browser-acceptance.js'],['geoConic','geo-conic-browser-acceptance.js']]) {

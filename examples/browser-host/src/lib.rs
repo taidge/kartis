@@ -1,13 +1,23 @@
 //! Two real application-owned BrowserChart surfaces with independent lifetimes.
+#[cfg(target_arch = "wasm32")]
+#[path = "../../shared/bullet_widgets.rs"]
+pub(crate) mod bullet_widget_model;
 #[path = "../../shared/geo_conic.rs"]
 pub mod conic_model;
+#[cfg(target_arch = "wasm32")]
+#[path = "../../shared/network_widgets.rs"]
+pub(crate) mod network_widget_model;
 #[cfg(target_arch = "wasm32")]
 mod browser {
     mod area_bump;
     mod area_bump_labels;
     mod bar_styles;
+    mod bar_widgets;
     mod blend_motion;
     mod blends;
+    mod bullet_composition;
+    mod bullet_widgets;
+    mod bump_widgets;
     mod calendar_layout;
     mod clips;
     mod colors;
@@ -18,12 +28,22 @@ mod browser {
     mod density;
     mod editable_brush;
     mod flow_layouts;
+    mod funnel_annotations;
+    mod funnel_data;
+    mod funnel_interactions;
+    mod funnel_motion;
+    mod funnel_svg_layers;
+    mod funnel_widgets;
     mod geo_glyphs;
     mod geo_inverse;
     mod geo_stream;
+    mod geo_usa;
+    mod geo_usa_lines;
     mod glyphs;
     mod heatmap;
+    mod heatmap_widgets;
     mod hierarchy_focus;
+    mod hierarchy_widgets;
     mod layout_models;
     mod line_crosshair;
     mod line_custom_points;
@@ -31,11 +51,16 @@ mod browser {
     mod navigation;
     mod network_drag;
     mod network_glyphs;
+    mod network_link_custom;
+    mod network_link_widgets;
+    mod network_widgets;
     mod nonlinear_colors;
+    mod ordered_widgets;
     mod paints;
     mod parallel;
     mod pie;
     mod pie_layout;
+    mod piecewise_repeated_probe;
     mod piecewise_scales;
     mod plot_widgets;
     mod radar;
@@ -46,17 +71,40 @@ mod browser {
     mod sankey_styles;
     mod scale_profiles;
     mod scatter;
+    mod scatter_widgets;
+    mod scene_label_affine;
     mod sequential_quantile;
     mod stacked_radial;
     mod statistics;
+    mod stream_functions;
+    mod stream_widgets;
     mod styled_line;
     mod styles_extended;
     mod svg_isolation;
     mod svg_transaction_probe;
     mod swarm;
+    mod swarm_custom;
+    mod swarm_widgets;
     mod text_baseline;
     mod tree;
+    mod tree_activity;
+    mod tree_canvas_native;
+    mod tree_canvas_owner;
+    mod tree_canvas_widgets;
+    mod tree_events;
+    mod tree_functions;
+    mod tree_labels;
+    mod tree_link_tooltip;
+    mod tree_motion;
+    mod tree_svg_layers;
+    mod tree_tooltip;
+    mod tree_widgets;
     mod typography;
+    mod waffle_functions;
+    mod waffle_regions;
+    mod waffle_svg_layers;
+    mod waffle_widgets;
+    mod widget_raw_bits;
     use std::cell::{Cell, RefCell};
     use std::collections::BTreeMap;
     use std::rc::Rc;

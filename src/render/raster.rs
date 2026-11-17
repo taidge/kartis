@@ -12,6 +12,7 @@ mod font_selection;
 mod text_runs;
 mod vertical;
 mod vertical_data;
+mod wrapping;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -1023,6 +1024,24 @@ impl RasterCanvas {
         stroke: Option<GraphicStroke>,
         fill_paint: Option<&crate::FillPaint>,
     ) -> Result<()> {
+        self.paint_with_join(
+            path,
+            color,
+            opacity,
+            stroke,
+            fill_paint,
+            tiny_skia::LineJoin::Miter,
+        )
+    }
+    fn paint_with_join(
+        &mut self,
+        path: &Path,
+        color: Color,
+        opacity: f64,
+        stroke: Option<GraphicStroke>,
+        fill_paint: Option<&crate::FillPaint>,
+        line_join: tiny_skia::LineJoin,
+    ) -> Result<()> {
         ensure(
             opacity.is_finite() && (0. ..=1.).contains(&opacity),
             "invalid raster paint opacity",
@@ -1222,6 +1241,7 @@ impl RasterCanvas {
         if let Some(s) = stroke {
             let stroke = Stroke {
                 width: width as f32,
+                line_join,
                 line_cap: match s.cap {
                     StrokeCap::Butt => tiny_skia::LineCap::Butt,
                     StrokeCap::Round => tiny_skia::LineCap::Round,
@@ -1235,7 +1255,7 @@ impl RasterCanvas {
         }
         Ok(())
     }
-    fn text_inner(&mut self, label: &Label) -> Result<()> {
+    fn text_inner(&mut self, label: &Label, stroke: Option<crate::LabelStroke>) -> Result<()> {
         let cost = label.text.len() * 16 + 1;
         let cost = if self.fonts.writing_mode == RasterWritingMode::Vertical
             && self.fonts.vertical_layout.orientation == RasterGlyphOrientation::Mixed
@@ -1255,7 +1275,9 @@ impl RasterCanvas {
             cost
         };
         self.charge(cost)?;
-        if self.fonts.color_glyphs != ColorGlyphMode::Reject {
+        if self.fonts.color_glyphs != ColorGlyphMode::Reject
+            && stroke.is_none_or(|stroke| stroke.width == 0. || stroke.color.3 == 0)
+        {
             let painted = self
                 .fonts
                 .painted_label(label, self.options.missing_glyph)?;
@@ -1265,6 +1287,7 @@ impl RasterCanvas {
             .fonts
             .shape(&label.text, label.size, self.options.missing_glyph)?;
         let transform = LabelTransform::new(label, self.fonts.writing_mode, text.advance);
+        let mut stroked_paths = Vec::new();
         for glyph in text.glyphs {
             let font = &self.fonts.fonts[glyph.font];
             let face = ttf_parser::Face::parse(&font.bytes, font.index).unwrap();
@@ -1318,7 +1341,32 @@ impl RasterCanvas {
                 }
             }
             if let Some(path) = path.finish() {
-                self.paint(&path, label.color, 1., None, None)?;
+                if stroke.is_some() {
+                    stroked_paths.push(path);
+                } else {
+                    self.paint(&path, label.color, 1., None, None)?;
+                }
+            }
+        }
+        if let Some(stroke) = stroke {
+            for path in &stroked_paths {
+                self.paint(path, label.color, 1., None, None)?;
+            }
+            if stroke.width > 0. && stroke.color.3 > 0 {
+                for path in &stroked_paths {
+                    self.paint_with_join(
+                        path,
+                        stroke.color,
+                        1.,
+                        Some(GraphicStroke {
+                            color: stroke.color,
+                            width: stroke.width,
+                            cap: StrokeCap::Butt,
+                        }),
+                        None,
+                        tiny_skia::LineJoin::Round,
+                    )?;
+                }
             }
         }
         Ok(())
@@ -1788,8 +1836,11 @@ impl Canvas for RasterCanvas {
         self.pop_kind(ClipKind::Path)
     }
     fn text(&mut self, label: &Label) -> Result<()> {
-        let r = self.text_inner(label);
+        let r = self.text_inner(label, None);
         self.fail(r)
+    }
+    fn supports_text_whitespace(&self) -> bool {
+        true
     }
     fn supports_text_fonts(&self) -> bool {
         true
@@ -1799,11 +1850,36 @@ impl Canvas for RasterCanvas {
         let result = match selected {
             Ok(selected) => {
                 let original = std::mem::replace(&mut self.fonts, selected);
-                let result = self.text_inner(label);
+                let result = self.text_inner(label, None);
                 self.fonts = original;
                 result
             }
             Err(error) => Err(error),
+        };
+        self.fail(result)
+    }
+    fn supports_text_stroke(&self) -> bool {
+        true
+    }
+    fn text_with_stroke(
+        &mut self,
+        label: &Label,
+        font: &crate::ResolvedFont,
+        explicit_font: bool,
+        stroke: crate::LabelStroke,
+    ) -> Result<()> {
+        let result = if explicit_font {
+            match self.fonts.for_font(font) {
+                Ok(selected) => {
+                    let original = std::mem::replace(&mut self.fonts, selected);
+                    let result = self.text_inner(label, Some(stroke));
+                    self.fonts = original;
+                    result
+                }
+                Err(error) => Err(error),
+            }
+        } else {
+            self.text_inner(label, Some(stroke))
         };
         self.fail(result)
     }

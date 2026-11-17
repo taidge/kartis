@@ -772,6 +772,95 @@ impl Scene {
             m.opacity > 0. && groups.get(&m.id).is_none_or(|o| *o > 0.) && contains(m, x, y)
         })
     }
+    /// Remove only the selected physical mark ink from a private host paint
+    /// projection. Labels, typography, legends and authored metadata remain
+    /// unchanged in the source Scene.
+    pub(crate) fn without_mark_ink(&self, ids: &std::collections::BTreeSet<String>) -> Self {
+        if ids.is_empty() {
+            return self.clone();
+        }
+        let mut scene = self.clone();
+        let mut indices = std::collections::BTreeMap::new();
+        scene.marks.clear();
+        for (index, mark) in self.marks.iter().enumerate() {
+            if !ids.contains(&mark.id) {
+                indices.insert(index, scene.marks.len());
+                scene.marks.push(mark.clone());
+            }
+        }
+        scene.draw_order = self
+            .draw_order
+            .iter()
+            .filter_map(|item| match item {
+                DrawItem::Mark(index) => indices.get(index).copied().map(DrawItem::Mark),
+                DrawItem::Label(index) => Some(DrawItem::Label(*index)),
+            })
+            .collect();
+        scene.opacity_groups = self
+            .opacity_groups
+            .iter()
+            .filter_map(|group| {
+                let members: Vec<_> = group
+                    .members
+                    .iter()
+                    .filter(|id| !ids.contains(*id))
+                    .cloned()
+                    .collect();
+                (!members.is_empty()).then(|| MarkOpacityGroup {
+                    members,
+                    ..group.clone()
+                })
+            })
+            .collect();
+        scene
+    }
+    /// Private paint projection for accepted Label components. Every sparse
+    /// label index, including typography and authored draw order, is remapped.
+    pub(crate) fn without_label_ink(&self, indices: &std::collections::BTreeSet<usize>) -> Self {
+        if indices.is_empty() {
+            return self.clone();
+        }
+        let mut scene = self.clone();
+        let mut remap = std::collections::BTreeMap::new();
+        scene.labels.clear();
+        scene.label_clips.clear();
+        scene.label_series.clear();
+        scene.typography.labels.clear();
+        scene.typography.label_whitespace.clear();
+        scene.typography.label_strokes.clear();
+        for (index, label) in self.labels.iter().enumerate() {
+            if indices.contains(&index) {
+                continue;
+            }
+            let next = scene.labels.len();
+            remap.insert(index, next);
+            scene.labels.push(label.clone());
+            if let Some(value) = self.label_clips.get(&index) {
+                scene.label_clips.insert(next, value.clone());
+            }
+            if let Some(value) = self.label_series.get(&index) {
+                scene.label_series.insert(next, value.clone());
+            }
+            if let Some(value) = self.typography.labels.get(&index) {
+                scene.typography.labels.insert(next, value.clone());
+            }
+            if let Some(value) = self.typography.label_whitespace.get(&index) {
+                scene.typography.label_whitespace.insert(next, *value);
+            }
+            if let Some(stroke) = self.typography.label_strokes.get(&index) {
+                scene.typography.label_strokes.insert(next, *stroke);
+            }
+        }
+        scene.draw_order = self
+            .draw_order
+            .iter()
+            .filter_map(|item| match item {
+                DrawItem::Mark(index) => Some(DrawItem::Mark(*index)),
+                DrawItem::Label(index) => remap.get(index).copied().map(DrawItem::Label),
+            })
+            .collect();
+        scene
+    }
     /// Keep the metadata and geometry shared by SVG and Canvas while hiding series.
     pub fn without_series(&self, hidden: &std::collections::BTreeSet<String>) -> Self {
         let mut scene = self.clone();

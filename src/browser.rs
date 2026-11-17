@@ -20,19 +20,87 @@ use crate::*;
 mod blend_motion;
 mod blends;
 mod editable_brush;
+mod funnel;
+mod funnel_tooltip;
+mod waffle;
+pub use waffle::{
+    BrowserWaffle, BrowserWaffleBuildContext, BrowserWaffleData, BrowserWaffleDataBuildContext,
+    BrowserWaffleDataHandle, BrowserWaffleDataMouseEvent, BrowserWaffleDataMouseHandlers,
+    BrowserWaffleDataSnapshot, BrowserWaffleDataSvgHit, BrowserWaffleDataSvgLayerContext,
+    BrowserWaffleDataSvgLayerFrame, BrowserWaffleDataSvgProgram,
+    BrowserWaffleDataTooltipComponentContext, BrowserWaffleHandle, BrowserWaffleMouseEvent,
+    BrowserWaffleMouseHandlers, BrowserWaffleMouseInput, BrowserWaffleMouseKind,
+    BrowserWaffleMouseOccurrence, BrowserWaffleMousePointer, BrowserWaffleSnapshot,
+    BrowserWaffleSvgHit, BrowserWaffleSvgLayerContext, BrowserWaffleSvgLayerFrame,
+    BrowserWaffleSvgProgram, BrowserWaffleTooltipAnchor, BrowserWaffleTooltipComponentContext,
+    BrowserWaffleTooltipOptions, WaffleDataMouseHandler, WaffleDataTooltipFrame,
+    WaffleMouseHandler, WaffleTooltipFrame,
+};
 mod geo_coordinates;
 pub use editable_brush::BrowserBrushSnapshot;
+pub use funnel::{
+    BrowserFunnel, BrowserFunnelBuildContext, BrowserFunnelCurrentPart, BrowserFunnelData,
+    BrowserFunnelDataBuildContext, BrowserFunnelDataHandle, BrowserFunnelDataMotionMouseHandlers,
+    BrowserFunnelDataMouseEvent, BrowserFunnelDataMouseHandlers, BrowserFunnelDataSnapshot,
+    BrowserFunnelDataSvgHit, BrowserFunnelDataSvgLayerContext, BrowserFunnelDataSvgLayerFrame,
+    BrowserFunnelDataSvgProgram, BrowserFunnelDataTooltipComponentContext, BrowserFunnelHandle,
+    BrowserFunnelMotionClock, BrowserFunnelMotionFrame, BrowserFunnelMotionMouseHandlers,
+    BrowserFunnelMotionSnapshot, BrowserFunnelMouseActivity, BrowserFunnelMouseEvent,
+    BrowserFunnelMouseHandlers, BrowserFunnelMouseInput, BrowserFunnelMouseKind,
+    BrowserFunnelMouseOccurrence, BrowserFunnelMousePointer, BrowserFunnelSnapshot,
+    BrowserFunnelSvgHit, BrowserFunnelSvgLayerContext, BrowserFunnelSvgLayerFrame,
+    BrowserFunnelSvgProgram, FunnelDataMotionMouseHandler, FunnelDataMouseHandler,
+    FunnelDataTooltipFrame, FunnelMotionMouseHandler, FunnelMouseHandler,
+};
+pub use funnel_tooltip::{
+    BrowserFunnelTooltipAnchor, BrowserFunnelTooltipComponentContext, BrowserFunnelTooltipOptions,
+    FunnelTooltipFrame,
+};
 
 use crate::brush::{BrushReconfigure, EditableBrushOptions};
+mod native_press;
 mod network;
+mod ordered_widgets;
 mod pattern_svg;
 mod plot_widgets;
 pub use network::{
-    BrowserNetwork, BrowserNetworkHandle, BrowserNetworkOptions, BrowserNetworkSnapshot,
+    BrowserNetwork, BrowserNetworkHandle, BrowserNetworkNodeWidgetOptions, BrowserNetworkOptions,
+    BrowserNetworkSnapshot, BrowserNetworkWidgetOptions,
 };
 mod svg;
 mod text_metrics;
 pub use text_metrics::BrowserSemanticTextMeasurer;
+mod tree;
+mod tree_animated_widgets;
+pub use tree_animated_widgets::{
+    BrowserTreeAnimatedWidgetContext, BrowserTreeAnimatedWidgetData,
+    BrowserTreeAnimatedWidgetFrame, TreeMotionWidgetProps,
+};
+mod tree_canvas_frame;
+mod tree_svg_frame;
+mod tree_svg_layers;
+mod tree_tooltip_host;
+mod tree_tooltip_panel;
+pub use tree::{
+    BrowserTree, BrowserTreeBuildContext, BrowserTreeCanvasProgram, BrowserTreeDoubleClickBehavior,
+    BrowserTreeHandle, BrowserTreeLinkMouseEvent, BrowserTreeLinkMouseHandlers,
+    BrowserTreeMotionClock, BrowserTreeMotionFrame, BrowserTreeMouseBinding,
+    BrowserTreeMouseHandlers, BrowserTreeMouseInput, BrowserTreeMouseKind,
+    BrowserTreeMouseOccurrence, BrowserTreeMouseOrigin, BrowserTreeMousePointer,
+    BrowserTreeNodeMouseActivity, BrowserTreeNodeMouseEvent, BrowserTreeNodeMouseHandlers,
+    BrowserTreeOptions, BrowserTreePicking, BrowserTreeSnapshot, BrowserTreeSvgBuildContext,
+    BrowserTreeSvgCurrentNode, BrowserTreeWidgetOptions, TreeLinkMouseHandler,
+    TreeNodeMouseHandler,
+};
+pub use tree_svg_layers::{
+    BrowserTreeSvgAnimatedLayerContext, BrowserTreeSvgLayerContext, BrowserTreeSvgLayerFrame,
+    BrowserTreeSvgProgram,
+};
+pub use tree_tooltip_host::{
+    BrowserTreeLinkTooltipComponentContext, BrowserTreeLinkTooltipOptions,
+    BrowserTreeTooltipAnchor, BrowserTreeTooltipComponentContext, BrowserTreeTooltipOptions,
+    BrowserTreeTooltipPosition, TreeLinkTooltipFrame, TreeTooltipFrame,
+};
 mod viewport;
 pub use viewport::BrowserViewportLayout;
 use viewport::ViewportBinding;
@@ -304,6 +372,7 @@ enum Input {
         touch: bool,
         client: (f64, f64),
         brush: bool,
+        source_mesh: bool,
     },
     Wheel {
         client: (f64, f64),
@@ -318,9 +387,29 @@ enum Input {
     Hover(Option<String>),
     Focus(Option<String>),
     Activate(String),
-    PlotWidgetFocus,
-    PlotWidgets(PlotWidgetsLayout),
-    PlotWidgetLayout(Box<(SceneInteraction, PlotWidgetsLayout)>),
+    // Focus dispatched synchronously by UI work in an Engine frame is not
+    // another native pointer/keyboard intent. Latch that delivery boundary
+    // here; draining the queue happens in a later frame.
+    PlotWidgetFocus {
+        restoring: bool,
+    },
+    PlotWidgets(crate::widget::plot_widgets::PlotWidgetsPacket),
+    PlotWidgetLayout(
+        Box<(
+            SceneInteraction,
+            crate::widget::plot_widgets::PlotWidgetsPacket,
+        )>,
+    ),
+    PlotWidgetComposition(
+        Box<(
+            Option<SceneInteraction>,
+            crate::widget::plot_widgets::PlotWidgetsPacket,
+            Rc<crate::widget::plot_widgets::composition::CompositionStage>,
+        )>,
+    ),
+    TreeCanvas(Box<tree_canvas_frame::Candidate>),
+    TreeSvg(Rc<tree_svg_frame::Stage>),
+    TreeTooltip(Box<tree_tooltip_host::Candidate>),
     Scene(Scene, bool),
     InteractionScene(Box<(Scene, InteractionBinding, bool)>),
     Layout(Box<(SceneInteraction, MarkBlends)>),
@@ -354,6 +443,7 @@ struct State {
     surface: HtmlElement,
     canvas: Option<HtmlCanvasElement>,
     svg: Option<svg::RetainedSvg>,
+    tree_labels_passive: bool,
     tooltip: HtmlElement,
     brush: HtmlElement,
     editable_host: Option<editable_brush::Host>,
@@ -370,7 +460,11 @@ struct State {
     presentation_error: Option<ChartError>,
     contour_bindings: motion::ContourBindings,
     blends: Rc<MarkBlends>,
-    plot_widgets: Option<Rc<PlotWidgetsLayout>>,
+    plot_widgets: Option<Rc<crate::widget::plot_widgets::PlotWidgetsPacket>>,
+    staged_widgets: Option<Rc<crate::widget::plot_widgets::composition::CompositionStage>>,
+    tree_canvas: Option<PreparedTreeCanvas>,
+    tree_tooltip: Option<Rc<tree_tooltip_host::Stage>>,
+    tree_svg: Option<Rc<tree_svg_frame::Stage>>,
 }
 #[derive(Clone)]
 struct GestureState {
@@ -387,7 +481,11 @@ struct GestureState {
     keyboard: bool,
     contour_bindings: motion::ContourBindings,
     blends: Rc<MarkBlends>,
-    plot_widgets: Option<Rc<PlotWidgetsLayout>>,
+    plot_widgets: Option<Rc<crate::widget::plot_widgets::PlotWidgetsPacket>>,
+    staged_widgets: Option<Rc<crate::widget::plot_widgets::composition::CompositionStage>>,
+    tree_canvas: Option<PreparedTreeCanvas>,
+    tree_tooltip: Option<Rc<tree_tooltip_host::Stage>>,
+    tree_svg: Option<Rc<tree_svg_frame::Stage>>,
 }
 struct Engine {
     viewport: RefCell<Option<ViewportBinding>>,
@@ -408,12 +506,23 @@ struct Engine {
     listeners: RefCell<Vec<Listener>>,
     observer: RefCell<Option<ResizeBinding>>,
     plot_widgets: RefCell<Option<Rc<plot_widgets::Host>>>,
+    tree_canvas_repaint: RefCell<Option<tree_canvas_frame::Repaint>>,
+    tree_tooltips: RefCell<Option<Rc<tree_tooltip_host::Host>>>,
+    tree_svg_host: RefCell<Option<Rc<tree_svg_layers::Host>>>,
+    tree_svg_sources: RefCell<Option<Rc<plot_widgets::svg_occurrences::Sources>>>,
+    tree_animated_widgets: RefCell<Option<Rc<tree_animated_widgets::AnimatedWidgets>>>,
+    tree_svg_publication: Cell<u64>,
+    tree_svg_retarget_model: RefCell<Option<SurfaceModel>>,
+    tree_svg_mesh_contacts: RefCell<BTreeSet<i32>>,
+    tree_mouse_double_click: RefCell<Option<Event>>,
     state: RefCell<Option<State>>,
     event: RefCell<Option<EventCallback>>,
     event_generation: Cell<u64>,
     layout: RefCell<Option<LayoutCallback>>,
     layout_generation: Cell<u64>,
     captured: Cell<Option<i32>>,
+    native_press: Cell<Option<native_press::Press>>,
+    retired_native_press: Cell<Option<i32>>,
     editable_capture: Cell<Option<editable_brush::Capture>>,
     editable_generation: Cell<u64>,
     editable_space: Cell<bool>,
@@ -432,6 +541,28 @@ pub struct BrowserHandle {
 }
 fn host(error: impl std::fmt::Debug) -> ChartError {
     ChartError(format!("browser chart host error: {error:?}"))
+}
+/// Restore an existing owned control after moving its native carrier, without
+/// turning the restoration into a viewport scroll or reconstructing its Scope.
+fn restore_dom_focus(element: &HtmlElement) -> Result<()> {
+    let document = element
+        .owner_document()
+        .ok_or_else(|| ChartError("browser focus document missing".into()))?;
+    if document
+        .active_element()
+        .is_some_and(|active| active.is_same_node(Some(element.as_ref())))
+        || !element.is_connected()
+    {
+        return Ok(());
+    }
+    let options = web_sys::js_sys::Object::new();
+    web_sys::js_sys::Reflect::set(&options, &"preventScroll".into(), &true.into()).map_err(host)?;
+    let focus = web_sys::js_sys::Reflect::get(element, &"focus".into())
+        .map_err(host)?
+        .dyn_into::<web_sys::js_sys::Function>()
+        .map_err(host)?;
+    focus.call1(element, &options).map_err(host)?;
+    Ok(())
 }
 fn css(element: &HtmlElement, name: &str, value: &str) -> Result<()> {
     element.style().set_property(name, value).map_err(host)
@@ -465,9 +596,59 @@ impl BrowserChart {
     fn mount_inner(
         root: Element,
         scene: Scene,
+        options: BrowserOptions,
+        blends: MarkBlends,
+        widget_mount: Option<plot_widgets::Mount>,
+    ) -> Result<Self> {
+        Self::mount_core(root, scene, options, blends, widget_mount, None)
+    }
+    fn mount_tree_scene(
+        root: Element,
+        scene: Scene,
+        options: BrowserOptions,
+        widget_mount: Option<plot_widgets::Mount>,
+    ) -> Result<Self> {
+        Self::mount_base(
+            root,
+            scene,
+            options,
+            MarkBlends::default(),
+            widget_mount,
+            None,
+            None,
+            true,
+        )
+    }
+    fn mount_core(
+        root: Element,
+        scene: Scene,
+        options: BrowserOptions,
+        blends: MarkBlends,
+        widget_mount: Option<plot_widgets::Mount>,
+        tree_canvas: Option<PreparedTreeCanvas>,
+    ) -> Result<Self> {
+        let tree_labels_passive = tree_canvas.is_some();
+        Self::mount_base(
+            root,
+            scene,
+            options,
+            blends,
+            widget_mount,
+            tree_canvas,
+            None,
+            tree_labels_passive,
+        )
+    }
+    #[allow(clippy::too_many_arguments)]
+    fn mount_base(
+        root: Element,
+        scene: Scene,
         mut options: BrowserOptions,
         blends: MarkBlends,
         widget_mount: Option<plot_widgets::Mount>,
+        tree_canvas: Option<PreparedTreeCanvas>,
+        tree_svg: Option<tree_svg_frame::Mount>,
+        tree_labels_passive: bool,
     ) -> Result<Self> {
         scene.validate()?;
         blends.validate(&scene)?;
@@ -499,6 +680,26 @@ impl BrowserChart {
         )?;
         if let Some(brush) = options.editable_brush {
             model.configure_editable_brush(Some(brush), BrushReconfigure::Clamp)?;
+        }
+        if let Some(mount) = &widget_mount {
+            mount.layout.validate()?;
+            model.set_widget_replacements(mount.layout.replace_ink().clone())?;
+        }
+        if let Some(raw) = &tree_canvas {
+            tree_canvas_frame::policy(&options, widget_mount.as_ref().map(|m| &m.layout))?;
+            tree_canvas_frame::validate_bitmap(&scene, raw)?;
+            scene::ensure(blends.is_empty(), "raw Tree Canvas does not support blends")?;
+            scene::ensure(
+                model.paint_transform() == raw.options().view
+                    && raw.options().pixel_ratio
+                        == blends::ratio(
+                            web_sys::window()
+                                .ok_or_else(|| ChartError("browser window unavailable".into()))?
+                                .device_pixel_ratio(),
+                            &scene,
+                        ),
+                "raw Tree Canvas initial view or DPR differs",
+            )?;
         }
         let widget_initial = widget_mount
             .as_ref()
@@ -588,7 +789,13 @@ impl BrowserChart {
                 &format!("{} / {}", scene.width, scene.height),
             )?;
         }
-        let canvas = if options.renderer == BrowserRenderer::Canvas {
+        let ordered_widgets = widget_mount
+            .as_ref()
+            .is_some_and(|mount| mount.layout.is_source_ordered());
+        if ordered_widgets {
+            surface.set_attribute("role", "group").map_err(host)?;
+        }
+        let canvas = if options.renderer == BrowserRenderer::Canvas && !ordered_widgets {
             let canvas = document
                 .create_element("canvas")
                 .map_err(host)?
@@ -655,7 +862,11 @@ impl BrowserChart {
             css(&layer, "inset", "0")?;
             css(&layer, "pointer-events", "none")?;
             stack.append_child(&surface).map_err(host)?;
-            stack.append_child(&layer).map_err(host)?;
+            if ordered_widgets {
+                surface.append_child(&layer).map_err(host)?;
+            } else {
+                stack.append_child(&layer).map_err(host)?;
+            }
             outer.append_child(&stack).map_err(host)?;
             Some(layer)
         } else {
@@ -687,12 +898,23 @@ impl BrowserChart {
             listeners: RefCell::new(vec![]),
             observer: RefCell::new(None),
             plot_widgets: RefCell::new(None),
+            tree_canvas_repaint: RefCell::new(None),
+            tree_tooltips: RefCell::new(None),
+            tree_svg_host: RefCell::new(None),
+            tree_svg_sources: RefCell::new(None),
+            tree_animated_widgets: RefCell::new(None),
+            tree_svg_publication: Cell::new(0),
+            tree_svg_retarget_model: RefCell::new(None),
+            tree_svg_mesh_contacts: RefCell::new(BTreeSet::new()),
+            tree_mouse_double_click: RefCell::new(None),
             state: RefCell::new(None),
             event: RefCell::new(None),
             event_generation: Cell::new(0),
             layout: RefCell::new(None),
             layout_generation: Cell::new(0),
             captured: Cell::new(None),
+            native_press: Cell::new(None),
+            retired_native_press: Cell::new(None),
             editable_capture: Cell::new(None),
             editable_generation: Cell::new(0),
             editable_space: Cell::new(false),
@@ -792,6 +1014,24 @@ impl BrowserChart {
                     .match_media("(prefers-reduced-motion: reduce)")
                     .map_err(host)?
                     .is_some_and(|m| m.matches()));
+        if let Some(raw) = &tree_canvas {
+            let destination = canvas
+                .as_ref()
+                .ok_or_else(|| ChartError("raw Tree Canvas primary surface missing".into()))?;
+            raw.blit(destination)?;
+            destination
+                .style()
+                .set_property("width", "100%")
+                .map_err(host)?;
+            destination
+                .style()
+                .set_property("height", "100%")
+                .map_err(host)?;
+            destination
+                .style()
+                .set_property("display", "block")
+                .map_err(host)?;
+        }
         let widget_layout = if let (Some(root), Some(mount), Some(initial)) =
             (widget_root, widget_mount, widget_initial)
         {
@@ -805,7 +1045,9 @@ impl BrowserChart {
             let weak = Rc::downgrade(&engine);
             engine.add(root.into(), "focusin", move |_| {
                 if let Some(engine) = weak.upgrade() {
-                    engine.enqueue(Input::PlotWidgetFocus);
+                    engine.enqueue(Input::PlotWidgetFocus {
+                        restoring: engine.processing.get(),
+                    });
                 }
             })?;
             Some(Rc::new(mount.layout))
@@ -828,6 +1070,7 @@ impl BrowserChart {
             surface,
             canvas,
             svg: None,
+            tree_labels_passive,
             tooltip,
             brush,
             editable_host,
@@ -845,10 +1088,105 @@ impl BrowserChart {
             contour_bindings,
             blends: Rc::new(blends),
             plot_widgets: widget_layout,
+            staged_widgets: None,
+            tree_canvas,
+            tree_tooltip: None,
+            tree_svg: None,
         });
+        let mut initial_svg = None;
+        if let Some(initial) = tree_svg {
+            let tree_svg_frame::Mount {
+                layout,
+                plan,
+                program,
+                picking,
+                components,
+                generation,
+                publication,
+                current,
+                motion,
+            } = initial;
+            engine.tree_svg_publication.set(publication);
+            let packet = components.as_ref().map(|m| m.layout.clone());
+            if let Some(components) = components {
+                *engine.tree_svg_sources.borrow_mut() = Some(
+                    plot_widgets::svg_occurrences::Sources::new(document.clone(), components),
+                );
+            }
+            let stage = if let Some(motion) = motion {
+                let revision = motion
+                    .widgets
+                    .as_ref()
+                    .map_or(0, |(options, _)| options.revision);
+                if let Some((options, factory)) = motion.widgets {
+                    *engine.tree_animated_widgets.borrow_mut() =
+                        Some(tree_animated_widgets::AnimatedWidgets::new(
+                            document.clone(),
+                            options,
+                            factory,
+                        ));
+                }
+                engine.prepare_tree_motion_svg(
+                    layout,
+                    plan,
+                    program,
+                    picking,
+                    generation,
+                    publication,
+                    current,
+                    motion.paint,
+                    motion.frame,
+                    revision,
+                    true,
+                )?
+            } else {
+                engine.prepare_tree_svg(
+                    layout,
+                    plan,
+                    program,
+                    picking,
+                    packet,
+                    generation,
+                    publication,
+                    current,
+                )?
+            };
+            initial_svg = Some(stage.clone());
+            engine.try_enqueue(Input::TreeSvg(stage))?;
+        }
         engine.listen(controls)?;
         engine.enqueue(Input::Resize);
-        engine.frame(0.)?;
+        // Initial admission has no public observer yet. Frame errors normally
+        // become BrowserEvents after restoring accepted output, but the plain
+        // pre-mount model is not an accepted SVG-layer presentation.
+        let initial_error = Rc::new(RefCell::new(None));
+        if initial_svg.is_some() {
+            let captured = initial_error.clone();
+            *engine.event.borrow_mut() = Some(Box::new(move |event| {
+                if let BrowserEvent::Error(error) = event {
+                    let mut first = captured.borrow_mut();
+                    if first.is_none() {
+                        *first = Some(error);
+                    }
+                }
+            }));
+        }
+        let painted = engine.frame(0.);
+        if initial_svg.is_some() {
+            engine.event.borrow_mut().take();
+        }
+        painted?;
+        if let Some(initial) = initial_svg {
+            let adopted = initial.was_adopted()
+                && engine.tree_svg_stage().is_some_and(|accepted| {
+                    accepted.was_adopted() && accepted.same_admission(&initial)
+                });
+            if !adopted {
+                return Err(initial_error.borrow_mut().take().unwrap_or_else(|| {
+                    ChartError("initial Tree SVG presentation was not adopted".into())
+                }));
+            }
+        }
         Ok(chart)
     }
     pub fn handle(&self) -> BrowserHandle {
@@ -1263,6 +1601,8 @@ impl Engine {
         if !self.alive.replace(false) {
             return;
         }
+        self.native_press.set(None);
+        self.retired_native_press.set(None);
         if let Some(ticket) = self.ticket.take() {
             let _ = self.window.cancel_animation_frame(ticket);
         }
@@ -1270,7 +1610,8 @@ impl Engine {
             observer.disconnect();
         }
         self.listeners.borrow_mut().clear();
-        self.queue.borrow_mut().clear();
+        let queued = std::mem::take(&mut *self.queue.borrow_mut());
+        drop(queued);
         self.resize_pending.set(false);
         self.pending_reduced.set(None);
         self.event.borrow_mut().take();
@@ -1279,6 +1620,22 @@ impl Engine {
         self.viewport_configured.set(false);
         self.viewport_domains.set(None);
         self.viewport_controller.borrow_mut().take();
+        self.tree_canvas_repaint.borrow_mut().take();
+        self.tree_svg_retarget_model.borrow_mut().take();
+        self.tree_svg_mesh_contacts.borrow_mut().clear();
+        self.tree_mouse_double_click.borrow_mut().take();
+        if let Some(sources) = self.tree_svg_sources.borrow_mut().take() {
+            sources.stop();
+        }
+        if let Some(animated) = self.tree_animated_widgets.borrow_mut().take() {
+            animated.stop();
+        }
+        if let Some(host) = self.tree_svg_host.borrow_mut().take() {
+            host.stop();
+        }
+        if let Some(host) = self.tree_tooltips.borrow_mut().take() {
+            host.stop();
+        }
         let state = self.state.borrow_mut().take();
         if let Some(state) = state {
             self.cancel_captures(&state.surface);
@@ -1329,7 +1686,31 @@ impl Engine {
         name: &'static str,
         callback: impl FnMut(Event) + 'static,
     ) -> Result<()> {
-        let callback = Closure::<dyn FnMut(Event)>::new(callback);
+        let mut callback = callback;
+        let callback = Closure::<dyn FnMut(Event)>::new(move |event: Event| {
+            if matches!(
+                name,
+                "pointerdown"
+                    | "pointermove"
+                    | "lostpointercapture"
+                    | "wheel"
+                    | "dblclick"
+                    | "keydown"
+            ) && event
+                .target()
+                .and_then(|target| target.dyn_into::<Element>().ok())
+                .is_some_and(|element| {
+                    element
+                        .closest(".kartis-plot-widget-slot, .kartis-tree-svg-custom-host")
+                        .ok()
+                        .flatten()
+                        .is_some()
+                })
+            {
+                return;
+            }
+            callback(event);
+        });
         let options = web_sys::AddEventListenerOptions::new();
         options.set_passive(false);
         target
@@ -1377,6 +1758,40 @@ impl Engine {
         }
         let surface = self.state.borrow().as_ref().unwrap().surface.clone();
         let weak = Rc::downgrade(self);
+        self.add(surface.clone().into(), "focusin", move |event| {
+            if let Some(engine) = weak.upgrade()
+                && let Some(stage) = engine.tree_svg_stage()
+                && let Some(target) = event.target().and_then(|t| t.dyn_into::<Element>().ok())
+                && stage.root().contains(Some(&target))
+                && target
+                    .closest(".kartis-plot-widget-slot, .kartis-tree-svg-custom-host")
+                    .ok()
+                    .flatten()
+                    .is_some()
+            {
+                engine.enqueue(Input::PlotWidgetFocus {
+                    restoring: engine.processing.get(),
+                });
+            }
+        })?;
+        let weak = Rc::downgrade(self);
+        self.add(surface.clone().into(), "pointerover", move |event| {
+            if event
+                .target()
+                .and_then(|target| target.dyn_into::<Element>().ok())
+                .is_some_and(|element| {
+                    element
+                        .closest(".kartis-plot-widget-slot, .kartis-tree-svg-custom-host")
+                        .ok()
+                        .flatten()
+                        .is_some()
+                })
+                && let Some(engine) = weak.upgrade()
+            {
+                engine.enqueue(Input::Action(SurfaceInput::Leave));
+            }
+        })?;
+        let weak = Rc::downgrade(self);
         let target = surface.clone();
         self.add(surface.clone().into(), "pointerdown", move |event| {
             let Some(e) = weak.upgrade() else {
@@ -1388,9 +1803,13 @@ impl Engine {
             if p.button() != 0 {
                 return;
             }
+            if p.pointer_type() != "touch" && e.retired_native_press.get() == Some(p.pointer_id()) {
+                return;
+            }
             if e.editable_pointer(PointerKind::Down, p, &event) {
                 return;
             }
+            let source_mesh = e.tree_svg_mesh_target(&event);
             let touch = p.pointer_type() == "touch";
             if touch {
                 if e.captured.get().is_some()
@@ -1414,6 +1833,13 @@ impl Engine {
                 e.captured.set(Some(p.pointer_id()));
             }
             let _ = target.set_pointer_capture(p.pointer_id());
+            if source_mesh {
+                e.tree_svg_mesh_contacts.borrow_mut().insert(p.pointer_id());
+            } else {
+                e.tree_svg_mesh_contacts
+                    .borrow_mut()
+                    .remove(&p.pointer_id());
+            }
             let _ = target.focus();
             event.prevent_default();
             e.enqueue(Input::Pointer {
@@ -1422,6 +1848,7 @@ impl Engine {
                 touch,
                 client: client_coordinates(p),
                 brush: p.shift_key(),
+                source_mesh,
             });
         })?;
         let weak = Rc::downgrade(self);
@@ -1449,6 +1876,8 @@ impl Engine {
                 touch,
                 client: client_coordinates(p),
                 brush: false,
+                source_mesh: e.tree_svg_mesh_contacts.borrow().contains(&p.pointer_id())
+                    || e.tree_svg_mesh_target(&event),
             });
         })?;
         let weak = Rc::downgrade(self);
@@ -1476,6 +1905,10 @@ impl Engine {
                     touch: false,
                     client: client_coordinates(p),
                     brush: false,
+                    source_mesh: e
+                        .tree_svg_mesh_contacts
+                        .borrow_mut()
+                        .remove(&p.pointer_id()),
                 });
             } else if e.touches.borrow_mut().remove(&p.pointer_id()) {
                 e.enqueue(Input::Pointer {
@@ -1484,6 +1917,10 @@ impl Engine {
                     touch: true,
                     client: (0., 0.),
                     brush: false,
+                    source_mesh: e
+                        .tree_svg_mesh_contacts
+                        .borrow_mut()
+                        .remove(&p.pointer_id()),
                 });
             }
         })?;
@@ -1513,6 +1950,7 @@ impl Engine {
                 touch,
                 client: client_coordinates(p),
                 brush: false,
+                source_mesh: e.tree_svg_mesh_contacts.borrow().contains(&p.pointer_id()),
             });
         })?;
         for (name, kind) in [
@@ -1528,6 +1966,15 @@ impl Engine {
                 let Some(p) = event.dyn_ref::<PointerEvent>() else {
                     return;
                 };
+                if p.pointer_type() != "touch"
+                    && e.retired_native_press.get() == Some(p.pointer_id())
+                {
+                    e.retired_native_press.set(None);
+                    e.tree_svg_mesh_contacts
+                        .borrow_mut()
+                        .remove(&p.pointer_id());
+                    return;
+                }
                 let touch = e.touches.borrow_mut().remove(&p.pointer_id());
                 if e.captured.get() != Some(p.pointer_id()) && !touch {
                     return;
@@ -1544,6 +1991,10 @@ impl Engine {
                     touch,
                     client: client_coordinates(p),
                     brush: false,
+                    source_mesh: e
+                        .tree_svg_mesh_contacts
+                        .borrow_mut()
+                        .remove(&p.pointer_id()),
                 });
             })?;
         }
@@ -1576,6 +2027,13 @@ impl Engine {
         let weak = Rc::downgrade(self);
         self.add(surface.clone().into(), "dblclick", move |event| {
             if let Some(e) = weak.upgrade() {
+                if e.tree_mouse_double_click
+                    .borrow_mut()
+                    .take()
+                    .is_some_and(|owned| owned == event)
+                {
+                    return;
+                }
                 event.prevent_default();
                 e.enqueue(Input::Action(SurfaceInput::Reset));
             }
@@ -1664,6 +2122,49 @@ impl Engine {
         if self.resize_pending.replace(false) {
             inputs.push(Input::Resize);
         }
+        // A queued composition owns staged Widget scopes. Keep their last Rc
+        // alive until all State borrows have ended, including rejected inputs
+        // and paint checkpoint restoration: cleanup may read the weak handle.
+        let mut staged_lifetimes: Vec<_> = inputs
+            .iter()
+            .filter_map(|input| match input {
+                Input::PlotWidgetComposition(candidate) => Some(candidate.2.clone()),
+                Input::TreeCanvas(candidate) => candidate.composition.as_ref().map(|c| c.1.clone()),
+                Input::TreeTooltip(candidate) => candidate.source_stage.clone(),
+                _ => None,
+            })
+            .collect();
+        if let Some(stage) = self
+            .state
+            .borrow()
+            .as_ref()
+            .and_then(|s| s.staged_widgets.clone())
+        {
+            staged_lifetimes.push(stage);
+        }
+        let _tooltip_lifetimes: Vec<_> = inputs
+            .iter()
+            .filter_map(|input| match input {
+                Input::TreeTooltip(c) => Some(c.stage.clone()),
+                _ => None,
+            })
+            .collect();
+        let _svg_lifetimes: Vec<_> = inputs
+            .iter()
+            .filter_map(|input| match input {
+                Input::TreeSvg(stage) => Some(stage.clone()),
+                Input::TreeTooltip(candidate) => match candidate.input.as_deref() {
+                    Some(Input::TreeSvg(stage)) => Some(stage.clone()),
+                    _ => None,
+                },
+                _ => None,
+            })
+            .collect();
+        let tooltip_only = !inputs.is_empty()
+            && inputs
+                .iter()
+                .all(|input| matches!(input,Input::TreeTooltip(c)if c.input.is_none()));
+        let _staged_lifetimes = staged_lifetimes;
         let mut events = vec![];
         let blended = self
             .state
@@ -1697,7 +2198,10 @@ impl Engine {
         // Retain the accepted input/model state until its owned decoration has
         // passed complete Scene admission, including cumulative dash work.
         let mut paint_checkpoint = self.state.borrow().as_ref().and_then(|s| {
-            (blended
+            (s.tree_canvas.is_some()
+                || s.tree_svg.is_some()
+                || s.tree_tooltip.is_some()
+                || blended
                 || s.model.editable_brush().is_some()
                 || inputs.iter().any(|i| matches!(i, Input::EditableBrush(_)))
                 || s.transactional_geometry(s.model.interaction_data())
@@ -1706,6 +2210,9 @@ impl Engine {
                         i,
                         Input::InteractionScene(_)
                             | Input::Layout(_)
+                            | Input::TreeCanvas(_)
+                            | Input::TreeSvg(_)
+                            | Input::TreeTooltip(_)
                             | Input::Resize
                             | Input::ViewportRequest(_)
                     )
@@ -1713,10 +2220,46 @@ impl Engine {
             .then(|| (s.gesture(), s.focused.clone()))
         });
         let fault = self.fault.borrow_mut().take();
+        let mut explicit_accepted = false;
+        let mut forced_press_cancel = fault.is_some();
+        let mut paint_accepted = true;
+        let mut tree_canvas_rejected = false;
         for input in inputs {
             if !self.alive.get() {
                 return Ok(());
             }
+            let (input, tooltip_candidate) = match input {
+                Input::TreeTooltip(candidate) => {
+                    let tree_tooltip_host::Candidate { input, stage, .. } = *candidate;
+                    if let Some(input) = input {
+                        (*input, Some(stage))
+                    } else {
+                        let result = {
+                            let mut state = self.state.borrow_mut();
+                            let s = state.as_mut().expect("active tooltip chart");
+                            stage
+                                .validate(&s.tree_tooltip_model()?)
+                                .and_then(|()| {
+                                    scene::ensure(
+                                        s.tree_tooltip.as_ref().is_none_or(|old| {
+                                            old.source_generation == stage.source_generation
+                                        }),
+                                        "Tree tooltip-only source generation is stale",
+                                    )
+                                })
+                                .map(|()| {
+                                    s.tree_tooltip = Some(stage);
+                                })
+                        };
+                        if let Err(error) = result {
+                            paint_accepted = false;
+                            events.push(BrowserEvent::Error(error));
+                        }
+                        continue;
+                    }
+                }
+                input => (input, None),
+            };
             if matches!(&input, Input::Hover(Some(_))) && !self.pointer_over_datum.get() {
                 continue;
             }
@@ -1730,6 +2273,7 @@ impl Engine {
             if let Some(request) = request {
                 match self.relayout_viewport_request(None, None, Some(request)) {
                     Ok(Some(changes)) => {
+                        explicit_accepted = true;
                         events.extend(changes.into_iter().map(BrowserEvent::Interaction))
                     }
                     Ok(None) => {}
@@ -1774,20 +2318,22 @@ impl Engine {
                 }
                 continue;
             }
-            if matches!(input, Input::PlotWidgetFocus) {
+            if let Input::PlotWidgetFocus { restoring } = input {
                 let mut state = self.state.borrow_mut();
                 let s = state.as_mut().unwrap();
                 if s.focused.take().is_some() {
                     events.push(BrowserEvent::Focus(None));
                 }
-                s.pointer = None;
                 s.keyboard = false;
-                events.extend(
-                    s.model
-                        .apply(SurfaceInput::Leave)?
-                        .into_iter()
-                        .map(BrowserEvent::Interaction),
-                );
+                if !restoring {
+                    s.pointer = None;
+                    events.extend(
+                        s.model
+                            .apply(SurfaceInput::Leave)?
+                            .into_iter()
+                            .map(BrowserEvent::Interaction),
+                    );
+                }
                 continue;
             }
             if matches!(input, Input::ViewportRefresh) {
@@ -1806,6 +2352,7 @@ impl Engine {
                 };
                 match self.relayout_viewport(None, size) {
                     Ok(Some(changes)) => {
+                        explicit_accepted = true;
                         events.extend(changes.into_iter().map(BrowserEvent::Interaction))
                     }
                     Ok(None) => {}
@@ -1822,6 +2369,7 @@ impl Engine {
                 };
                 let changed = self.state.borrow().as_ref().unwrap().last_size != size;
                 if changed {
+                    forced_press_cancel = true;
                     let mut state = self.state.borrow_mut();
                     let s = state.as_mut().unwrap();
                     s.model.cancel_drag();
@@ -1922,6 +2470,9 @@ impl Engine {
                 }
             }
             let refresh_layout = matches!(&input, Input::Hidden(_) | Input::LegendToggle(_));
+            let explicit = native_press::explicit_change(&input)
+                || matches!(&input, Input::TreeCanvas(_) | Input::TreeSvg(_));
+            let raw_input = matches!(&input, Input::TreeCanvas(_) | Input::TreeSvg(_));
             let terminal = match &input {
                 Input::Pointer {
                     kind: PointerKind::Up | PointerKind::Cancel,
@@ -1940,8 +2491,34 @@ impl Engine {
             let mut state = self.state.borrow_mut();
             let s = state.as_mut().unwrap();
             let previous = self.viewport.borrow().as_ref().map(|_| s.gesture());
+            let tip_previous = tooltip_candidate.as_ref().map(|_| s.gesture());
+            let source_replacement = matches!(
+                &input,
+                Input::Scene(..)
+                    | Input::InteractionScene(_)
+                    | Input::Layout(_)
+                    | Input::TreeCanvas(_)
+                    | Input::TreeSvg(_)
+                    | Input::PlotWidgetLayout(_)
+                    | Input::ContourScene(..)
+            ) || matches!(&input,Input::PlotWidgetComposition(c)if c.0.is_some());
             match s.process(input, &self.window) {
                 Ok(mut changes) => {
+                    if source_replacement {
+                        s.tree_tooltip = None;
+                    }
+                    if let Some(stage) = tooltip_candidate {
+                        if let Err(error) = s
+                            .tree_tooltip_model()
+                            .and_then(|model| stage.validate(&model))
+                        {
+                            s.restore_gesture(tip_previous.expect("tooltip checkpoint"));
+                            paint_accepted = false;
+                            events.push(BrowserEvent::Error(error));
+                            continue;
+                        }
+                        s.tree_tooltip = Some(stage);
+                    }
                     if let Some(previous) = previous
                         && (refresh_layout
                             || changes
@@ -1953,6 +2530,7 @@ impl Engine {
                         drop(state);
                         match self.relayout_viewport(Some(proposed), None) {
                             Ok(Some(extra)) => {
+                                explicit_accepted |= explicit;
                                 changes.retain(|change| !matches!(change, SurfaceEvent::View(_)));
                                 changes.extend(extra);
                                 changes.push(SurfaceEvent::View(
@@ -1969,17 +2547,101 @@ impl Engine {
                             }
                         }
                     } else {
+                        explicit_accepted |= explicit;
                         events.extend(changes.into_iter().map(BrowserEvent::Interaction));
                     }
                 }
-                Err(error) => events.push(BrowserEvent::Error(error)),
+                Err(error) => {
+                    if raw_input {
+                        tree_canvas_rejected = true;
+                        paint_accepted = false;
+                    }
+                    events.push(BrowserEvent::Error(error));
+                }
             }
         }
         if !self.alive.get() {
             return Ok(());
         }
+        if tooltip_only && fault.is_none() {
+            if !paint_accepted {
+                // A rejected incoming tooltip still owns its pending lease.
+                // Do not prepare a second stage from the accepted request and
+                // hide the original validation error behind a budget failure.
+                if let Some((baseline, focused)) = paint_checkpoint.take() {
+                    let mut state = self.state.borrow_mut();
+                    let s = state
+                        .as_mut()
+                        .ok_or_else(|| ChartError("Tree tooltip chart stopped".into()))?;
+                    s.restore_gesture(baseline);
+                    s.focused = focused;
+                }
+                // Cleanup runs only after the State borrow has ended; it may
+                // observe the previous complete accepted source/presentation.
+                drop(_tooltip_lifetimes);
+                drop(_staged_lifetimes);
+                drop(_svg_lifetimes);
+                return self.finish_frame_events(events);
+            }
+            let stage = self.tooltip_stage_for_paint()?;
+            let result: Result<()> = (|| {
+                if let Some(stage) = &stage {
+                    self.place_tree_tooltip(stage)?;
+                }
+                {
+                    let mut state = self.state.borrow_mut();
+                    let s = state
+                        .as_mut()
+                        .ok_or_else(|| ChartError("Tree tooltip chart stopped".into()))?;
+                    let scene = s.model.scene().clone();
+                    let ids = s.tooltip_ids(&s.model);
+                    let interaction = s.model.active_interaction(&ids);
+                    s.paint_tooltip(&scene, &ids, interaction.as_ref())?;
+                    if let Some(stage) = &stage {
+                        s.tree_tooltip = Some(stage.clone());
+                    }
+                }
+                if let Some(stage) = &stage {
+                    stage.adopt();
+                }
+                Ok(())
+            })();
+            if let Err(error) = result {
+                if let Some(stage) = &stage {
+                    stage.rollback()?;
+                }
+                if let Some((baseline, focused)) = paint_checkpoint.take() {
+                    let mut state = self.state.borrow_mut();
+                    let s = state
+                        .as_mut()
+                        .ok_or_else(|| ChartError("Tree tooltip chart stopped".into()))?;
+                    s.restore_gesture(baseline);
+                    s.focused = focused;
+                    let scene = s.model.scene().clone();
+                    let ids = s.tooltip_ids(&s.model);
+                    let interaction = s.model.active_interaction(&ids);
+                    s.paint_tooltip(&scene, &ids, interaction.as_ref())?;
+                }
+                events.push(BrowserEvent::Error(error));
+            } else {
+                events.extend(
+                    self.pump_tree_tooltip()
+                        .into_iter()
+                        .map(BrowserEvent::Error),
+                );
+            }
+            return self.finish_frame_events(events);
+        }
         let mut restore_editable_focus = None;
-        let widget_frame = {
+        let ordered_mode = self
+            .state
+            .borrow()
+            .as_ref()
+            .is_some_and(State::source_ordered);
+        let ordered_baseline = paint_checkpoint.clone();
+        let mut paint_fault = None;
+        let mut prepared_animation = None;
+        {
             let mut state = self.state.borrow_mut();
             let s = state
                 .as_mut()
@@ -1996,8 +2658,6 @@ impl Engine {
                 s.focused = None;
                 events.push(BrowserEvent::Focus(None));
             }
-            let mut paint_fault = None;
-            let mut prepared_animation = None;
             if s.motion.is_some()
                 && (!s.current_blends().is_empty()
                     || s.transactional_geometry(s.model.interaction_data()))
@@ -2059,12 +2719,142 @@ impl Engine {
                     s.last_time = None;
                 }
             }
+        }
+        if !forced_press_cancel && self.hold_native_press_paint(explicit_accepted) {
+            // Drain logical input and ordinary UI events, but keep the accepted
+            // source/hit tree and Widget parents until native click dispatch.
+            // In particular Series highlighting and crosshair helpers must not
+            // swap the hit target underneath a pending click.
+            if let Some(state) = self.state.borrow_mut().as_mut() {
+                state.publish()?;
+            }
+            if let Some(host) = self.plot_widgets.borrow().clone()
+                && let Err(error) = host.flush_cleanup()
+            {
+                events.push(BrowserEvent::Error(error));
+            }
+            drop(_staged_lifetimes);
+            return self.finish_frame_events(events);
+        }
+        if let Err(error) = self.repaint_tree_canvas_if_needed(paint_checkpoint.as_ref()) {
+            if !self.alive.get() {
+                return Ok(());
+            }
+            tree_canvas_rejected = true;
+            paint_accepted = false;
+            paint_fault = Some(error);
+        }
+        let _svg_repaint_lifetime = match self.repaint_tree_svg_if_needed(paint_checkpoint.as_ref())
+        {
+            Ok(stage) => stage,
+            Err(error) => {
+                if !self.alive.get() {
+                    return Ok(());
+                }
+                tree_canvas_rejected = true;
+                paint_accepted = false;
+                paint_fault = Some(error);
+                None
+            }
+        };
+        let mut ordered_frame = None;
+        let mut ordered_rejected = false;
+        if ordered_mode {
+            let host = self
+                .plot_widgets
+                .borrow()
+                .clone()
+                .ok_or_else(|| ChartError("ordered Widget host missing".into()))?;
+            if paint_fault.is_none() {
+                let work = (|| -> Result<_> {
+                    let state = self.state.borrow();
+                    let s = state
+                        .as_ref()
+                        .ok_or_else(|| ChartError("ordered chart stopped".into()))?;
+                    Ok((
+                        s.ordered_request(&self.window)?,
+                        s.prepare_widgets_for(&s.model)?
+                            .ok_or_else(|| ChartError("ordered rows missing".into()))?,
+                        s.staged_widgets.clone(),
+                        s.gesture(),
+                    ))
+                })();
+                let result = match work {
+                    Ok((request, rows, stage, candidate)) => {
+                        if let Some((baseline, _)) = &ordered_baseline {
+                            self.state
+                                .borrow_mut()
+                                .as_mut()
+                                .expect("active ordered chart")
+                                .restore_gesture(baseline.clone());
+                        }
+                        let result = host.prepare_ordered(request, rows, stage);
+                        if !self.alive.get() {
+                            return Ok(());
+                        }
+                        if result.is_ok() {
+                            self.state
+                                .borrow_mut()
+                                .as_mut()
+                                .expect("active ordered chart")
+                                .restore_gesture(candidate);
+                        }
+                        result
+                    }
+                    Err(error) => Err(error),
+                };
+                match result {
+                    Ok(frame) => ordered_frame = Some(frame),
+                    Err(error) => {
+                        if !self.alive.get() {
+                            return Ok(());
+                        }
+                        if !host.has_ordered_frame() {
+                            return Err(error);
+                        }
+                        if let Some((baseline, focused)) = &ordered_baseline {
+                            let mut state = self.state.borrow_mut();
+                            restore_editable_focus = self.restore_paint_checkpoint(
+                                state.as_mut().expect("active ordered chart"),
+                                baseline.clone(),
+                                focused.clone(),
+                                viewport_checkpoint.as_ref(),
+                            )?;
+                        }
+                        prepared_animation = None;
+                        paint_accepted = false;
+                        ordered_rejected = true;
+                        events.clear();
+                        events.push(BrowserEvent::Error(error));
+                    }
+                }
+            } else {
+                if !host.has_ordered_frame() {
+                    return Err(paint_fault.take().expect("paint fault"));
+                }
+                ordered_rejected = true;
+                paint_accepted = false;
+            }
+        }
+        let mut widget_frame = {
+            let mut state = self.state.borrow_mut();
+            let s = state
+                .as_mut()
+                .ok_or_else(|| ChartError("browser chart stopped".into()))?;
             let (prepared, mut widgets) = match paint_fault.map_or_else(
-                || prepared_animation.map_or_else(|| s.prepare_frame(&self.window, blended), Ok),
+                || {
+                    if !tree_canvas_rejected {
+                        s.validate_tree_canvas_paint(self.window.device_pixel_ratio())?;
+                    }
+                    prepared_animation.map_or_else(|| s.prepare_frame(&self.window, blended), Ok)
+                },
                 Err,
             ) {
                 Ok(prepared) => prepared,
                 Err(error) => {
+                    paint_accepted = false;
+                    ordered_frame = None;
+                    ordered_rejected |= ordered_mode;
                     if let Some((accepted, focused)) = paint_checkpoint.take() {
                         restore_editable_focus = self.restore_paint_checkpoint(
                             s,
@@ -2093,10 +2883,15 @@ impl Engine {
                     let _ = s.surface.release_pointer_capture(id);
                 }
             }
-            if let Err(error) = s
-                .publish()
-                .and_then(|_| s.paint(self.window.device_pixel_ratio(), prepared))
-            {
+            if let Err(error) = s.publish().and_then(|_| {
+                if ordered_rejected || tree_canvas_rejected {
+                    s.paint_owned(self.window.device_pixel_ratio(), prepared, false)
+                } else {
+                    s.paint(self.window.device_pixel_ratio(), prepared)
+                }
+            }) {
+                paint_accepted = false;
+                ordered_frame = None;
                 if let Some((accepted, focused)) = paint_checkpoint.take() {
                     restore_editable_focus = self.restore_paint_checkpoint(
                         s,
@@ -2120,40 +2915,208 @@ impl Engine {
             if let Some(error) = s.presentation_error.take() {
                 events.push(BrowserEvent::Error(error));
             }
-            widgets
+            widgets.map(|widgets| (widgets, s.staged_widgets.take()))
         };
-        if let Some(control) = restore_editable_focus {
-            let _ = control.focus();
-        }
-        self.sync_editable_capture();
-        if let Some(frame) = widget_frame {
-            let host = self.plot_widgets.borrow().clone();
-            if let Some(host) = host {
-                match host.publish(frame) {
-                    Ok(errors) => events.extend(errors.into_iter().map(BrowserEvent::Error)),
-                    Err(error) => events.push(BrowserEvent::Error(error)),
+        let mut tooltip_stage = None;
+        if paint_accepted {
+            let prepared = self.tooltip_stage_for_paint().and_then(|stage| {
+                if let Some(stage) = &stage
+                    && let Err(error) = self.place_tree_tooltip(stage)
+                {
+                    stage.rollback()?;
+                    return Err(error);
+                }
+                Ok(stage)
+            });
+            match prepared {
+                Ok(stage) => {
+                    tooltip_stage = stage;
+                    if let Some(stage) = &tooltip_stage
+                        && let Some(s) = self.state.borrow_mut().as_mut()
+                    {
+                        s.tree_tooltip = Some(stage.clone());
+                    }
+                }
+                Err(error) => {
+                    paint_accepted = false;
+                    ordered_frame = None;
+                    widget_frame = None;
+                    if let Some((accepted, focused)) = paint_checkpoint.take() {
+                        let mut state = self.state.borrow_mut();
+                        let s = state
+                            .as_mut()
+                            .ok_or_else(|| ChartError("Tree tooltip chart stopped".into()))?;
+                        restore_editable_focus = self.restore_paint_checkpoint(
+                            s,
+                            accepted,
+                            focused,
+                            viewport_checkpoint.as_ref(),
+                        )?;
+                        let (previous, _) = s.prepare_frame(&self.window, blended)?;
+                        s.publish()?;
+                        s.paint_owned(self.window.device_pixel_ratio(), previous, false)?;
+                    }
+                    events.clear();
+                    events.push(BrowserEvent::Error(error));
                 }
             }
         }
-        for event in events {
+        if let Some(control) = restore_editable_focus.as_ref() {
+            let _ = control.focus();
+        }
+        self.sync_editable_capture();
+        let mut svg_stage = None;
+        if paint_accepted {
+            match self.place_tree_svg() {
+                Ok(stage) => svg_stage = stage,
+                Err(error) => {
+                    paint_accepted = false;
+                    ordered_frame = None;
+                    widget_frame = None;
+                    if let Some(tip) = &tooltip_stage {
+                        tip.rollback()?;
+                    }
+                    if let Some((accepted, focused)) = paint_checkpoint.take() {
+                        let mut state = self.state.borrow_mut();
+                        let s = state
+                            .as_mut()
+                            .ok_or_else(|| ChartError("Tree SVG chart stopped".into()))?;
+                        restore_editable_focus = self.restore_paint_checkpoint(
+                            s,
+                            accepted,
+                            focused,
+                            viewport_checkpoint.as_ref(),
+                        )?;
+                        let (previous, _) = s.prepare_frame(&self.window, blended)?;
+                        s.publish()?;
+                        s.paint_owned(self.window.device_pixel_ratio(), previous, false)?;
+                    }
+                    events.clear();
+                    events.push(BrowserEvent::Error(error));
+                }
+            }
+        }
+        if let Some(stage) = &svg_stage {
+            stage.adopt(tooltip_stage.as_ref());
+            events.extend(stage.finish().into_iter().map(BrowserEvent::Error));
+        }
+        if ordered_mode {
+            // Native input/effects may have stopped this chart during preparation.
             if !self.alive.get() {
                 return Ok(());
             }
-            self.emit(event);
+            if let Some(frame) = ordered_frame {
+                let host = self.plot_widgets.borrow().clone().expect("ordered host");
+                let mut adopt = || {
+                    if let Some(stage) = &tooltip_stage {
+                        stage.adopt();
+                    }
+                };
+                let committed = if tooltip_stage.is_some() {
+                    host.commit_ordered_with_adopt(frame, &mut adopt)
+                } else {
+                    host.commit_ordered(frame)
+                };
+                match committed {
+                    Ok(errors) => events.extend(errors.into_iter().map(BrowserEvent::Error)),
+                    Err(error) => {
+                        paint_accepted = false;
+                        if !self.alive.get() {
+                            return Ok(());
+                        }
+                        if let Some((baseline, focused)) = &ordered_baseline {
+                            let mut state = self.state.borrow_mut();
+                            let s = state.as_mut().expect("active ordered chart");
+                            restore_editable_focus = self.restore_paint_checkpoint(
+                                s,
+                                baseline.clone(),
+                                focused.clone(),
+                                viewport_checkpoint.as_ref(),
+                            )?;
+                            let (previous, _) = s.prepare_frame(&self.window, blended)?;
+                            s.publish()?;
+                            s.paint_owned(self.window.device_pixel_ratio(), previous, false)?;
+                        }
+                        events.clear();
+                        events.push(BrowserEvent::Error(error));
+                    }
+                }
+            }
+            drop(widget_frame);
+        } else if let Some((frame, stage)) = widget_frame {
+            let host = self.plot_widgets.borrow().clone();
+            if let Some(host) = host {
+                let mut adopt = || {
+                    if let Some(stage) = &tooltip_stage {
+                        stage.adopt();
+                    }
+                };
+                let committed = if tooltip_stage.is_some() {
+                    host.publish_with_adopt(frame, stage, &mut adopt)
+                } else {
+                    host.publish(frame, stage)
+                };
+                match committed {
+                    Ok(errors) => events.extend(errors.into_iter().map(BrowserEvent::Error)),
+                    Err(error) => {
+                        paint_accepted = false;
+                        if !self.alive.get() {
+                            return Ok(());
+                        }
+                        if (self.tree_canvas_bitmap().is_some()
+                            || tooltip_stage.is_some()
+                            || paint_checkpoint
+                                .as_ref()
+                                .is_some_and(|(s, _)| s.tree_canvas.is_some()))
+                            && let Some((accepted, focused)) = paint_checkpoint.take()
+                        {
+                            let mut state = self.state.borrow_mut();
+                            let s = state
+                                .as_mut()
+                                .ok_or_else(|| ChartError("browser chart stopped".into()))?;
+                            restore_editable_focus = self.restore_paint_checkpoint(
+                                s,
+                                accepted,
+                                focused,
+                                viewport_checkpoint.as_ref(),
+                            )?;
+                            let (previous, _) = s.prepare_frame(&self.window, blended)?;
+                            s.publish()?;
+                            s.paint_owned(self.window.device_pixel_ratio(), previous, false)?;
+                        }
+                        events.push(BrowserEvent::Error(error));
+                    }
+                }
+            }
         }
-        if self.alive.get()
-            && (self
-                .state
-                .borrow()
-                .as_ref()
-                .is_some_and(|s| s.motion.is_some())
-                || !self.queue.borrow().is_empty()
-                || self.resize_pending.get()
-                || self.pending_reduced.get().is_some())
+        if let Some(stage) = &tooltip_stage {
+            if paint_accepted {
+                if !stage.was_adopted() {
+                    stage.adopt();
+                }
+                events.extend(
+                    self.pump_tree_tooltip()
+                        .into_iter()
+                        .map(BrowserEvent::Error),
+                );
+            } else {
+                stage.rollback()?;
+            }
+        }
+        drop(_staged_lifetimes);
+        if ordered_mode
+            && let Some(host) = self.plot_widgets.borrow().clone()
+            && let Err(error) = host.flush_cleanup()
         {
-            self.request()?;
+            events.push(BrowserEvent::Error(error));
         }
-        Ok(())
+        if let Some(control) = restore_editable_focus {
+            let _ = control.focus();
+        }
+        if forced_press_cancel || explicit_accepted && paint_accepted {
+            self.tree_press_cancel()?;
+        }
+        self.finish_frame_events(events)
     }
     fn restore_paint_checkpoint(
         &self,
@@ -2177,9 +3140,11 @@ impl Engine {
                 .set(controller.as_ref().map(DomainViewport::domains));
             *self.viewport_controller.borrow_mut() = controller.clone();
         }
-        if !self.editable_contact_live(state) {
+        if !self.editable_contact_live(state) && !self.native_press_contact_live() {
             // An actual up/cancel already released by the browser cannot be
-            // resurrected. Retire that session while keeping accepted ink.
+            // resurrected. A still-captured Tree mouse/pen contact can retain
+            // its accepted gesture on a rejected candidate, but an Up-tail
+            // paint lease and a Widget-only lease cannot revive that gesture.
             let selection = state.model.editable_brush().and_then(|b| b.selection());
             state.model.cancel_drag();
             if state.model.editable_brush().is_some() {
@@ -2344,6 +3309,10 @@ impl State {
             contour_bindings: self.contour_bindings.clone(),
             blends: self.blends.clone(),
             plot_widgets: self.plot_widgets.clone(),
+            staged_widgets: self.staged_widgets.clone(),
+            tree_canvas: self.tree_canvas.clone(),
+            tree_tooltip: self.tree_tooltip.clone(),
+            tree_svg: self.tree_svg.clone(),
         }
     }
     fn restore_gesture(&mut self, state: GestureState) {
@@ -2360,6 +3329,10 @@ impl State {
         self.contour_bindings = state.contour_bindings;
         self.blends = state.blends;
         self.plot_widgets = state.plot_widgets;
+        self.staged_widgets = state.staged_widgets;
+        self.tree_canvas = state.tree_canvas;
+        self.tree_tooltip = state.tree_tooltip;
+        self.tree_svg = state.tree_svg;
     }
     fn coordinates(&self, client: (f64, f64)) -> Result<(f64, f64)> {
         let r = self.surface.get_bounding_client_rect();
@@ -2411,6 +3384,8 @@ impl State {
             Ok(events)
         } else {
             let changes = self.model.set_scene_with_interaction(scene, interaction)?;
+            self.tree_canvas = None;
+            self.tree_svg = None;
             if !self.blends.is_empty() {
                 self.blends = Rc::default();
             }
@@ -2421,7 +3396,35 @@ impl State {
         }
     }
     fn process(&mut self, input: Input, window: &Window) -> Result<Vec<SurfaceEvent>> {
+        if self.tree_svg.is_some() {
+            scene::ensure(
+                !matches!(
+                    &input,
+                    Input::Scene(..)
+                        | Input::InteractionScene(_)
+                        | Input::Layout(_)
+                        | Input::ContourScene(..)
+                        | Input::BlendedAnimation(_)
+                        | Input::TreeCanvas(_)
+                        | Input::PlotWidgetLayout(_)
+                        | Input::PlotWidgetComposition(_)
+                ),
+                "Tree SVG source changes require its unified owner",
+            )?;
+        }
+        if self.tree_canvas.is_some() {
+            let animated = match &input {
+                Input::Scene(_, animate) => *animate,
+                Input::InteractionScene(c) => c.2,
+                Input::ContourScene(..) | Input::BlendedAnimation(_) => true,
+                _ => false,
+            };
+            scene::ensure(!animated, "raw Tree Canvas does not support animation")?;
+        }
         match input {
+            Input::TreeTooltip(_) => Err(ChartError("Tree tooltip bundle was not unpacked".into())),
+            Input::TreeCanvas(candidate) => self.process_tree_canvas(*candidate),
+            Input::TreeSvg(stage) => self.process_tree_svg(stage),
             Input::EditableBrush(command) => self.process_editable_brush(command, window),
             Input::Pointer {
                 kind,
@@ -2429,6 +3432,7 @@ impl State {
                 touch,
                 client,
                 brush,
+                source_mesh,
             } => {
                 if matches!(kind, PointerKind::Cancel) {
                     return self.model.apply(if touch {
@@ -2463,7 +3467,11 @@ impl State {
                         PointerKind::Cancel => SurfaceInput::Cancel { id },
                     }
                 };
-                let changes = self.model.apply(input)?;
+                let changes = if source_mesh {
+                    self.model.apply_without_source_pick(input)?
+                } else {
+                    self.model.apply(input)?
+                };
                 self.pointer = Some(point);
                 self.keyboard = false;
                 if matches!(kind, PointerKind::Down) {
@@ -2568,7 +3576,9 @@ impl State {
                 }
                 self.model.set_hovered(value.into_iter().collect())
             }
-            Input::Focus(_) | Input::PlotWidgetFocus | Input::LegendActivate(_) => Ok(vec![]),
+            Input::Focus(_) | Input::PlotWidgetFocus { .. } | Input::LegendActivate(_) => {
+                Ok(vec![])
+            }
             Input::Activate(id) => {
                 if self.model.logical_datum(&id).is_some() {
                     self.model.activate(&id)
@@ -2586,14 +3596,37 @@ impl State {
                 self.admit_interaction_scene(&candidate.scene, candidate.interaction.as_ref())?;
                 modes.validate(&candidate.scene)?;
                 let changes = self.model.set_layout(candidate)?;
+                self.tree_canvas = None;
                 self.blends = Rc::new(modes);
                 self.motion = None;
                 self.last_time = None;
                 self.contour_bindings.clear();
                 Ok(changes)
             }
+            Input::PlotWidgetComposition(candidate) => {
+                let (candidate, packet, stage) = *candidate;
+                stage.validate()?;
+                self.require_plot_widget_type(&packet)?;
+                let (mut model, mut changes) = match candidate {
+                    Some(candidate) => self.plot_widget_layout_candidate(candidate, &packet)?,
+                    None => {
+                        plot_widgets::prepare(&self.model, &packet, true)?;
+                        (self.model.clone(), vec![])
+                    }
+                };
+                changes.extend(model.set_widget_replacements(packet.replace_ink().clone())?);
+                self.model = model;
+                self.tree_canvas = None;
+                self.plot_widgets = Some(Rc::new(packet));
+                self.staged_widgets = Some(stage);
+                self.blends = Rc::default();
+                self.motion = None;
+                self.last_time = None;
+                self.contour_bindings.clear();
+                Ok(changes)
+            }
             Input::PlotWidgets(layout) => {
-                self.require_plot_widgets()?;
+                self.require_plot_widget_type(&layout)?;
                 plot_widgets::prepare(&self.model, &layout, true)?;
                 self.plot_widgets = Some(Rc::new(layout));
                 Ok(vec![])
@@ -2602,6 +3635,7 @@ impl State {
                 let (candidate, layout) = *candidate;
                 let (model, changes) = self.plot_widget_layout_candidate(candidate, &layout)?;
                 self.model = model;
+                self.tree_canvas = None;
                 self.plot_widgets = Some(Rc::new(layout));
                 self.blends = Rc::default();
                 self.motion = None;
@@ -2674,7 +3708,15 @@ impl State {
         &self,
         model: &SurfaceModel,
     ) -> Result<(Scene, Vec<String>, Option<ActiveInteraction>)> {
-        let mut scene = model.scene().without_series(model.hidden());
+        let mut scene = if self.source_ordered() {
+            model.scene().clone()
+        } else {
+            let projected = match &self.plot_widgets {
+                Some(packet) => packet.project_scene(model.scene()),
+                None => model.scene().without_mark_ink(model.widget_replacements()),
+            };
+            projected.without_series(model.hidden())
+        };
         let tooltip_ids = self.tooltip_ids(model);
         let interaction = model.active_interaction(&tooltip_ids);
         let active: Vec<_> = if tooltip_ids.is_empty() {
@@ -2714,116 +3756,12 @@ impl State {
         scene.validate()?;
         Ok((scene, tooltip_ids, interaction))
     }
-    fn prepare_frame(
-        &self,
-        window: &Window,
-        blended: bool,
-    ) -> Result<(blends::Frame, Option<plot_widgets::Prepared>)> {
-        self.prepare_frame_for(&self.model, self.current_blends(), window, blended)
-    }
-    fn prepare_frame_for(
-        &self,
-        model: &SurfaceModel,
-        profile: &MarkBlends,
-        window: &Window,
-        blended: bool,
-    ) -> Result<(blends::Frame, Option<plot_widgets::Prepared>)> {
-        let (scene, tooltip_ids, interaction) = self.paint_scene_for(model)?;
-        let widgets = self.prepare_widgets_for(model)?;
-        let modes = profile.for_scene(&scene);
-        let view = model.paint_transform();
-        let canvas = match &self.canvas {
-            // A final Normal frame of a blend transition still participates in
-            // the same publication transaction and must prepare its backing
-            // store and pattern tiles before publishing.
-            Some(canvas) if blended || !modes.is_empty() => Some(render::prepare_canvas(
-                &scene,
-                canvas,
-                blends::ratio(window.device_pixel_ratio(), &scene),
-                view,
-                &modes,
-            )?),
-            None if !modes.is_empty() => {
-                blends::admit(BrowserRenderer::Svg, window, &scene, &modes, view)?;
-                None
-            }
-            _ => None,
-        };
-        Ok((
-            blends::Frame {
-                scene,
-                tooltip_ids,
-                interaction,
-                modes,
-                canvas,
-            },
-            widgets,
-        ))
-    }
-    fn paint(&mut self, dpr: f64, prepared: blends::Frame) -> Result<()> {
-        self.paint_owned(dpr, prepared, true)
-    }
-    fn paint_owned(
+    fn paint_tooltip(
         &mut self,
-        dpr: f64,
-        prepared: blends::Frame,
-        advance_revision: bool,
+        scene: &Scene,
+        tooltip_ids: &[String],
+        interaction: Option<&ActiveInteraction>,
     ) -> Result<()> {
-        let blends::Frame {
-            scene,
-            tooltip_ids,
-            interaction,
-            modes,
-            canvas: prepared_canvas,
-        } = prepared;
-        if self.surface.get_attribute("aria-label").as_deref() != Some(scene.title.as_str()) {
-            self.surface
-                .set_attribute("aria-label", &scene.title)
-                .map_err(host)?;
-        }
-        if let Some(canvas) = &self.canvas {
-            if let Some(prepared) = prepared_canvas {
-                prepared.paint(&scene, &modes)?;
-            } else {
-                render::draw_canvas_with_transform(
-                    &scene,
-                    canvas,
-                    blends::ratio(dpr, &scene),
-                    self.model.paint_transform(),
-                )?;
-            }
-            canvas.style().set_property("width", "100%").map_err(host)?;
-            canvas
-                .style()
-                .set_property("height", "100%")
-                .map_err(host)?;
-            canvas
-                .style()
-                .set_property("display", "block")
-                .map_err(host)?;
-        } else {
-            if self.svg.is_none() {
-                let document = self
-                    .surface
-                    .owner_document()
-                    .ok_or_else(|| ChartError("SVG surface has no document".into()))?;
-                self.svg = Some(svg::RetainedSvg::new(&document)?);
-            }
-            if modes.is_empty() {
-                self.svg.as_mut().unwrap().paint(
-                    &self.surface,
-                    &scene,
-                    self.model.paint_transform(),
-                )?;
-            } else {
-                self.svg.as_mut().unwrap().paint_with_blends(
-                    &self.surface,
-                    &scene,
-                    self.model.paint_transform(),
-                    &modes,
-                )?;
-            }
-        }
         let r = self.surface.get_bounding_client_rect();
         let font = scene.typography.tooltip_font(
             &self.options.tooltip_options.text.font,
@@ -2832,12 +3770,15 @@ impl State {
         css(&self.tooltip, "font-family", &font.css_family())?;
         css(&self.tooltip, "font-weight", &font.weight.to_string())?;
         css(&self.tooltip, "display", "none")?;
-        if self.options.tooltip && !tooltip_ids.is_empty() {
+        if self.options.tooltip
+            && self.tree_tooltip.as_ref().is_none_or(|tip| !tip.managed())
+            && !tooltip_ids.is_empty()
+        {
             let marks: Vec<_> = tooltip_ids
                 .iter()
                 .filter_map(|id| self.model.datum(id))
                 .collect();
-            let text = match if let Some(active) = &interaction {
+            let text = match if let Some(active) = interaction {
                 interaction_tooltip_text(&self.options.tooltip_options, active)
             } else {
                 tooltip_text(&self.options.tooltip_options, &marks)
@@ -2944,6 +3885,135 @@ impl State {
         } else {
             css(&self.tooltip, "display", "none")?;
         }
+        Ok(())
+    }
+    fn prepare_frame(
+        &self,
+        window: &Window,
+        blended: bool,
+    ) -> Result<(blends::Frame, Option<plot_widgets::Prepared>)> {
+        self.prepare_frame_for(&self.model, self.current_blends(), window, blended)
+    }
+    fn prepare_frame_for(
+        &self,
+        model: &SurfaceModel,
+        profile: &MarkBlends,
+        window: &Window,
+        blended: bool,
+    ) -> Result<(blends::Frame, Option<plot_widgets::Prepared>)> {
+        if let Some(stage) = &self.staged_widgets {
+            stage.validate()?;
+        }
+        let (scene, tooltip_ids, interaction) = self.paint_scene_for(model)?;
+        let widgets = self.prepare_widgets_for(model)?;
+        let modes = profile.for_scene(&scene);
+        let view = model.paint_transform();
+        let canvas = match &self.canvas {
+            // A final Normal frame of a blend transition still participates in
+            // the same publication transaction and must prepare its backing
+            // store and pattern tiles before publishing.
+            Some(canvas) if blended || !modes.is_empty() => Some(render::prepare_canvas(
+                &scene,
+                canvas,
+                blends::ratio(window.device_pixel_ratio(), &scene),
+                view,
+                &modes,
+            )?),
+            None if !modes.is_empty() && !self.source_ordered() => {
+                blends::admit(BrowserRenderer::Svg, window, &scene, &modes, view)?;
+                None
+            }
+            _ => None,
+        };
+        Ok((
+            blends::Frame {
+                scene,
+                tooltip_ids,
+                interaction,
+                modes,
+                canvas,
+            },
+            widgets,
+        ))
+    }
+    fn paint(&mut self, dpr: f64, prepared: blends::Frame) -> Result<()> {
+        self.paint_owned(dpr, prepared, true)
+    }
+    fn paint_owned(
+        &mut self,
+        dpr: f64,
+        prepared: blends::Frame,
+        advance_revision: bool,
+    ) -> Result<()> {
+        if advance_revision {
+            self.validate_tree_canvas_paint(dpr)?;
+        }
+        let blends::Frame {
+            scene,
+            tooltip_ids,
+            interaction,
+            modes,
+            canvas: prepared_canvas,
+        } = prepared;
+        if self.surface.get_attribute("aria-label").as_deref() != Some(scene.title.as_str()) {
+            self.surface
+                .set_attribute("aria-label", &scene.title)
+                .map_err(host)?;
+        }
+        if self.tree_svg.is_some() || self.source_ordered() {
+            // The registered source-order plane tree is prepared and committed
+            // outside State borrows, together with its real Widget scopes.
+        } else if let Some(canvas) = &self.canvas {
+            if let Some(raw) = &self.tree_canvas {
+                raw.blit(canvas)?;
+            } else if let Some(prepared) = prepared_canvas {
+                prepared.paint(&scene, &modes)?;
+            } else {
+                render::draw_canvas_with_transform(
+                    &scene,
+                    canvas,
+                    blends::ratio(dpr, &scene),
+                    self.model.paint_transform(),
+                )?;
+            }
+            canvas.style().set_property("width", "100%").map_err(host)?;
+            canvas
+                .style()
+                .set_property("height", "100%")
+                .map_err(host)?;
+            canvas
+                .style()
+                .set_property("display", "block")
+                .map_err(host)?;
+        } else {
+            if self.svg.is_none() {
+                let document = self
+                    .surface
+                    .owner_document()
+                    .ok_or_else(|| ChartError("SVG surface has no document".into()))?;
+                let mut svg = svg::RetainedSvg::new(&document)?;
+                if self.tree_labels_passive {
+                    svg.make_labels_passive();
+                }
+                self.svg = Some(svg);
+            }
+            if modes.is_empty() {
+                self.svg.as_mut().unwrap().paint(
+                    &self.surface,
+                    &scene,
+                    self.model.paint_transform(),
+                )?;
+            } else {
+                self.svg.as_mut().unwrap().paint_with_blends(
+                    &self.surface,
+                    &scene,
+                    self.model.paint_transform(),
+                    &modes,
+                )?;
+            }
+        }
+        let r = self.surface.get_bounding_client_rect();
+        self.paint_tooltip(&scene, &tooltip_ids, interaction.as_ref())?;
         if let Some(b) = self
             .model
             .transformed_brush()?
@@ -2967,7 +4037,10 @@ impl State {
         if let Some(host) = &self.editable_host {
             host.publish(&self.surface, self.model.editable_brush(), &scene)?;
         }
-        let role = if self.model.editable_brush().is_some() {
+        let role = if self.tree_svg.is_some()
+            || self.source_ordered()
+            || self.model.editable_brush().is_some()
+        {
             "group"
         } else {
             "img"
@@ -2982,7 +4055,9 @@ impl State {
         self.surface
             .set_attribute("data-revision", &self.revision.to_string())
             .map_err(host)?;
-        let renderer = if self.canvas.is_some() {
+        let renderer = if self.canvas.is_some()
+            || (self.source_ordered() && self.options.renderer == BrowserRenderer::Canvas)
+        {
             "canvas"
         } else {
             "svg"

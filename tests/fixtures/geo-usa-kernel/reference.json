@@ -1,0 +1,25 @@
+{
+  "schema": 2,
+  "d3GeoVersion": "3.1.1",
+  "sourceSHA256": {
+    "projection/albersUsa.js": "3c0aa5d8ca8d92a5557bad7b336fa57831866e8fbb68e15fa3e69983999aa66f",
+    "projection/albers.js": "8b13808049f2f3d2aaaa49f53b17fdd6b71d51422be89c34e18681ae1f403f93",
+    "projection/conicEqualArea.js": "b06b06ac53b5ac1cb106d2c34a2b505cd28bda0cb8404574ff904cd9a6539913",
+    "projection/index.js": "1c2727b0dd8e4219aadb9bc4017575eec16394aff8b0a0000804fe1b15173f54",
+    "projection/fit.js": "23801607fefe0576e401270a76f18e16b6421ced96658f00e61d3a5ca3e04b95",
+    "rotation.js": "1eb2bb01f3647dc3047e30876db5472bce48ac0afd023be2f1c5591d71529f91",
+    "math.js": "2fd787731d13e29df7f32cefc01079554d86bb87ad2c89d0d7fd5e040487ca90",
+    "clip/rectangle.js": "e726070528ac5cc903929934fa8d87420d59effdbd996388048ae2cabcad9652",
+    "clip/buffer.js": "cb4b6265d1baa6cbb47ab932cf9f5b133c9f5e4307a98f8eeb969db22094c333",
+    "clip/rejoin.js": "6f70ed7e4cad610c85ef6b15d60a21eb271dfe2365350015e05223e096138043",
+    "clip/line.js": "1b08c2f20a5bb2a9c180bc91695e0a62c95cde2e47395146fc24281fb1f9d92f"
+  },
+  "producerSHA256": "97b02c154c0df6f1860f8ef542435adb8fab63a0d1ee56ca075aefd4fa019d58",
+  "valuesSHA256": "0c67f62bb762ef5d5ef77473d76d6fa16ad1c22021886a874fb66f25d8c74dc6",
+  "counts": {
+    "states": 9,
+    "points": 5778,
+    "inverses": 792,
+    "regionInverses": 414
+  }
+}

@@ -61,7 +61,7 @@ impl Budget {
 }
 struct PhysicalInk {
     physical: String,
-    owner: String,
+    owner: Option<String>,
     series: String,
     fill: Option<Shape>,
     stroke: Option<StrokeInk>,
@@ -375,17 +375,55 @@ pub(super) struct PreparedPainted {
     owners: BTreeSet<String>,
 }
 impl PreparedPainted {
-    pub(super) fn prepare(scene: &Scene, binding: &InteractionBinding) -> Result<Self> {
+    pub(super) fn prepare(
+        scene: &Scene,
+        binding: &InteractionBinding,
+        excluded: &BTreeSet<String>,
+    ) -> Result<Self> {
+        Self::prepare_order(scene, binding, excluded, None)
+    }
+    pub(super) fn prepare_projected(
+        scene: &Scene,
+        binding: &InteractionBinding,
+        excluded: &BTreeSet<String>,
+        indices: &[usize],
+    ) -> Result<Self> {
+        Self::prepare_order(scene, binding, excluded, Some(indices))
+    }
+    fn prepare_order(
+        scene: &Scene,
+        binding: &InteractionBinding,
+        excluded: &BTreeSet<String>,
+        indices: Option<&[usize]>,
+    ) -> Result<Self> {
         let sites: BTreeSet<_> = binding.sites.iter().map(|s| s.mark_id.as_str()).collect();
         let mut budget = Budget::default();
         let mut entries = Vec::new();
         let mut owners = BTreeSet::new();
         let groups = scene.mark_group_opacities();
-        for original in scene.paint_marks() {
+        let originals = if let Some(indices) = indices {
+            ensure(
+                indices.len() <= 200_000,
+                "source paint reference budget exceeded",
+            )?;
+            indices
+                .iter()
+                .map(|i| {
+                    scene.marks.get(*i).ok_or_else(|| {
+                        ChartError("source paint projection references a missing Mark".into())
+                    })
+                })
+                .collect::<Result<Vec<_>>>()?
+        } else {
+            scene.paint_marks().collect()
+        };
+        for original in originals {
             let owner = if sites.contains(original.id.as_str()) {
-                &original.id
+                Some(&original.id)
             } else if let Some(owner) = binding.ink_owners.get(&original.id) {
-                owner
+                Some(owner)
+            } else if indices.is_some() {
+                None
             } else {
                 continue;
             };
@@ -420,10 +458,19 @@ impl PreparedPainted {
             if fill.is_none() && stroke.is_none() {
                 continue;
             }
-            owners.insert(owner.clone());
+            // Logical eligibility describes the authored business frame;
+            // replacing physical ink does not retire its source datum.
+            if let Some(owner) = owner {
+                owners.insert(owner.clone());
+            }
+            // Admit the entire authored profile and budget above, even when
+            // its physical ink is replaced. Only the hit projection changes.
+            if excluded.contains(&original.id) {
+                continue;
+            }
             entries.push(PhysicalInk {
                 physical: mark.id.clone(),
-                owner: owner.clone(),
+                owner: owner.cloned(),
                 series: mark.series.clone(),
                 fill,
                 stroke,
@@ -436,19 +483,35 @@ impl PreparedPainted {
     pub(super) fn has_owner(&self, id: &str) -> bool {
         self.owners.contains(id)
     }
-    pub(super) fn hit(&self, point: (f64, f64), hidden: &BTreeSet<String>) -> Option<(&str, &str)> {
-        let p = P::new(point.0, point.1);
+    #[cfg(all(feature = "web", target_arch = "wasm32"))]
+    pub(super) fn ink_ids(&self, hidden: &BTreeSet<String>) -> BTreeSet<String> {
         self.entries
             .iter()
-            .rev()
-            .find(|e| {
-                !hidden.contains(&e.series)
-                    && e.clip
-                        .is_none_or(|c| c.width > 0. && c.height > 0. && c.contains(p.x, p.y))
-                    && e.clip_path.as_ref().is_none_or(|c| c.contains(p.x, p.y))
-                    && (e.fill.as_ref().is_some_and(|s| s.contains(p))
-                        || e.stroke.as_ref().is_some_and(|s| s.contains(p)))
-            })
-            .map(|e| (e.physical.as_str(), e.owner.as_str()))
+            .filter(|e| !hidden.contains(&e.series))
+            .map(|e| e.physical.clone())
+            .collect()
+    }
+    pub(super) fn hit(&self, point: (f64, f64), hidden: &BTreeSet<String>) -> Option<(&str, &str)> {
+        self.target(point, hidden)
+            .and_then(|e| e.owner.as_deref().map(|owner| (e.physical.as_str(), owner)))
+    }
+    #[cfg(all(feature = "web", target_arch = "wasm32"))]
+    pub(super) fn physical_target(
+        &self,
+        point: (f64, f64),
+        hidden: &BTreeSet<String>,
+    ) -> Option<&str> {
+        self.target(point, hidden).map(|e| e.physical.as_str())
+    }
+    fn target(&self, point: (f64, f64), hidden: &BTreeSet<String>) -> Option<&PhysicalInk> {
+        let p = P::new(point.0, point.1);
+        self.entries.iter().rev().find(|e| {
+            !hidden.contains(&e.series)
+                && e.clip
+                    .is_none_or(|c| c.width > 0. && c.height > 0. && c.contains(p.x, p.y))
+                && e.clip_path.as_ref().is_none_or(|c| c.contains(p.x, p.y))
+                && (e.fill.as_ref().is_some_and(|s| s.contains(p))
+                    || e.stroke.as_ref().is_some_and(|s| s.contains(p)))
+        })
     }
 }

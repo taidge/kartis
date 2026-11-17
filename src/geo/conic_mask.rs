@@ -16,6 +16,10 @@ impl GeoProjectionContext {
                 && (4..=180_000).contains(&max_points),
             "invalid projection footprint precision or budget",
         )?;
+        ensure(
+            self.usa_projection().is_none(),
+            "Albers USA footprints require a selected component rectangle",
+        )?;
         let projection = self.view.projection;
         let Some(kernel) = projection.conic_kernel() else {
             return Ok(None);

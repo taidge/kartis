@@ -14,10 +14,12 @@ use crate::{
 };
 
 mod custom;
+mod widgets;
 pub use custom::{
     HeatmapCellContext, HeatmapCellFactory, HeatmapCellGeometry, HeatmapFactories,
     HeatmapLabelContext, HeatmapLabelFactory,
 };
+pub use widgets::*;
 
 pub const MAX_HEATMAP_CELLS: usize = 20_000;
 pub const MAX_HEATMAP_AXIS_TICKS: usize = 4_000;
@@ -307,6 +309,9 @@ pub struct HeatmapLayout {
     anchors: custom::CellAnchors,
     custom_source: Option<custom::CustomSource>,
     binding_source: Vec<custom::BindingSourceCell>,
+    // Original input order is independent of configured row/column order.
+    // Widget adapters must never infer nullable source from Mark.value.
+    input_cells: Vec<HeatCell>,
 }
 impl HeatmapLayout {
     pub fn cell(&self, key: &HeatmapCellKey) -> Option<&ComputedHeatmapCell> {
@@ -1134,6 +1139,7 @@ fn heatmap_layout_impl(
         anchors,
         custom_source: None,
         binding_source: vec![],
+        input_cells: cells.to_vec(),
     };
     layout.set_active(o.active.clone())?;
     layout.freeze_binding_source();

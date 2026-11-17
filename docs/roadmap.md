@@ -2,6 +2,15 @@
 
 该目标保持进行中。此清单区分已实现、已测试的推进和仍未完成的功能；不以示例数量或编译通过代替 nivo 等价性。
 
+## 当前推进：Stream dotComponent 与绑定 Chart 锚点
+
+- [x] 类型化真实点角色、共享原始系列、采样/堆叠元数据及独立源图层颜色；保留零值与零尺寸资格，不将空值或禁用点占位冒充组件。
+- [x] 完整来源、尺度配置与实际 Stream 标记预检先于定位回调；自定义 Path 使用逻辑采样锚点，绑定 Chart 与 CPU 图像共同接线。
+- [x] 原版 Nivo 函数与门禁冻结源执行、只读离线复核和八类参考篡改拒绝。
+- [x] Memory 状态/身份及双 DPR PNG 发布联动回滚，明确区别真实 OS 输入。
+- [x] 四浏览器八上下文、208 画面、64 组可信输入、112 次严格拒绝回滚；完整 1,643 minimal / 1,961 all / 18 doctest 与质量门禁通过。16 个禁用零高度面积边界探测单列诊断，不据此宣称逐像素等价，见[验收](verification.md#development-stream-dot-components-and-bound-chart-anchors)。
+- 图层组件、自动 spring、任意 Widget 导出及原生同层输入继续保留；GPU/worker 后置。
+
 ## 当前推进：BoxPlot 逐摘要图例工厂与类型化目标
 
 - [x] 显式Keys／ByLabel、借用String工厂、首代表去重与完整域稳定排序；显示行与Series／Category隐藏目标分开，四宿主处理重入、排队和退役意图。
@@ -85,7 +94,8 @@
 - [x] HeatMap 单元格与 Bar 单柱的 Geometry/FillPaint 工厂，保留原始值、逻辑站点、真实墨迹、受控高亮和受管来源校验；NULL 与零值分别遵守各图型数据模型。
 - [x] 独立复核修复 HeatMap 标签归属和默认 NULL→零值冒充来源两个问题；Bar 默认/缩放、受控悬停及公开帧篡改拒绝已独立通过。
 - [x] 正式整合版本：最小特性 1120、全特性 1331、15 doctest；native/WASM 严格检查和 Rust 1.95；四个 Glory 消费者与三组中英文完整指南。新四浏览器 × DPR1/2 × 两图族共 16 上下文全部通过，228 PNG、80 真实破坏负控已独立核验；失败首轮保留，最终成绩见 [verification.md](verification.md)。
-- [ ] 继续逐角色接入自定义 Widget、更多颜色/标签配置与输入范围；GPU/worker 继续暂缓。
+- [x] 开发版类型化实时 Widget 数据包和 Bullet range/measure/marker 覆盖层，保留稳定子组件与当前已接受数据；完整范围见[指南](bullet-widgets.zh-CN.md)。
+- [ ] 继续接入其他角色的自定义 Widget、更多颜色/标签配置与输入范围；任意原图层交错、控件快照导出及 GPU/worker 仍保留。
 
 Bar/HeatMap owned-label 的共享 `InheritedColor` 已正式验收：该检查点最小 1141/全特性 1353/15 doctest、四个 Glory 消费者及完整双语指南通过。四浏览器8上下文/232PNG/32绘制对照/64负控独立核验通过；独立SVG仅单实色填充改用相同数值的 fill-opacity，WebKit 原失败的8帧均值为零。原失败保留，旧 retained/font/compositor 不改绿。
 
@@ -344,3 +354,408 @@ Bar/HeatMap owned-label 的共享 `InheritedColor` 已正式验收：该检查�
 - [x] Radar owned point-label 文字工厂：typed index/key/value/格式化上下文、几何组合与共享尺度，保留既有 tooltip 和锚点；无回调存留。
 
 详细受检范围和保留的上游差异分别见[颜色工厂](boxplot-color-factory.zh-CN.md)、[月份间距](calendar-month-spacing.zh-CN.md)、[点标签](radar-point-labels.zh-CN.md)及[验收记录](verification.md)。GPU／worker继续暂缓，前述更宽差距仍保留。
+
+## 未发布开发增量
+
+- [x] Funnel 借用阶段 Geometry 工厂；保留旧入口及独立原侧边框策略，原中心锚点与自定义墨迹区分。
+- [x] Parallel 数据/像素/Brush 逐轴筛选控制器，完整源尺度/配色身份与事务更新。
+- [ ] Parallel 实时宿主 Brush 接线、分类变量；Funnel 的 builtin 内 Source Widgets 混排及更广 React 行为等价仍单列。独立字面 SVG 整层 Glory 组件、原生 part hook／提示已完成专项验收；逐属性 Spring 与时钟见后续动画节，上游无退出过渡。
+
+这些开发 API 未包含在 crates.io `0.1.0` 中。指南与受检边界见[差距清单](feature-gaps.md#开发版增量阶段几何与平行坐标筛选)。其它未完成项不因这两项增量而关闭。
+
+## 未发布开发增量：测量折行
+
+- [x] 真实候选 advance 驱动 Words/Graphemes 折行；有界测量、max-lines、长词/溢出策略。
+- [x] 事务 Scene 行替换、字体/归属/clip/draw-order 维护与真实 FontRegistry 包装。
+- [x] 显式单行空白协议：SVG、Canvas、CPU、Glory Text 与真实测量一致传递模式；保留默认 Legacy 行为。
+- [ ] 完整 CSS/UAX14、段落 bidi 后换行与自动竖排。
+
+受检 profile 和原生字体差异见[折行指南](text-wrapping.zh-CN.md)，不将显式路径结果等同于任意宿主文字一致。
+
+
+## 未发布开发增量：Waffle 与 Calendar 年份标签
+
+- [x] Waffle 借用单元格几何/画笔工厂：占用及空格、原始槽位锚点、实际墨迹拾取和最终帧预算。
+- [x] Calendar FullYears 年份标签四向 Before/After、正负 offset、借用文字工厂及颜色 profile 组合。
+- [x] Waffle 实际单元格及空格的实时组件适配，遵守测量、身份与宿主边界。
+- [ ] Waffle 组区域工厂与区域实时组件；Calendar 完整 Nivo 排版及跨后端 baseline 等价。
+
+这些 API 不属于已发布 0.1.0；受检范围见[Waffle](waffle-custom.zh-CN.md)与[Calendar](calendar-year-legend.zh-CN.md)。
+
+
+## 未发布开发增量：Bullet 部件
+
+- [x] Range/Measure/Marker 借用几何/画笔工厂、原始数据与排序身份、实际墨迹和原部件中心区分。
+- [x] 共享值轴组合、最终帧预算、显式实色 PaintedGeometry 预检及 Glory 类型化接线。
+- [ ] 任意 React/Widget 生命周期与 animatedProps 对象协议；既有较宽样式和平台差距仍保留。
+
+指南见[Bullet 部件工厂](bullet-custom.zh-CN.md)。这些开发 API 未包含在已发布 0.1.0 中。
+
+
+## 未发布开发增量：Bump 两端文字
+
+- [x] Start/End 独立借用文字工厂；保留原 label、图例、tooltip、owner、样式和逻辑身份。
+- [x] 点／文字组合入口，明确逐系列调用顺序、missing/hidden/disabled、空槽及 UTF-8 预算。
+- [ ] 自动端点文字避碰、任意实时组件和更宽宿主验收继续按差距清单推进。
+
+用法见[Bump 两端文字](bump-endpoint-labels.zh-CN.md)。不将显式字体路径导出等同于普通宿主文字像素完全一致。
+
+
+## 已实现并专项验收：Albers USA 有界复合投影
+
+- [x] 三分区固定投影与区域逆算内核、原像素 epsilon 和区域 provenance。
+- [x] 完整平面矩形裁剪基础：凹轮廓、穿边界的孔洞、整窗覆盖、开放线重入及有界工作量。
+- [x] 共享拟合 context 的复合模式、三路共同 World/Data fit、共享预算与单一源 feature 身份。
+- [x] glyph／地点标签所选区域 mask、共享颜色域与 browser／raster 分区逆算接口。
+- [x] World／Data 地图及 symbol／glyph 导出在四浏览器、DPR 1/2 的实际 SVG／Canvas／CPU 比较，原生缩放坐标链与类型化控件验收。
+- [x] 分区线路／经纬网、完整描边 mask 与 canonical ownership。
+- [x] 新分区逆算的浏览器宿主运行时、可编辑标签及真实控件／拒绝事务验收。
+
+以上开发 API 仍属 Unreleased；本项按受检有界输入实现，不承诺任意球面拓扑或逐位相同的
+原版退化接触，详见[指南与验收边界](geo-albers-usa.zh-CN.md)。更广地理拓扑、其他图型差距
+以及 GPU／worker 继续按原计划保留。
+
+## 已实现并专项验收：Piecewise 重复域节点
+
+- [x] 非严格单调／全常量域、变换坐标选段、全域 clamp、显式逆分支及 UTC TimeClip。
+- [x] Line 的投影后裁剪、全常量折线与面积基线，Scatter 的全断点重排。
+- [x] 原始局部像素 range 视口反算、全常量窗口、原 controller 重置及无界 inverse clamp。
+- [x] 原版 D3 的 9,496 配置核心矩阵及 4,128 条 Line／Scatter 视口记录。
+- [x] 真正编译 WASM 的全部核心矩阵与浏览器 Math.pow 路径。
+- [x] Chrome／Firefox／WebKit／Edge、DPR 1/2 的 SVG／Canvas、指针／键盘和拒绝事务。
+- [x] 锁定参考依赖、CI 接线与双语说明。
+
+本项属于 Unreleased。数值与宿主证据、首次失败和平台数学限制见
+[重复域节点指南](piecewise-repeated.zh-CN.md)及[验收](verification.md#development-repeated-domain-scales-and-consumers)。
+更多图型接线、既有普通文字／严格 compositor 差距与 GPU／worker 保留。
+
+## 已实现并专项验收：Swarm 节点与 Network 连线工厂
+
+- [x] Swarm 借用原始来源、组与已排布站点，自定义几何／画笔不反向改变碰撞圆或值轴。
+- [x] 原数据锚点、Nearest、实际墨迹 Exact、零尺寸／透明资格及累计预算。
+- [x] Network 借用当前边／源目标状态，组合节点 glyph 与显式关系身份，平行边／自环独立。
+- [x] 浏览器保留连线工厂，按 tick／拖动／resize／替换重建；失败候选保留旧帧和物理位置。
+- [x] 回调读取、嵌套请求受检拒绝、内部 stop 及预检 stop 的安全释放；独立审计复现缺陷后修复。
+- [x] 原版 Nivo 真实 Canvas 函数参考、Memory／Raster／CPU 与四浏览器 DPR1/2 专项。
+- [x] 双语指南、默认继承回归及 CI 接线。
+
+新功能属于 Unreleased。[Swarm](swarm-custom.zh-CN.md) 与
+[Network](network-link-custom.zh-CN.md) 工厂提供共享 Scene 绘制，不等于任意组件或
+另一力布局的坐标／动画轨迹相同。更广实时 Widget 生命周期及既有平台差距继续保留。
+
+
+## 开发版：事务式 Widget 墨迹替换
+
+- [x] `PlotWidgetsComposition<T>` / `PlotWidgetCompositionContext<T>`，新 key/revision 先隐藏构建，成功发布后提交；旧子组件在此之前保留已接受数据。
+- [x] 语义 Chart、`raster_chart` 与 BrowserChart SVG/Canvas 共同准入；指定 physical mark 绘制与拾取排除，source Scene、全部标签和逻辑控件保持；同 Scene 模式切换恢复原墨迹。
+- [x] 组 0 透明度隐藏／inert 但保状态，暂存新组件预算、清理重入与停止、PNG／Canvas 发布拒绝及新 key 失败已验收。
+- [x] 1,595 minimal / 1,897 all / 18 doctest，严格 native/WASM 检查；四浏览器八上下文、88 画面对照与 120 条拒绝记录通过。参见[指南](widget-composition.zh-CN.md)及[验收记录](verification.md#development-transactional-widget-composition)。
+- [ ] 任意 Scene 原层级与 Widget 交错、控件墨迹快照／Scene 导出、更多图型角色和设备／字体差距继续推进；GPU/worker 暂缓。
+
+
+### 开发中：浏览器 Scene 顺序真实 Widget
+
+- [x] 共享受检 Paint/Widget/Group 计划，保留字体、裁剪及原始标签位置。
+- [x] SVG/Canvas 浏览器按原始顺序组合，整组透明度只应用一次，CSS 源混色可读取前方 Widget。
+- [x] 保留作用域的跨父节点移动与受检失败回滚；alpha 像素的有界精确矩形分解。
+- [ ] 原生宿主同层精确输入遮挡、任意 Widget Scene 导出及自动 spring。
+- [x] 四浏览器八上下文、256 截图、320 原生输入检查、128 拒绝及 80 生命周期记录；全量 1,614 minimal / 1,916 all / 18 doctest。见[指南](ordered-widgets.zh-CN.md)及[验收](verification.md#development-scene-order-live-widgets)。
+
+
+### 开发版：HeatMap / Waffle cellComponent 角色
+
+- [x] HeatMap 原始可空数据、原输入索引、当前 computed cell 与真实 Mark 的类型化组件适配。
+- [x] Waffle 实际单元格及空格组件、共享 owned group 快照、格位身份与重新分配元数据。
+- [x] typed 装饰 Mark 准入，不伪造业务标签、canonical 控制或站点，旧无类型规则保持。
+- [x] 真实 Memory 与 DPR1/2 PNG 发布拒绝的来源/组件回滚，最小配置完整示例。
+- [x] Waffle 透明 area 事件角色：完整占用格位、真实 canonical 站点和物理墨迹分离。
+- [ ] Waffle 组区域实时 Widget 工厂（Nivo 无 areaComponent prop，属于扩展角色）。
+- [x] 后续 CPU 图像 Chart 已接通完整绑定指针和实时组件组合，验收见 [图像输入指南](raster-chart-bindings.zh-CN.md)。
+- 自动 spring、任意 Widget 导出和原生同层输入继续保留，GPU/worker 后置。
+- [x] 两种角色各四浏览器八上下文、416 合计画面；全量 1,627 minimal / 1,931 all / 18 doctest。完整 Chrome 宿主 CLI 含原严格尺度门禁通过，旧跨平台总矩阵不重分类。见[指南](cell-widgets.zh-CN.md)及[验收](verification.md#development-cell-widgets-and-complete-chrome-host-cli)。
+
+
+### 开发版：Scatter nodeComponent 角色
+
+- [x] 显式原系列与当前公开布局一致性预检；共享 owned 原 datum、完整 series 与 computed site。
+- [x] 原始 XY 类型及数值符号位保留；零尺寸、透明和 plot 外实际节点角色，缺失/隐藏/省略不补造。
+- [x] 使用既有测量、覆盖/严格替换及原绘制顺序组合，完整 Memory 示例及 CPU 发布拒绝回归。
+- [x] 冻结完整 Nivo 原源码执行组件参数、computePoints、transition style 配方及交互处理器门控。
+- 自动 spring、React animated props、任意组件导出和原生同层输入仍保留，GPU/worker 后置。
+
+
+### 开发版：Bar barComponent 角色
+
+- [x] 类型化工厂来源捕获完整可空系列/分类、原几何及绑定；继承默认 Bar 输出和全配置入口。
+- [x] raw/displayed/interval、Some(0)、原数值符号位、未裁剪端点和 Path 原锚点角色。
+- [x] 当前标签/clip 元数据、空文字、受控 dim；原 Scene 标签和总计所有权保留。
+- [x] Memory 状态/焦点/标签数据和 DPR1/2 CPU PNG 发布拒绝回归，完整便携应用。
+- [x] 冻结实际 Nivo 组件创建、公共参数和四阶段 style 配方，离线验证及篡改负控。
+- 特定 Canvas compositor 中的 font8 字形颜色差保留独立未通过诊断；纯色 Widget 内部像素不替代文字绘制验收。
+- 自动 spring、任意组件导出、原生同层输入和 GPU/worker 继续保留。
+
+### 开发版：准确截图与字形诊断
+
+- [x] 只读整视口采样、真实 DOM 分轴坐标、DPR、单次 floor、几何竞态及越界拒绝。
+- [x] 四浏览器双 DPR 原生独立矩阵、补齐截图反例、四项变异负控和 Chromium CI 子集。
+- [x] Bar font8 正确坐标复现、无 Glory/WASM 原生载体、透明 Canvas 与非 LCD 对照。
+- [ ] 任意 Widget 文字跨合成路径严格等价；当前仅完成诊断，原失败仍未通过。
+- 自动 spring、任意组件导出、原生同层输入及 GPU/worker 继续保留。
+
+### 开发版：Bump pointComponent 角色
+
+- [x] 原系列共享 owned 快照、原索引、类型化类别与有符号 rank、实际点代表色。
+- [x] 全帧预检先于回调，普通/偏移 Path 原锚点、准确空 plot 和实际绘制绑定。
+- [x] 实际零尺寸/透明点组件，hidden/gap 不造角色，`None` 跳过与错误拒绝。
+- [x] Memory 状态/焦点保留、DPR1/2 CPU PNG 发布拒绝回滚和完整便携应用。
+- 自动 spring、任意组件导出、原生同层输入及 GPU/worker 继续保留。
+- [x] 四浏览器双 DPR、192 帧、11,856 颜色采样、48 真实输入组及 112 拒绝；独立四项变异负控通过。
+
+### 开发版：Treemap / CirclePacking / Icicle 节点组件
+
+- [x] 共享完整原扁平树、原 source_index、raw/aggregate、图族及焦点元数据。
+- [x] 源/拓扑/聚合/资格/几何/受管标签整帧预检先于回调，实际透明/无画笔角色不省略。
+- [x] 准确空 plot、PaintedGeometry 站点，标签测量后定位/隐藏/恢复组合。
+- [x] 保留旧布局的排列相等语义，原树 raw-bit-only 变化独立更新组件数据。
+- [x] 三家族 Memory 状态/焦点与 DPR1/2 CPU PNG 发布拒绝回滚，完整便携应用。
+- [ ] 自动跟随 HierarchyFocusMotion 采样帧与退出动画；当前只支持静态/target_layout。
+- 任意组件导出、原生同层输入及 GPU/worker 继续保留。
+- [x] 三图族×四浏览器×双 DPR、624 帧、20,832 颜色采样、144 真实输入组、336 拒绝及独立四项负控通过。
+
+### 开发版：类型化组件原始值更新
+
+- [x] 六角色 payload 的原始有符号零比较，包括共享系列、数值类别和 Bullet 原端点。
+- [x] 真实 Memory 保留身份/计数/焦点、CPU 图像发布失败回滚及来源预检。
+- [x] 配对便携指南和完整可运行示例。
+- [ ] 整页 PNG 严格稳定：原生 SVG 单像素变化仍未解决，不以功能验收替代。
+- 任意字形等价、自动采样动画、任意组件导出、原生同层输入及 GPU/worker 继续保留。
+- [x] 六角色×四浏览器×双 DPR 功能矩阵：48 场景/480 帧、4320 前景采样、独立 Chromium 子集及隐藏 Canvas backing 负控。
+
+### 开发版：Swarm circleComponent 对应角色
+
+- [x] 实际打包节点类型化组件、完整来源共享与原始/打包索引、分组、碰撞圆盘和值尺度。
+- [x] 全帧预检先于回调；实际 size0/透明角色、hidden/cull/skip 和有符号原值更新。
+- [x] SVG/Canvas Scene 顺序宿主接线、完整便携应用及配对指南。
+- [ ] 自动跟随采样动画及退出节点组件；任意控件导出、原生同层输入和 GPU/worker 后置。
+- [x] 真实 Memory 状态/焦点与 DPR1/2 CPU 发布失败回滚；四浏览器8上下文/272帧、独立 Chromium 子集与五项负控/单独深层 witness 变体。
+- [x] 原版组件创建/transition/handlers 与 Canvas command 参考、独立离线/篡改核验；不冒称 force/React/Spring 动态运行时。
+
+### 开发版：Network nodeComponent 与动态宿主
+
+- [x] 当前 force 状态共享、源索引、真实 glyph 原点、独立物理半径及空标签/零视觉角色。
+- [x] tick/源拖动/resize/图替换与严格组件共同接受，保留 snapshot 与 live Bond 一致。
+- [x] CSS 逻辑单位、停止回调截断、连续 reheat 最大值及冷 hover 空闲处理。
+- [x] 完整 Memory 示例、配对指南与浏览器宿主接线。
+- [x] 实时 linkComponent 与节点/连线混合严格阶段已由后续专项完成。
+- [ ] 自动退出动画、任意 Widget 导出、原生同层输入及 GPU/worker。
+
+### 开发版：Network 连线组件与混合严格提交
+
+- [x] 完整节点/边快照与精确原值位、edge 索引、原端点中点和真实几何分离。
+- [x] links→nodes 单包/128 总预算，旧 node-only 类型不变，混合 BrowserNetwork 单阶段提交。
+- [x] 真实源遮挡与可信输入；换图、索引重排、revision、停止、错误回滚及 owner/Bond 一致。
+- [x] 完整 Memory 示例、配对指南、原始 Nivo 参考与离线/篡改核验。
+- [x] 四浏览器32上下文/832帧、CI8/208、旧节点API8/304及8负控，独立PNG解码通过。
+- [ ] 显式业务边身份、自动退出动画、任意组件导出、原生同层输入与更多样式；GPU/worker后置。
+
+### 开发版：Funnel 函数与类型化层角色
+
+- [x] 原始颜色/值格式器、已计算阶段的边框/标签色函数，可与自定义几何组合。
+- [x] 实际 body/border/前后分隔线 Mark 的实时角色，共享完整原值/轮廓/标签及精确来源位。
+- [x] 全帧预检先于定位、真实零像素角色资格、尾分隔线无虚构 datum、原点与偏移路径分离。
+- [x] 原始 profile 面积/侧边几何工具、Memory 完整示例及配对便携指南。
+- [x] 原始 Nivo custom layers/function props 参考与独立离线/篡改核验；上游不存在 partComponent。
+- [x] 四浏览器32上下文/1280帧及CI8/320，独立54720样本、完整来源/几何/颜色普查、六项负控通过；整页PNG差异仍为诊断。
+- 字面 SVG 整层插入、省略与重复已由下节独立 `BrowserFunnel` 实现；此处既有逐 Mark 角色 API 保持自身范围。
+- [ ] 泛型 RawDatum 扩展字段、自动 Spring/退出、任意控件导出与更广原生同层输入。
+- GPU/worker 后置，开发版不改已发布 0.1.0。
+
+### 开发版：Funnel 字面 SVG 整层组件（本轮范围已验收）
+
+- [x] 权威 `FunnelSvgFrame` 保存真实构建来源／配置／options 和无墨迹角色的显式样式函数结果；原 profile、当前 Mark 与静态 Scene 装饰区分，不重放函数或猜测配置。
+- [x] literal Separators／Parts／Labels／SceneExtras／Custom 顺序、省略与重复；原来源索引与业务身份不复制，复合透明度组和重复资源工作量有界校验。
+- [x] 独立 SVG `BrowserFunnel` 及 `foreignObject` 中真实保留式 Glory 整层子树；稳定 occurrence／registry／revision、构造期 None 与各 runtime 整帧 Cage 共同采用。
+- [x] 来源重建与 program／camera／hidden 仅呈现更新分开；弱 Scope-bound current 排队提交，实际原生 SVG body 命中与装饰／custom UI 边界分开。原通用 Scene／SVG／Canvas API 保留。
+- [x] 五种浏览器配置 × 两种 DPR、40 组、1,610 帧、560 次拒绝恢复、20 个真实像素／位姿负控；失败 UI 永久隔离及 revision 重建、实际 Glory batch 控制纳入验收。
+- [ ] WebKit 停留替换原生路径后可能不投递离窗事件；普通 SVG 控制复现，当前仅对实际已投递的离开输入保证清除。
+- [x] 四个公开原生 part hook、标准与保留式 Glory tooltip；后续独立正式矩阵通过 10 配置／40 profile、2,000 帧、160 次拒绝与 20 个真实 DOM 负控。原事件、历史 Frame／GEN／publication／occurrence、NativeComponent 活动策略、共同采用和错误隔离见[事件指南](funnel-events.zh-CN.md)与[验收记录](verification.md#development-funnel-native-events-and-tooltips)。
+- 泛型原始业务字段、绑定 annotations 与逐属性 Spring 由后续独立开发节补齐。上游 part keyed map 即时移除，不另造退出过渡。
+- [ ] 任意可变 D3 generator、builtin 内 Source Widgets 混排和任意实时 UI 导出。
+- 新 API 保持 Unreleased，GPU／worker 继续按用户要求后置。实际用法与边界见[双语指南](funnel-svg-layers.zh-CN.md)。
+
+### 开发版：Tree nodeComponent 与 linkComponent
+
+- [x] 四浏览器32上下文/2048帧与CI8/512，独立65680前景/源采样及八项负控通过；整页PNG差异保留为诊断。
+
+- [x] 单次权威布局捕获完整扁平原源、节点拓扑/深高/原值/聚合值、连线端点和真实中点。
+- [x] 节点/连线/混合类型化组件，共享源/当前标签池、统一预算及回调前完整预检。
+- [x] 原中心与当前偏移 Path 分离，精确零半径准入，透明/无墨迹/空标签和禁用连线资格明确。
+- [x] 默认 Scene/SVG 保留，旧 root 行为与 Nivo UID/raw 数值模型差异明确。
+- [x] 实际 Memory 状态/焦点及 CPU DPR1/2 发布拒绝回滚，完整应用和中英文指南。
+- [x] 原版 UID/计算/组件创建/handlers/Canvas 源参考，离线和篡改核验。
+- 标签组件见[真实标签专项](tree-label-components.zh-CN.md)，Glory SVG 函数层适配见[独立指南](tree-svg-layers.zh-CN.md)。
+- [ ] 自动 Spring/退出及实时控件导出；原生同层输入和 GPU/worker 后置。
+
+### 开发版：Stream 八类函数型配置
+
+- [x] 四浏览器8上下文/304帧及CI2/76，独立21120像素采样最大误差0，八项负控通过；整页差异保留诊断。
+- [x] 标签、源色、原值格式化、完整层边框以及逐点尺寸/颜色/边框宽度/边框颜色函数。
+- [x] 全源准入先回调、完整已计算层上下文、末采样格式复用、None 和隐藏资格明确。
+- [x] 实际 Mark/图例/切片/提示/typed Widget 同源，组合原几何工厂而不重放函数。
+- [x] 修复 Missing 静态域覆盖、隐藏长标签与未绘制曲线的默认准入，旧二进制边界证明保留。
+- [x] 原 Nivo 实际函数参考、独立 Memory/CPU 拒绝回滚、可运行完整程序与中英文指南。
+- [ ] 任意原 custom layer 插入/生命周期、自动 Spring/退出及控件导出；原生同层输入、GPU/worker 后置。
+
+### 开发版：Tree 五类基础函数配置
+
+- [x] 节点直径/填充、完整端点的连线粗细/颜色、最终节点的绘制标签函数，借用且不保留。
+- [x] 全源/静态路径先预检、广度优先顺序、禁用连线仍计算、零尺寸/零线宽及空标签资格明确。
+- [x] 静态 inset 投影保留，实际节点/标签间距/typed Widget 共享解析结果，原始业务标签不回写。
+- [x] 200 组实际旧/新二进制完整布局与 SVG 输出逐字节一致；Memory/CPU DPR1/2 拒绝回滚通过。
+- [x] 原 Nivo 五函数及 active/fix-depth 边界冻结，48 计算与 384 标签定位 profile、离线和篡改核验。
+- [x] 四引擎8上下文/368帧与CI2/92通过；16160个受检屏幕点及72720个原生截面像素最大误差0。
+- [x] 八项真实负控准确失败，包括只篡改实际 Canvas 线宽、元数据保持不变的独立轮廓拒绝；原始作者错误与屏幕边缘诊断保留。
+- 原 Canvas 边内纯色点仍为诊断：760点中15点超1byte；真实线宽另由420个独立基元截面硬门禁验证，未宣称修复 CSS 合成或严格整页等价。
+- active/inactive 四个修改器与固定深度颜色继承由后续专项补齐，见下节。
+- 标签组件由后续[真实 Label 组件](tree-label-components.zh-CN.md)专项补齐。
+- [ ] 自动退出动画与控件导出；Canvas 原始回调和重复层见后续已完成专项，Glory SVG 函数层适配见[独立指南](tree-svg-layers.zh-CN.md)，原生同层输入和 GPU/worker 后置。
+
+### 开发版：Tree 活动修改器、颜色继承与浏览器所有者
+
+- [x] 四个借用修改器、独立祖先/后代节点/连线开关、无 current 的中性状态及固定深度父色继承。
+- [x] 最终节点供连线/标签/类型化组件共享，活动状态绑定原布局捕获，拒绝合法布局之间的整体移植。
+- [x] 公开 BrowserTree 合并原生主鼠标/笔意图，独立 RAF 和严格 Widget 提交；Geometry 与独立 nearest 活动策略边界明确。
+- [x] Memory 状态/焦点与 CPU DPR1/2 发布失败回滚，完整应用及配对便携指南；200 组旧默认输出和 34 组旧基础函数输出逐字节保留。
+- [x] 冻结原 Nivo 活动/继承/事件参考，独立离线和有效篡改核验。
+- [x] 四引擎加独立 Chromium CI：20 上下文/3300 帧/720 拒绝；229640 个精确颜色点与 1291230 个原生 Canvas 截面像素均最大误差 0，八项负控通过。
+- 35660 个颜色族 witness 与 61420 个理想点诊断单独计数，不冒称 SVG 全 AA/空间白界或整页等价；31 对整页 PNG 差异保留。
+- [x] 为 BrowserTree 快速 move/down/up 保留原生按压与点击目标，自动活动延后至 click 完成；旧包 WebKit 10 项失败保留，相同四引擎 64 项对照修复后通过，不以稳定悬停或重试替代。显式更新与错误边界见[指针生命周期](tree-input-lifecycle.zh-CN.md)。
+- 标签组件另见[三角色组件](tree-label-components.zh-CN.md)。
+- [ ] 自动 Spring/退出及实时控件导出；Canvas 原始回调和重复层见后续专项，Glory SVG 函数层适配见[独立指南](tree-svg-layers.zh-CN.md)，最近节点提示的 opt-in 实现已有受检浏览器证据（见[指南](tree-tooltip.zh-CN.md)），原生同层输入和 OS 触控协议仍待补。
+- GPU/worker 后置；新增 API 为 Unreleased，不改已发布的 0.1.0。
+
+
+### 开发版：Tree 真实 Label 组件
+
+- [x] additive 三角色 Scene packet 与标签专用 typed adapter，当前 Scene 顺序、完整原始数据与真实 Label/font/clip，稳定 key 与索引分离；旧双角色 API 保持兼容。
+- [x] 节点／连线／标签共享事务与 128 槽预算；Label-only 替换不掩盖节点命中，未归属注释保留普通绘制。
+- [x] BrowserTree 三角色 owner 接线及 BrowserChart 任意 Glory 子树仿射 carrier；明确 axis-aligned Rect 与原生 transformed-label Err。
+- [x] 本轮 Rust minimal1904/all2240/doc18；同一最终包的五种浏览器／CI配置、两DPR共2520帧统一矩阵通过，独立Python/Pillow逐原件读回；原失败和作者错误分别保留。
+- [ ] 自动 Spring/退出及控件导出仍单独推进；Canvas 原始回调和重复层见下节，Glory SVG 函数层适配见[独立指南](tree-svg-layers.zh-CN.md)，GPU/worker 后置。
+
+### 开发版：Tree 原生 Canvas 程序
+
+- [x] 真实 `renderNode` / `renderLink` / `renderLabel` 及可重复自定义层，共享一个原生上下文，保留用户回调之间的绘制状态。
+- [x] 权威 `tree_canvas_layout_*` 计算池、完整源与活动、关闭／零宽连线样式及全部标签；旧入口 Debug/Eq 和默认输出回归。
+- [x] 私有候选与封存位图、停止／重入门禁、相机／DPR／隐藏重绘、接受位图 PNG 导出；恢复不重放有状态回调。
+- [x] 与真实 Node／Link／Label 顶层 Glory 组件联合提交；稳定键和 revision、局部状态／焦点、四类应用拒绝及实际绘制后的 DOM API 拒绝恢复。
+- [x] 五种浏览器配置、两 DPR 的原生像素／所有者／联合控件专项矩阵；独立 PNG 解码、严格源数据及原生状态控制、真实跨源污染拒绝。具体范围见[验收说明](verification.md)。
+- [ ] 自动 Spring／退出、原生同层输入及实时 Widget 导出继续单列；Glory SVG 函数层适配见[独立指南](tree-svg-layers.zh-CN.md)，最近节点提示的受检范围见下节，GPU/worker 后置。
+
+### 开发版：Tree 类型化提示组件
+
+- [x] 显式启用的完整原始／计算节点数据、独立原生目标、固定／光标及九种自然尺寸对齐；旧默认保持。
+- [x] 真实保留式 Glory 内容的可空 frame Bond、revision 身份与源／提示共同接纳；物理命中和程序 activity 分离。
+- [x] 受检 opt-in 浏览器输入／像素、源与提示 Effect 同源、错误恢复、CSS 缩放、明确隐藏边界与清理验收；实际矩阵、独立像素读回及负控见[验收说明](verification.md)。
+- Source Label carrier 需要可解析的 CSS 尺寸；持续源错误保留共同已接受的源与提示。该范围不等于任意隐藏源或 tooltip-only 降级。
+- [ ] 原 Nivo 逐节点事件回调、任意 Datum 与 React/Spring 等价性不由本接口替代；控件导出及 GPU/worker 保持后置。
+- API 保持 Unreleased，用法与边界见[Tree 提示指南](tree-tooltip.zh-CN.md)。
+
+### 开发版：Tree SVG 函数层（Glory 适配）
+
+- [x] 字面省略、重复与顺序；完整计算池、原始值、主题、活动、SVG 连线生成器及显式准入预算。
+- [x] 每个 occurrence 的真实保留式 Glory 子树与 Node／Link／Label 源组件，独立 revision／Scope／局部状态；业务 Mark 与 canonical 来源保持单份。
+- [x] 真实 native SVG 与 foreignObject/XHTML 混排、固定视口绘图区裁剪及 HTML 相机；Mesh／几何／自定义控件按实际层叠路由输入。
+- [x] 源、层与提示数据共同采用，采用前 owned carrier 拒绝恢复、停止／清理及同一最终构建的旧入口回归。
+- [x] 五种浏览器配置、两 DPR、60 配置／3690 帧完整矩阵通过；真实 DOM 改色／相机偏移保持元数据不变仍被像素门禁拒绝。最终收据与独立读回见[验收记录](verification.md#development-tree-svg-function-layers)。
+- 数据共同采用不等于完整受管 DOM 事务：Glory 0.8 延后的后端写入仍可能留下前缀并 fault，须重新挂载；不将 owned carrier 的采用前回滚扩大为此保证。
+- [ ] 原始 React SVG/defs、自动 Spring／退出及实时 Widget／重复层导出；更广原生输入与 GPU/worker 后置。
+- 新 API 保持 Unreleased，见[双语指南](tree-svg-layers.zh-CN.md)；已发布的 0.1.0 保持原发布状态。
+
+### 开发版：Tree 类型化原生鼠标回调
+
+- [x] 节点／SVG 连线各七种独立回调，Canvas 节点七回调；共享完整事件数据与真实原生事件。
+- [x] 已采用 generation、字面 occurrence 与显式 Glory 绑定；原生／几何／Mesh／来源模型分别定义相位。
+- [x] Window 晚冒泡同步调用、同节点 Move 不重放布局／工厂、注册替换／Err／停止及旧手势退役。
+- [x] 五配置、两 DPR、九场景完整矩阵与独立读回，同包原生测试、旧输入／Canvas／标签／提示／SVG 回归通过。
+- [ ] 自动 Spring／退出、控件导出与更广设备验收继续推进；SVG 连线托管提示及独立 anchor 见后节，GPU/worker 后置。
+- API 为 Unreleased，使用与验收边界见[事件指南](tree-events.zh-CN.md)和[验收记录](verification.md#development-tree-native-mouse-hooks)。
+
+### 开发版：Tree SVG 连线提示
+
+- [x] 完整 source/target 原始及计算数据、独立 link tooltip options、光标定位与九种自然尺寸 anchor。
+- [x] Source／SVG 层／两类真实 Glory 提示共同采用；revision 保留、角色仲裁、候选拒绝与清理。
+- [x] 同一构建、同一脚本的五配置／两 DPR／60 场景矩阵及真实 DOM 改色／偏移负控；Chromium 显式采用 `--disable-gpu` 测试配置。
+- [ ] 自动 Spring／退出、实时 Widget 导出及更广设备／绑定路线；GPU/worker 后置。
+- 受检范围见[验收记录](verification.md#development-tree-svg-link-tooltips)，API 保持 Unreleased。
+
+### 受检完成：Tree SVG 逐属性 Spring 与自动组件动画
+
+- [x] 显式时钟的独立 7/9/3 属性、保速重定向、结构化 Link 键、正确退出配方与原始来源保留。
+- [x] 原版六个 transition 函数及 keys 的真实提取执行、独立闭式物理数值与十二项专项。
+- [x] BrowserTree 自动 RAF／精确 Manual clock 与采样绘制、动态保速配置，真实 Glory animated-property Bonds 及退出 Scope 保留。
+- [x] 实际物理帧与目标数据的拾取／事件／提示协议、重复与 animated SVG 层、Source／层／tooltip 共同采用。
+- [x] Chromium／Firefox／WebKit × DPR 1／2，18 配置、450 步；真实组件本地状态、重入、相机／CSS／hidden、零宽链接提示、按住与隐藏时钟和错误回滚通过。
+- [x] 原生默认 1986、全特性 2322、文档 18；60 几何组合及 11 个绘制专项、严格 Clippy、格式／拼写／工作流与发布门禁检查。
+- 见[双语指南](tree-motion.zh-CN.md)。Canvas／Radial Spring、任意 Widget 导出、更广原生设备与 GPU/worker 保持独立边界。
+
+### 开发版：Waffle 分组函数与原始应用数据
+
+- [x] 原版 Nivo 源码实际提取执行，核对逐组颜色→格式→边框及最后一次空格边框模板。
+- [x] 隐藏／零值／溢出组保留源序；Cells／Areas／图例／类型化交互与组合单元格工厂共用最终样式。
+- [x] WaffleDataFrame<D> 拥有任意应用字段，类型化单元格组件保留同一完整来源；捕获身份让原始字段及正负零变化可观察。
+- 失败候选不替换旧帧，应用闭包的外部副作用不回滚；数值 SceneInteraction 不携带应用类型。
+- [ ] 组区域实时组件与 Spring；字面 SVG 整层实现及当前验收状态见后续独立节，GPU/worker 继续后置。
+- 新 API 保持 Unreleased，见[使用指南](waffle-functions.zh-CN.md)。
+- [x] 最终 10 个浏览器／DPR 上下文、40 场景、240 帧和 160 次候选拒绝；同包 Tree 注释 60 步及 Spring 回归 450 步通过，完整证据见[验收记录](verification.md#development-waffle-functions-and-owned-data)。
+
+### 开发版：Funnel 绑定注解与共享原生文字描边
+
+- [x] 基于原构造 capture 的不可变 Frame／bundle、typed ID／predicate、完整计算 part 与原始数值身份。
+- [x] Circle／Dot／Rect、offset／绝对坐标、连接线、文字 halo、自定义 Scene note 及显式工作预算。
+- [x] Annotations 字面省略／重复／顺序、原生绘制覆盖与业务输入分离、来源／层／提示共同采用。
+- [x] SVG／Canvas／CPU raster 原生 LabelStroke；零尺寸无墨迹与 inactive COLR 兼容修复。
+- [x] 原版 144 案例／708 bindings 参考、独立重放、默认 2046／全特性 2391／文档 18 项及严格检查。
+- [x] 同一包／脚本的五浏览器、两 DPR、四 profile：40 组／900 帧、120 次拒绝、20 个真实 DOM 负控与 40 个文字描边贡献检查；独立完整读回及原始终态均通过。
+- 泛型应用原始类型及绑定注解 Spring 由后续小节实现；逐 note Widget 与任意实时 UI 导出继续单列；GPU／worker 后置。
+- API 保持 Unreleased，见[双语指南](funnel-annotations.zh-CN.md)。
+
+### 开发版：Funnel 泛型应用数据全链路
+
+- [x] `FunnelDataDatum<D>` 显式配对业务数据与投影，拥有共享来源的 `FunnelDataFrame<D>` 不增加 D 的 Clone／Eq／Debug／Serialize／Send／Sync 要求；纯模型支持非 static 借用。
+- [x] 类型化样式、尺寸、阶段、注解、自定义 Scene note 与旧 Widget 角色访问完整来源；既有纯 `FunnelSvgFrame` 保留 Send／Sync。
+- [x] `BrowserFunnelData<D>` 将完整来源共同交给 SVG 层、提示、命中和原生事件；仅业务字段变化也产生新的来源，历史事件保留原帧。
+- [x] 失败候选保留旧接受帧、真实组件状态与焦点；program／view／hidden 的同步操作不重放来源工厂，后续真实 Enter／Leave 另行处理。
+- [x] 默认 2056／全特性 2401／文档 18 项、严格检查、六个双语 Rust 示例编译及同包五条旧功能回归通过。
+- [x] 五浏览器／双 DPR 的 40 组、2010 帧、2020 张原始 PNG、360 次拒绝及 10 个真实 DOM 负控；完整独立读回和原始进程终态均通过，见[验收记录](verification.md#development-funnel-owned-application-data)。
+- 逐属性 Spring 与 source-key 休眠记忆见后节；上游普通 keyed map 没有额外退出过渡。
+- [ ] 任意可变 D3 generator、内层逐 item Widget 混排和任意实时 UI 导出；GPU／worker 后置。
+- API 保持 Unreleased，见[中文指南](funnel-data.zh-CN.md)与[English guide](funnel-data.md)。
+
+### 开发版：Funnel 逐属性 Spring
+
+- [x] 目标来源与采样 Scene 分离，body／border 各自独立路径 progress，从上次提交 TARGET 重置；不同拓扑按真实 D3 数字 ordinal 插值。
+- [x] 样式、标签、分隔线、按 binding index 的注解几何／连接线／note 轨道；新角色直接显示，移除即时退场，无退出 ghost。
+- [x] 自动 RAF／精确 Manual 时钟、保速配置、系统／显式减弱动画、隐藏暂停和恢复基线。
+- [x] typed／legacy owner 的来源／动画／层／提示／原生 capture 共同采用，真实 native path/text 复用及 placement journal 回滚。
+- [x] 9 项专项、原版真实 hook／组件／key 请求与 D3 参考、六个双语 Rust 示例编译；完整运行验收进度见[验收记录](verification.md#development-funnel-property-springs)。
+- [x] 原生默认 2065／全特性 2410／文档 18、严格 native／WASM 检查与同包六条旧功能回归。
+- [x] 同包同脚本的五浏览器、双 DPR、40 组／1930 帧／200 次拒绝／10 个真实 DOM 负控，原始协调器、五条浏览器进程和完整独立读回均退出 0；2340 张原始 PNG 与 2472 批完整事件全部核对。
+- [x] source key 仍在时保留无墨迹 body／border 的属性和路径；恢复保留速度，路径从上次真实目标重置。全来源自定义捕获与未知 legacy 自定义目标的拒绝边界见[指南](funnel-dormant-motion.zh-CN.md)。
+- [x] 新增 12 项独立原生回归；默认 2077／全特性 2422／文档 18 及严格 native／WASM 检查通过。休眠专项 40 组／560 帧／880 操作由独立 Python／D3 读回通过；同包完整动画回归 40 组／1930 帧／2340 PNG、200 次拒绝、2432 批完整事件也通过正式独立读回。
+- [ ] 任意可变 D3 generator、逐 item Widget 混排、任意实时 UI 导出；GPU／worker 后置。
+- API 保持 Unreleased；纯采样 Scene 可供 Canvas／raster，专用 owner 为 SVG。见[双语指南](funnel-motion.zh-CN.md)。
+
+
+### 开发版：Waffle 字面 SVG 层与专属 owner
+
+- [x] sealed 源 capture、实际 cell／透明 group polygon／原生 legend 分离；Cells／Areas／Legends／Custom 字面重排、省略和重复，来源仅一份。
+- [x] `BrowserWaffle`／`BrowserWaffleData<D>`、保留式 Glory 整层与完整同源 Cage；shared raw source 无新增 D trait，真实四 hook／标准或保留式 tooltip 共用来源证书。
+- [x] 全 Scene／margin 自定义 UI、真实 native 遮挡、默认空图例；source hidden 重排与 camera／program retarget 分开，业务函数不在呈现更新重放。
+- [x] 新 SVG IndependentRound 超额请求与角接触轮廓 profile；legacy layout／Vec 存储和准入保持，旧有色 Areas union 不与透明 Areas 混同。
+- [x] live／pending／retiring 共享预算、owned placement／focus journal、错误后 carrier 隔离与 revision 恢复；真实 ResizeObserver 与 stop 后弱 handle／原位置输入守卫。
+- [x] 通过独立 tooltip 显隐复现确定有限 paint 边界修复，保留原 12 像素回滚零差门；固定原生 pattern 整 tile 参考与错误前景／间距／缺失 motif 负控，不扩为通用 AA 等价承诺。
+- [x] 本轮 native 默认 2095／全特性 2440／18 doctest 与 native／WASM 严格检查；完整矩阵 10 个浏览器／DPR 上下文、40 场景、2280 capture、2160 操作、280 拒绝及 20 项真实 DOM 负控通过，来源不变。
+- [x] 独立读回通过 7340 次 raw read、2368 次 effect、712 个 hook、920 个 data frame、34720 行 peer 与 3100 张解码 PNG；80 次真实 ResizeObserver、40 项 retiring tooltip 证书与 pattern 全 tile／错误控均核对。CI 同 producer 的 Chromium 双 DPR 步骤及递归证据上传已接线，不代表远端 CI 已运行。
+- [ ] Canvas owner、Waffle Spring／exit、builtin 内逐 item Widget、组区域 Widget 工厂、HTML 等价及实时 UI 导出；GPU／worker 保持后置。
+- 新 API 为 Unreleased，见[中文指南](waffle-svg-layers.zh-CN.md)。此前函数／cell／regions 的历史通过项保持，不拼接为本轮新 owner 的验收。

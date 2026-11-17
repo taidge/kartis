@@ -1615,6 +1615,9 @@ pub enum TreeOrientation {
 #[path = "tree_styles.rs"]
 mod tree_styles;
 pub use tree_styles::*;
+#[path = "tree_layout.rs"]
+mod tree_layout;
+pub use tree_layout::*;
 #[derive(Clone, Debug, PartialEq)]
 pub struct TreeOptions {
     pub hierarchy: HierarchyOptions,
@@ -1843,161 +1846,7 @@ pub fn tree_with_options(
     data: &[HierarchyDatum],
     o: &TreeOptions,
 ) -> Result<Scene> {
-    let mut s = c.scene()?;
-    hierarchy_options(&o.hierarchy)?;
-    o.style.validate()?;
-    ensure(
-        o.node_radius.is_finite()
-            && o.node_radius > 0.
-            && o.node_radius * 2. < c.inner_width().min(c.inner_height())
-            && [o.sibling_separation, o.subtree_separation]
-                .iter()
-                .all(|v| v.is_finite() && (0.000001..=1024.).contains(v))
-            && o.rotation.is_finite()
-            && o.rotation.abs() <= 1e6,
-        "invalid tree layout options",
-    )?;
-    let Some(h) = hierarchy(data)? else {
-        return finish(s);
-    };
-    let inset = (0..data.len())
-        .map(|i| o.style.node(h.children[i].is_empty()).extent(o.node_radius))
-        .fold(0., f64::max);
-    ensure(
-        inset * 2. < c.inner_width().min(c.inner_height()),
-        "tree styled node extent exceeds plot",
-    )?;
-    let breadth = match o.mode {
-        TreeMode::Tidy => Tidy::new(&h, o).layout(h.root)?,
-        TreeMode::Cluster => cluster_breadth(&h),
-    };
-    let min = breadth.iter().copied().fold(f64::INFINITY, f64::min);
-    let max = breadth.iter().copied().fold(f64::NEG_INFINITY, f64::max);
-    let pad = o.sibling_separation / 2.;
-    let span = max - min + 2. * pad;
-    let normalized: Vec<_> = breadth.iter().map(|v| (v - min + pad) / span).collect();
-    let depth = |i: usize| {
-        if h.max_depth == 0 {
-            0.
-        } else {
-            h.depth[i] as f64 / h.max_depth as f64
-        }
-    };
-    let (cx, cy, radius) = center(c);
-    let radius = radius - inset;
-    let position = |i: usize| {
-        let d = depth(i);
-        let b = normalized[i];
-        let r = inset;
-        let x = |v: f64| c.margin.left + r + v * (c.inner_width() - 2. * r);
-        let y = |v: f64| c.margin.top + r + v * (c.inner_height() - 2. * r);
-        match o.orientation {
-            TreeOrientation::LeftToRight => Point::new(x(d), y(b)),
-            TreeOrientation::RightToLeft => Point::new(x(1. - d), y(b)),
-            TreeOrientation::TopToBottom => Point::new(x(b), y(d)),
-            TreeOrientation::BottomToTop => Point::new(x(b), y(1. - d)),
-            TreeOrientation::Radial => point(cx, cy, radius * d, o.rotation + TAU * b),
-        }
-    };
-    if o.style.links.enabled {
-        for &i in &h.order {
-            if let Some(parent) = h.parent[i] {
-                let p = position(parent);
-                let q = position(i);
-                let color = |index: usize| {
-                    let style = o.style.node(h.children[index].is_empty());
-                    style
-                        .color(c, index)
-                        .or(style.border.map(|s| s.color))
-                        .unwrap_or(c.theme.grid)
-                };
-                let link_color = match o.style.links.color {
-                    TreeLinkColor::Theme => c.theme.grid,
-                    TreeLinkColor::Fixed(color) => color,
-                    TreeLinkColor::Source => color(parent),
-                    TreeLinkColor::Target => color(i),
-                };
-                let mut m = Mark::new(
-                    format!("link:{}", data[i].id),
-                    tree_styles::link_geometry(
-                        o.style.links.curve,
-                        tree_styles::TreeLinkGeometry {
-                            source: p,
-                            target: q,
-                            source_polar: [
-                                radius * depth(parent),
-                                o.rotation + TAU * normalized[parent],
-                            ],
-                            target_polar: [radius * depth(i), o.rotation + TAU * normalized[i]],
-                            center: [cx, cy],
-                            orientation: o.orientation,
-                        },
-                    ),
-                    link_color,
-                );
-                m.fill = None;
-                m.stroke = Some(GraphicStroke {
-                    color: link_color,
-                    width: o.style.links.width,
-                    cap: o.style.links.cap,
-                });
-                m.stroke_dash = o.style.links.dash.clone();
-                m.opacity = o.style.links.opacity;
-                if o.style.clip_plot {
-                    m.clip = Some(ClipRect::plot(c));
-                }
-                m.label.clear();
-                s.marks.push(m);
-            }
-        }
-    }
-    for &i in &h.order {
-        let p = position(i);
-        let leaf = h.children[i].is_empty();
-        let style = o.style.node(leaf);
-        let mut mark = node_mark(data, &h, i, style.geometry(p, o.node_radius), c);
-        mark.fill = style.color(c, i);
-        mark.stroke = style.border;
-        mark.opacity = style.opacity;
-        if o.style.clip_plot {
-            mark.clip = Some(ClipRect::plot(c));
-        }
-        s.marks.push(mark);
-        if o.hierarchy.labels
-            && let Some(label) = tree_styles::tree_label(
-                c,
-                &o.style.labels,
-                tree_styles::TreeLabelGeometry {
-                    position: p,
-                    orientation: o.orientation,
-                    angle: o.rotation + TAU * normalized[i],
-                    leaf,
-                    style,
-                    fallback_radius: o.node_radius,
-                    text: &data[i].label,
-                },
-            )
-        {
-            let index = s.labels.len();
-            s.labels.push(label);
-            s.label_series.insert(index, data[i].id.clone());
-            if o.style.clip_plot {
-                s.label_clips.insert(
-                    index,
-                    crate::ClipPath {
-                        geometry: Geometry::Rect {
-                            x: c.margin.left,
-                            y: c.margin.top,
-                            width: c.inner_width(),
-                            height: c.inner_height(),
-                        },
-                        rule: crate::ClipRule::NonZero,
-                    },
-                );
-            }
-        }
-    }
-    finish(s)
+    tree_layout(c, data, o).map(|layout| layout.scene)
 }
 /// Ordered cluster tree. Leaves have equal spacing; a parent's vertical position
 /// is the mean of its immediate children and depth determines horizontal position.

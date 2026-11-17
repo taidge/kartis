@@ -1,0 +1,64 @@
+// Original Nivo component recipes with explicit non-React dependency probes.
+import assert from 'node:assert/strict';
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {createRequire,stripTypeScriptTypes} from 'node:module';
+import {resolve,dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+const root=resolve(fileURLToPath(new URL('..',import.meta.url))),frozen=process.argv[2]==='--frozen';
+assert(process.argv[2],'usage: network-node-widget-reference.mjs <nivo-checkout> [output] | --frozen [fixtures]');
+const checkout=frozen?undefined:resolve(process.argv[2]),out=resolve(process.argv[3]??resolve(root,'tests/fixtures/network-node-widgets'));
+const sha=b=>createHash('sha256').update(b).digest('hex'),expected=frozen?JSON.parse(await readFile(resolve(out,'reference.json'),'utf8')):undefined;
+const names=['NetworkNodes.tsx','NetworkNode.tsx','types.ts','hooks.ts','Network.tsx','NetworkCanvas.tsx','renderCanvasNode.ts','defaults.ts'];
+const original={};for(const name of names)original['src/'+name]=await readFile(frozen?resolve(out,'original/src',name):resolve(checkout,'packages/network/src',name));
+original['package.json']=await readFile(frozen?resolve(out,'original/package.json'):resolve(checkout,'packages/network/package.json'));
+const license=await readFile(frozen?resolve(out,'original/LICENSE.md'):resolve(checkout,'packages/network/LICENSE.md'));
+assert.equal(JSON.parse(original['package.json']).version,'0.99.0');
+const sources=Object.fromEntries(Object.entries(original).map(([name,b])=>[name,{sha256:sha(b),bytes:b.length}])),licenseInfo={file:'original/LICENSE.md',sha256:sha(license),bytes:license.length};
+const require=createRequire(import.meta.url),{babelParse,babelTransform,traverse}=require(resolve(root,'node_modules/playwright/lib/transform/babelBundle.js'));
+const producer={file:'scripts/network-node-widget-reference.mjs',sha256:sha(await readFile(fileURLToPath(import.meta.url)))},compiler={package:'playwright',version:JSON.parse(await readFile(resolve(root,'node_modules/playwright/package.json'),'utf8')).version,bundleSha256:sha(await readFile(resolve(root,'node_modules/playwright/lib/transform/babelBundleImpl.js')))};
+if(frozen){assert.deepEqual(sources,expected.sources,'complete original source hashes');assert.deepEqual(licenseInfo,expected.license,'complete MIT notice');assert.deepEqual(producer,expected.producer,'producer bytes');assert.deepEqual(compiler,expected.compiler,'pinned TSX compiler');assert.match(expected.commit,/^[a-f0-9]{40}$/);}
+const execution={},source=name=>original['src/'+name].toString('utf8');
+function variable(file,name){let found;const s=source(file);traverse(babelParse(s,file,true),{VariableDeclarator(p){if(p.node.id.name===name){assert.equal(found,undefined);found=p.node;}}});assert(found,file+':'+name);const text='const '+s.slice(found.start,found.end)+';';execution[file+':'+name]=text;return text;}
+function evaluate(file,name,deps={}){return new Function(...Object.keys(deps),stripTypeScriptTypes(variable(file,name))+'\nreturn '+name+';')(...Object.values(deps));}
+const jsx=(type,props,key)=>({type,props,key:key??null}),runtime={jsx,jsxs:jsx,Fragment:'Fragment'};
+function tsx(file,name,deps){const code=babelTransform(variable(file,name),'network-widget-'+name+'.tsx',false,[],[]).code;return new Function('require',...Object.keys(deps),code+'\nreturn '+name+';')(name=>{assert(name.replaceAll('\\','/').endsWith('/playwright/jsx-runtime'));return runtime;},...Object.values(deps));}
+const scalar=n=>({__scalar:n,to:fn=>fn(n)}),to=(values,fn)=>fn(...values.map(v=>v?.__scalar??v)),useMemo=fn=>fn();
+const canonical=value=>JSON.parse(JSON.stringify(value,function(k,v){if(this[k] instanceof Date)return{$date:this[k].toISOString()};if(typeof v==='function')return{$function:true};if(v&&typeof v==='object'&&Object.hasOwn(v,'__scalar'))return{$probeScalar:v.__scalar};if(typeof v==='number'&&Object.is(v,-0))return{$number:'-0'};return v;}));
+const input=[{id:'alpha',size:0,active:6,inactive:0,color:'#00ff0000',border:0,label:'',x:999,nested:{tag:'shared'}},{id:'beta',size:12,active:18,inactive:8,color:'#e8c1a0',border:2,nested:{tag:'second'}},{id:'outside',size:8,active:10,inactive:4,color:'#123456',border:1,nested:{tag:'third'}},{id:'last',size:6,active:9,inactive:2,color:'#abcdef',border:0,nested:{tag:'fourth'}}];
+const prepared=new Function('nodes',stripTypeScriptTypes(variable('hooks.ts','_transientNodes'))+'\nreturn _transientNodes;')(input);
+for(let i=0;i<input.length;i++){assert.notEqual(prepared[i].data,input[i]);assert.equal(prepared[i].data.nested,input[i].nested);assert.deepEqual([prepared[i].x,prepared[i].y,prepared[i].vx,prepared[i].vy],[0,0,0,0]);}
+const positions=[[20,30],[100,60],[700,-25],[160,90]],transientNodes=prepared.map((n,index)=>({...n,index,x:positions[index][0],y:positions[index][1],vx:index===0?-0:index/10,vy:-index/10}));
+const useCallback=fn=>fn,useDerivedProp=evaluate('hooks.ts','useDerivedProp',{useMemo}),useNodeStyle=evaluate('hooks.ts','useNodeStyle',{useMemo,useCallback,useTheme:()=>({}),useDerivedProp,useInheritedColor:()=>()=> '#112233'});
+const defaults=evaluate('defaults.ts','commonDefaultProps',{NetworkNodeTooltip:'Tooltip'}),styleCases=[];
+for(const[isInteractive,activeNodeIds]of[[false,['alpha']],[true,[]],[true,['alpha']],[true,['missing']]]){
+ const getNodeStyle=useNodeStyle({size:d=>d.size,activeSize:d=>d.active,inactiveSize:d=>d.inactive,color:d=>d.color,borderWidth:d=>d.border,borderColor:{from:'color'},isInteractive,activeNodeIds});
+ const computed=evaluate('hooks.ts','computedNodes',{useMemo,transientNodes,getNodeStyle});assert.equal(computed.length,input.length);styleCases.push({isInteractive,activeNodeIds,computed});
+}
+assert.equal(styleCases[0].computed[0].size,0);assert.equal(styleCases[2].computed[0].size,6);assert.equal(styleCases[2].computed[1].size,8);
+const getDefaultStyle=useNodeStyle({size:defaults.nodeSize,activeSize:defaults.activeNodeSize,inactiveSize:defaults.inactiveNodeSize,color:defaults.nodeColor,borderWidth:defaults.nodeBorderWidth,borderColor:defaults.nodeBorderColor,isInteractive:true,activeNodeIds:['alpha']});
+const defaultStyle=transientNodes.map(n=>({...n,...getDefaultStyle(n)}));assert.equal(defaultStyle[0].size,18);assert.equal(defaultStyle[1].size,8);
+const computed=styleCases[0].computed,creation=[],events=[],createElement=(type,configuration)=>{const value={type,configuration};creation.push(value);return value;};
+let animate=false,pose='update',transitionOptions=[];
+const useTransition=(nodes,options)=>{transitionOptions.push({keys:nodes.map(options.keys),immediate:options.immediate,config:options.config});return callback=>nodes.map(node=>callback(Object.fromEntries(Object.entries(options[pose](node)).map(([k,v])=>[k,typeof v==='number'?scalar(v):v])),node));};
+const useTooltip=()=>({showTooltipFromEvent:(value,event)=>events.push(['show',value,event.type]),hideTooltip:()=>events.push(['hide'])});
+const transitions=Object.fromEntries(['getEnterTransition','getRegularTransition','getExitTransition'].map(name=>[name,evaluate('NetworkNodes.tsx',name)]));
+const nodesRecipe=tsx('NetworkNodes.tsx','NetworkNodes',{createElement,useCallback,useMemo,useTransition,useMotionConfig:()=>({animate,config:{mass:1}}),useTooltip,...transitions});
+const defaultNode=tsx('NetworkNode.tsx','NonMemoizedNetworkNode',{animated:{circle:'NativeCircle'},to});
+const cases=[];
+for(const animation of[false,true])for(const interactive of[false,true])for(const phase of['initial','from','enter','update','leave']){
+ animate=animation;pose=phase;creation.length=0;events.length=0;transitionOptions=[];
+ const consumer=name=>(node,event)=>{assert(computed.includes(node));events.push([name,node.id,event.type]);};
+ const result=nodesRecipe({nodes:computed,nodeComponent:'CustomNode',onMouseEnter:consumer('enter'),onMouseMove:consumer('move'),onMouseLeave:consumer('leave'),onClick:consumer('click'),tooltip:'Tooltip',setActiveNodeIds:ids=>events.push(['active',ids]),isInteractive:interactive});
+ const calls=creation.filter(c=>c.type==='CustomNode');assert.equal(calls.length,4);const defaults=[];
+ for(const call of calls){const c=call.configuration;assert.equal(c.key,c.node.id);for(const name of['onMouseEnter','onMouseMove','onMouseLeave','onClick'])assert.equal(typeof c[name],interactive?'function':'undefined');const element=defaultNode(c);assert.equal(element.type,'NativeCircle');assert.equal(element.props.r,c.node.size/2);assert.equal(element.props.opacity.__scalar,phase==='from'||phase==='leave'?0:1);assert.equal(element.props.transform,`translate(${c.node.x},${c.node.y}) scale(${phase==='from'||phase==='leave'?0:1})`);for(const name of['onMouseEnter','onMouseMove','onMouseLeave','onClick'])element.props[name]?.({type:name});defaults.push(element);}
+ assert(calls.some(c=>c.configuration.node.size===0));assert(calls.some(c=>c.configuration.node.x>600));if(interactive){assert.deepEqual(events.slice(0,3).map(e=>e[0]),['show','active','enter']);assert.deepEqual(events.slice(5,8).map(e=>e[0]),['hide','active','leave']);}
+ cases.push(canonical({animate:animation,interactive,phase,calls,defaultNodes:defaults,result,transitionOptions,events}));
+}
+creation.length=0;const empty=nodesRecipe({nodes:[],nodeComponent:'CustomNode',isInteractive:false,tooltip:'Tooltip',setActiveNodeIds:()=>{}});assert.equal(creation.length,0);
+let gate;const parent=source('Network.tsx');traverse(babelParse(parent,'Network.tsx',true),{IfStatement(p){const text=parent.slice(p.node.test.start,p.node.test.end);if(text==="layers.includes('nodes') && nodes !== null")gate=text;}});assert(gate);execution['Network.tsx:nodeGate']=gate;const gateFn=new Function('layers','nodes','return '+gate),gateCases=[];for(const layers of[[],['nodes']])for(const nodes of[null,[],computed])gateCases.push({layers,nodes,calls:gateFn(layers,nodes)});
+const renderNode=evaluate('renderCanvasNode.ts','renderCanvasNode'),canvasCases=[];for(const alpha of[0,1])for(const node of computed){const operations=[],paint={globalAlpha:alpha,lineCap:'square',lineWidth:4,fillStyle:'#000',strokeStyle:'#000'},ctx=new Proxy(paint,{get(t,k){if(['beginPath','arc','fill','stroke'].includes(k))return(...args)=>operations.push([k,...args,...(['fill','stroke'].includes(k)?[{...paint}]:[])]);return t[k];},set(t,k,v){operations.push(['set',k,v]);t[k]=v;return true;}});renderNode(ctx,node);assert.equal(paint.globalAlpha,alpha);assert.equal(paint.lineCap,'square');canvasCases.push(canonical({node,alpha,operations,paint}));}
+const reference=canonical({scope:'Original Network shallow raw-node preparation, computed-style active/inactive and augmentation, full NetworkNodes creation/transition/event recipes, default NetworkNode JSX and record-only default Canvas commands. Simulation kinematics/index authored; synchronous hooks/colors/scalars/JSX are explicit dependency probes. No force simulation, React/Spring runtime, browser event or framebuffer equivalence claim.',version:'0.99.0',commit:frozen?expected.commit:execFileSync('git',['-C',checkout,'rev-parse','HEAD'],{encoding:'utf8'}).trim(),sources,license:licenseInfo,producer,compiler,execution,input,prepared,transientNodes,styleCases,defaultStyle,cases,empty,gateCases,canvasCases,boundaries:{eligibility:'Parent gate requires nodes!==null and nodes layer; empty array passes layer gate but creates0 nodes. Component retains zero-size/transparent/offviewport nodes; interactivity gates four handlers only.',motion:'initial/enter/update regular opacity1/scale1; from/leave opacity0/scale0 but original size retained; default SVG radius is size/2 with no Swarm-style max0.',interaction:'Enter showTooltip({node}) then active[node.id] then consumer; leave hide then active[] then consumer.',raw:'Original input shallow-cloned into data; kinematic fields on transient node initialized0 before D3, not copied from raw data.x. Computed styles derive from raw data after simulation. ForceNodeState Rust physics radius/fixed are separate extensions, not arbitrary original InputNode equivalence.'}});
+if(frozen)assert.deepEqual(reference,expected,'exact original Network node recipe execution');else{for(const[name,b]of Object.entries(original)){const p=resolve(out,'original',name);await mkdir(dirname(p),{recursive:true});await writeFile(p,b);}await writeFile(resolve(out,'original/LICENSE.md'),license);await writeFile(resolve(out,'reference.json'),JSON.stringify(reference,null,2)+'\n');}
+console.log(JSON.stringify({mode:frozen?'frozen-verify':'produce',sources:Object.keys(original).length,licenses:1,styleProfiles:styleCases.length,profiles:cases.length,creationCalls:cases.reduce((s,c)=>s+c.calls.length,0),canvasCases:canvasCases.length,producerSha256:producer.sha256}));

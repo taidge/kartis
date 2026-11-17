@@ -295,12 +295,13 @@ dependencies = [
 
 [[package]]
 name = "kartis"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "base64",
  "glory",
  "jiff",
  "jiff-tzdb",
+ "libm",
  "png",
  "rustybuzz",
  "serde_json",

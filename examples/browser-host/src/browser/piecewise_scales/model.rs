@@ -22,7 +22,7 @@ pub(super) fn config(width: f64, height: f64) -> ChartConfig {
     }
 }
 pub(super) fn profiles(case: u8, phase: u8) -> Result<PiecewiseLineScaleOptions> {
-    if case > 6 || phase > 1 {
+    if case > 14 || phase > 1 {
         return Err(ChartError("invalid piecewise fixture profile".into()));
     }
     let (kind, domain) = match case {
@@ -32,6 +32,17 @@ pub(super) fn profiles(case: u8, phase: u8) -> Result<PiecewiseLineScaleOptions>
         3 if phase == 1 => (ScaleKind::Pow { exponent: -1. }, vec![-32., -8., -2., -1.]),
         3 => (ScaleKind::Pow { exponent: 2. }, vec![-4., -1., 1., 9.]),
         4 => (ScaleKind::Sqrt, vec![-9., -1., 4., 25.]),
+        7 => (ScaleKind::Linear, vec![0., 0., 1.]),
+        8 => (ScaleKind::Linear, vec![0., 1., 1., 2.]),
+        9 => (ScaleKind::Linear, vec![0., 1., 1.]),
+        10 => (ScaleKind::Linear, vec![5., 5., 5.]),
+        11 => (ScaleKind::Linear, vec![5., 5.]),
+        12 => (ScaleKind::SymLog { constant: 2. }, vec![-9.3, -9.3, 17.6]),
+        13 => (ScaleKind::Pow { exponent: -1. }, vec![1., 2., 2., 4.]),
+        14 => (
+            ScaleKind::Utc,
+            vec![1_709_078_400_000., 1_709_078_400_000., 1_709_251_200_000.],
+        ),
         _ => (
             ScaleKind::Utc,
             vec![
@@ -46,12 +57,18 @@ pub(super) fn profiles(case: u8, phase: u8) -> Result<PiecewiseLineScaleOptions>
         domain,
         range: if case == 6 {
             vec![0., 1., 0.2, 1.]
+        } else if case >= 7 {
+            match case {
+                8 | 13 => vec![0., 0.18, 0.73, 1.],
+                11 => vec![0., 1.],
+                _ => vec![0., 0.5, 1.],
+            }
         } else {
             vec![0., 0.18, 0.73, 1.]
         },
         continuous: ContinuousScaleOptions {
             kind,
-            reverse: phase == 1 && matches!(case, 1 | 2 | 3 | 5),
+            reverse: phase == 1 && matches!(case, 1 | 2 | 3 | 5 | 7..=14),
             round: phase == 1,
             clamp: phase == 1,
             ..Default::default()
@@ -82,6 +99,34 @@ pub(super) fn profiles(case: u8, phase: u8) -> Result<PiecewiseLineScaleOptions>
 fn data(case: u8, phase: u8) -> Result<Vec<Series>> {
     let mut domain = profiles(case, phase)?.x.unwrap().domain;
     domain.sort_by(f64::total_cmp);
+    if case >= 7 {
+        let mut xs = domain.clone();
+        for pair in domain.windows(2) {
+            xs.push(pair[0] * 0.5 + pair[1] * 0.5);
+        }
+        if matches!(case, 7 | 9 | 10 | 11 | 12) {
+            xs.insert(0, domain[0] - 1.);
+            xs.push(domain[domain.len() - 1] + 1.);
+        }
+        if case == 12 {
+            xs.extend([
+                f64::from_bits((-9.3_f64).to_bits() + 1),
+                f64::from_bits((-9.3_f64).to_bits() - 1),
+            ]);
+        }
+        if case == 14 {
+            for x in &mut xs {
+                *x = x.round();
+            }
+        }
+        return Ok(vec![Series::new(
+            "alpha",
+            xs.into_iter()
+                .enumerate()
+                .map(|(i, x)| Point::new(x, 1. + i as f64))
+                .collect(),
+        )]);
+    }
     Ok(["alpha", "beta"]
         .into_iter()
         .enumerate()
@@ -113,7 +158,7 @@ pub(super) fn proposal(
     viewport: Option<(&Layout, &BrowserViewportLayout)>,
 ) -> Result<Layout> {
     let mut frame = c.clone();
-    if case == 5 {
+    if matches!(case, 5 | 14) {
         // Leave room for the outer date label as well as spacing the ticks.
         frame.margin.right = 44.;
     }
@@ -128,7 +173,7 @@ pub(super) fn proposal(
             hidden,
             ..Default::default()
         };
-        if case == 5 {
+        if matches!(case, 5 | 14) {
             options.axes.x.format = ValueFormat::UtcDate;
             options.axes.x.tick_count = 4;
         }
@@ -174,7 +219,7 @@ pub(super) fn proposal(
         hidden,
         ..Default::default()
     };
-    if case == 5
+    if matches!(case, 5 | 14)
         && let Some(axis) = options.axes.bottom.as_mut()
     {
         axis.format = ValueFormat::UtcDate;

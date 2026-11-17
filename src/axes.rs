@@ -481,6 +481,11 @@ impl ChartScale {
     pub fn kind(&self) -> ScaleKind {
         self.kind
     }
+    pub(crate) fn configured_options(
+        &self,
+    ) -> Option<crate::scale_options::ContinuousScaleOptions> {
+        self.configured
+    }
     pub fn is_clamped(&self) -> bool {
         self.clamp
     }
@@ -510,6 +515,9 @@ impl ChartScale {
         }
     }
     pub fn transformed(&self, value: f64) -> f64 {
+        if let Scale::Piecewise(s) = &self.scale {
+            return s.transformed(value);
+        }
         match self.kind {
             ScaleKind::Log => value.abs().ln() * self.domain[0].signum(),
             ScaleKind::SymLog { constant } => crate::scales::symlog_transform(value, constant),

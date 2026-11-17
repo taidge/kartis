@@ -145,6 +145,23 @@ pub(super) fn validate(layout: &SceneInteraction) -> Result<()> {
 }
 impl BoundPlot {
     pub fn new(scope: &Scope, layout: SceneInteraction, hidden: &BTreeSet<String>) -> Result<Self> {
+        Self::new_masked(scope, layout, hidden, BTreeSet::new())
+    }
+    pub fn new_masked(
+        scope: &Scope,
+        layout: SceneInteraction,
+        hidden: &BTreeSet<String>,
+        replaced: BTreeSet<String>,
+    ) -> Result<Self> {
+        Self::new_projected(scope, layout, hidden, replaced, None)
+    }
+    pub fn new_projected(
+        scope: &Scope,
+        layout: SceneInteraction,
+        hidden: &BTreeSet<String>,
+        replaced: BTreeSet<String>,
+        view: Option<ZoomTransform>,
+    ) -> Result<Self> {
         validate(&layout)?;
         let mut model = SurfaceModel::new_with_interaction(
             layout.scene.clone(),
@@ -159,6 +176,10 @@ impl BoundPlot {
             layout.interaction.clone(),
         )?;
         model.set_hidden(hidden.clone())?;
+        model.set_widget_replacements(replaced)?;
+        if let Some(view) = view {
+            model.set_chart_paint(view)?;
+        }
         let controls = projection(&model);
         let lookup = controls
             .iter()
@@ -174,6 +195,24 @@ impl BoundPlot {
         })
     }
     pub fn prepare(&self, layout: SceneInteraction, hidden: &BTreeSet<String>) -> Result<Prepared> {
+        let replacements = self.model.borrow().widget_replacements().clone();
+        self.prepare_masked(layout, hidden, replacements)
+    }
+    pub fn prepare_masked(
+        &self,
+        layout: SceneInteraction,
+        hidden: &BTreeSet<String>,
+        replacements: BTreeSet<String>,
+    ) -> Result<Prepared> {
+        self.prepare_projected(layout, hidden, replacements, None)
+    }
+    pub fn prepare_projected(
+        &self,
+        layout: SceneInteraction,
+        hidden: &BTreeSet<String>,
+        replacements: BTreeSet<String>,
+        view: Option<ZoomTransform>,
+    ) -> Result<Prepared> {
         validate(&layout)?;
         let old = self.model.borrow();
         let mut model = old.clone();
@@ -182,6 +221,10 @@ impl BoundPlot {
         }
         if model.hidden() != hidden {
             model.set_hidden(hidden.clone())?;
+        }
+        model.set_widget_replacements(replacements)?;
+        if let Some(view) = view {
+            model.set_chart_paint(view)?;
         }
         let events = changes(&old, &model);
         let controls = projection(&model);
@@ -202,7 +245,9 @@ impl BoundPlot {
             controls,
             events,
         } = next;
-        let changed = *self.controls.borrow() != controls;
+        let changed = *self.controls.borrow() != controls
+            || *self.layout.borrow() != layout
+            || self.model.borrow().paint_transform() != model.paint_transform();
         *self.model.borrow_mut() = model;
         *self.layout.borrow_mut() = layout;
         if changed {
@@ -223,6 +268,22 @@ impl BoundPlot {
     }
     pub fn data_labels(&self) -> BTreeMap<String, String> {
         self.model.borrow().data_control_labels()
+    }
+    pub fn active_interaction(&self, ids: &[String]) -> Option<crate::ActiveInteraction> {
+        let _ = self.revision.get();
+        self.model.borrow().active_interaction(ids)
+    }
+    pub fn tooltip_anchor(&self, ids: &[String]) -> Result<Option<(f64, f64)>> {
+        let _ = self.revision.get();
+        let model = self.model.borrow();
+        model
+            .active_interaction(ids)
+            .map(|active| {
+                model
+                    .paint_transform()
+                    .project((active.anchor[0], active.anchor[1]))
+            })
+            .transpose()
     }
     pub fn lookup(&self, id: &str) -> Option<Mark> {
         let _ = self.revision.get();

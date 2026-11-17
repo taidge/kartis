@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "d3GeoVersion": "3.1.1",
+  "sourceSHA256": {
+    "clip/rectangle.js": "e726070528ac5cc903929934fa8d87420d59effdbd996388048ae2cabcad9652",
+    "clip/buffer.js": "cb4b6265d1baa6cbb47ab932cf9f5b133c9f5e4307a98f8eeb969db22094c333",
+    "clip/line.js": "1b08c2f20a5bb2a9c180bc91695e0a62c95cde2e47395146fc24281fb1f9d92f",
+    "clip/rejoin.js": "6f70ed7e4cad610c85ef6b15d60a21eb271dfe2365350015e05223e096138043",
+    "pointEqual.js": "5aff0b464bd215e97924aba96a30f526e879b0a2a594ad49d55981add9f2871b"
+  },
+  "producerSHA256": "fedff41b92ac79b139075681e8c2a0422431a2b4b91f6a169429d73768697220",
+  "valuesSHA256": "569fd372633cdd42eefe8d7e5e2f8dd9a94e5161675261b48edbee9f66395050",
+  "cases": 383
+}

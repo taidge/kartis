@@ -1,10 +1,17 @@
 //! Waffle allocation, grid traversal, and group areas. The legacy `waffle`
 //! retains its largest-remainder policy and original mark IDs.
-
+mod custom;
+mod factories;
+mod regions;
+mod widgets;
 use std::collections::{BTreeMap, BTreeSet};
 use std::ops::Range;
 
+pub use custom::*;
+pub use factories::*;
 use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
+pub use regions::*;
+pub use widgets::*;
 
 use crate::cartesian::round_bar;
 use crate::crosshair::mark_center;
@@ -122,13 +129,14 @@ pub struct WaffleGroup {
     pub requested: Range<usize>,
     /// Occupied half-open traversal range clipped to actual grid slots.
     pub occupied: Range<usize>,
-    /// Clockwise whole-slot outlines with implicit closing edges. Components
-    /// that touch at a single vertex remain separate.
+    /// Clockwise whole-slot outlines with implicit closing edges. Legacy
+    /// layouts separate vertex-only contacts; SVG-profile captures retain
+    /// Nivo's single, self-touching outline for those contacts.
     pub polygons: Vec<Vec<[f64; 2]>>,
     pub area_mark_id: Option<String>,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone)]
 pub struct WaffleLayout {
     pub scene: Scene,
     pub total: f64,
@@ -143,9 +151,48 @@ pub struct WaffleLayout {
     columns: usize,
     direction: WaffleFillDirection,
     plot: ClipRect,
+    nivo_overflow: bool,
+    nivo_polygons: bool,
+}
+impl PartialEq for WaffleLayout {
+    fn eq(&self, other: &Self) -> bool {
+        self.scene == other.scene
+            && self.total == other.total
+            && self.unit == other.unit
+            && self.grid == other.grid
+            && self.cell_size == other.cell_size
+            && self.groups == other.groups
+            && self.cells == other.cells
+            && self.interaction == other.interaction
+            && self.rows == other.rows
+            && self.columns == other.columns
+            && self.direction == other.direction
+            && self.plot == other.plot
+    }
+}
+impl std::fmt::Debug for WaffleLayout {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("WaffleLayout")
+            .field("scene", &self.scene)
+            .field("total", &self.total)
+            .field("unit", &self.unit)
+            .field("grid", &self.grid)
+            .field("cell_size", &self.cell_size)
+            .field("groups", &self.groups)
+            .field("cells", &self.cells)
+            .field("interaction", &self.interaction)
+            .field("rows", &self.rows)
+            .field("columns", &self.columns)
+            .field("direction", &self.direction)
+            .field("plot", &self.plot)
+            .finish()
+    }
 }
 
 impl WaffleLayout {
+    pub fn plot(&self) -> ClipRect {
+        self.plot
+    }
     /// Lookup a full grid slot in logical coordinates, including the visual
     /// padding. The grid's right and bottom edges are excluded.
     pub fn cell_at(&self, x: f64, y: f64) -> Option<&WaffleCell> {
@@ -196,6 +243,30 @@ pub fn waffle_layout(
     data: &[RadialDatum],
     options: &WaffleLayoutOptions,
 ) -> Result<WaffleLayout> {
+    waffle_layout_with_factories(config, data, options, &mut WaffleFactories::default())
+}
+
+/// Static/source/ordinary-grid preflight shared by the sealed SVG owner. It
+/// invokes no user roles and deliberately allows an unresolved inherited border
+/// default, since an explicit border factory may supply the actual result.
+pub fn waffle_svg_validate_inputs(
+    config: &ChartConfig,
+    data: &[RadialDatum],
+    options: &WaffleLayoutOptions,
+) -> Result<()> {
+    layout_base(config, data, options, true, true).map(|_| ())
+}
+
+// Complete the ordinary, bounded geometry before any application function.
+// An explicit border function may supply paint when inherited contrast cannot
+// be resolved; its temporary preflight border does not escape this module.
+fn layout_base(
+    config: &ChartConfig,
+    data: &[RadialDatum],
+    options: &WaffleLayoutOptions,
+    allow_unresolved_border: bool,
+    allow_nivo_overflow: bool,
+) -> Result<WaffleLayout> {
     let mut scene = config.scene()?;
     validate_data(data)?;
     let WaffleLayoutOptions {
@@ -229,28 +300,38 @@ pub fn waffle_layout(
     options.border_color.validate()?;
     options.value_format.validate()?;
     let grid = centered_grid(plot, cell_size, rows, columns);
-    let [total, unit] = resolve_total(data, options.total, count)?;
-    let allocations = allocate(data, options, count, total, unit);
+    let nivo_overflow =
+        allow_nivo_overflow && options.allocation == WaffleAllocation::IndependentRound;
+    let [total, unit] = resolve_total(data, options.total, count, nivo_overflow)?;
+    let allocations = allocate(data, options, count, total, unit)?;
     let mut colors = options.colors.resolve(
         data.iter()
             .map(|datum| CategoryKey::from(datum.id.as_str())),
     )?;
     let border_color = |fill| {
-        options
+        let resolved = options
             .border_color
             .resolve_validated(InheritedColorContext {
                 inherited: fill,
                 surface: fill,
                 backdrop: scene.background,
                 theme: config.theme.text,
-            })
+            });
+        if allow_unresolved_border {
+            Ok(resolved.unwrap_or(fill))
+        } else {
+            resolved
+        }
     };
     let empty_border = border_color(options.empty_color)?;
     let mut groups = Vec::with_capacity(data.len());
-    let mut cursor = 0;
+    let mut cursor: usize = 0;
     let mut owners = vec![None; count];
     for (source_index, (source, allocation)) in data.iter().zip(allocations).enumerate() {
-        let requested = cursor..cursor + allocation;
+        let end = cursor
+            .checked_add(allocation)
+            .ok_or_else(|| ChartError("Waffle requested allocation overflow".into()))?;
+        let requested = cursor..end;
         cursor = requested.end;
         let occupied = requested.start.min(count)..requested.end.min(count);
         owners[occupied.clone()].fill(Some(source_index));
@@ -342,7 +423,7 @@ pub fn waffle_layout(
 
     for group in &mut groups {
         let occupied = &cells[group.occupied.clone()];
-        group.polygons = group_polygons(occupied, grid, cell_size);
+        group.polygons = group_polygons(occupied, grid, cell_size, allow_nivo_overflow);
         if options.mode == WaffleMode::Areas
             && let Some(first) = occupied.first()
         {
@@ -390,15 +471,24 @@ pub fn waffle_layout(
         columns,
         direction,
         plot,
+        nivo_overflow,
+        nivo_polygons: allow_nivo_overflow,
     })
 }
 
-fn resolve_total(data: &[RadialDatum], explicit: Option<f64>, count: usize) -> Result<[f64; 2]> {
+fn resolve_total(
+    data: &[RadialDatum],
+    explicit: Option<f64>,
+    count: usize,
+    allow_overflow: bool,
+) -> Result<[f64; 2]> {
     let sum: f64 = data.iter().map(|datum| datum.value).sum();
     ensure(sum.is_finite(), "Waffle value sum overflow")?;
     let total = explicit.unwrap_or(if sum == 0. { 1. } else { sum });
     ensure(
-        total.is_finite() && total > 0. && (sum <= total || (sum - total) / total <= 1e-12),
+        total.is_finite()
+            && total > 0.
+            && (allow_overflow || sum <= total || (sum - total) / total <= 1e-12),
         "Waffle total must be positive and include all values",
     )?;
     let unit = total / count as f64;
@@ -412,7 +502,7 @@ fn allocate(
     count: usize,
     total: f64,
     unit: f64,
-) -> Vec<usize> {
+) -> Result<Vec<usize>> {
     let quotas = data.iter().map(|datum| {
         if options.hidden.contains(&datum.id) {
             0.
@@ -423,10 +513,33 @@ fn allocate(
             datum.value / total * count as f64
         }
     });
-    if options.allocation == WaffleAllocation::IndependentRound {
-        return quotas.map(|quota| quota.round() as usize).collect();
-    }
     let quotas = quotas.collect::<Vec<_>>();
+    // A portable source-request budget, independent from painted capacity.
+    // It bounds casts/cursors even for tiny explicitly oversubscribed totals.
+    let request_limit = u32::MAX as usize;
+    ensure(
+        quotas
+            .iter()
+            .all(|q| q.is_finite() && *q >= 0. && *q <= request_limit as f64),
+        "Waffle requested quota exceeds budget",
+    )?;
+    if options.allocation == WaffleAllocation::IndependentRound {
+        let mut total = 0usize;
+        return quotas
+            .into_iter()
+            .map(|q| {
+                let n = q.round() as usize;
+                total = total
+                    .checked_add(n)
+                    .ok_or_else(|| ChartError("Waffle requested allocation overflow".into()))?;
+                ensure(
+                    total <= request_limit,
+                    "Waffle total requested allocation exceeds budget",
+                )?;
+                Ok(n)
+            })
+            .collect();
+    }
     let occupied = (quotas.iter().sum::<f64>().round() as usize).min(count);
     let mut allocations = quotas
         .iter()
@@ -443,7 +556,7 @@ fn allocate(
     for index in order.into_iter().take(remaining) {
         allocations[index] += 1;
     }
-    allocations
+    Ok(allocations)
 }
 
 fn centered_grid(plot: ClipRect, pitch: f64, rows: usize, columns: usize) -> ClipRect {
@@ -531,7 +644,12 @@ fn add_site(
     Ok(())
 }
 
-fn group_polygons(cells: &[WaffleCell], grid: ClipRect, pitch: f64) -> Vec<Vec<[f64; 2]>> {
+fn group_polygons(
+    cells: &[WaffleCell],
+    grid: ClipRect,
+    pitch: f64,
+    include_corner_contacts: bool,
+) -> Vec<Vec<[f64; 2]>> {
     // An interval of a row-major or column-major fill has contiguous cells
     // in each occupied row. Store exact integer endpoints before projection.
     let mut rows = BTreeMap::<usize, [usize; 2]>::new();
@@ -544,7 +662,12 @@ fn group_polygons(cells: &[WaffleCell], grid: ClipRect, pitch: f64) -> Vec<Vec<[
     }
     let rows: Vec<_> = rows.into_iter().collect();
     rows.chunk_by(|(above, [left, right]), (below, [next_left, next_right])| {
-        *above + 1 == *below && left < next_right && next_left < right
+        *above + 1 == *below
+            && if include_corner_contacts {
+                left <= next_right && next_left <= right
+            } else {
+                left < next_right && next_left < right
+            }
     })
     .map(|part| {
         let mut vertices = Vec::with_capacity(part.len() * 4);

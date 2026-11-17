@@ -171,7 +171,7 @@ impl TreeStyleOptions {
             ensure(
                 style
                     .radius
-                    .is_none_or(|r| r.is_finite() && (0.000001..=16384.).contains(&r))
+                    .is_none_or(|r| r.is_finite() && (r == 0. || (0.000001..=16384.).contains(&r)))
                     && border_valid(style.border)
                     && style.opacity.is_finite()
                     && (0. ..=1.).contains(&style.opacity),
@@ -347,6 +347,14 @@ pub(super) struct TreeLabelGeometry<'a> {
     pub fallback_radius: f64,
     pub text: &'a str,
 }
+pub(super) fn label_eligible(options: &TreeLabelOptions, leaf: bool) -> bool {
+    match options.visibility {
+        TreeLabels::All => true,
+        TreeLabels::Leaves => leaf,
+        TreeLabels::Internal => !leaf,
+        TreeLabels::None => false,
+    }
+}
 pub(super) fn tree_label(
     c: &ChartConfig,
     options: &TreeLabelOptions,
@@ -361,10 +369,7 @@ pub(super) fn tree_label(
         fallback_radius,
         text,
     } = g;
-    if matches!(options.visibility, TreeLabels::None)
-        || options.visibility == TreeLabels::Leaves && !leaf
-        || options.visibility == TreeLabels::Internal && leaf
-    {
+    if !label_eligible(options, leaf) {
         return None;
     }
     let layout = match orientation {

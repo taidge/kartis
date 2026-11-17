@@ -4,6 +4,8 @@ use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
 use super::*;
 use crate::blend::{BlendMode, MarkBlends};
 mod blend_layer;
+mod tree_canvas;
+pub(crate) use tree_canvas::{tree_canvas_label, tree_canvas_mark};
 #[wasm_bindgen::prelude::wasm_bindgen]
 extern "C" {
     // Optional reset support preserves the historical clean context state
@@ -248,6 +250,9 @@ impl Canvas for BrowserCanvas {
     fn text(&mut self, label: &Label) -> Result<()> {
         self.text_with_font(label, &ResolvedFont::default())
     }
+    fn supports_text_whitespace(&self) -> bool {
+        true
+    }
     fn supports_text_fonts(&self) -> bool {
         true
     }
@@ -280,6 +285,55 @@ impl Canvas for BrowserCanvas {
             self.context
                 .fill_text(&label.text, 0., 0.)
                 .map_err(host_error)
+        })();
+        self.context.restore();
+        painted
+    }
+    fn supports_text_stroke(&self) -> bool {
+        true
+    }
+    fn text_with_stroke(
+        &mut self,
+        label: &Label,
+        font: &ResolvedFont,
+        _explicit_font: bool,
+        stroke: crate::LabelStroke,
+    ) -> Result<()> {
+        self.context.save();
+        let painted = (|| {
+            self.context
+                .translate(label.x, label.y)
+                .map_err(host_error)?;
+            self.context
+                .rotate(label.rotation.to_radians())
+                .map_err(host_error)?;
+            self.context.set_global_alpha(1.);
+            self.context.set_font(&font.canvas_font(label.size));
+            self.context.set_text_align(match label.anchor {
+                TextAnchor::Start => "left",
+                TextAnchor::Middle => "center",
+                TextAnchor::End => "right",
+            });
+            self.context.set_text_baseline("alphabetic");
+            let prototype = context_prototype(&self.context);
+            if prototype_has_property(&prototype, "fontKerning") {
+                self.context
+                    .unchecked_ref::<CanvasTextKerning>()
+                    .set_font_kerning("normal");
+            }
+            self.context.set_fill_style_str(&css_color(label.color));
+            self.context
+                .fill_text(&label.text, 0., 0.)
+                .map_err(host_error)?;
+            if stroke.width > 0. && stroke.color.3 > 0 {
+                self.context.set_stroke_style_str(&css_color(stroke.color));
+                self.context.set_line_width(stroke.width);
+                self.context.set_line_join("round");
+                self.context
+                    .stroke_text(&label.text, 0., 0.)
+                    .map_err(host_error)?;
+            }
+            Ok(())
         })();
         self.context.restore();
         painted

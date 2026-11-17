@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "nivoVersion": "0.99.0",
+  "upstream": {
+    "repository": "https://github.com/plouc/nivo",
+    "commit": "0dae2c32052a573f9f1d66ec1b453b572119b265",
+    "files": [
+      "network/package.json",
+      "network/src/types.ts",
+      "network/src/defaults.ts",
+      "network/src/hooks.ts",
+      "network/src/renderCanvasLink.ts",
+      "network/src/NetworkLink.tsx",
+      "network/src/NetworkLinks.tsx",
+      "network/src/NetworkCanvas.tsx",
+      "swarmplot/package.json",
+      "swarmplot/src/types.ts",
+      "swarmplot/src/props.ts",
+      "swarmplot/src/compute.ts",
+      "swarmplot/src/hooks.ts",
+      "swarmplot/src/Circles.tsx",
+      "swarmplot/src/CircleSvg.tsx",
+      "swarmplot/src/SwarmPlotCanvas.tsx"
+    ]
+  },
+  "license": {
+    "name": "MIT",
+    "file": "vendor/nivo/LICENSE.md",
+    "sha256": "a2a2442ac2f3c1e7377942c51caa0b63be81e0c5227ad0f1d9b9e16be1b99b31",
+    "text": "Copyright (c) Raphaël Benitte\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies\nof the Software, and to permit persons to whom the Software is furnished to do\nso, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE."
+  },
+  "sourceSHA256": {
+    "packages/network/package.json": "33d0ef8452185fe05f8695e49be16a90f4605d8f3b7910e746d4407d7fd2672d",
+    "packages/network/src/types.ts": "ac5b331d43addad3ffeef7f01e5218b0085cd8fb549a5fb3d5d25c246f5df1f6",
+    "packages/network/src/defaults.ts": "6ea42d79b9c88618ba9ad43cf9086a0651e376bb02308e8ae6633a4dc7c04c1c",
+    "packages/network/src/hooks.ts": "b4142460f823f63e9dcb0e059292f144ddb5b76102c423194d297b90bbd12aab",
+    "packages/network/src/renderCanvasLink.ts": "25c8c276c4ce4f9732e0755bd7ef4a48ce5f12ab361d81e9c1faa14b2a99d6f4",
+    "packages/network/src/NetworkLink.tsx": "5e1116782633f457c1c5234c4e55fea5d78854b8a036bb9ecfc05d2cf18f4279",
+    "packages/network/src/NetworkLinks.tsx": "fa68d3b9abdb36a49682ae74b7a6230b8ef2393a406028120453b576e7a95a0e",
+    "packages/network/src/NetworkCanvas.tsx": "783546a5a50c6a8c4956bc217b44099ea454d89b180c35231a7e1032c24b08dd",
+    "packages/swarmplot/package.json": "67f58319089fa7eea2e999a5e7dd34f61e811c1c2418c0a8735435bf745103f5",
+    "packages/swarmplot/src/types.ts": "cf05a065d643970f3d1359bf8736828c45ff3183b6fde725edfe4001338eb352",
+    "packages/swarmplot/src/props.ts": "f89b3007b28b4e111f017f8f7f130d356fcad37564b7193e0f80d415b7cfb6b8",
+    "packages/swarmplot/src/compute.ts": "8b9b4a4f9642900b80918d0b99aa1510a3611f694b966a7acf0d20eba0f78cb8",
+    "packages/swarmplot/src/hooks.ts": "8864de31ec59ef9ff883191d693244b778dea30b6c0d1fe1f85778826fb7fb83",
+    "packages/swarmplot/src/Circles.tsx": "7f6a6cb1ac62e582616fdbb2a90922ece0a0e8ba3da3b38cd1226e74841a57fa",
+    "packages/swarmplot/src/CircleSvg.tsx": "381b7a728cb8ce66048917fddcd3ad9d56e9b2bd605e3210ec3fdd023d14442e",
+    "packages/swarmplot/src/SwarmPlotCanvas.tsx": "1679f1800c5c84f0ff3ab3b0a2d082edc442666ca24de45bda223d92f1d1802a"
+  },
+  "executedBodies": {
+    "linkRendererSHA256": "6336a14ff61182cc536320e2110c89daf3f5b4792d01de49e7805390c27006ac",
+    "swarmRendererSHA256": "18ffe25538cd874d9e11fd32889f5159c93aad436d47a78a0518c66669e99ea1",
+    "networkLoopSHA256": "04a0046fca6f0ebd55661498e4ca56ea2ffd7892df12cb4bcbd72d55a2faefc7",
+    "swarmLoopSHA256": "b98e5892bac79356dbaa9d2dda52fee0b67f07e0a43de1b6de58afe373de2887",
+    "networkTransitionsSHA256": "eda76d882ec4415a4e39238060e67dd3963991afc4e974c4474cfac64cbc5e0b",
+    "swarmTransitionsSHA256": "79743c1c2efb3b82610dddc7f10287026cf2d52c55a6a5337023c96817149782",
+    "computedLinksSHA256": "6cd681a5850fc8ab194afddc48acd43913abb5873056f89a4f1dc596dfc07cc5",
+    "nodePreparationSHA256": "b222c513564546c191ef799456137874949f8990fb792cd2d077f06b12786f65",
+    "ordinalSHA256": "c54f836ff2ebef0c8e8b992a03e62c1dcce79311b22e016b998380cb3409e09b"
+  },
+  "producerSHA256": "1cecb73e23755e03fea363032e666414a77cd369c279b9485ab75a5ee5f92afa",
+  "valuesSHA256": "05e13811de1d0264c3871156484907f11cfce158104df865da721d723f518d38",
+  "runtime": {
+    "nodeMajor": 24,
+    "playwrightVersion": "1.56.1",
+    "canvas": "Actual Chromium CanvasRenderingContext2D; Proxy forwards all operations without replacing math or Canvas behavior"
+  },
+  "counts": {
+    "networkCases": 10,
+    "swarmCases": 6,
+    "networkCalls": 34,
+    "swarmCalls": 14,
+    "ordinalCases": 6,
+    "realCanvasWitnesses": 42
+  }
+}

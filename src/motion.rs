@@ -101,6 +101,10 @@ impl Plan {
         from.validate()?;
         to.validate()?;
         ensure(
+            from.typography.label_strokes.is_empty() && to.typography.label_strokes.is_empty(),
+            "spring topology motion does not support label strokes",
+        )?;
+        ensure(
             from.opacity_groups.is_empty() && to.opacity_groups.is_empty(),
             "spring topology motion does not support multi-mark opacity groups; use immediate replacement or Scene::interpolate",
         )?;
@@ -127,6 +131,7 @@ impl Plan {
                     && from.label_series.get(i) == to.label_series.get(i)
                     && from.label_clips.get(i) == to.label_clips.get(i)
                     && from.resolved_label_font(*i) == to.resolved_label_font(*i)
+                    && from.typography.label_whitespace(*i) == to.typography.label_whitespace(*i)
             })
             .map(|(i, _)| i)
             .collect();
@@ -154,6 +159,7 @@ impl Plan {
         compatible_from.label_series.clear();
         compatible_from.label_clips.clear();
         compatible_from.typography.labels.clear();
+        compatible_from.typography.label_whitespace.clear();
         let mut compatible_to = compatible_from.clone();
         for mark in &to.marks {
             if compatible_ids.contains(&mark.id) {
@@ -312,6 +318,7 @@ impl Plan {
         out.label_series.clear();
         out.label_clips.clear();
         out.typography.labels.clear();
+        out.typography.label_whitespace.clear();
         for &index in &self.exit_labels {
             let mut label = self.from.labels[index].clone();
             label.color.3 = (f64::from(label.color.3) * (1. - t)).round() as u8;
@@ -330,6 +337,11 @@ impl Plan {
                         weight: Some(self.from.resolved_label_font(index).weight),
                     },
                 );
+            }
+            if let Some(mode) = self.from.typography.label_whitespace.get(&index) {
+                out.typography
+                    .label_whitespace
+                    .insert(out.labels.len(), *mode);
             }
             out.labels.push(label);
         }
@@ -355,6 +367,11 @@ impl Plan {
                 out.typography
                     .labels
                     .insert(out.labels.len(), self.to.typography.label_options(index));
+            }
+            if let Some(mode) = self.to.typography.label_whitespace.get(&index) {
+                out.typography
+                    .label_whitespace
+                    .insert(out.labels.len(), *mode);
             }
             out.labels.push(label);
         }
@@ -437,6 +454,10 @@ impl SpringMotion {
         blends: MarkBlends,
     ) -> Result<Self> {
         initial.validate()?;
+        ensure(
+            initial.typography.label_strokes.is_empty(),
+            "spring topology motion does not support label strokes",
+        )?;
         blends.validate(&initial)?;
         config.validate()?;
         Ok(Self {
@@ -518,6 +539,10 @@ impl SpringMotion {
         policy: RetargetPolicy,
     ) -> Result<()> {
         target.validate()?;
+        ensure(
+            target.typography.label_strokes.is_empty(),
+            "spring topology motion does not support label strokes",
+        )?;
         blends.validate(&target)?;
         if self.reduced_motion || self.current == target && self.blends == blends {
             self.current = target;
@@ -785,6 +810,13 @@ impl SpringValue {
     }
     pub fn is_settled(&self) -> bool {
         self.settled
+    }
+    /// Change future integration and rest checks without advancing or snapping
+    /// the current value, target, velocity or settled state.
+    pub fn set_config(&mut self, config: SpringConfig) -> Result<()> {
+        config.validate()?;
+        self.config = config;
+        Ok(())
     }
     pub fn retarget(&mut self, target: f64) -> Result<()> {
         self.retarget_with_policy(target, ScalarVelocityPolicy::Preserve)

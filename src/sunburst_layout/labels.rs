@@ -33,6 +33,7 @@ pub struct SunburstLabelCandidate {
     pub node_id: String,
     pub label: Label,
     pub font: crate::ResolvedFont,
+    pub whitespace: crate::LabelWhitespace,
     pub arc: SunburstArc,
     /// The actual padded and rounded D3 arc, including its inner hole. Fill
     /// contours are explicitly closed to satisfy the shared ClipPath contract.
@@ -60,7 +61,7 @@ impl SunburstLabelCandidate {
             self.arc,
             self.mask,
             self.context,
-            self.font.signature(),
+            self.whitespace.measurement_signature(&self.font),
         )
     }
 
@@ -185,6 +186,8 @@ struct LabelBinding {
     label: Label,
     clip: Option<ClipPath>,
     font: Option<crate::FontOptions>,
+    whitespace: Option<crate::LabelWhitespace>,
+    stroke: Option<crate::LabelStroke>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -270,6 +273,7 @@ impl SunburstLabelState {
                     node_id: node.data.id.clone(),
                     label: label.clone(),
                     font: layout.scene.resolved_label_font(slot),
+                    whitespace: layout.scene.typography.label_whitespace(slot),
                     arc: node.arc,
                     mask: arc_mask(&mark.geometry)?,
                     context: source_context(layout, node, &mark.geometry),
@@ -279,6 +283,8 @@ impl SunburstLabelState {
                     label: label.clone(),
                     clip: layout.scene.label_clips.get(&slot).cloned(),
                     font: layout.scene.typography.labels.get(&slot).cloned(),
+                    whitespace: layout.scene.typography.label_whitespace.get(&slot).copied(),
+                    stroke: layout.scene.typography.label_strokes.get(&slot).copied(),
                 },
             ));
         }
@@ -321,6 +327,25 @@ fn push_label(
 }
 
 impl SunburstLayout {
+    /// Select single-line whitespace before obtaining ink measurements.
+    pub fn with_label_whitespace(&self, mode: crate::LabelWhitespace) -> Result<Self> {
+        self.scene.validate()?;
+        self.validate_managed_labels()?;
+        ensure(
+            self.label_layout.placements.is_empty(),
+            "select label whitespace before measured placement",
+        )?;
+        let mut result = self.clone();
+        for binding in &self.label_layout.bindings {
+            if let Some(slot) = binding.slot {
+                result.scene.typography.label_whitespace.insert(slot, mode);
+            }
+        }
+        result.scene.validate()?;
+        result.label_layout = SunburstLabelState::capture(&result)?;
+        Ok(result)
+    }
+
     /// Select fonts for authored arc labels before measuring their ink.
     /// Additional Scene text and independently inherited declarations survive.
     pub fn with_label_font(&self, font: crate::FontOptions) -> Result<Self> {
@@ -556,7 +581,8 @@ impl SunburstLayout {
                     .resolve(&crate::ResolvedFont::default()),
             );
             ensure(
-                font == candidate.font,
+                font == candidate.font
+                    && binding.whitespace.unwrap_or_default() == candidate.whitespace,
                 "Sunburst label font was changed before placement",
             )?;
             let node = self
@@ -581,7 +607,11 @@ impl SunburstLayout {
                 ensure(
                     self.scene.labels.get(slot) == Some(&binding.label)
                         && self.scene.label_series.get(&slot) == Some(&candidate.node_id)
+                        && self.scene.typography.label_strokes.get(&slot)
+                            == binding.stroke.as_ref()
                         && self.scene.typography.labels.get(&slot) == binding.font.as_ref()
+                        && self.scene.typography.label_whitespace.get(&slot)
+                            == binding.whitespace.as_ref()
                         && self.scene.label_clips.get(&slot) == binding.clip.as_ref(),
                     "Sunburst managed label or clip was changed before placement",
                 )?;
@@ -640,6 +670,8 @@ impl SunburstLayout {
         result.scene.label_series.clear();
         result.scene.label_clips.clear();
         result.scene.typography.labels.clear();
+        result.scene.typography.label_whitespace.clear();
+        result.scene.typography.label_strokes.clear();
         let mut slots = vec![None; self.scene.labels.len()];
         let mut next_slots = vec![None; targets.len()];
         for (old_slot, label) in self.scene.labels.iter().enumerate() {
@@ -665,6 +697,12 @@ impl SunburstLayout {
                 )
             };
             slots[old_slot] = Some(slot);
+            if let Some(mode) = self.scene.typography.label_whitespace.get(&old_slot) {
+                result.scene.typography.label_whitespace.insert(slot, *mode);
+            }
+            if let Some(stroke) = self.scene.typography.label_strokes.get(&old_slot) {
+                result.scene.typography.label_strokes.insert(slot, *stroke);
+            }
             if let Some(font) = self.scene.typography.labels.get(&old_slot) {
                 result.scene.typography.labels.insert(slot, font.clone());
             }
@@ -682,6 +720,12 @@ impl SunburstLayout {
                 );
                 next_slots[index] = Some(slot);
                 restored.push(slot);
+                if let Some(stroke) = binding.stroke {
+                    result.scene.typography.label_strokes.insert(slot, stroke);
+                }
+                if let Some(mode) = binding.whitespace {
+                    result.scene.typography.label_whitespace.insert(slot, mode);
+                }
                 if let Some(font) = &binding.font {
                     result.scene.typography.labels.insert(slot, font.clone());
                 }
@@ -710,6 +754,8 @@ impl SunburstLayout {
             result.label_layout.bindings[index] = LabelBinding {
                 slot,
                 font: self.label_layout.bindings[index].font.clone(),
+                whitespace: self.label_layout.bindings[index].whitespace,
+                stroke: self.label_layout.bindings[index].stroke,
                 label: slot
                     .map(|slot| result.scene.labels[slot].clone())
                     .unwrap_or_else(|| candidate.label.clone()),

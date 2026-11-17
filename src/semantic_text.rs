@@ -41,6 +41,8 @@ impl SemanticTextProfile {
 /// deliberately stay outside this key, so moving the same text can reuse it.
 #[derive(Clone, Debug, PartialEq)]
 pub struct SemanticTextRequest {
+    /// Single-line whitespace identity, including mode-only resource changes.
+    pub whitespace: crate::LabelWhitespace,
     pub text: String,
     pub size: f64,
     pub font: ResolvedFont,
@@ -55,6 +57,15 @@ impl SemanticTextRequest {
         font: &ResolvedFont,
         profile: &SemanticTextProfile,
     ) -> Result<Self> {
+        Self::for_label_with_whitespace(label, font, profile, crate::LabelWhitespace::Legacy)
+    }
+
+    pub fn for_label_with_whitespace(
+        label: &Label,
+        font: &ResolvedFont,
+        profile: &SemanticTextProfile,
+        whitespace: crate::LabelWhitespace,
+    ) -> Result<Self> {
         profile.validate()?;
         font.validate()?;
         ensure(
@@ -64,6 +75,7 @@ impl SemanticTextRequest {
             "invalid semantic text or font size",
         )?;
         let request = Self {
+            whitespace,
             text: label.text.clone(),
             size: label.size,
             font: font.clone(),
@@ -152,6 +164,10 @@ impl SemanticTextMeasurement {
 
     pub fn validate_for(&self, request: &SemanticTextRequest) -> Result<&SemanticTextMetrics> {
         request.validate()?;
+        ensure(
+            self.request.whitespace == request.whitespace,
+            "stale semantic text measurement: whitespace changed",
+        )?;
         ensure(
             self.request == *request,
             "stale semantic text measurement: text, font, size, line height or resource revision changed",
