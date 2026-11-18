@@ -146,6 +146,28 @@ try {
   assert.deepEqual(report.analyticsRequests,[],'no analytics beacon requests, including aborted requests');
   assert.equal(await page.locator('#error').isVisible(), false);
   check('no JavaScript, console or failed network errors');
+  // Hold only the WASM response so the browser must display the pre-WASM shell.
+  const bootPage = await browser.newPage();
+  try {
+    let releaseDownload;
+    const downloadGate = new Promise(resolve => { releaseDownload = resolve; });
+    await bootPage.route('**/*.wasm', async route => {
+      await downloadGate;
+      await route.abort('failed');
+    });
+    await bootPage.goto(url, {waitUntil:'commit'});
+    await bootPage.locator('#boot[aria-busy=true] progress').waitFor({state:'visible'});
+    assert.equal(await bootPage.locator('#chart-nav').count(), 0);
+    releaseDownload();
+    await bootPage.locator('#boot-retry').waitFor({state:'visible'});
+    await bootPage.unroute('**/*.wasm');
+    await bootPage.locator('#boot-retry').click();
+    await bootPage.waitForFunction(() => window.kartisExplorer?.snapshot().active);
+    assert.equal(await bootPage.locator('#boot').count(), 0);
+    check('slow WASM load, visible failure, retry and Glory page mount');
+  } finally {
+    await bootPage.close();
+  }
   report.passed = true;
 } catch (error) { report.error = error.stack ?? String(error); process.exitCode = 1; }
 finally {

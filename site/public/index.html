@@ -10,110 +10,15 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <a id="skip-to-main" class="skip-link" href="#main">Skip to charts</a>
-  <header class="topbar">
-    <div class="topbar-start">
-      <button id="menu-toggle" class="icon-button mobile-only" aria-label="Open chart navigation" aria-expanded="false" aria-controls="sidebar">☰</button>
-      <a class="brand" href="#" aria-label="Kartis home"><img src="/favicon.svg" width="34" height="34" alt="">Kartis</a>
-      <span class="version">v0.2.0</span>
-    </div>
-    <nav aria-label="Main navigation">
-      <a href="https://docs.rs/kartis/0.2.0/kartis/">Documentation <span aria-hidden="true">↗</span></a>
-      <a href="https://github.com/taidge/kartis">GitHub <span aria-hidden="true">↗</span></a>
-      <button id="theme-toggle" class="icon-button" type="button" aria-label="Switch to dark theme" aria-pressed="false">◐</button>
-    </nav>
-  </header>
-
-  <aside id="sidebar" class="sidebar" aria-label="Chart navigation">
-    <div class="sidebar-head">
-      <div class="index-heading">Chart index <span id="type-count">35</span></div>
-      <label class="search-box"><span class="lens" aria-hidden="true"></span><input id="search" type="search" placeholder="Find a chart" aria-label="Search chart types" autocomplete="off"><kbd>/</kbd></label>
-    </div>
-    <nav id="chart-nav" aria-label="Chart types"></nav>
-  </aside>
-  <div id="nav-backdrop" hidden></div>
-
-  <main id="main">
-    <div id="error" class="error" role="alert" hidden></div>
-    <p id="status" class="boot-status" role="status" aria-live="polite">Loading the chart explorer…</p>
-    <section id="catalog-view" aria-labelledby="page-title">
-      <div class="live-hero">
-        <div class="hero-copy">
-          <h1 id="page-title">Chart<br><em>explorer.</em></h1>
-          <p>Explore <span id="chart-count">35</span> chart types for Rust and Glory. Change the data and see how each chart moves in SVG or Canvas.</p>
-          <button id="browse-collection" class="primary-button">Browse charts <span aria-hidden="true">↓</span></button>
-        </div>
-        <section class="live-example" aria-label="Live line chart">
-          <div class="example-head"><h2><span class="live-dot" aria-hidden="true"></span>Live line chart</h2><button id="hero-open" class="text-button">Open playground ↗</button></div>
-          <div id="hero-mount"></div>
-        </section>
-      </div>
-      <section id="collection" aria-labelledby="category-title">
-        <div class="catalog-heading"><h2 id="category-title">All charts <span id="result-count">35</span></h2></div>
-        <div id="category-list" class="categories" role="group" aria-label="Filter by chart family"></div>
-        <div id="catalog-grid" class="catalog-grid" aria-label="Chart gallery"></div>
-        <p id="no-results" class="empty-state" hidden>No charts match your search. Try another name or category.</p>
-      </section>
-    </section>
-
-    <section id="detail-view" hidden aria-labelledby="chart-title">
-      <div class="detail-breadcrumb"><button id="back-to-gallery" class="text-button">← All charts</button><span aria-hidden="true">/</span><span id="chart-category"></span></div>
-      <div class="detail-heading">
-        <div><h1 id="chart-title">Line</h1><p id="chart-description"></p><p id="map-note" hidden>World sample · 175 non-Antarctic regions · <a href="/THIRD_PARTY_NOTICES.txt">Data attribution ↗</a></p></div>
-        <a href="https://github.com/taidge/kartis/tree/main/site/wasm/src/catalog" id="catalog-source" class="source-link">Sample source ↗</a>
-      </div>
-      <div class="detail-layout">
-        <div class="plot-column">
-          <div id="detail-mount"></div>
-          <div class="detail-foot"><span id="mark-count"></span><button id="jump-settings" class="text-button">Chart settings ↓</button></div>
-        </div>
-        <aside id="chart-settings" class="settings" aria-label="Chart settings">
-          <div class="settings-heading"><h2>Chart settings</h2><button id="jump-preview" class="text-button">Back to chart ↑</button></div>
-          <div class="settings-grid">
-            <section class="properties-section" aria-labelledby="presentation-title">
-              <h3 id="presentation-title">Presentation</h3>
-              <div id="variant-field"><label for="variant-select">Layout / shape</label><select id="variant-select"></select></div>
-              <div id="bump-controls" hidden><label for="bump-width">Line width <output id="width-value" for="bump-width">2 px</output></label><input id="bump-width" type="range" min="1" max="12" step="0.5" value="2"><label class="toggle-row" for="bump-labels">End labels<input id="bump-labels" type="checkbox" checked></label></div>
-              <div id="chart-controls"></div>
-            </section>
-            <div class="secondary-settings">
-              <section aria-labelledby="motion-title">
-                <h3 id="motion-title">Motion</h3>
-                <label class="toggle-row" for="animation-enabled">Animate updates<input id="animation-enabled" type="checkbox" checked></label>
-                <label for="spring-preset">Spring preset</label>
-                <select id="spring-preset"><option value="default">Default · 170 / 26</option><option value="gentle">Gentle · 120 / 14</option><option value="wobbly">Wobbly · 180 / 12</option><option value="stiff">Stiff · 210 / 20</option><option value="slow">Slow · 100 / 28</option><option value="molasses">Molasses · 280 / 120</option><option value="custom">Custom</option></select>
-                <label for="spring-stiffness">Stiffness <output id="stiffness-value" for="spring-stiffness">170</output></label><input type="range" id="spring-stiffness" min="80" max="320" step="1" value="170">
-                <label for="spring-damping">Damping <output id="damping-value" for="spring-damping">26</output></label><input type="range" id="spring-damping" min="10" max="120" step="1" value="26">
-                <button id="replay-entrance" class="small-button">Replay fade-in</button><p id="motion-note"></p>
-              </section>
-              <section aria-labelledby="frame-title"><h3 id="frame-title">Display &amp; export</h3>
-                <label for="plot-spacing">Plot margins <output id="spacing-value" for="plot-spacing">100%</output></label><input type="range" id="plot-spacing" min="50" max="150" step="5" value="100">
-                <div class="property-row"><span>Theme</span><button id="theme-setting" class="small-button">Paper ↔ Midnight</button></div>
-                <button id="download-svg" class="download-button">↓ Download SVG</button>
-              </section>
-            </div>
-          </div>
-        </aside>
-      </div>
-    </section>
-    <footer><a href="#" class="footer-brand">Kartis</a><a href="https://docs.rs/kartis/0.2.0/kartis/">Documentation ↗</a></footer>
-  </main>
-
-  <div id="stage-shell" class="stage-shell overview-stage">
-    <div class="stage-toolbar">
-      <div class="plot-tabs" role="tablist" aria-label="Playground panels">
-        <button data-tab="chart" role="tab" aria-controls="panel-chart" aria-selected="true">Chart</button><button data-tab="code" role="tab" aria-controls="panel-code" aria-selected="false">Code</button><button data-tab="data" role="tab" aria-controls="panel-data" aria-selected="false">Data</button>
-      </div>
-      <div class="stage-actions">
-        <div class="renderer-switch" role="group" aria-label="Chart renderer"><button id="renderer-svg" data-renderer="svg" aria-pressed="true">SVG</button><button id="renderer-canvas" data-renderer="canvas" aria-pressed="false">Canvas</button></div>
-        <button id="new-data" class="small-button" title="Generate the next dataset">↻ <span>Shuffle</span></button><button id="auto-demo" class="small-button play-button" aria-pressed="false">▶ <span>Play demo</span></button>
-      </div>
-    </div>
-    <div id="panel-chart" class="stage-panel" role="tabpanel"><div id="chart-stage" aria-label="Interactive Kartis chart"></div></div>
-    <div id="panel-code" class="source-panel" role="tabpanel" hidden><div class="source-caption"><span>Core layout call · Rust</span><button id="copy-code" class="text-button">Copy</button></div><pre><code id="code-output"></code></pre></div>
-    <div id="panel-data" class="source-panel" role="tabpanel" hidden><div class="source-caption"><span>Input data · JSON</span><button id="copy-data" class="text-button">Copy</button></div><pre><code id="data-output"></code></pre></div>
-    <div class="stage-status"><span id="motion-status"><i></i>Ready</span><span id="dataset-status">Dataset 1</span><span class="render-label">SVG · Rust / WASM</span></div>
+  <div id="boot" role="status" aria-live="polite" aria-busy="true">
+    <img src="/favicon.svg" width="44" height="44" alt="">
+    <strong id="boot-title">Loading Kartis charts…</strong>
+    <span id="boot-message">Preparing the interactive chart explorer.</span>
+    <progress aria-label="Loading chart explorer"></progress>
+    <button id="boot-retry" type="button" hidden>Try again</button>
   </div>
-  <noscript><p class="error">Enable JavaScript and WebAssembly to use the chart explorer.</p></noscript>
+  <div id="showcase"></div>
+  <noscript><style>#boot { display: none; }</style><p class="error">Enable JavaScript and WebAssembly to use the chart explorer.</p></noscript>
   <script type="module" src="/app.js"></script>
-</body></html>
+</body>
+</html>

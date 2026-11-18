@@ -184,9 +184,11 @@ name = "kartis-site"
 version = "0.2.0"
 dependencies = [
  "glory",
+ "js-sys",
  "kartis",
  "serde_json",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
  "web-sys",
 ]
 

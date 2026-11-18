@@ -11,6 +11,7 @@ import {checkHoverPainting} from './hover-acceptance.mjs';
 import {checkChangePainting} from './change-paint-acceptance.mjs';
 import {checkVisualControls} from './visual-controls-acceptance.mjs';
 import {checkRetargeting} from './retarget-acceptance.mjs';
+import {checkRankMotion} from './rank-motion-acceptance.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const flags = Object.fromEntries(process.argv.slice(2).map(arg => {
@@ -250,6 +251,8 @@ try {
 
   // Restore normal OS motion, then observe actual Rust spring frames in both backends.
   await page.emulateMedia({reducedMotion:'no-preference'});
+  report.rankCurves = await checkRankMotion(page);
+  checked('Bump lines and Area bump ribbons retain native cubics during data updates and interrupted curve changes');
   await page.locator('#animation-enabled').check();
   for(const renderer of ['svg','canvas']) {
     await select('bump');

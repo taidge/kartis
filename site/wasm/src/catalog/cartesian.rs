@@ -1,6 +1,121 @@
+use glory::render::{GraphicPoint, PathCommand};
 use serde_json::json;
 
 use super::{phase, *};
+
+const RANK_SERIES: [&str; 3] = ["North", "South", "West"];
+const BAND_SERIES: [&str; 3] = ["Search", "Direct", "Partners"];
+const BAND_LABEL_SIZE: f64 = 10.;
+const BAND_LABEL_GAP: f64 = 4.;
+
+pub(super) fn reserve_rank_labels(
+    c: &mut ChartConfig,
+    kind: &str,
+    settings: &Settings,
+    bump: BumpControls,
+) {
+    let (names, label_size, gap, start, end) = match kind {
+        "bump" => (
+            RANK_SERIES,
+            c.theme.font_size,
+            BumpEndpointLabels::default().padding,
+            false,
+            bump.end_labels,
+        ),
+        "area-bump" => (
+            BAND_SERIES,
+            BAND_LABEL_SIZE,
+            BAND_LABEL_GAP,
+            settings.get("start-labels") != "off",
+            true,
+        ),
+        _ => return,
+    };
+    let scale = if settings.get("label-size") == "large" {
+        1.25
+    } else {
+        1.
+    };
+    let gutter = 5.;
+    // Tick labels sit outside the plot at both the top and the bottom.
+    let tick_space = 16. + c.theme.font_size * scale + gutter;
+    c.margin.top = c.margin.top.max(tick_space);
+    c.margin.bottom = c.margin.bottom.max(tick_space);
+    if settings.get("label-mode") != "hidden" {
+        // The authored Latin names fit a 0.62 em average advance. Reserve it
+        // only where an endpoint is enabled so narrow plots keep their columns.
+        let longest = names.iter().map(|name| name.len()).max().unwrap_or(0);
+        let space = (longest as f64 * 0.62 * label_size * scale + gap + gutter).ceil();
+        if start {
+            c.margin.left = c.margin.left.max(space);
+        }
+        if end {
+            c.margin.right = c.margin.right.max(space);
+        }
+    }
+}
+
+// D3's basis curve has a short straight lead-in/out and one cubic per
+// interval. Express each linear interval with the same command slots so
+// the spring can keep the original curve control points even mid-retarget.
+fn linear_rank_edge(points: &[GraphicPoint], start: PathCommand, out: &mut Vec<PathCommand>) {
+    out.push(start);
+    out.push(PathCommand::Line(points[0]));
+    for pair in points.windows(2) {
+        let [a, b] = [pair[0], pair[1]];
+        let third = |from: GraphicPoint, to: GraphicPoint| {
+            GraphicPoint::new(from.x + (to.x - from.x) / 3., from.y + (to.y - from.y) / 3.)
+        };
+        out.push(PathCommand::Cubic {
+            first: third(a, b),
+            second: third(b, a),
+            end: b,
+        });
+    }
+    out.push(PathCommand::Line(points[points.len() - 1]));
+}
+
+fn match_rank_curve_commands(mark: &mut Mark) {
+    let Geometry::Path(commands) = &mut mark.geometry else {
+        return;
+    };
+    let closed = commands.last() == Some(&PathCommand::Close);
+    let vertices = if closed {
+        &commands[..commands.len() - 1]
+    } else {
+        &commands[..]
+    };
+    let Some(points) = vertices
+        .iter()
+        .map(|cmd| match cmd {
+            PathCommand::Move(p) | PathCommand::Line(p) => Some(*p),
+            _ => None,
+        })
+        .collect::<Option<Vec<_>>>()
+    else {
+        return;
+    };
+    // An Area bump band has the same set of columns on both edges, with
+    // the upper edge traversed in reverse. Keep the two caps straight.
+    let edge_len = if closed {
+        points.len() / 2
+    } else {
+        points.len()
+    };
+    if edge_len < 3 || (closed && !points.len().is_multiple_of(2)) {
+        return;
+    }
+    commands.clear();
+    linear_rank_edge(&points[..edge_len], PathCommand::Move(points[0]), commands);
+    if closed {
+        linear_rank_edge(
+            &points[edge_len..],
+            PathCommand::Line(points[edge_len]),
+            commands,
+        );
+        commands.push(PathCommand::Close);
+    }
+}
 
 pub(super) fn categories() -> Vec<String> {
     ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
@@ -232,7 +347,7 @@ pub(super) fn sample(
             }
         }
         "scatter" => {
-            let source = ["North", "South", "West"]
+            let source = RANK_SERIES
                 .into_iter()
                 .enumerate()
                 .map(|(j, id)| {
@@ -403,7 +518,7 @@ pub(super) fn sample(
             (bump_layout(c, &source, &options)?.scene, data, code)
         }
         "area-bump" => {
-            let source = ["Search", "Direct", "Partners"]
+            let source = BAND_SERIES
                 .into_iter()
                 .enumerate()
                 .map(|(j, id)| {
@@ -447,13 +562,13 @@ pub(super) fn sample(
                         },
                         start_labels: AreaBumpLabels {
                             enabled: settings.get("start-labels") != "off",
-                            padding: 4.,
-                            size: Some(10.),
+                            padding: BAND_LABEL_GAP,
+                            size: Some(BAND_LABEL_SIZE),
                             ..Default::default()
                         },
                         end_labels: AreaBumpLabels {
-                            padding: 4.,
-                            size: Some(10.),
+                            padding: BAND_LABEL_GAP,
+                            size: Some(BAND_LABEL_SIZE),
                             ..Default::default()
                         },
                         ..Default::default()
@@ -836,6 +951,13 @@ pub(super) fn sample(
         }
         _ => return Err(ChartError(format!("Unknown Cartesian chart: {kind}"))),
     };
+    if matches!(kind, "bump" | "area-bump") && variant == "linear" {
+        for mark in &mut scene.marks {
+            if mark.id.starts_with("bump-line:") || mark.id.starts_with("area-bump:") {
+                match_rank_curve_commands(mark);
+            }
+        }
+    }
     cart_controls::style_marks(kind, &mut scene, settings);
     Ok(Sample { scene, data, code })
 }

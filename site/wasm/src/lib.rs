@@ -7,12 +7,15 @@ use std::rc::Rc;
 use kartis::browser::{
     BrowserAnimation, BrowserChart, BrowserEvent, BrowserOptions, BrowserRenderer,
 };
-use kartis::motion::{GeometryTransitions, PathMorphOptions, PropertyMotionOptions, SpringConfig};
+use kartis::motion::{PropertyMotionOptions, SpringConfig};
 use kartis::*;
 use serde_json::json;
 use wasm_bindgen::prelude::*;
 pub mod catalog;
+mod navigation;
+mod page;
 mod presentation;
+mod shell;
 #[derive(Clone)]
 struct Selection {
     slug: String,
@@ -187,16 +190,6 @@ pub fn mount_chart(
     let bounds = root.get_bounding_client_rect();
     let height = (bounds.height() - 54.).clamp(220., 720.);
     let source = sample(&selection, bounds.width(), height).map_err(js)?;
-    // Each continuous rank line and area band in these samples belongs to one series.
-    // Match its arc length across curve changes, even when the command counts differ.
-    let mut geometry = GeometryTransitions::default();
-    for mark in &source.scene.marks {
-        if mark.id.starts_with("bump-line:") || mark.id.starts_with("area-bump:") {
-            geometry
-                .morphs
-                .insert(mark.id.clone(), PathMorphOptions::default());
-        }
-    }
     stop_gallery();
     let source = Rc::new(RefCell::new(source));
     let errors = Rc::new(RefCell::new(Vec::new()));
@@ -205,7 +198,6 @@ pub fn mount_chart(
         data_controls: false,
         height: Some(height),
         animation: BrowserAnimation::Properties(PropertyMotionOptions {
-            geometry,
             spring: config,
             presence_spring: config,
             ..Default::default()
@@ -250,11 +242,10 @@ pub fn replay_entrance() -> std::result::Result<(), JsValue> {
     OWNER.with(|owner| {
         let owner = owner.borrow();
         let owner = owner.as_ref().ok_or_else(|| js("Chart is not mounted"))?;
+        // Apply the initial resize before building the entrance from the sized scene.
+        owner.chart.flush().map_err(js)?;
         let target = owner.sample.borrow().scene.clone();
-        let mut start = target.clone();
-        for mark in &mut start.marks {
-            mark.opacity = 0.;
-        }
+        let start = catalog::entrance_scene(&target);
         owner.chart.set_scene(start).map_err(js)?;
         owner.chart.flush().map_err(js)?;
         owner.chart.animate_to(target).map_err(js)

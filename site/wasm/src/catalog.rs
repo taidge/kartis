@@ -241,6 +241,44 @@ kinds![
 fn phase(seed: u32) -> f64 {
     f64::from(seed % 17) * 0.47
 }
+
+/// Start an entrance from the same authored marks and geometry topology.
+/// The browser can interrupt this spring with the next data set or layout.
+pub(crate) fn entrance_scene(target: &Scene) -> Scene {
+    let mut start = target.clone();
+    for mark in &mut start.marks {
+        if mark.series.is_empty() {
+            // Keep decorative axes and grids visible. Some chart families
+            // identify individual observations by label instead of series.
+            if !mark.label.is_empty() {
+                mark.opacity = 0.;
+            }
+            continue;
+        }
+        match &mut mark.geometry {
+            Geometry::Circle { radius, .. } => *radius = 0.,
+            Geometry::Rect {
+                x,
+                y,
+                width,
+                height,
+            } => {
+                *x += *width / 2.;
+                *y += *height / 2.;
+                *width = 0.;
+                *height = 0.;
+            }
+            Geometry::Path(_) => {
+                if let Some(clip) = &mut mark.clip {
+                    clip.width = 0.;
+                } else {
+                    mark.opacity = 0.;
+                }
+            }
+        }
+    }
+    start
+}
 fn config(kind: &str, width: f64, height: f64) -> ChartConfig {
     ChartConfig {
         width: width.clamp(220., 2400.),
@@ -626,6 +664,7 @@ pub fn configured_sample(
     c.margin.right *= factor;
     c.margin.top *= factor;
     c.margin.bottom *= factor;
+    cartesian::reserve_rank_labels(&mut c, kind, settings, bump);
     let variants = variants(kind);
     let variant = if variant.is_empty() {
         variants.first().map_or("", |v| v.0)
