@@ -378,7 +378,7 @@ jobs:
           node scripts/raster-chart-bindings-acceptance.mjs "$TARGET_DIR/raster-chart-bindings-ci" --chromium-only 2>&1 | tee "$TARGET_DIR/raster-chart-bindings-ci.log"
       - name: Preserve browser verification reports
         if: ${{ !cancelled() && steps.output.outputs.target_dir != '' }}
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: gallery-browser-reports
           path: |
@@ -545,7 +545,7 @@ jobs:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
         run: node scripts/tree-svg-layers-acceptance.mjs --chromium-only --out="$TARGET_DIR/tree-svg-layers-ci" 2>&1 | tee "$TARGET_DIR/tree-svg-layers-ci.log"
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: tree-pointer-lifecycle
@@ -615,7 +615,7 @@ jobs:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
         run: node scripts/tree-events-acceptance.mjs --chromium-only --out="$TARGET_DIR/tree-events-ci" 2>&1 | tee "$TARGET_DIR/tree-events-ci.log"
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: tree-typed-native-events
@@ -665,7 +665,7 @@ jobs:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
         run: node scripts/tree-link-tooltip-acceptance.mjs --chromium-only --out="$TARGET_DIR/tree-link-tooltip-ci" 2>&1 | tee "$TARGET_DIR/tree-link-tooltip-ci.log"
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: tree-svg-link-tooltips
@@ -800,7 +800,7 @@ jobs:
           TARGET_DIR: ${{ steps.output.outputs.target_dir }}
         shell: bash
         run: node scripts/funnel-dormant-acceptance.mjs --browser=Chromium --pkg="$TARGET_DIR/browser-extensions-ci/producer/pkg" --out="$TARGET_DIR/browser-extensions-ci/funnel-dormant" 2>&1 | tee "$TARGET_DIR/browser-extensions-funnel-dormant.log"
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: browser-extensions-${{ matrix.suite }}
