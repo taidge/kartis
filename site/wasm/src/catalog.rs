@@ -7,6 +7,10 @@ use serde_json::{Value, json};
 
 #[path = "catalog/cartesian.rs"]
 mod cartesian;
+#[path = "catalog/motion_geometry.rs"]
+mod motion_geometry;
+#[path = "catalog/parts.rs"]
+mod parts;
 #[path = "catalog/relational.rs"]
 mod relational;
 #[path = "catalog/spatial.rs"]
@@ -244,7 +248,7 @@ fn phase(seed: u32) -> f64 {
 
 /// Start an entrance from the same authored marks and geometry topology.
 /// The browser can interrupt this spring with the next data set or layout.
-pub(crate) fn entrance_scene(target: &Scene) -> Scene {
+pub(crate) fn entrance_scene(kind: &str, variant: &str, spacing: u32, target: &Scene) -> Scene {
     let mut start = target.clone();
     for mark in &mut start.marks {
         if mark.series.is_empty() {
@@ -277,6 +281,10 @@ pub(crate) fn entrance_scene(target: &Scene) -> Scene {
             }
         }
     }
+    cartesian::entrance(kind, variant, spacing, target, &mut start);
+    relational::entrance(kind, target, &mut start);
+    spatial::entrance(kind, target, &mut start);
+    parts::entrance(kind, variant, spacing, target, &mut start);
     start
 }
 fn config(kind: &str, width: f64, height: f64) -> ChartConfig {
@@ -304,6 +312,15 @@ fn config(kind: &str, width: f64, height: f64) -> ChartConfig {
             ..Default::default()
         },
     }
+}
+fn spaced_config(kind: &str, width: f64, height: f64, spacing: u32) -> ChartConfig {
+    let mut c = config(kind, width, height);
+    let factor = f64::from(spacing) / 100.;
+    c.margin.left *= factor;
+    c.margin.right *= factor;
+    c.margin.top *= factor;
+    c.margin.bottom *= factor;
+    c
 }
 fn key_json(key: &CategoryKey) -> Value {
     match key {
@@ -658,12 +675,7 @@ pub fn configured_sample(
             "Plot spacing must be between 50 and 150 percent".into(),
         ));
     }
-    let mut c = config(kind, width, height);
-    let factor = f64::from(spacing) / 100.;
-    c.margin.left *= factor;
-    c.margin.right *= factor;
-    c.margin.top *= factor;
-    c.margin.bottom *= factor;
+    let mut c = spaced_config(kind, width, height, spacing);
     cartesian::reserve_rank_labels(&mut c, kind, settings, bump);
     let variants = variants(kind);
     let variant = if variant.is_empty() {
@@ -915,6 +927,8 @@ pub fn configured_sample(
                     )
                 }
             };
+            let mut scene = scene;
+            parts::prepare(kind, variant, &mut scene);
             Sample { scene, data, code }
         }
         _ => return Err(ChartError(format!("Unknown catalog chart: {kind}"))),

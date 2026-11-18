@@ -1,8 +1,8 @@
 // Run after building the site and installing Playwright's Chromium and Firefox.
 import assert from 'node:assert/strict';
-import {readFile, mkdir, writeFile} from 'node:fs/promises';
-import {createServer} from 'node:http';
-import {dirname, extname, resolve, sep} from 'node:path';
+import {mkdir, writeFile} from 'node:fs/promises';
+import {serve, installFrameClock} from './frame-test-helpers.mjs';
+import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {parseArgs} from 'node:util';
 import {chromium, firefox} from 'playwright';
@@ -11,42 +11,6 @@ const site = dirname(fileURLToPath(import.meta.url));
 const {values} = parseArgs({options:{url:{type:'string'}, out:{type:'string'}}});
 const out = resolve(values.out ?? resolve(site, 'verification/partial-frames'));
 const viewport = {width:1263, height:1000};
-
-async function serve() {
-  const dist = resolve(site, 'dist');
-  const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.wasm':'application/wasm', '.json':'application/json', '.svg':'image/svg+xml'};
-  const server = createServer(async (request, response) => {
-    try {
-      const path = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
-      const file = resolve(dist, '.' + (path === '/' ? '/index.html' : path));
-      if (!file.startsWith(dist + sep)) { response.writeHead(403).end(); return; }
-      const content = await readFile(file);
-      response.writeHead(200, {'Content-Type':types[extname(file)] ?? 'application/octet-stream'}).end(content);
-    } catch { response.writeHead(404).end(); }
-  });
-  await new Promise((done, reject) => server.once('error',reject).listen(0,'127.0.0.1',done));
-  return server;
-}
-
-// Both owners receive exactly the same RAF times. Invalidating the backing size
-// before the reference paint forces the renderer to recreate the entire bitmap.
-function installFrameClock(full) {
-  const queue = new Map();
-  let token = 0, time = 1000;
-  window.requestAnimationFrame = fn => { queue.set(++token,fn); return token; };
-  window.cancelAnimationFrame = id => queue.delete(id);
-  window.advanceChartFrame = () => {
-    const callbacks = [...queue.values()];
-    queue.clear();
-    time += 16;
-    const state = window.kartisExplorer?.snapshot();
-    const canvas = document.querySelector('#chart-stage .kartis-surface > canvas');
-    const invalidate = full && canvas && callbacks.length && (state?.animating || state?.pending);
-    if (invalidate) canvas.width++;
-    for (const callback of callbacks) callback(time);
-    return Boolean(invalidate);
-  };
-}
 
 async function runPieFrames() {
   const api = window.kartisExplorer;

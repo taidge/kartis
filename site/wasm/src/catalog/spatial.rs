@@ -4,6 +4,13 @@ use serde_json::json;
 use super::rel_controls::active;
 use super::{phase, *};
 
+#[path = "spatial_entrance.rs"]
+mod spatial_entrance;
+
+pub(super) fn entrance(kind: &str, target: &Scene, start: &mut Scene) {
+    spatial_entrance::apply(kind, target, start);
+}
+
 const WORLD_SOURCE_URL: &str = "https://github.com/plouc/nivo/blob/0dae2c32052a573f9f1d66ec1b453b572119b265/website/src/data/components/geo/world_countries.json";
 const WORLD_SHA256: &str = "bb261743fc2aa5e09ca70a2823e307bfe084fbb812df066a55fb2bf898248e17";
 
@@ -69,7 +76,7 @@ pub(super) fn sample(
                             stringify!($name),
                             ", fill: Some(Color(220, 235, 231, 255)), ..Default::default() })?;\n",
                             "map.add_graticule(&GeoGraticuleOptions { step_minor: [30., 30.], ..Default::default() }, &GeoStreamOptions { behind: true, ..Default::default() })?;\n",
-                            "map.add_symbols(&cities, &GeoSymbolOptions { radius_range: [4., 14.], ..Default::default() })?;\n",
+                            "map.add_symbols(&cities, &GeoSymbolOptions { domain: Some([0., 50.]), radius_range: [4., 14.], ..Default::default() })?;\n",
                             "let scene = map.scene;"
                         ),
                     )
@@ -94,7 +101,7 @@ pub(super) fn sample(
                 GeoSymbol::new(
                     format!("City {}", i + 1),
                     [pos.0, pos.1],
-                    Some(30. + (p + i as f64).sin() * 20.),
+                    Some(26. + (p * 1.6 + i as f64).sin() * 24.),
                 )
             })
             .collect::<Vec<_>>();
@@ -156,6 +163,7 @@ pub(super) fn sample(
                 map.add_symbols(
                     &cities,
                     &GeoSymbolOptions {
+                        domain: Some([0., 50.]),
                         radius_range: if active(settings, "symbols") {
                             [8., 22.]
                         } else {
@@ -170,7 +178,7 @@ pub(super) fn sample(
         "voronoi" | "delaunay" => {
             let source = (0..24)
                 .map(|i| {
-                    let angle = f64::from(i) * 2.399963229728653 + p * 0.08;
+                    let angle = f64::from(i) * 2.399963229728653 + p * 0.42;
                     let r = (f64::from(i + 1) / 24.).sqrt();
                     (
                         format!("site-{i}"),
@@ -304,10 +312,11 @@ pub(super) fn sample(
             }
         }
         "contour" => {
-            let values = (0..32 * 24)
+            let (width, height) = (64, 48);
+            let values = (0..width * height)
                 .map(|i| {
-                    let x = (i % 32) as f64 / 31.;
-                    let y = (i / 32) as f64 / 23.;
+                    let x = (i % width) as f64 / (width - 1) as f64;
+                    let y = (i / width) as f64 / (height - 1) as f64;
                     Some(
                         (-((x - 0.35 - p.sin() * 0.08).powi(2) + (y - 0.45).powi(2)) * 18.).exp()
                             * 80.
@@ -332,13 +341,13 @@ pub(super) fn sample(
                 ),
             };
             let levels: Vec<_> = (step..=70).step_by(step as usize).map(f64::from).collect();
-            let data = json!({"width":32,"height":24,"values":values,"thresholds":levels});
+            let data = json!({"width":width,"height":height,"values":values,"thresholds":levels});
             (
                 contour_layout(
                     c,
                     ContourGrid {
-                        width: 32,
-                        height: 24,
+                        width,
+                        height,
                         values: &values,
                     },
                     &ContourOptions {
@@ -371,9 +380,9 @@ pub(super) fn sample(
                 .map(|i| {
                     let angle = f64::from(i) * 2.399963229728653;
                     let radius = (f64::from(i % 50 + 1) / 50.).sqrt();
-                    let group = if i < 50 { 0.34 } else { 0.7 };
-                    let x = (group + radius * 0.17 * angle.cos() + p.sin() * 0.03) * plot.width;
-                    let y = (0.5 + radius * 0.29 * angle.sin() + p.cos() * 0.04) * plot.height;
+                    let (group, drift) = if i < 50 { (0.34, p) } else { (0.7, p + 2.1) };
+                    let x = (group + radius * 0.17 * angle.cos() + drift.sin() * 0.09) * plot.width;
+                    let y = (0.5 + radius * 0.29 * angle.sin() + drift.cos() * 0.12) * plot.height;
                     DensityPoint {
                         position: [x, y],
                         weight: 1.,

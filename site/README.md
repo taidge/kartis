@@ -112,9 +112,12 @@ npm ci
 npx playwright install chromium firefox
 node site/smoke.mjs
 node site/explorer-acceptance.mjs
+node site/family-motion-acceptance.mjs
 node site/partial-frame-acceptance.mjs
 node site/cache-acceptance.mjs
 ```
+
+The family motion audit samples the entrance, each layout preset and a data update for every chart. It rasterizes the live SVG or reads the Canvas bitmap at four fixed spring times, then compares the settled pixels with a fresh render of the same inputs with motion off. Treemap also compares every sampled Canvas frame with a forced full repaint in Chromium and Firefox at device pixel ratios 1 and 2.
 
 The scripts serve `site/dist` and write JSON, screenshots and exported SVGs under
 ignored `site/verification`. `--url=https://example.com` checks a deployment;

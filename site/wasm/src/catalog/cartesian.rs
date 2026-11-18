@@ -1,7 +1,15 @@
-use glory::render::{GraphicPoint, PathCommand};
+use glory::render::PathCommand;
 use serde_json::json;
 
+use super::motion_geometry::linear_basis_edge;
 use super::{phase, *};
+
+#[path = "cartesian_motion.rs"]
+mod motion;
+
+pub(super) fn entrance(kind: &str, variant: &str, spacing: u32, target: &Scene, start: &mut Scene) {
+    motion::entrance(kind, variant, spacing, target, start);
+}
 
 const RANK_SERIES: [&str; 3] = ["North", "South", "West"];
 const BAND_SERIES: [&str; 3] = ["Search", "Direct", "Partners"];
@@ -55,26 +63,6 @@ pub(super) fn reserve_rank_labels(
     }
 }
 
-// D3's basis curve has a short straight lead-in/out and one cubic per
-// interval. Express each linear interval with the same command slots so
-// the spring can keep the original curve control points even mid-retarget.
-fn linear_rank_edge(points: &[GraphicPoint], start: PathCommand, out: &mut Vec<PathCommand>) {
-    out.push(start);
-    out.push(PathCommand::Line(points[0]));
-    for pair in points.windows(2) {
-        let [a, b] = [pair[0], pair[1]];
-        let third = |from: GraphicPoint, to: GraphicPoint| {
-            GraphicPoint::new(from.x + (to.x - from.x) / 3., from.y + (to.y - from.y) / 3.)
-        };
-        out.push(PathCommand::Cubic {
-            first: third(a, b),
-            second: third(b, a),
-            end: b,
-        });
-    }
-    out.push(PathCommand::Line(points[points.len() - 1]));
-}
-
 fn match_rank_curve_commands(mark: &mut Mark) {
     let Geometry::Path(commands) = &mut mark.geometry else {
         return;
@@ -106,9 +94,9 @@ fn match_rank_curve_commands(mark: &mut Mark) {
         return;
     }
     commands.clear();
-    linear_rank_edge(&points[..edge_len], PathCommand::Move(points[0]), commands);
+    linear_basis_edge(&points[..edge_len], PathCommand::Move(points[0]), commands);
     if closed {
-        linear_rank_edge(
+        linear_basis_edge(
             &points[edge_len..],
             PathCommand::Line(points[edge_len]),
             commands,
@@ -602,41 +590,38 @@ pub(super) fn sample(
                 })
                 .collect::<Vec<_>>();
             let data = json!({"dimensions":dimensions,"records":source.iter().map(|r|json!({"id":r.id,"values":r.values})).collect::<Vec<_>>()});
-            if variant == "horizontal" {
+            let dimensions = dimensions.map(ParallelDimension::new);
+            let rows = source
+                .into_iter()
+                .map(ParallelDatum::from)
+                .collect::<Vec<_>>();
+            let (options, code) = if variant == "vertical" {
                 (
-                    parallel_coordinates(c, &dimensions, &source)?,
-                    data,
-                    "parallel_coordinates(&config, &dimensions, &records)?",
+                    ParallelCoordinatesOptions {
+                        layout: ParallelLayout::Vertical,
+                        ..Default::default()
+                    },
+                    "parallel_coordinates_with_options(&config, &dimensions, &rows, &ParallelCoordinatesOptions { layout: ParallelLayout::Vertical, ..Default::default() })?",
+                )
+            } else if variant == "horizontal" {
+                (
+                    ParallelCoordinatesOptions::default(),
+                    "parallel_coordinates_with_options(&config, &dimensions, &rows, &ParallelCoordinatesOptions::default())?",
                 )
             } else {
-                let dimensions = dimensions.map(ParallelDimension::new);
-                let rows = source
-                    .into_iter()
-                    .map(ParallelDatum::from)
-                    .collect::<Vec<_>>();
-                let (options, code) = if variant == "vertical" {
-                    (
-                        ParallelCoordinatesOptions {
-                            layout: ParallelLayout::Vertical,
-                            ..Default::default()
-                        },
-                        "parallel_coordinates_with_options(&config, &dimensions, &rows, &ParallelCoordinatesOptions { layout: ParallelLayout::Vertical, ..Default::default() })?",
-                    )
-                } else {
-                    (
-                        ParallelCoordinatesOptions {
-                            curve: Curve::Basis,
-                            ..Default::default()
-                        },
-                        "parallel_coordinates_with_options(&config, &dimensions, &rows, &ParallelCoordinatesOptions { curve: Curve::Basis, ..Default::default() })?",
-                    )
-                };
                 (
-                    parallel_coordinates_with_options(c, &dimensions, &rows, &options)?,
-                    data,
-                    code,
+                    ParallelCoordinatesOptions {
+                        curve: Curve::Basis,
+                        ..Default::default()
+                    },
+                    "parallel_coordinates_with_options(&config, &dimensions, &rows, &ParallelCoordinatesOptions { curve: Curve::Basis, ..Default::default() })?",
                 )
-            }
+            };
+            (
+                parallel_coordinates_with_options(c, &dimensions, &rows, &options)?,
+                data,
+                code,
+            )
         }
         "heatmap" => {
             let source = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -695,13 +680,20 @@ pub(super) fn sample(
                 .into_iter()
                 .enumerate()
                 .map(|(j, id)| {
+                    let phase = p + j as f64 * 1.7;
+                    let center = 29. + j as f64 * 5. + phase.sin() * 12.;
+                    let spread = 13. + phase.cos() * 4.;
                     BoxSample::new(
                         id,
                         (0..20)
                             .map(|i| {
-                                25. + j as f64 * 5.
-                                    + (i as f64 * 1.8 + p + j as f64).sin() * 14.
-                                    + f64::from(i % 4) * 3.
+                                if i == 19 {
+                                    center + spread * 3.8
+                                } else {
+                                    center
+                                        + (i as f64 * 1.8 + phase).sin() * spread
+                                        + f64::from(i % 4) * 2.
+                                }
                             })
                             .collect(),
                     )
@@ -847,41 +839,49 @@ pub(super) fn sample(
                 })
                 .collect::<Vec<_>>();
             let data = json!({"start":[2026,1,1],"end":[2026,3,31],"days":source.iter().map(|d|json!({"date":d.date,"value":d.value})).collect::<Vec<_>>()});
-            (
-                calendar_layout(
-                    c,
-                    &source,
-                    &CalendarLayoutOptions {
-                        start: Some((2026, 1, 1)),
-                        end: Some((2026, 3, 31)),
-                        day_radius: if settings.get("dayCorners") == "square" {
-                            0.
-                        } else {
-                            2.
-                        },
-                        day_opacity: if settings.get("dayOpacity") == "muted" {
-                            0.55
-                        } else {
-                            1.
-                        },
-                        orientation: if variant == "vertical" {
-                            CalendarOrientation::Vertical
-                        } else {
-                            CalendarOrientation::Horizontal
-                        },
-                        first_weekday: if variant == "sunday" {
-                            CalendarWeekday::Sunday
-                        } else {
-                            CalendarWeekday::Monday
-                        },
-                        colors: ColorScaleOptions {
-                            colors: vec![Color(234, 244, 236, 255), Color(34, 126, 119, 255)],
-                            ..Default::default()
-                        },
+            let mut scene = calendar_layout(
+                c,
+                &source,
+                &CalendarLayoutOptions {
+                    start: Some((2026, 1, 1)),
+                    end: Some((2026, 3, 31)),
+                    day_radius: if settings.get("dayCorners") == "square" {
+                        0.
+                    } else {
+                        2.
+                    },
+                    day_opacity: if settings.get("dayOpacity") == "muted" {
+                        0.55
+                    } else {
+                        1.
+                    },
+                    orientation: if variant == "vertical" {
+                        CalendarOrientation::Vertical
+                    } else {
+                        CalendarOrientation::Horizontal
+                    },
+                    first_weekday: if variant == "sunday" {
+                        CalendarWeekday::Sunday
+                    } else {
+                        CalendarWeekday::Monday
+                    },
+                    colors: ColorScaleOptions {
+                        colors: vec![Color(234, 244, 236, 255), Color(34, 126, 119, 255)],
                         ..Default::default()
                     },
-                )?
-                .scene,
+                    ..Default::default()
+                },
+            )?
+            .scene;
+            for day in scene
+                .marks
+                .iter_mut()
+                .filter(|mark| mark.series.starts_with("year:"))
+            {
+                super::motion_geometry::square_corners(&mut day.geometry, variant == "vertical");
+            }
+            (
+                scene,
                 data,
                 match variant {
                     "sunday" => {
@@ -951,11 +951,29 @@ pub(super) fn sample(
         }
         _ => return Err(ChartError(format!("Unknown Cartesian chart: {kind}"))),
     };
-    if matches!(kind, "bump" | "area-bump") && variant == "linear" {
-        for mark in &mut scene.marks {
-            if mark.id.starts_with("bump-line:") || mark.id.starts_with("area-bump:") {
+    for mark in &mut scene.marks {
+        match kind {
+            "line" | "area" if mark.id.starts_with("line-") || mark.id.starts_with("area-") => {
+                motion::line_curve(mark, variant);
+            }
+            "bar" if mark.id.starts_with("bar-") && !mark.series.is_empty() => {
+                super::motion_geometry::square_corners(&mut mark.geometry, false);
+            }
+            "stream"
+                if settings.get("curve") == "linear" && mark.id.starts_with("stream:area:") =>
+            {
                 match_rank_curve_commands(mark);
             }
+            "parallel-coordinates" if variant != "smooth" && mark.id.starts_with("parallel:") => {
+                match_rank_curve_commands(mark);
+            }
+            "bump" | "area-bump"
+                if variant == "linear"
+                    && (mark.id.starts_with("bump-line:") || mark.id.starts_with("area-bump:")) =>
+            {
+                match_rank_curve_commands(mark);
+            }
+            _ => {}
         }
     }
     cart_controls::style_marks(kind, &mut scene, settings);

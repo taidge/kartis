@@ -470,15 +470,45 @@ impl RetainedCanvas {
             return prepared.paint(&frame.scene, modes);
         }
         let mut target = prepared.0;
-        target.clip_damage = frame.items.values().any(|item| {
-            included.contains(&item.slot)
-                && item
-                    .bounds
-                    .is_some_and(|b| !regions.iter().any(|r| contains(*r, b)))
-        });
-        target.damage = Some(regions);
-        super::super::draw_filtered(&frame.scene, &mut target, modes, |slot| {
-            included.contains(&slot)
-        })
+        // A compound damage clip intersecting a fractional viewport edge can
+        // change native text coverage in its last backing pixel. Keep the
+        // original dirty rectangles, but give each edge rectangle its own
+        // integer clip. Interior regions can still share one filtered replay.
+        let right_edge = frame.scene.width * frame.view.ratio < f64::from(frame.view.size[0]);
+        let bottom_edge = frame.scene.height * frame.view.ratio < f64::from(frame.view.size[1]);
+        let touches_edge = |r: &Rect| {
+            right_edge && r[2] == frame.view.size[0] || bottom_edge && r[3] == frame.view.size[1]
+        };
+        if regions.len() > 1 && regions.iter().any(touches_edge) {
+            let (edges, interior): (Vec<_>, Vec<_>) = regions.into_iter().partition(touches_edge);
+            for rect in edges {
+                let affected = frame.affected(&[rect]);
+                paint_regions(&mut target, frame, vec![rect], &affected, modes)?;
+            }
+            if !interior.is_empty() {
+                let affected = frame.affected(&interior);
+                paint_regions(&mut target, frame, interior, &affected, modes)?;
+            }
+            Ok(())
+        } else {
+            paint_regions(&mut target, frame, regions, &included, modes)
+        }
     }
+}
+
+fn paint_regions(
+    target: &mut BrowserCanvas,
+    frame: &Frame,
+    regions: Vec<Rect>,
+    included: &BTreeSet<DrawItem>,
+    modes: &MarkBlends,
+) -> Result<()> {
+    target.clip_damage = frame.items.values().any(|item| {
+        included.contains(&item.slot)
+            && item
+                .bounds
+                .is_some_and(|b| !regions.iter().any(|r| contains(*r, b)))
+    });
+    target.damage = Some(regions);
+    super::super::draw_filtered(&frame.scene, target, modes, |slot| included.contains(&slot))
 }

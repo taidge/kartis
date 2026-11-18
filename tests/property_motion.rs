@@ -29,6 +29,54 @@ fn one() -> Scene {
     s.marks.push(m);
     s
 }
+
+#[test]
+fn unique_owned_labels_follow_a_moving_datum_across_insertions_and_deletions() {
+    let mut initial = one();
+    initial.labels = vec![
+        label("old", 12., 0.),
+        label("Total", 24., 0.),
+        label("Total", 36., 0.),
+    ];
+    initial.label_series = [(0, "old".into()), (1, "A".into()), (2, "B".into())].into();
+    let mut target = initial.clone();
+    target.labels = vec![
+        label("Total", 140., 0.),
+        label("new", 90., 0.),
+        label("Total", 20., 0.),
+    ];
+    target.label_series = [(0, "A".into()), (1, "new".into()), (2, "B".into())].into();
+
+    let mut motion = PropertyMotion::new(initial, Default::default()).unwrap();
+    motion.retarget(target).unwrap();
+    assert_eq!(motion.stats().exiting_labels, 1);
+    let first = motion.label_property(0, "x").unwrap();
+    assert_eq!((first.value, first.target), (24., 140.));
+    let second = motion.label_property(2, "x").unwrap();
+    assert_eq!((second.value, second.target), (36., 20.));
+}
+
+#[test]
+fn ambiguous_moving_labels_in_one_series_keep_their_slot() {
+    let mut initial = one();
+    initial.labels = vec![label("Total", 24., 0.), label("Total", 36., 0.)];
+    initial.label_series = [(0, "A".into()), (1, "A".into())].into();
+    let mut target = initial.clone();
+    target.labels = vec![
+        label("new", 90., 0.),
+        label("Total", 140., 0.),
+        label("Total", 20., 0.),
+    ];
+    target.label_series = [(0, "new".into()), (1, "A".into()), (2, "A".into())].into();
+
+    let mut motion = PropertyMotion::new(initial, Default::default()).unwrap();
+    motion.retarget(target).unwrap();
+    assert_eq!(motion.stats().exiting_labels, 1);
+    let retained = motion.label_property(1, "x").unwrap();
+    assert_eq!((retained.value, retained.target), (36., 140.));
+    assert_eq!(motion.label_property(2, "x").unwrap().value, 20.);
+}
+
 fn scene() -> Scene {
     let mut s = one();
     s.marks[0].stroke = Some(GraphicStroke {

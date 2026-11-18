@@ -245,7 +245,15 @@ pub fn replay_entrance() -> std::result::Result<(), JsValue> {
         // Apply the initial resize before building the entrance from the sized scene.
         owner.chart.flush().map_err(js)?;
         let target = owner.sample.borrow().scene.clone();
-        let start = catalog::entrance_scene(&target);
+        let start = SELECTION.with(|selection| {
+            let selection = selection.borrow();
+            catalog::entrance_scene(
+                &selection.slug,
+                &selection.variant,
+                selection.spacing,
+                &target,
+            )
+        });
         owner.chart.set_scene(start).map_err(js)?;
         owner.chart.flush().map_err(js)?;
         owner.chart.animate_to(target).map_err(js)

@@ -77,9 +77,12 @@ npm ci
 npx playwright install chromium firefox
 node site/smoke.mjs
 node site/explorer-acceptance.mjs
+node site/family-motion-acceptance.mjs
 node site/partial-frame-acceptance.mjs
 node site/cache-acceptance.mjs
 ```
+
+逐类动画验收对每种图表分别触发入场、各个布局预设和数据更新。在四个固定的动画时刻，脚本将实时 SVG 栅格化或直接读取 Canvas 像素，然后把结束帧与关闭动画后重新挂载所得的图像逐像素比较。Treemap 还会在 Chromium 和 Firefox 中以 1 倍及 2 倍像素密度，对每个采样帧和强制完整重绘做逐像素比较。
 
 脚本自行提供 `site/dist` 的静态 HTTP 服务，向忽略的 `site/verification` 写 JSON、截图与导出的 SVG。
 `--url=https://example.com` 可检查部署站，`--out=<directory>` 指定证据目录；不会执行部署或修改远程服务。

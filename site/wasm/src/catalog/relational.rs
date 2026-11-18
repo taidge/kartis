@@ -1,8 +1,14 @@
+use std::collections::BTreeMap;
+
 use glory::render::{GraphicStroke, StrokeCap};
 use serde_json::json;
 
 use super::rel_controls::active;
 use super::{phase, *};
+
+#[path = "relational_motion.rs"]
+mod motion;
+pub(super) use motion::entrance;
 
 fn hierarchy(seed: u32) -> Vec<HierarchyDatum> {
     let mut data = vec![HierarchyDatum::new("Portfolio", None, 0.)];
@@ -26,6 +32,15 @@ pub(super) fn sample(
     settings: &Settings,
 ) -> Result<Sample> {
     let mut source = hierarchy(seed);
+    // The example reorders siblings on data updates. A node keeps its palette
+    // assignment when its position in the input array changes.
+    let tree_order = (kind == "tree").then(|| {
+        source
+            .iter()
+            .enumerate()
+            .map(|(i, node)| (node.id.clone(), i))
+            .collect::<BTreeMap<_, _>>()
+    });
     let options = HierarchyOptions {
         padding: if active(settings, "tile-padding") {
             1.
@@ -327,27 +342,74 @@ pub(super) fn sample(
         }
         _ => return Err(ChartError(format!("Unknown relational chart: {kind}"))),
     };
-    if active(settings, "node-outline") {
+    if let Some(order) = tree_order {
+        stable_tree_paint(&mut scene, c, &order);
+    }
+    if matches!(kind, "treemap" | "sunburst" | "circle-packing" | "icicle") {
         for mark in &mut scene.marks {
-            outline(mark);
+            outline(mark, active(settings, "node-outline"));
+        }
+    }
+    // Keep the same cubic properties when a sector grows past a quarter turn.
+    // Otherwise that keyed arc crossfades with a second copy on data updates.
+    if matches!(kind, "chord" | "sunburst") {
+        for mark in &mut scene.marks {
+            if kind == "sunburst" || mark.id.starts_with("group:") {
+                super::motion_geometry::normalize_sector(&mut mark.geometry);
+            }
         }
     }
     if kind == "chord" {
         for mark in &mut scene.marks {
             if mark.id.starts_with("ribbon:") && active(settings, "ribbon-opacity") {
                 mark.opacity = 0.25;
-            } else if mark.id.starts_with("group:") && active(settings, "group-outline") {
-                outline(mark);
+            } else if mark.id.starts_with("group:") {
+                outline(mark, active(settings, "group-outline"));
             }
         }
     }
     Ok(Sample { scene, data, code })
 }
 
-fn outline(mark: &mut Mark) {
-    mark.stroke = Some(GraphicStroke {
-        color: Color(40, 57, 67, 255),
-        width: 2.,
-        cap: StrokeCap::Butt,
+fn outline(mark: &mut Mark, visible: bool) {
+    // Keep the spring's stroke properties available when the outline is off.
+    // Adding/removing the stroke would otherwise crossfade the entire filled shape.
+    if visible || mark.stroke.is_none() {
+        mark.stroke = Some(GraphicStroke {
+            color: Color(40, 57, 67, if visible { 255 } else { 0 }),
+            width: if visible { 2. } else { 0.000001 },
+            cap: StrokeCap::Butt,
+        });
+    }
+}
+
+// Position depends on sibling order, but paint order within the links/nodes
+// layers does not. A changed paint order would crossfade the full old tree.
+fn stable_tree_paint(scene: &mut Scene, config: &ChartConfig, order: &BTreeMap<String, usize>) {
+    for mark in &mut scene.marks {
+        if let Some(i) = order.get(&mark.series) {
+            mark.fill = Some(config.theme.color(*i));
+        }
+    }
+    scene.marks.sort_by_key(|mark| {
+        let (layer, id) = mark.id.split_once(':').expect("tree link or node");
+        (layer == "node", order[id])
     });
+    let mut labels: Vec<_> = std::mem::take(&mut scene.labels)
+        .into_iter()
+        .enumerate()
+        .collect();
+    let mut owners = std::mem::take(&mut scene.label_series);
+    let mut clips = std::mem::take(&mut scene.label_clips);
+    let mut slots = BTreeMap::new();
+    labels.sort_by_key(|(index, _)| order[&owners[index]]);
+    for (new, (old, label)) in labels.into_iter().enumerate() {
+        slots.insert(old, new);
+        scene.labels.push(label);
+        scene.label_series.insert(new, owners.remove(&old).unwrap());
+        if let Some(clip) = clips.remove(&old) {
+            scene.label_clips.insert(new, clip);
+        }
+    }
+    scene.typography.remap_labels(&slots);
 }
