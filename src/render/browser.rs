@@ -4,6 +4,10 @@ use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
 use super::*;
 use crate::blend::{BlendMode, MarkBlends};
 mod blend_layer;
+#[cfg(feature = "web")]
+mod retained;
+#[cfg(feature = "web")]
+pub(crate) use retained::RetainedCanvas;
 mod tree_canvas;
 pub(crate) use tree_canvas::{tree_canvas_label, tree_canvas_mark};
 #[wasm_bindgen::prelude::wasm_bindgen]
@@ -48,6 +52,9 @@ struct BrowserCanvas {
     density: f64,
     patterns: std::collections::BTreeMap<String, web_sys::CanvasPattern>,
     blend: Option<blend_layer::Layers>,
+    /// Integer device rectangles cleared before a retained pass.
+    damage: Option<Vec<[u32; 4]>>,
+    clip_damage: bool,
 }
 impl Canvas for BrowserCanvas {
     fn supports_group_opacity(&self) -> bool {
@@ -184,7 +191,9 @@ impl Canvas for BrowserCanvas {
             .canvas()
             .ok_or_else(|| ChartError("Canvas has no destination".into()))?;
         let reset: &CanvasResetSupport = c.unchecked_ref();
-        if reset.reset_member().map_err(host_error)?.is_function() {
+        if self.damage.is_some() {
+            debug_assert_eq!([canvas.width(), canvas.height()], self.size);
+        } else if reset.reset_member().map_err(host_error)?.is_function() {
             if canvas.width() != self.size[0] {
                 canvas.set_width(self.size[0]);
             }
@@ -200,9 +209,31 @@ impl Canvas for BrowserCanvas {
             .map_err(host_error)?;
         c.save();
         c.set_global_alpha(1.);
-        c.clear_rect(0., 0., w, h);
-        c.set_fill_style_str(&css_color(bg));
-        c.fill_rect(0., 0., w, h);
+        if let Some(rects) = &self.damage {
+            if !self.clip_damage {
+                c.save();
+            }
+            c.set_transform(1., 0., 0., 1., 0., 0.)
+                .map_err(host_error)?;
+            c.begin_path();
+            for &[left, top, right, bottom] in rects {
+                let [x, y, width, height] = [left, top, right - left, bottom - top].map(f64::from);
+                c.clear_rect(x, y, width, height);
+                c.rect(x, y, width, height);
+            }
+            c.clip();
+            c.set_transform(self.ratio, 0., 0., self.ratio, 0., 0.)
+                .map_err(host_error)?;
+            c.set_fill_style_str(&css_color(bg));
+            c.fill_rect(0., 0., w, h);
+            if !self.clip_damage {
+                c.restore();
+            }
+        } else {
+            c.clear_rect(0., 0., w, h);
+            c.set_fill_style_str(&css_color(bg));
+            c.fill_rect(0., 0., w, h);
+        }
         c.begin_path();
         c.rect(0., 0., w, h);
         c.clip();
@@ -402,6 +433,15 @@ impl PreparedCanvas {
     }
 }
 
+fn context_2d(canvas: &HtmlCanvasElement) -> Result<CanvasRenderingContext2d> {
+    canvas
+        .get_context("2d")
+        .map_err(host_error)?
+        .ok_or_else(|| ChartError("2d canvas unavailable".into()))?
+        .dyn_into::<CanvasRenderingContext2d>()
+        .map_err(|value| host_error(value.into()))
+}
+
 pub(crate) fn prepare_canvas(
     scene: &Scene,
     canvas: &HtmlCanvasElement,
@@ -448,12 +488,7 @@ pub(crate) fn prepare_canvas(
             )?;
         }
     }
-    let context = canvas
-        .get_context("2d")
-        .map_err(host_error)?
-        .ok_or_else(|| ChartError("2d canvas unavailable".into()))?
-        .dyn_into::<CanvasRenderingContext2d>()
-        .map_err(|value| host_error(value.into()))?;
+    let context = context_2d(canvas)?;
     let mut prepared_patterns = std::collections::BTreeMap::new();
     for mark in &scene.marks {
         if let Some(FillPaint::Pattern(p)) = &mark.fill_paint {
@@ -472,6 +507,8 @@ pub(crate) fn prepare_canvas(
         density,
         patterns: prepared_patterns,
         blend: None,
+        damage: None,
+        clip_damage: false,
     };
     prepared.prepare_mark_blends(scene, blends)?;
     Ok(PreparedCanvas(prepared))

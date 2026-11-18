@@ -43,11 +43,13 @@ jobs:
       - name: Build deployable static assets
         run: python site/build.py
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium firefox
       - name: Verify charts and browser interactions
         run: node site/smoke.mjs
       - name: Verify all chart families and real spring animation
         run: node site/explorer-acceptance.mjs
+      - name: Compare fractional-DPR animation and text against full Canvas renders
+        run: node site/partial-frame-acceptance.mjs
       - name: Verify clients with cached legacy runtime assets
         run: node site/cache-acceptance.mjs
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5

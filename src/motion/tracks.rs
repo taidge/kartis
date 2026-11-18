@@ -953,6 +953,33 @@ impl PropertyMotion {
             self.finish();
         }
     }
+    /// Change integration parameters for live and future tracks, preserving
+    /// their current positions, targets and velocities.
+    pub fn set_springs(&mut self, spring: SpringConfig, presence: SpringConfig) -> Result<()> {
+        spring.validate()?;
+        presence.validate()?;
+        for (values, fade) in self
+            .marks
+            .values_mut()
+            .map(|m| (&mut m.values, &mut m.presence))
+            .chain(
+                self.labels
+                    .values_mut()
+                    .map(|l| (&mut l.values, &mut l.presence)),
+            )
+        {
+            for track in &mut values.0 {
+                track.set_config(spring)?;
+            }
+            fade.set_config(presence)?;
+        }
+        for track in &mut self.globals.0 {
+            track.set_config(spring)?;
+        }
+        self.options.spring = spring;
+        self.options.presence_spring = presence;
+        Ok(())
+    }
     pub fn finish(&mut self) {
         self.globals.finish();
         self.marks.retain(|_, m| !m.exiting);
@@ -1065,6 +1092,28 @@ impl PropertyMotion {
                 reference.as_ref().map(|m| &m.geometry),
                 &mut work,
             )?;
+        }
+        let moves = shifted_label_slots(
+            self.labels.iter().filter_map(|(key, track)| match key {
+                LabelKey::Slot(index) => Some((*index, &track.metadata, track.owner.as_deref())),
+                LabelKey::Ghost(_) => None,
+            }),
+            &target,
+        );
+        if !moves.is_empty() {
+            let remap = |key: LabelKey| match key {
+                LabelKey::Slot(i) => LabelKey::Slot(moves.get(&i).copied().unwrap_or(i)),
+                other => other,
+            };
+            self.labels = std::mem::take(&mut self.labels)
+                .into_iter()
+                .map(|(key, value)| (remap(key), value))
+                .collect();
+            for item in &mut self.order {
+                if let Item::Label(key) = item {
+                    *key = remap(*key);
+                }
+            }
         }
         let target_order = scene_order(&target);
         let target_ids: BTreeSet<_> = target.marks.iter().map(|m| m.id.clone()).collect();

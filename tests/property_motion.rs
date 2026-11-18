@@ -133,6 +133,30 @@ fn target() -> Scene {
     s.validate().unwrap();
     s
 }
+#[test]
+fn changing_springs_preserves_live_positions_and_velocities() {
+    let mut slow = PropertyMotion::new(scene(), Default::default()).unwrap();
+    slow.retarget(target()).unwrap();
+    slow.tick(1. / 60.).unwrap();
+    let mut fast = slow.clone();
+    let state = fast.mark_property("rect", "geometry.x").unwrap();
+    assert_ne!(state.velocity, 0.);
+    let config = SpringConfig {
+        stiffness: 400.,
+        ..Default::default()
+    };
+    fast.set_springs(config, config).unwrap();
+    assert_eq!(fast.mark_property("rect", "geometry.x").unwrap(), state);
+    assert_eq!(fast.scene(), slow.scene());
+    slow.tick(1. / 60.).unwrap();
+    fast.tick(1. / 60.).unwrap();
+    assert_ne!(
+        fast.mark_velocity("rect", "geometry.x"),
+        slow.mark_velocity("rect", "geometry.x")
+    );
+    fast.finish();
+    assert_eq!(fast.scene(), &target());
+}
 fn mark<'a>(s: &'a Scene, id: &str) -> &'a Mark {
     s.marks.iter().find(|m| m.id == id).unwrap()
 }
@@ -144,6 +168,37 @@ fn settle(m: &mut PropertyMotion) {
         }
     }
     panic!("property engine failed to settle");
+}
+
+#[test]
+fn filtering_ticks_preserves_survivors_and_their_running_springs() {
+    let mut all = ChartConfig::default().scene().unwrap();
+    all.labels = vec![
+        label("0", 10., 0.),
+        label("0", 80., 0.),
+        label("Mon", 120., 0.),
+    ];
+    let mut motion = PropertyMotion::new(all.clone(), Default::default()).unwrap();
+    all.labels[2].x += 50.;
+    motion.retarget(all.clone()).unwrap();
+    motion.tick(0.05).unwrap();
+    let moving = motion.label_property(2, "x").unwrap();
+    assert_ne!(moving.velocity, 0.);
+    let mut filtered = all.clone();
+    filtered.labels.remove(0);
+    motion.retarget(filtered).unwrap();
+    assert_eq!(motion.stats().exiting_labels, 1);
+    assert_eq!(motion.stats().labels, 3);
+    assert_eq!(motion.label_property(1, "x").unwrap(), moving);
+    assert_eq!(motion.label_property(0, "presence").unwrap().value, 1.);
+    motion.tick(0.025).unwrap();
+    let running = motion.label_property(1, "x").unwrap();
+    motion.retarget(all.clone()).unwrap();
+    assert_eq!(motion.stats().exiting_labels, 0);
+    assert_eq!(motion.stats().labels, 3);
+    assert_eq!(motion.label_property(2, "x").unwrap(), running);
+    settle(&mut motion);
+    assert_eq!(motion.scene(), &all);
 }
 
 #[test]

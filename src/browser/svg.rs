@@ -1,5 +1,5 @@
 //! Retained, application-owned SVG. Marks are keyed by stable Scene IDs;
-//! labels by explicit slots, matching the public Scene identity contract.
+//! labels retain their slot or follow an unambiguously matched tick across slots.
 use std::collections::BTreeMap;
 
 use super::*;
@@ -54,6 +54,55 @@ fn ensure_child(parent: &Element, child: &Element) -> Result<()> {
     {
         parent.append_child(child).map_err(host)?;
     }
+    Ok(())
+}
+/// A geometry or color change normally leaves the child list untouched. When
+/// it changes, keep the longest already ordered subsequence. For example,
+/// moving the first path to the end requires a single DOM move.
+fn reconcile_children(
+    parent: &Element,
+    previous: &mut Vec<Element>,
+    children: Vec<Element>,
+) -> Result<()> {
+    if *previous == children {
+        return Ok(());
+    }
+    let ranks = web_sys::js_sys::Map::new();
+    let mut child = parent.first_child();
+    let mut rank = 0u32;
+    while let Some(node) = child {
+        ranks.set(node.as_ref(), &rank.into());
+        child = node.next_sibling();
+        rank += 1;
+    }
+    let mut tails: Vec<(u32, usize)> = vec![];
+    let mut predecessors = vec![None; children.len()];
+    for (i, child) in children.iter().enumerate() {
+        let Some(rank) = ranks.get(child.as_ref()).as_f64() else {
+            continue;
+        };
+        let rank = rank as u32;
+        let position = tails.partition_point(|&(end, _)| end < rank);
+        if position > 0 {
+            predecessors[i] = Some(tails[position - 1].1);
+        }
+        if position == tails.len() {
+            tails.push((rank, i));
+        } else {
+            tails[position] = (rank, i);
+        }
+    }
+    let mut keep = tails.last().map(|&(_, i)| i);
+    for (i, child) in children.iter().enumerate().rev() {
+        if keep == Some(i) {
+            keep = predecessors[i];
+        } else {
+            parent
+                .insert_before(child, children.get(i + 1).map(AsRef::as_ref))
+                .map_err(host)?;
+        }
+    }
+    *previous = children;
     Ok(())
 }
 fn text(node: &Element, value: &str) {
@@ -166,119 +215,139 @@ impl MarkNode {
         }
         // A fallible DOM write can leave this node partially patched. Invalidate
         // the cache before writing so repainting the accepted scene repairs it.
-        let geometry_changed = self
-            .accepted
-            .take()
-            .is_none_or(|old| old.geometry != mark.geometry);
-        attr(&self.path, "data-id", &mark.id)?;
-        attr(&self.path, "data-series", &mark.series)?;
-        attr(&self.path, "data-value", &mark.value.to_string())?;
-        if geometry_changed {
+        let accepted = self.accepted.take();
+        let old = accepted.as_ref();
+        if old.is_none() {
+            attr(&self.path, "data-id", &mark.id)?;
+        }
+        if old.is_none_or(|old| old.series != mark.series) {
+            attr(&self.path, "data-series", &mark.series)?;
+        }
+        if old.is_none_or(|old| old.value != mark.value) {
+            attr(&self.path, "data-value", &mark.value.to_string())?;
+        }
+        if old.is_none_or(|old| old.geometry != mark.geometry) {
             attr(
                 &self.path,
                 "d",
                 &render::path_data(&mark.geometry.commands()),
             )?;
         }
-        attr(
-            &self.path,
-            "fill",
-            &mark
-                .fill_paint
-                .as_ref()
-                .map(|p| format!("url(#{})", scoped(namespace, &p.svg_id())))
-                .unwrap_or_else(|| {
-                    mark.fill
-                        .map(render::css_color)
-                        .unwrap_or_else(|| "none".into())
-                }),
-        )?;
-        attr(&self.path, "opacity", &mark.opacity.to_string())?;
-        if let Some(stroke) = mark.stroke {
-            attr(&self.path, "stroke", &render::css_color(stroke.color))?;
-            attr(&self.path, "stroke-width", &stroke.width.to_string())?;
-            attr(&self.path, "stroke-linecap", render::cap(stroke.cap))?;
-        } else {
-            for name in ["stroke", "stroke-width", "stroke-linecap"] {
-                unset(&self.path, name)?;
-            }
-        }
-        if let Some(dash) = &mark.stroke_dash {
-            let dash = dash.native_normalized()?;
+        if old.is_none_or(|old| old.fill != mark.fill || old.fill_paint != mark.fill_paint) {
             attr(
                 &self.path,
-                "stroke-dasharray",
-                &if dash.segments.is_empty() {
-                    "none".into()
-                } else {
-                    dash.segments
-                        .iter()
-                        .map(ToString::to_string)
-                        .collect::<Vec<_>>()
-                        .join(" ")
-                },
+                "fill",
+                &mark
+                    .fill_paint
+                    .as_ref()
+                    .map(|p| format!("url(#{})", scoped(namespace, &p.svg_id())))
+                    .unwrap_or_else(|| {
+                        mark.fill
+                            .map(render::css_color)
+                            .unwrap_or_else(|| "none".into())
+                    }),
             )?;
-            attr(&self.path, "stroke-dashoffset", &dash.offset.to_string())?;
-        } else {
-            unset(&self.path, "stroke-dasharray")?;
-            unset(&self.path, "stroke-dashoffset")?;
         }
-        text(&self.title, &mark.label);
-        if let Some(c) = mark.clip {
-            if self.clip.is_none() {
-                let clip = node(document, "svg")?;
-                attr(&clip, "overflow", "hidden")?;
-                clip.append_child(&self.path).map_err(host)?;
-                if let Some(mask) = &self.mask {
-                    mask.append_child(&clip).map_err(host)?;
+        if old.is_none_or(|old| old.opacity != mark.opacity) {
+            attr(&self.path, "opacity", &mark.opacity.to_string())?;
+        }
+        if old.is_none_or(|old| old.stroke != mark.stroke) {
+            if let Some(stroke) = mark.stroke {
+                attr(&self.path, "stroke", &render::css_color(stroke.color))?;
+                attr(&self.path, "stroke-width", &stroke.width.to_string())?;
+                attr(&self.path, "stroke-linecap", render::cap(stroke.cap))?;
+            } else {
+                for name in ["stroke", "stroke-width", "stroke-linecap"] {
+                    unset(&self.path, name)?;
                 }
-                self.clip = Some(clip);
             }
-            let clip = self.clip.as_ref().unwrap();
-            ensure_child(clip, &self.path)?;
-            for (name, value) in [
-                ("x", c.x),
-                ("y", c.y),
-                ("width", c.width),
-                ("height", c.height),
-            ] {
-                attr(clip, name, &value.to_string())?;
-            }
-            attr(
-                clip,
-                "viewBox",
-                &format!("{} {} {} {}", c.x, c.y, c.width, c.height),
-            )?;
-        } else if let Some(clip) = self.clip.clone() {
-            // Keep the structural checkpoint until every fallible operation succeeds.
-            clip.remove_child(&self.path).map_err(host)?;
-            if let Some(mask) = &self.mask {
-                mask.append_child(&self.path).map_err(host)?;
-            }
-            clip.remove();
-            self.clip = None;
         }
-        if let Some(clip) = &mark.clip_path {
-            if self.mask.is_none() {
-                let mask = node(document, "g")?;
-                mask.append_child(self.clip.as_ref().unwrap_or(&self.path))
-                    .map_err(host)?;
-                self.mask = Some(mask);
+        if old.is_none_or(|old| old.stroke_dash != mark.stroke_dash) {
+            if let Some(dash) = &mark.stroke_dash {
+                let dash = dash.native_normalized()?;
+                attr(
+                    &self.path,
+                    "stroke-dasharray",
+                    &if dash.segments.is_empty() {
+                        "none".into()
+                    } else {
+                        dash.segments
+                            .iter()
+                            .map(ToString::to_string)
+                            .collect::<Vec<_>>()
+                            .join(" ")
+                    },
+                )?;
+                attr(&self.path, "stroke-dashoffset", &dash.offset.to_string())?;
+            } else {
+                unset(&self.path, "stroke-dasharray")?;
+                unset(&self.path, "stroke-dashoffset")?;
             }
-            ensure_child(
-                self.mask.as_ref().unwrap(),
-                self.clip.as_ref().unwrap_or(&self.path),
-            )?;
-            attr(
-                self.mask.as_ref().unwrap(),
-                "clip-path",
-                &format!("url(#{})", scoped(namespace, &clip.svg_id())),
-            )?;
-        } else if let Some(mask) = self.mask.clone() {
-            mask.remove_child(self.clip.as_ref().unwrap_or(&self.path))
-                .map_err(host)?;
-            mask.remove();
-            self.mask = None;
+        }
+        if old.is_none_or(|old| old.label != mark.label) {
+            text(&self.title, &mark.label);
+        }
+        if old.is_none_or(|old| old.clip != mark.clip) {
+            if let Some(c) = mark.clip {
+                if self.clip.is_none() {
+                    let clip = node(document, "svg")?;
+                    attr(&clip, "overflow", "hidden")?;
+                    clip.append_child(&self.path).map_err(host)?;
+                    if let Some(mask) = &self.mask {
+                        mask.append_child(&clip).map_err(host)?;
+                    }
+                    self.clip = Some(clip);
+                }
+                let clip = self.clip.as_ref().unwrap();
+                ensure_child(clip, &self.path)?;
+                for (name, value) in [
+                    ("x", c.x),
+                    ("y", c.y),
+                    ("width", c.width),
+                    ("height", c.height),
+                ] {
+                    attr(clip, name, &value.to_string())?;
+                }
+                attr(
+                    clip,
+                    "viewBox",
+                    &format!("{} {} {} {}", c.x, c.y, c.width, c.height),
+                )?;
+            } else if let Some(clip) = self.clip.clone() {
+                // Keep the structural checkpoint until every fallible operation succeeds.
+                clip.remove_child(&self.path).map_err(host)?;
+                if let Some(mask) = &self.mask {
+                    mask.append_child(&self.path).map_err(host)?;
+                }
+                clip.remove();
+                self.clip = None;
+            }
+        }
+        if old.is_none_or(|old| {
+            old.clip_path != mark.clip_path || old.clip.is_some() != mark.clip.is_some()
+        }) {
+            if let Some(clip) = &mark.clip_path {
+                if self.mask.is_none() {
+                    let mask = node(document, "g")?;
+                    mask.append_child(self.clip.as_ref().unwrap_or(&self.path))
+                        .map_err(host)?;
+                    self.mask = Some(mask);
+                }
+                ensure_child(
+                    self.mask.as_ref().unwrap(),
+                    self.clip.as_ref().unwrap_or(&self.path),
+                )?;
+                attr(
+                    self.mask.as_ref().unwrap(),
+                    "clip-path",
+                    &format!("url(#{})", scoped(namespace, &clip.svg_id())),
+                )?;
+            } else if let Some(mask) = self.mask.clone() {
+                mask.remove_child(self.clip.as_ref().unwrap_or(&self.path))
+                    .map_err(host)?;
+                mask.remove();
+                self.mask = None;
+            }
         }
         // Keep a newly allocated wrapper private until all of its DOM writes
         // succeed. A failed first style write must not leave it in the cache.
@@ -313,6 +382,7 @@ impl MarkNode {
 }
 struct LabelNode {
     node: Element,
+    owner: Option<String>,
     accepted: Option<Label>,
     accepted_font: Option<crate::ResolvedFont>,
     accepted_whitespace: Option<crate::LabelWhitespace>,
@@ -416,6 +486,8 @@ pub(super) struct RetainedSvg {
     group: Element,
     marks: BTreeMap<String, MarkNode>,
     opacity_groups: BTreeMap<String, Element>,
+    group_order: BTreeMap<String, Vec<Element>>,
+    top_order: Vec<Element>,
     labels: BTreeMap<usize, LabelNode>,
     labels_passive: bool,
 }
@@ -456,6 +528,8 @@ impl RetainedSvg {
             group,
             marks: BTreeMap::new(),
             opacity_groups: BTreeMap::new(),
+            group_order: BTreeMap::new(),
+            top_order: vec![],
             labels: BTreeMap::new(),
             labels_passive: false,
         })
@@ -489,6 +563,22 @@ impl RetainedSvg {
         self.paint_with_blends(surface, scene, view, &MarkBlends::default())
     }
     pub fn paint_with_blends(
+        &mut self,
+        surface: &HtmlElement,
+        scene: &Scene,
+        view: ZoomTransform,
+        blends: &MarkBlends,
+    ) -> Result<()> {
+        let result = self.patch_scene(surface, scene, view, blends);
+        if result.is_err() {
+            // A wrapper may have been detached before a later DOM write failed.
+            // The retry must reconcile the actual children of the accepted frame.
+            self.group_order.clear();
+            self.top_order.clear();
+        }
+        result
+    }
+    fn patch_scene(
         &mut self,
         surface: &HtmlElement,
         scene: &Scene,
@@ -625,6 +715,20 @@ impl RetainedSvg {
                 false
             }
         });
+        let moves = scene::shifted_label_slots(
+            self.labels.iter().filter_map(|(slot, row)| {
+                row.accepted
+                    .as_ref()
+                    .map(|label| (*slot, label, row.owner.as_deref()))
+            }),
+            scene,
+        );
+        if !moves.is_empty() {
+            self.labels = std::mem::take(&mut self.labels)
+                .into_iter()
+                .map(|(i, row)| (moves.get(&i).copied().unwrap_or(i), row))
+                .collect();
+        }
         self.labels.retain(|index, row| {
             if *index < scene.labels.len() {
                 true
@@ -649,6 +753,7 @@ impl RetainedSvg {
             if let std::collections::btree_map::Entry::Vacant(entry) = self.labels.entry(index) {
                 entry.insert(LabelNode {
                     node: node(&document, "text")?,
+                    owner: None,
                     accepted: None,
                     accepted_font: None,
                     accepted_whitespace: None,
@@ -657,7 +762,8 @@ impl RetainedSvg {
                     accepted_clip: None,
                 });
             }
-            self.labels.get_mut(&index).unwrap().patch(
+            let row = self.labels.get_mut(&index).unwrap();
+            row.patch(
                 &document,
                 label,
                 &scene.resolved_label_font(index),
@@ -666,6 +772,10 @@ impl RetainedSvg {
                 scene.label_clips.get(&index),
                 &self.namespace,
             )?;
+            let owner = scene.label_series.get(&index);
+            if row.owner.as_ref() != owner {
+                row.owner = owner.cloned();
+            }
             if self.labels_passive {
                 attr(&self.labels[&index].node, "pointer-events", "none")?;
             }
@@ -686,6 +796,8 @@ impl RetainedSvg {
                 false
             }
         });
+        self.group_order
+            .retain(|id, _| group_ids.contains(id.as_str()));
         for group in &scene.opacity_groups {
             if let std::collections::btree_map::Entry::Vacant(entry) =
                 self.opacity_groups.entry(group.id.clone())
@@ -713,51 +825,15 @@ impl RetainedSvg {
             })
             .collect();
         let mut group_children = BTreeMap::<&str, Vec<Element>>::new();
-        for item in scene.draw_items() {
-            if let DrawItem::Mark(index) = item {
-                let id = &scene.marks[index].id;
-                if let Some(group_id) = member_groups.get(id.as_str()) {
-                    group_children
-                        .entry(group_id)
-                        .or_default()
-                        .push(self.marks[id].outer());
-                }
-            }
-        }
-        // Reparent every member before taking the top-level cursor. Taking it
-        // first could leave insertBefore pointing at a mark now inside a group.
-        // The validated paint order, rather than the metadata list order,
-        // determines the exact child order inside each contiguous group.
-        for (id, children) in group_children {
-            let parent = &self.opacity_groups[id];
-            let mut cursor = parent.first_child();
-            for child in children {
-                if cursor
-                    .as_ref()
-                    .is_some_and(|current| current.is_same_node(Some(child.as_ref())))
-                {
-                    cursor = child.next_sibling();
-                } else {
-                    parent
-                        .insert_before(&child, cursor.as_ref())
-                        .map_err(host)?;
-                }
-            }
-        }
-        let mut emitted_groups = BTreeSet::new();
-        // Keep matching children in place. insertBefore moves only the items
-        // whose actual paint order changed; it does not recreate any DOM nodes.
-        let mut cursor = if blends.is_empty() {
-            self.group.first_child()
-        } else {
-            self.background.next_sibling()
-        };
+        let mut top_children = Vec::with_capacity(scene.marks.len() + scene.labels.len());
         for item in scene.draw_items() {
             let child = match item {
                 DrawItem::Mark(i) => {
                     let id = &scene.marks[i].id;
                     if let Some(group_id) = member_groups.get(id.as_str()) {
-                        if !emitted_groups.insert(*group_id) {
+                        let children = group_children.entry(group_id).or_default();
+                        children.push(self.marks[id].outer());
+                        if children.len() > 1 {
                             continue;
                         }
                         self.opacity_groups[*group_id].clone()
@@ -767,17 +843,16 @@ impl RetainedSvg {
                 }
                 DrawItem::Label(i) => self.labels[&i].outer(),
             };
-            if cursor
-                .as_ref()
-                .is_some_and(|current| current.is_same_node(Some(child.as_ref())))
-            {
-                cursor = child.next_sibling();
-            } else {
-                self.group
-                    .insert_before(&child, cursor.as_ref())
-                    .map_err(host)?;
-            }
+            top_children.push(child);
         }
+        for (id, children) in group_children {
+            reconcile_children(
+                &self.opacity_groups[id],
+                self.group_order.entry(id.to_owned()).or_default(),
+                children,
+            )?;
+        }
+        reconcile_children(&self.group, &mut self.top_order, top_children)?;
         if self
             .root
             .parent_node()

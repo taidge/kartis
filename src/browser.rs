@@ -19,6 +19,7 @@ use crate::surface::{SurfaceEvent, SurfaceInput, SurfaceModel, SurfaceOptions};
 use crate::*;
 mod blend_motion;
 mod blends;
+mod datum_outline;
 mod editable_brush;
 mod funnel;
 mod funnel_tooltip;
@@ -410,6 +411,13 @@ enum Input {
     TreeCanvas(Box<tree_canvas_frame::Candidate>),
     TreeSvg(Rc<tree_svg_frame::Stage>),
     TreeTooltip(Box<tree_tooltip_host::Candidate>),
+    TooltipContent {
+        enabled: bool,
+        lines: Vec<Vec<TooltipPart>>,
+        value_format: ValueFormat,
+    },
+    PropertySprings(motion::SpringConfig, motion::SpringConfig),
+    CanvasFontsChanged,
     Scene(Scene, bool),
     InteractionScene(Box<(Scene, InteractionBinding, bool)>),
     Layout(Box<(SceneInteraction, MarkBlends)>),
@@ -442,7 +450,9 @@ struct State {
     selected: Cage<Option<String>>,
     surface: HtmlElement,
     canvas: Option<HtmlCanvasElement>,
+    retained_canvas: render::RetainedCanvas,
     svg: Option<svg::RetainedSvg>,
+    datum_outline: Option<datum_outline::DatumOutline>,
     tree_labels_passive: bool,
     tooltip: HtmlElement,
     brush: HtmlElement,
@@ -581,6 +591,29 @@ impl BrowserChart {
     /// a separate child; the surface is never inserted into Glory's owned tree.
     pub fn mount(root: Element, scene: Scene, options: BrowserOptions) -> Result<Self> {
         Self::mount_with_blends(root, scene, options, MarkBlends::default())
+    }
+    /// Mount with a pointer-transparent outline around active data marks.
+    /// Hovering a settled chart with ordinary pointer picking updates the
+    /// outline and tooltip independently of its SVG or Canvas plot.
+    pub fn mount_with_datum_outline(
+        root: Element,
+        scene: Scene,
+        mut options: BrowserOptions,
+    ) -> Result<Self> {
+        let document = root
+            .owner_document()
+            .ok_or_else(|| ChartError("chart root has no document".into()))?;
+        let outline = datum_outline::DatumOutline::new(&document)?;
+        options.highlight = BrowserHighlight::Controlled;
+        let chart = Self::mount(root, scene, options)?;
+        chart
+            .engine
+            .state
+            .borrow_mut()
+            .as_mut()
+            .expect("mounted chart")
+            .datum_outline = Some(outline);
+        Ok(chart)
     }
     /// Mount a chart-isolated blend profile with the scene. Resize and
     /// viewport callbacks retain these modes by stable mark ID. Explicit
@@ -1069,7 +1102,9 @@ impl BrowserChart {
             selected,
             surface,
             canvas,
+            retained_canvas: render::RetainedCanvas::default(),
             svg: None,
+            datum_outline: None,
             tree_labels_passive,
             tooltip,
             brush,
@@ -1224,6 +1259,38 @@ impl BrowserChart {
         }
         self.engine.enqueue(Input::Resize);
     }
+    /// Change the built-in tooltip template on the next frame, retaining hover,
+    /// selection and active chart motion. Managed Tree tooltip widgets keep
+    /// their own template.
+    pub fn set_tooltip_content(
+        &self,
+        enabled: bool,
+        lines: Vec<Vec<TooltipPart>>,
+        value_format: ValueFormat,
+    ) -> Result<()> {
+        self.handle()
+            .set_tooltip_content(enabled, lines, value_format)
+    }
+    /// Set the springs for running and future property transitions without
+    /// replacing the surface or resetting any active track.
+    pub fn set_property_springs(
+        &self,
+        spring: motion::SpringConfig,
+        presence: motion::SpringConfig,
+    ) -> Result<()> {
+        spring.validate()?;
+        presence.validate()?;
+        let state = self.engine.state.borrow();
+        let state = state
+            .as_ref()
+            .ok_or_else(|| ChartError("browser chart stopped".into()))?;
+        scene::ensure(
+            !matches!(state.options.animation, BrowserAnimation::Scene),
+            "property springs require Properties animation",
+        )?;
+        self.engine
+            .try_enqueue(Input::PropertySprings(spring, presence))
+    }
     pub fn set_scene(&self, scene: Scene) -> Result<()> {
         self.handle().set_scene(scene)
     }
@@ -1320,6 +1387,25 @@ impl BrowserHandle {
         if let Some(e) = self.engine.upgrade() {
             e.stop();
         }
+    }
+    /// Queue an update to the built-in tooltip visibility and formatted lines.
+    pub fn set_tooltip_content(
+        &self,
+        enabled: bool,
+        lines: Vec<Vec<TooltipPart>>,
+        value_format: ValueFormat,
+    ) -> Result<()> {
+        let options = TooltipOptions {
+            lines,
+            value_format,
+            ..Default::default()
+        };
+        options.validate()?;
+        self.engine()?.try_enqueue(Input::TooltipContent {
+            enabled,
+            lines: options.lines,
+            value_format: options.value_format,
+        })
     }
     pub fn set_scene(&self, scene: Scene) -> Result<()> {
         scene.validate()?;
@@ -1728,6 +1814,23 @@ impl Engine {
         Ok(())
     }
     fn listen(self: &Rc<Self>, controls: HtmlElement) -> Result<()> {
+        if self
+            .state
+            .borrow()
+            .as_ref()
+            .is_some_and(|s| s.canvas.is_some())
+            && let Some(document) = controls.owner_document()
+        {
+            let fonts = document.fonts();
+            for name in ["loadingdone", "loadingerror"] {
+                let weak = Rc::downgrade(self);
+                self.add(fonts.clone().into(), name, move |_| {
+                    if let Some(engine) = weak.upgrade() {
+                        engine.enqueue(Input::CanvasFontsChanged);
+                    }
+                })?;
+            }
+        }
         // Glory delivers datum pointer events on its own frame. Observe the
         // native pointer's region synchronously so a delayed control enter
         // cannot take over after the pointer has already left the controls.
@@ -2213,6 +2316,7 @@ impl Engine {
                             | Input::TreeCanvas(_)
                             | Input::TreeSvg(_)
                             | Input::TreeTooltip(_)
+                            | Input::TooltipContent { .. }
                             | Input::Resize
                             | Input::ViewportRequest(_)
                     )
@@ -2220,6 +2324,40 @@ impl Engine {
             .then(|| (s.gesture(), s.focused.clone()))
         });
         let fault = self.fault.borrow_mut().take();
+        // An idle mouse can change the tooltip and the foreground outline, but
+        // cannot change the base bitmap or SVG. Mixed input batches, gestures,
+        // animations and charts with additional paint owners use the full frame.
+        let hover_before = if fault.is_none()
+            && !inputs.is_empty()
+            && inputs.iter().all(|input| {
+                matches!(
+                    input,
+                    Input::Pointer {
+                        kind: PointerKind::Move,
+                        touch: false,
+                        ..
+                    } | Input::Action(SurfaceInput::Leave)
+                )
+            }) {
+            self.state
+                .borrow()
+                .as_ref()
+                .filter(|s| {
+                    s.datum_outline.is_some()
+                        && s.revision > 0
+                        && s.motion.is_none()
+                        && !s.model.dragging()
+                        && s.model.editable_brush().is_none()
+                        && s.plot_widgets.is_none()
+                        && s.tree_tooltip.is_none()
+                        && s.tree_svg.is_none()
+                        && s.tree_canvas.is_none()
+                        && !s.overlay_enabled(s.model.interaction_data())
+                })
+                .map(|s| s.tooltip_ids(&s.model))
+        } else {
+            None
+        };
         let mut explicit_accepted = false;
         let mut forced_press_cancel = fault.is_some();
         let mut paint_accepted = true;
@@ -2563,6 +2701,31 @@ impl Engine {
         if !self.alive.get() {
             return Ok(());
         }
+        if let Some(previous_ids) = hover_before
+            && events.iter().all(|event| {
+                matches!(
+                    event,
+                    BrowserEvent::Interaction(
+                        SurfaceEvent::Hover(_) | SurfaceEvent::PhysicalHover(_)
+                    )
+                )
+            })
+        {
+            {
+                let mut state = self.state.borrow_mut();
+                let s = state.as_mut().expect("active hover chart");
+                let ids = s.tooltip_ids(&s.model);
+                if ids != previous_ids {
+                    s.paint_outline(&ids)?;
+                }
+                let interaction = s.model.active_interaction(&ids);
+                s.paint_tooltip(&ids, interaction.as_ref())?;
+                if let Some(error) = s.presentation_error.take() {
+                    events.push(BrowserEvent::Error(error));
+                }
+            }
+            return self.finish_frame_events(events);
+        }
         if tooltip_only && fault.is_none() {
             if !paint_accepted {
                 // A rejected incoming tooltip still owns its pending lease.
@@ -2593,10 +2756,9 @@ impl Engine {
                     let s = state
                         .as_mut()
                         .ok_or_else(|| ChartError("Tree tooltip chart stopped".into()))?;
-                    let scene = s.model.scene().clone();
                     let ids = s.tooltip_ids(&s.model);
                     let interaction = s.model.active_interaction(&ids);
-                    s.paint_tooltip(&scene, &ids, interaction.as_ref())?;
+                    s.paint_tooltip(&ids, interaction.as_ref())?;
                     if let Some(stage) = &stage {
                         s.tree_tooltip = Some(stage.clone());
                     }
@@ -2617,10 +2779,9 @@ impl Engine {
                         .ok_or_else(|| ChartError("Tree tooltip chart stopped".into()))?;
                     s.restore_gesture(baseline);
                     s.focused = focused;
-                    let scene = s.model.scene().clone();
                     let ids = s.tooltip_ids(&s.model);
                     let interaction = s.model.active_interaction(&ids);
-                    s.paint_tooltip(&scene, &ids, interaction.as_ref())?;
+                    s.paint_tooltip(&ids, interaction.as_ref())?;
                 }
                 events.push(BrowserEvent::Error(error));
             } else {
@@ -3422,6 +3583,36 @@ impl State {
             scene::ensure(!animated, "raw Tree Canvas does not support animation")?;
         }
         match input {
+            Input::CanvasFontsChanged => {
+                self.retained_canvas.invalidate_fonts();
+                Ok(Vec::new())
+            }
+            Input::PropertySprings(spring, presence) => {
+                let (BrowserAnimation::Properties(options)
+                | BrowserAnimation::PropertiesWithContours { options, .. }) =
+                    &mut self.options.animation
+                else {
+                    return Err(ChartError(
+                        "property springs require Properties animation".into(),
+                    ));
+                };
+                if let Some(RunningMotion::Properties(active)) = &mut self.motion {
+                    active.set_springs(spring, presence)?;
+                }
+                options.spring = spring;
+                options.presence_spring = presence;
+                Ok(Vec::new())
+            }
+            Input::TooltipContent {
+                enabled,
+                lines,
+                value_format,
+            } => {
+                self.options.tooltip = enabled;
+                self.options.tooltip_options.lines = lines;
+                self.options.tooltip_options.value_format = value_format;
+                Ok(Vec::new())
+            }
             Input::TreeTooltip(_) => Err(ChartError("Tree tooltip bundle was not unpacked".into())),
             Input::TreeCanvas(candidate) => self.process_tree_canvas(*candidate),
             Input::TreeSvg(stage) => self.process_tree_svg(stage),
@@ -3756,12 +3947,18 @@ impl State {
         scene.validate()?;
         Ok((scene, tooltip_ids, interaction))
     }
+    fn paint_outline(&mut self, ids: &[String]) -> Result<()> {
+        if let Some(outline) = &mut self.datum_outline {
+            outline.paint(&self.surface, &self.model, ids)?;
+        }
+        Ok(())
+    }
     fn paint_tooltip(
         &mut self,
-        scene: &Scene,
         tooltip_ids: &[String],
         interaction: Option<&ActiveInteraction>,
     ) -> Result<()> {
+        let scene = self.model.scene();
         let r = self.surface.get_bounding_client_rect();
         let font = scene.typography.tooltip_font(
             &self.options.tooltip_options.text.font,
@@ -3769,7 +3966,6 @@ impl State {
         );
         css(&self.tooltip, "font-family", &font.css_family())?;
         css(&self.tooltip, "font-weight", &font.weight.to_string())?;
-        css(&self.tooltip, "display", "none")?;
         if self.options.tooltip
             && self.tree_tooltip.as_ref().is_none_or(|tip| !tip.managed())
             && !tooltip_ids.is_empty()
@@ -3789,9 +3985,12 @@ impl State {
                     String::new()
                 }
             };
-            self.tooltip.set_text_content(Some(&text));
-            if !text.is_empty() {
-                css(&self.tooltip, "display", "block")?;
+            if self.tooltip.text_content().as_deref() != Some(text.as_str()) {
+                self.tooltip.set_text_content(Some(&text));
+            }
+            if text.is_empty() {
+                css(&self.tooltip, "display", "none")?;
+                return Ok(());
             }
             let pointer = self
                 .pointer
@@ -3836,7 +4035,8 @@ impl State {
                 || bottom - top <= layout.viewport_padding * 2.
             {
                 css(&self.tooltip, "display", "none")?;
-            } else if !text.is_empty() {
+            } else {
+                css(&self.tooltip, "display", "block")?;
                 layout.viewport = LayoutRect {
                     x: left,
                     y: top,
@@ -3961,15 +4161,18 @@ impl State {
                 .map_err(host)?;
         }
         if self.tree_svg.is_some() || self.source_ordered() {
+            self.retained_canvas.invalidate();
             // The registered source-order plane tree is prepared and committed
             // outside State borrows, together with its real Widget scopes.
         } else if let Some(canvas) = &self.canvas {
             if let Some(raw) = &self.tree_canvas {
+                self.retained_canvas.invalidate();
                 raw.blit(canvas)?;
             } else if let Some(prepared) = prepared_canvas {
+                self.retained_canvas.invalidate();
                 prepared.paint(&scene, &modes)?;
             } else {
-                render::draw_canvas_with_transform(
+                self.retained_canvas.paint(
                     &scene,
                     canvas,
                     blends::ratio(dpr, &scene),
@@ -4013,7 +4216,8 @@ impl State {
             }
         }
         let r = self.surface.get_bounding_client_rect();
-        self.paint_tooltip(&scene, &tooltip_ids, interaction.as_ref())?;
+        self.paint_outline(&tooltip_ids)?;
+        self.paint_tooltip(&tooltip_ids, interaction.as_ref())?;
         if let Some(b) = self
             .model
             .transformed_brush()?

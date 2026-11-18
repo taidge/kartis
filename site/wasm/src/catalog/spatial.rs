@@ -1,6 +1,7 @@
 use glory::render::{GraphicPoint, GraphicStroke, PathCommand, StrokeCap};
 use serde_json::json;
 
+use super::rel_controls::active;
 use super::{phase, *};
 
 const WORLD_SOURCE_URL: &str = "https://github.com/plouc/nivo/blob/0dae2c32052a573f9f1d66ec1b453b572119b265/website/src/data/components/geo/world_countries.json";
@@ -43,10 +44,42 @@ fn land(seed: u32) -> Result<Vec<GeoFeature>> {
     }
     Ok(features)
 }
-pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32) -> Result<Sample> {
+pub(super) fn sample(
+    kind: &str,
+    c: &ChartConfig,
+    seed: u32,
+    variant: &str,
+    settings: &Settings,
+) -> Result<Sample> {
     let p = phase(seed);
     let (scene, data, code) = match kind {
         "choropleth" | "geo-map" => {
+            // Each snippet uses the same projection as the fitted map and its layers.
+            macro_rules! projection {
+                ($name:ident) => {
+                    (
+                        GeoProjection::$name,
+                        concat!(
+                            "choropleth_layout(&config, &regions, &GeoMapOptions { projection: GeoProjection::",
+                            stringify!($name),
+                            ", ..Default::default() })?.scene"
+                        ),
+                        concat!(
+                            "let mut map = geographic_map_layout(&config, &regions, &GeoMapOptions { projection: GeoProjection::",
+                            stringify!($name),
+                            ", fill: Some(Color(220, 235, 231, 255)), ..Default::default() })?;\n",
+                            "map.add_graticule(&GeoGraticuleOptions { step_minor: [30., 30.], ..Default::default() }, &GeoStreamOptions { behind: true, ..Default::default() })?;\n",
+                            "map.add_symbols(&cities, &GeoSymbolOptions { radius_range: [4., 14.], ..Default::default() })?;\n",
+                            "let scene = map.scene;"
+                        ),
+                    )
+                };
+            }
+            let (projection, choropleth_code, map_code) = match variant {
+                "mercator" => projection!(Mercator),
+                "equal-earth" => projection!(EqualEarth),
+                _ => projection!(Equirectangular),
+            };
             let source = land(seed)?;
             let cities = [
                 (-74., 41.),
@@ -72,13 +105,23 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32) -> Result<Sample> {
                         c,
                         &source,
                         &GeoMapOptions {
-                            projection: GeoProjection::Mercator,
+                            projection,
+                            border_width: if active(settings, "border-width") {
+                                2.
+                            } else {
+                                0.75
+                            },
+                            padding: if active(settings, "map-padding") {
+                                16.
+                            } else {
+                                0.
+                            },
                             ..Default::default()
                         },
                     )?
                     .scene,
                     data,
-                    "let regions = geodata::parse_geojson(include_str!(\"world_countries.closed.geojson\"), &geodata::GeoParseOptions::default())?;\n// Explicit non-Antarctic subset; the planar profile rejects polar-cap topology.\nlet mut regions: Vec<_> = regions.into_iter().filter(|region| region.id != \"ATA\").collect();\n// Assign synthetic values by stable country ID.\nchoropleth_layout(&config, &regions, &GeoMapOptions { projection: GeoProjection::Mercator, ..Default::default() })?.scene",
+                    choropleth_code,
                 )
             } else {
                 data["cities"] = json!(
@@ -91,14 +134,18 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32) -> Result<Sample> {
                     c,
                     &source,
                     &GeoMapOptions {
-                        projection: GeoProjection::Equirectangular,
+                        projection,
                         fill: Some(Color(220, 235, 231, 255)),
                         ..Default::default()
                     },
                 )?;
                 map.add_graticule(
                     &GeoGraticuleOptions {
-                        step_minor: [30., 30.],
+                        step_minor: if active(settings, "graticule") {
+                            [15., 15.]
+                        } else {
+                            [30., 30.]
+                        },
                         ..Default::default()
                     },
                     &GeoStreamOptions {
@@ -109,15 +156,15 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32) -> Result<Sample> {
                 map.add_symbols(
                     &cities,
                     &GeoSymbolOptions {
-                        radius_range: [4., 14.],
+                        radius_range: if active(settings, "symbols") {
+                            [8., 22.]
+                        } else {
+                            [4., 14.]
+                        },
                         ..Default::default()
                     },
                 )?;
-                (
-                    map.scene,
-                    data,
-                    "let regions = geodata::parse_geojson(include_str!(\"world_countries.closed.geojson\"), &geodata::GeoParseOptions::default())?;\n// Explicit non-Antarctic subset; retain the complete 176-feature source file.\nlet regions: Vec<_> = regions.into_iter().filter(|region| region.id != \"ATA\").collect();\nlet mut map = geographic_map_layout(&config, &regions, &GeoMapOptions { fill: Some(Color(220, 235, 231, 255)), ..Default::default() })?;\nmap.add_graticule(&GeoGraticuleOptions { step_minor: [30., 30.], ..Default::default() }, &GeoStreamOptions { behind: true, ..Default::default() })?;\nmap.add_symbols(&cities, &GeoSymbolOptions { radius_range: [4., 14.], ..Default::default() })?;\nlet scene = map.scene;",
-                )
+                (map.scene, data, map_code)
             }
         }
         "voronoi" | "delaunay" => {
@@ -144,16 +191,36 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32) -> Result<Sample> {
                     .diagram(
                         c,
                         &DelaunayDiagramOptions {
-                            triangle_fill: Some(Color(34, 126, 119, 35)),
+                            triangle_fill: (variant != "wire").then_some(Color(34, 126, 119, 35)),
                             site_color: c.theme.color(1),
+                            site_radius: if settings.get("siteRadius") == "small" {
+                                2.
+                            } else {
+                                5.
+                            },
                             link_color: c.theme.color(0),
-                            labels: false,
+                            link_width: if settings.get("linkWidth") == "thick" {
+                                3.5
+                            } else {
+                                1.5
+                            },
+                            labels: variant == "labels",
                             ..Default::default()
                         },
                     )?
                     .scene,
                     data,
-                    "Delaunay::new(sites)?.diagram(&config, &DelaunayDiagramOptions::default())?.scene",
+                    match variant {
+                        "wire" => {
+                            "Delaunay::new(sites)?.diagram(&config, &DelaunayDiagramOptions { triangle_fill: None, ..options })?.scene"
+                        }
+                        "labels" => {
+                            "Delaunay::new(sites)?.diagram(&config, &DelaunayDiagramOptions { labels: true, ..options })?.scene"
+                        }
+                        _ => {
+                            "Delaunay::new(sites)?.diagram(&config, &DelaunayDiagramOptions { triangle_fill: Some(Color(34, 126, 119, 35)), ..options })?.scene"
+                        }
+                    },
                 )
             } else {
                 let plot = ClipRect::plot(c);
@@ -190,29 +257,49 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32) -> Result<Sample> {
                     );
                     mark.series = cell.id.clone();
                     mark.label = cell.id;
-                    mark.opacity = 0.45;
+                    mark.opacity = if settings.get("cellOpacity") == "solid" {
+                        0.85
+                    } else {
+                        0.45
+                    };
                     mark.stroke = Some(GraphicStroke {
                         color: Color(255, 255, 255, 255),
-                        width: 1.5,
+                        width: if settings.get("cellBorder") == "heavy" {
+                            4.
+                        } else {
+                            1.5
+                        },
                         cap: StrokeCap::Butt,
                     });
                     scene.marks.push(mark);
                 }
-                for point in mesh.points() {
-                    scene.marks.push(Mark::new(
-                        format!("point:{}", point.id),
-                        Geometry::Circle {
-                            x: point.x,
-                            y: point.y,
-                            radius: 2.8,
-                        },
-                        Color(55, 77, 80, 255),
-                    ));
+                if variant != "cells" {
+                    for point in mesh.points() {
+                        scene.marks.push(Mark::new(
+                            format!("point:{}", point.id),
+                            Geometry::Circle {
+                                x: point.x,
+                                y: point.y,
+                                radius: if variant == "large" { 6. } else { 2.8 },
+                            },
+                            Color(55, 77, 80, 255),
+                        ));
+                    }
                 }
                 (
                     scene,
                     data,
-                    "let mesh = mesh::PointMesh::new(sites)?;\nlet cells = mesh.voronoi(ClipRect::plot(&config))?; // Render each returned polygon",
+                    match variant {
+                        "cells" => {
+                            "let cells = mesh.voronoi(ClipRect::plot(&config))?; // Render just the cell polygons"
+                        }
+                        "large" => {
+                            "let cells = mesh.voronoi(ClipRect::plot(&config))?;\nlet sites = mesh.points().iter().map(|p| Geometry::Circle { x: p.x, y: p.y, radius: 6. });"
+                        }
+                        _ => {
+                            "let cells = mesh.voronoi(ClipRect::plot(&config))?;\nlet sites = mesh.points().iter().map(|p| Geometry::Circle { x: p.x, y: p.y, radius: 2.8 });"
+                        }
+                    },
                 )
             }
         }
@@ -230,8 +317,22 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32) -> Result<Sample> {
                     )
                 })
                 .collect::<Vec<_>>();
-            let data =
-                json!({"width":32,"height":24,"values":values,"thresholds":[10,20,30,40,50,60,70]});
+            let (step, code) = match variant {
+                "three" => (
+                    20,
+                    "let levels = vec![20., 40., 60.];\ncontour_layout(&config, grid, &ContourOptions { thresholds: ContourThresholds::Values(levels), ..Default::default() }, &style)?.scene",
+                ),
+                "fine" => (
+                    5,
+                    "let levels = (5..=70).step_by(5).map(f64::from).collect();\ncontour_layout(&config, grid, &ContourOptions { thresholds: ContourThresholds::Values(levels), ..Default::default() }, &style)?.scene",
+                ),
+                _ => (
+                    10,
+                    "let levels = (10..=70).step_by(10).map(f64::from).collect();\ncontour_layout(&config, grid, &ContourOptions { thresholds: ContourThresholds::Values(levels), ..Default::default() }, &style)?.scene",
+                ),
+            };
+            let levels: Vec<_> = (step..=70).step_by(step as usize).map(f64::from).collect();
+            let data = json!({"width":32,"height":24,"values":values,"thresholds":levels});
             (
                 contour_layout(
                     c,
@@ -241,12 +342,16 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32) -> Result<Sample> {
                         values: &values,
                     },
                     &ContourOptions {
-                        thresholds: ContourThresholds::Values(vec![
-                            10., 20., 30., 40., 50., 60., 70.,
-                        ]),
+                        thresholds: ContourThresholds::Values(levels),
+                        smooth: settings.get("isolines") != "step",
                         ..Default::default()
                     },
                     &ContourLayoutOptions {
+                        stroke: (settings.get("outline") == "ink").then_some(GraphicStroke {
+                            color: Color(36, 58, 70, 255),
+                            width: 1.5,
+                            cap: StrokeCap::Butt,
+                        }),
                         colors: ColorScaleOptions {
                             colors: vec![Color(217, 239, 226, 255), Color(19, 119, 122, 255)],
                             domain: Some([0., 80.]),
@@ -257,7 +362,7 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32) -> Result<Sample> {
                 )?
                 .scene,
                 data,
-                "contour_layout(&config, grid, &ContourOptions::default(), &ContourLayoutOptions::default())?.scene",
+                code,
             )
         }
         "density" => {
@@ -275,13 +380,32 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32) -> Result<Sample> {
                     }
                 })
                 .collect::<Vec<_>>();
-            let data = json!({"observations":source.iter().map(|point|json!({"position":point.position,"weight":point.weight})).collect::<Vec<_>>(),"bandwidth":16,"cellSize":4});
+            let (bandwidth, code) = match variant {
+                "local" => (
+                    8.,
+                    "let field = estimate_density(&points, DensityOptions { bandwidth: 8., size: plot_size, ..options })?;\ndensity_layout(&config, &field, &DensityThresholds::Count(7), ContourLimits::default(), &style)?.scene",
+                ),
+                "broad" => (
+                    30.,
+                    "let field = estimate_density(&points, DensityOptions { bandwidth: 30., size: plot_size, ..options })?;\ndensity_layout(&config, &field, &DensityThresholds::Count(7), ContourLimits::default(), &style)?.scene",
+                ),
+                _ => (
+                    16.,
+                    "let field = estimate_density(&points, DensityOptions { bandwidth: 16., size: plot_size, ..options })?;\ndensity_layout(&config, &field, &DensityThresholds::Count(7), ContourLimits::default(), &style)?.scene",
+                ),
+            };
+            let cell_size = if settings.get("cellSize") == "coarse" {
+                8.
+            } else {
+                4.
+            };
+            let data = json!({"observations":source.iter().map(|point|json!({"position":point.position,"weight":point.weight})).collect::<Vec<_>>(),"bandwidth":bandwidth,"cellSize":cell_size});
             let field = estimate_density(
                 &source,
                 DensityOptions {
                     size: [plot.width, plot.height],
-                    bandwidth: 16.,
-                    cell_size: 4.,
+                    bandwidth,
+                    cell_size,
                     ..Default::default()
                 },
             )?;
@@ -292,6 +416,11 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32) -> Result<Sample> {
                     &DensityThresholds::Count(7),
                     ContourLimits::default(),
                     &ContourLayoutOptions {
+                        opacity: if settings.get("bandOpacity") == "muted" {
+                            0.55
+                        } else {
+                            1.
+                        },
                         colors: ColorScaleOptions {
                             colors: vec![Color(240, 229, 214, 255), Color(147, 106, 170, 255)],
                             ..Default::default()
@@ -301,7 +430,7 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32) -> Result<Sample> {
                 )?
                 .scene,
                 data,
-                "let field = estimate_density(&points, DensityOptions { size: plot_size, ..Default::default() })?;\ndensity_layout(&config, &field, &DensityThresholds::Count(7), ContourLimits::default(), &ContourLayoutOptions::default())?.scene",
+                code,
             )
         }
         _ => return Err(ChartError(format!("Unknown spatial chart: {kind}"))),

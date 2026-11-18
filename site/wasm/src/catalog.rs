@@ -262,7 +262,7 @@ fn config(kind: &str, width: f64, height: f64) -> ChartConfig {
             ],
             text: Color(108, 117, 124, 255),
             grid: Color(233, 236, 235, 255),
-            font_size: 11.,
+            font_size: if width < 400. { 13. } else { 15. },
             ..Default::default()
         },
     }
@@ -292,6 +292,78 @@ pub struct Sample {
     pub data: Value,
     pub code: &'static str,
 }
+#[path = "catalog/cart_controls.rs"]
+mod cart_controls;
+#[path = "catalog/rel_controls.rs"]
+mod rel_controls;
+#[path = "catalog/spec_controls.rs"]
+mod spec_controls;
+
+#[path = "catalog/appearance_controls.rs"]
+mod appearance_controls;
+#[path = "catalog/axes_controls.rs"]
+mod axes_controls;
+#[path = "catalog/browser_controls.rs"]
+mod browser_controls;
+pub struct Control {
+    pub key: &'static str,
+    pub label: &'static str,
+    pub choices: &'static [(&'static str, &'static str)],
+}
+#[derive(Clone, Default)]
+pub struct Settings(pub std::collections::BTreeMap<String, String>);
+impl Settings {
+    pub fn get(&self, key: &str) -> &str {
+        self.0.get(key).map_or("", String::as_str)
+    }
+    pub fn validate(&self, kind: &str) -> Result<()> {
+        for (key, value) in &self.0 {
+            if !controls(kind).any(|control| {
+                control.key == key && control.choices.iter().any(|choice| choice.0 == value)
+            }) {
+                return Err(ChartError(format!("Unknown {kind} option: {key}={value}")));
+            }
+        }
+        Ok(())
+    }
+}
+fn chart_controls(kind: &str) -> &'static [Control] {
+    [
+        cart_controls::controls(kind),
+        rel_controls::controls(kind),
+        spec_controls::controls(kind),
+    ]
+    .into_iter()
+    .find(|c| !c.is_empty())
+    .unwrap_or(&[])
+}
+pub fn control_groups(kind: &str) -> [(&'static str, &'static [Control]); 4] {
+    [
+        ("Layout", chart_controls(kind)),
+        ("Axes and grid", axes_controls::controls(kind)),
+        ("Colors and labels", appearance_controls::controls(kind)),
+        ("Legend and tooltip", browser_controls::controls(kind)),
+    ]
+}
+pub fn controls(kind: &str) -> impl Iterator<Item = &'static Control> {
+    control_groups(kind)
+        .into_iter()
+        .flat_map(|(_, group)| group.iter())
+}
+pub fn control_code(kind: &str, settings: &Settings) -> String {
+    [
+        cart_controls::code(kind, settings),
+        rel_controls::code(kind, settings),
+        spec_controls::code(kind, settings),
+        axes_controls::code(kind, settings),
+        appearance_controls::code(kind, settings),
+        browser_controls::code(kind, settings),
+    ]
+    .into_iter()
+    .filter(|part| !part.is_empty())
+    .collect::<Vec<_>>()
+    .join("\n")
+}
 /// Actual layout options available for the selected chart family.
 pub fn variants(kind: &str) -> &'static [(&'static str, &'static str)] {
     match kind {
@@ -299,21 +371,179 @@ pub fn variants(kind: &str) -> &'static [(&'static str, &'static str)] {
             ("monotone", "Monotone"),
             ("linear", "Linear"),
             ("step", "Step"),
+            ("basis", "B-spline"),
+            ("natural", "Natural spline"),
         ],
         "bar" => &[
             ("grouped", "Grouped"),
             ("stacked", "Stacked"),
             ("horizontal", "Horizontal"),
+            ("horizontal-stacked", "Horizontal stacked"),
+        ],
+        "scatter" => &[
+            ("medium", "9 px dots"),
+            ("small", "5 px dots"),
+            ("large", "16 px dots"),
+        ],
+        "radar" => &[
+            ("default", "5 grid levels"),
+            ("coarse", "3 grid levels"),
+            ("rotated", "Rotate 36°"),
+        ],
+        "stream" => &[
+            ("wiggle", "Wiggle offset"),
+            ("silhouette", "Silhouette offset"),
+            ("expand", "Normalize to 100%"),
+            ("zero", "Zero baseline"),
+        ],
+        "bump" => &[
+            ("smooth", "Smooth ranks"),
+            ("linear", "Linear ranks"),
+            ("no-plateau", "Smooth without plateaus"),
+            ("large-points", "14 px rank points"),
+            ("line-only", "Lines only"),
+        ],
+        "area-bump" => &[
+            ("middle", "Centered bands"),
+            ("linear", "Linear bands"),
+            ("start", "Align to start"),
+            ("spaced", "Separated bands"),
+        ],
+        "marimekko" => &[
+            ("vertical", "Vertical"),
+            ("horizontal", "Horizontal"),
+            ("spaced", "6 px band gap"),
+        ],
+        "parallel-coordinates" => &[
+            ("horizontal", "Horizontal"),
+            ("vertical", "Vertical"),
+            ("smooth", "Smooth paths"),
+        ],
+        "radial-bar" => &[
+            ("full", "Full circle"),
+            ("half", "Half circle"),
+            ("ring", "Wide center"),
+        ],
+        "polar-bar" => &[
+            ("stacked", "Stacked"),
+            ("grouped", "Grouped"),
+            ("area", "Area-scaled radii"),
+        ],
+        "waffle" => &[
+            ("top", "Fill upward"),
+            ("right", "Fill rightward"),
+            ("bottom", "Fill downward"),
+            ("left", "Fill leftward"),
+        ],
+        "funnel" => &[
+            ("vertical", "Vertical · smooth"),
+            ("horizontal", "Horizontal · smooth"),
+            ("linear", "Vertical · linear"),
+        ],
+        "treemap" => &[
+            ("binary", "Binary"),
+            ("squarify", "Squarify"),
+            ("slice", "Slice"),
+            ("dice", "Dice"),
+            ("slice-dice", "Slice and dice"),
+        ],
+        "sunburst" | "icicle" => &[
+            ("partition", "Partition"),
+            ("root", "Include root"),
+            ("flush", "Zero padding"),
+        ],
+        "circle-packing" => &[
+            ("front-chain", "Front chain"),
+            ("shelf", "Shelf"),
+            ("touching", "Zero padding"),
+        ],
+        "chord" => &[
+            ("normal", "Standard gap"),
+            ("joined", "No gap"),
+            ("wide", "Wide gap"),
+        ],
+        "sankey" => &[
+            ("normal", "Standard nodes"),
+            ("thin", "Thin nodes"),
+            ("wide", "Wide nodes"),
+        ],
+        "network" => &[
+            ("normal", "Balanced links"),
+            ("compact", "Short links"),
+            ("long", "Long links"),
+        ],
+        "choropleth" => &[
+            ("mercator", "Mercator"),
+            ("equirectangular", "Equirectangular"),
+            ("equal-earth", "Equal Earth"),
+        ],
+        "geo-map" => &[
+            ("equirectangular", "Equirectangular"),
+            ("mercator", "Mercator"),
+            ("equal-earth", "Equal Earth"),
         ],
         "pie" => &[
             ("pie", "Pie"),
             ("donut", "Donut"),
             ("wide-ring", "Wide ring"),
+            ("half-donut", "Half donut"),
         ],
         "tree" => &[
             ("right", "Rightward"),
             ("down", "Downward"),
+            ("left", "Leftward"),
+            ("up", "Upward"),
             ("radial", "Radial"),
+        ],
+        "heatmap" => &[
+            ("rect", "Rectangular cells"),
+            ("square", "Square cells"),
+            ("spaced", "Wide cell gaps"),
+        ],
+        "boxplot" => &[
+            ("vertical", "Vertical"),
+            ("horizontal", "Horizontal"),
+            ("extrema", "Min–max whiskers"),
+        ],
+        "bullet" => &[
+            ("horizontal", "Horizontal"),
+            ("vertical", "Vertical"),
+            ("reverse", "Reversed scale"),
+        ],
+        "calendar" => &[
+            ("year", "Full year"),
+            ("monday", "Monday-first year"),
+            ("vertical", "Vertical year"),
+        ],
+        "time-range" => &[
+            ("monday", "Monday first"),
+            ("sunday", "Sunday first"),
+            ("vertical", "Vertical weeks"),
+        ],
+        "swarm" => &[
+            ("horizontal", "Horizontal"),
+            ("vertical", "Vertical"),
+            ("compact", "Touching nodes"),
+        ],
+        "voronoi" => &[
+            ("sites", "Cells and sites"),
+            ("cells", "Cells only"),
+            ("large", "Large sites"),
+        ],
+        "delaunay" => &[
+            ("filled", "Filled triangles"),
+            ("wire", "Wireframe"),
+            ("labels", "Site labels"),
+        ],
+        "contour" => &[
+            ("seven", "7 contour levels"),
+            ("three", "3 contour levels"),
+            ("fine", "14 contour levels"),
+        ],
+        "density" => &[
+            ("medium", "16 px bandwidth"),
+            ("local", "8 px bandwidth"),
+            ("broad", "30 px bandwidth"),
         ],
         _ => &[],
     }
@@ -332,7 +562,70 @@ pub fn scene_with_variant(
     sample(kind, width, height, seed, variant).map(|sample| sample.scene)
 }
 pub fn sample(kind: &str, width: f64, height: f64, seed: u32, variant: &str) -> Result<Sample> {
-    let c = config(kind, width, height);
+    sample_with_spacing(
+        kind,
+        width,
+        height,
+        seed,
+        variant,
+        100,
+        BumpControls::default(),
+    )
+}
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct BumpControls {
+    pub line_width: f64,
+    pub end_labels: bool,
+}
+impl Default for BumpControls {
+    fn default() -> Self {
+        Self {
+            line_width: 2.,
+            end_labels: true,
+        }
+    }
+}
+pub fn sample_with_spacing(
+    kind: &str,
+    width: f64,
+    height: f64,
+    seed: u32,
+    variant: &str,
+    spacing: u32,
+    bump: BumpControls,
+) -> Result<Sample> {
+    configured_sample(
+        kind,
+        (width, height),
+        seed,
+        variant,
+        spacing,
+        bump,
+        &Settings::default(),
+    )
+}
+pub fn configured_sample(
+    kind: &str,
+    size: (f64, f64),
+    seed: u32,
+    variant: &str,
+    spacing: u32,
+    bump: BumpControls,
+    settings: &Settings,
+) -> Result<Sample> {
+    let (width, height) = size;
+    settings.validate(kind)?;
+    if !(50..=150).contains(&spacing) {
+        return Err(ChartError(
+            "Plot spacing must be between 50 and 150 percent".into(),
+        ));
+    }
+    let mut c = config(kind, width, height);
+    let factor = f64::from(spacing) / 100.;
+    c.margin.left *= factor;
+    c.margin.right *= factor;
+    c.margin.top *= factor;
+    c.margin.bottom *= factor;
     let variants = variants(kind);
     let variant = if variant.is_empty() {
         variants.first().map_or("", |v| v.0)
@@ -342,7 +635,7 @@ pub fn sample(kind: &str, width: f64, height: f64, seed: u32, variant: &str) -> 
     if !variants.is_empty() && !variants.iter().any(|v| v.0 == variant) {
         return Err(ChartError(format!("Unknown {kind} variant: {variant}")));
     }
-    let sample = match kind {
+    let mut sample = match kind {
         "line"
         | "area"
         | "bar"
@@ -358,11 +651,11 @@ pub fn sample(kind: &str, width: f64, height: f64, seed: u32, variant: &str) -> 
         | "bullet"
         | "calendar"
         | "time-range"
-        | "swarm" => cartesian::sample(kind, &c, seed, variant)?,
+        | "swarm" => cartesian::sample(kind, &c, seed, variant, bump, settings)?,
         "tree" | "treemap" | "sunburst" | "circle-packing" | "icicle" | "chord" | "sankey"
-        | "network" => relational::sample(kind, &c, seed, variant)?,
+        | "network" => relational::sample(kind, &c, seed, variant, settings)?,
         "choropleth" | "geo-map" | "voronoi" | "delaunay" | "contour" | "density" => {
-            spatial::sample(kind, &c, seed)?
+            spatial::sample(kind, &c, seed, variant, settings)?
         }
         "pie" | "radial-bar" | "polar-bar" | "waffle" | "funnel" => {
             let source = radial(seed);
@@ -372,6 +665,7 @@ pub fn sample(kind: &str, width: f64, height: f64, seed: u32, variant: &str) -> 
                     .map(|d| json!({"id":d.id,"label":d.label,"value":d.value}))
                     .collect::<Vec<_>>()
             );
+            use rel_controls::active;
             let (scene, data, code) = match kind {
                 "pie" => (
                     pie(
@@ -379,12 +673,26 @@ pub fn sample(kind: &str, width: f64, height: f64, seed: u32, variant: &str) -> 
                         &source,
                         &PieOptions {
                             inner_radius: match variant {
-                                "donut" => 0.65,
+                                "donut" | "half-donut" => 0.65,
                                 "wide-ring" => 0.35,
                                 _ => 0.,
                             },
-                            pad_angle: 0.025,
-                            labels: false,
+                            start_angle: if variant == "half-donut" {
+                                -std::f64::consts::FRAC_PI_2
+                            } else {
+                                0.
+                            },
+                            end_angle: if variant == "half-donut" {
+                                std::f64::consts::FRAC_PI_2
+                            } else {
+                                std::f64::consts::TAU
+                            },
+                            pad_angle: if active(settings, "pad-angle") {
+                                0.10
+                            } else {
+                                0.025
+                            },
+                            labels: active(settings, "arc-labels"),
                             ..Default::default()
                         },
                     )?,
@@ -392,6 +700,9 @@ pub fn sample(kind: &str, width: f64, height: f64, seed: u32, variant: &str) -> 
                     match variant {
                         "donut" => {
                             "pie(&config, &data, &PieOptions { inner_radius: 0.65, ..Default::default() })?"
+                        }
+                        "half-donut" => {
+                            "pie(&config, &data, &PieOptions { inner_radius: 0.65, start_angle: -std::f64::consts::FRAC_PI_2, end_angle: std::f64::consts::FRAC_PI_2, ..Default::default() })?"
                         }
                         "wide-ring" => {
                             "pie(&config, &data, &PieOptions { inner_radius: 0.35, ..Default::default() })?"
@@ -401,39 +712,114 @@ pub fn sample(kind: &str, width: f64, height: f64, seed: u32, variant: &str) -> 
                         }
                     },
                 ),
-                "radial-bar" => (
-                    radial_bar(&c, &source, &RadialBarOptions::default())?,
-                    data,
-                    "radial_bar(&config, &data, &RadialBarOptions::default())?",
-                ),
+                "radial-bar" => {
+                    let (options, code) = match variant {
+                        "half" => (
+                            RadialBarOptions {
+                                start_angle: -std::f64::consts::FRAC_PI_2,
+                                end_angle: std::f64::consts::FRAC_PI_2,
+                                ..Default::default()
+                            },
+                            "radial_bar(&config, &data, &RadialBarOptions { start_angle: -std::f64::consts::FRAC_PI_2, end_angle: std::f64::consts::FRAC_PI_2, ..Default::default() })?",
+                        ),
+                        "ring" => (
+                            RadialBarOptions {
+                                inner_radius: 0.55,
+                                padding: 0.5,
+                                ..Default::default()
+                            },
+                            "radial_bar(&config, &data, &RadialBarOptions { inner_radius: 0.55, padding: 0.5, ..Default::default() })?",
+                        ),
+                        _ => (
+                            RadialBarOptions::default(),
+                            "radial_bar(&config, &data, &RadialBarOptions::default())?",
+                        ),
+                    };
+                    let options = RadialBarOptions {
+                        tracks: !active(settings, "tracks"),
+                        max_value: active(settings, "maximum").then_some(60.),
+                        ..options
+                    };
+                    (radial_bar(&c, &source, &options)?, data, code)
+                }
                 "polar-bar" => {
                     let categories = cartesian::categories();
                     let source = cartesian::bars(seed);
                     let data = json!({"categories":categories,"series":source.iter().map(|d|json!({"id":d.id,"values":d.values})).collect::<Vec<_>>()});
+                    let (options, code) = match variant {
+                        "grouped" => (
+                            PolarBarOptions {
+                                layout: BarLayout::Grouped,
+                                ..Default::default()
+                            },
+                            "polar_bar(&config, &categories, &series, &PolarBarOptions { layout: BarLayout::Grouped, ..Default::default() })?",
+                        ),
+                        "area" => (
+                            PolarBarOptions {
+                                area_scale: true,
+                                ..Default::default()
+                            },
+                            "polar_bar(&config, &categories, &series, &PolarBarOptions { area_scale: true, ..Default::default() })?",
+                        ),
+                        _ => (
+                            PolarBarOptions::default(),
+                            "polar_bar(&config, &categories, &series, &PolarBarOptions::default())?",
+                        ),
+                    };
+                    let options = PolarBarOptions {
+                        pad_angle: if active(settings, "pad-angle") {
+                            0.12
+                        } else {
+                            options.pad_angle
+                        },
+                        inner_radius: if active(settings, "inner-radius") {
+                            0.4
+                        } else {
+                            options.inner_radius
+                        },
+                        ..options
+                    };
+                    (polar_bar(&c, &categories, &source, &options)?, data, code)
+                }
+                "waffle" => {
+                    let (direction, code) = match variant {
+                        "right" => (
+                            WaffleFillDirection::Right,
+                            "waffle_layout(&config, &data, &WaffleLayoutOptions { rows: 6, columns: 10, total: Some(150.), direction: WaffleFillDirection::Right, ..Default::default() })?.scene",
+                        ),
+                        "bottom" => (
+                            WaffleFillDirection::Bottom,
+                            "waffle_layout(&config, &data, &WaffleLayoutOptions { rows: 6, columns: 10, total: Some(150.), direction: WaffleFillDirection::Bottom, ..Default::default() })?.scene",
+                        ),
+                        "left" => (
+                            WaffleFillDirection::Left,
+                            "waffle_layout(&config, &data, &WaffleLayoutOptions { rows: 6, columns: 10, total: Some(150.), direction: WaffleFillDirection::Left, ..Default::default() })?.scene",
+                        ),
+                        _ => (
+                            WaffleFillDirection::Top,
+                            "waffle_layout(&config, &data, &WaffleLayoutOptions { rows: 6, columns: 10, total: Some(150.), direction: WaffleFillDirection::Top, ..Default::default() })?.scene",
+                        ),
+                    };
                     (
-                        polar_bar(&c, &categories, &source, &PolarBarOptions::default())?,
+                        waffle_layout(
+                            &c,
+                            &source,
+                            &WaffleLayoutOptions {
+                                rows: if active(settings, "grid") { 8 } else { 6 },
+                                columns: if active(settings, "grid") { 12 } else { 10 },
+                                direction,
+                                total: Some(150.),
+                                padding: if active(settings, "cell-gap") { 1. } else { 4. },
+                                corner_radius: 3.,
+                                empty_color: Color(235, 239, 237, 255),
+                                ..Default::default()
+                            },
+                        )?
+                        .scene,
                         data,
-                        "polar_bar(&config, &categories, &series, &PolarBarOptions::default())?",
+                        code,
                     )
                 }
-                "waffle" => (
-                    waffle_layout(
-                        &c,
-                        &source,
-                        &WaffleLayoutOptions {
-                            rows: 6,
-                            columns: 10,
-                            total: Some(150.),
-                            padding: 4.,
-                            corner_radius: 3.,
-                            empty_color: Color(235, 239, 237, 255),
-                            ..Default::default()
-                        },
-                    )?
-                    .scene,
-                    data,
-                    "waffle_layout(&config, &data, &WaffleLayoutOptions { rows: 6, columns: 10, total: Some(150.), ..Default::default() })?.scene",
-                ),
                 _ => {
                     let source = [
                         FunnelDatum::new("Reached", 100.),
@@ -447,18 +833,46 @@ pub fn sample(kind: &str, width: f64, height: f64, seed: u32, variant: &str) -> 
                             .map(|d| json!({"id":key_json(&d.id),"label":d.label,"value":d.value}))
                             .collect::<Vec<_>>()
                     );
+                    let (direction, interpolation, code) = match variant {
+                        "horizontal" => (
+                            FunnelDirection::Horizontal,
+                            FunnelInterpolation::Smooth,
+                            "funnel_layout(&config, &stages, &FunnelLayoutOptions { direction: FunnelDirection::Horizontal, interpolation: FunnelInterpolation::Smooth, spacing: 12., ..Default::default() })?.scene",
+                        ),
+                        "linear" => (
+                            FunnelDirection::Vertical,
+                            FunnelInterpolation::Linear,
+                            "funnel_layout(&config, &stages, &FunnelLayoutOptions { direction: FunnelDirection::Vertical, interpolation: FunnelInterpolation::Linear, spacing: 12., ..Default::default() })?.scene",
+                        ),
+                        _ => (
+                            FunnelDirection::Vertical,
+                            FunnelInterpolation::Smooth,
+                            "funnel_layout(&config, &stages, &FunnelLayoutOptions { direction: FunnelDirection::Vertical, interpolation: FunnelInterpolation::Smooth, spacing: 12., ..Default::default() })?.scene",
+                        ),
+                    };
                     (
                         funnel_layout(
                             &c,
                             &source,
                             &FunnelLayoutOptions {
-                                spacing: 12.,
+                                direction,
+                                interpolation,
+                                spacing: if active(settings, "stage-gap") {
+                                    3.
+                                } else {
+                                    12.
+                                },
+                                fill_opacity: if active(settings, "stage-opacity") {
+                                    0.55
+                                } else {
+                                    1.
+                                },
                                 ..Default::default()
                             },
                         )?
                         .scene,
                         data,
-                        "funnel_layout(&config, &stages, &FunnelLayoutOptions { spacing: 12., ..Default::default() })?.scene",
+                        code,
                     )
                 }
             };
@@ -466,6 +880,15 @@ pub fn sample(kind: &str, width: f64, height: f64, seed: u32, variant: &str) -> 
         }
         _ => return Err(ChartError(format!("Unknown catalog chart: {kind}"))),
     };
+    axes_controls::apply(kind, settings, &mut sample.scene)?;
+    if kind == "heatmap" && c.inner_width() < c.theme.font_size * 8. * 3.2 {
+        for label in &mut sample.scene.labels {
+            if let Some(hour) = label.text.strip_suffix(":00") {
+                label.text = hour.to_owned();
+            }
+        }
+    }
+    appearance_controls::apply(kind, settings, &mut sample.scene)?;
     sample.scene.validate()?;
     Ok(sample)
 }

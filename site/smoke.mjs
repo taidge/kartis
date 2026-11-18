@@ -124,6 +124,17 @@ try {
   report.mobile=await page.evaluate(()=>({viewport:innerWidth,document:document.documentElement.scrollWidth,stage:document.querySelector('#chart-stage').getBoundingClientRect().width}));
   assert(report.mobile.document<=report.mobile.viewport);assert(report.mobile.stage<390&&report.mobile.stage>250);check('mobile responsive chart relayout without overflow');
   await page.screenshot({path:resolve(out,'mobile-detail.png'),fullPage:true});
+  await page.locator('#jump-settings').click();
+  assert(await page.locator('#chart-settings').evaluate(node => document.activeElement===node));
+  assert(await page.locator('#variant-select').evaluate(node => parseFloat(getComputedStyle(node).fontSize)>=16));
+  await page.locator('#jump-preview').click();
+  assert(await page.locator('#detail-mount').evaluate(node => document.activeElement===node));
+  const chartUrl = page.url();
+  await page.locator('#skip-to-main').focus();
+  await page.keyboard.press('Enter');
+  assert.equal(page.url(), chartUrl);
+  assert(await page.locator('#main').evaluate(node => document.activeElement===node));
+  check('mobile settings and chart shortcuts preserve focus and readable control text');
   const retainedGeometry=await geometry(),retainedInput=await page.evaluate(()=>window.kartisExplorer.input());report.lifecycle=[];
   for(let cycle=0;cycle<2;cycle++){
     const stopped=await page.evaluate(()=>{dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true}));return{surfaces:document.querySelectorAll('#chart-stage .kartis-surface').length,active:window.kartisExplorer.snapshot().active};});

@@ -2,7 +2,9 @@ use std::fmt;
 
 use glory::render::{GraphicPoint, GraphicStroke, PathCommand};
 use glory::style::Color;
+mod label_slots;
 mod opacity_groups;
+pub(crate) use label_slots::shifted_label_slots;
 pub use opacity_groups::MarkOpacityGroup;
 
 pub const MAX_MARKS: usize = 20_000;

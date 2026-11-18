@@ -6,6 +6,11 @@ import {readFile, mkdir, writeFile} from 'node:fs/promises';
 import {dirname, resolve, extname, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
+import {checkBrowserPresentation} from './presentation-acceptance.mjs';
+import {checkHoverPainting} from './hover-acceptance.mjs';
+import {checkChangePainting} from './change-paint-acceptance.mjs';
+import {checkVisualControls} from './visual-controls-acceptance.mjs';
+import {checkRetargeting} from './retarget-acceptance.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const flags = Object.fromEntries(process.argv.slice(2).map(arg => {
@@ -167,6 +172,74 @@ try {
   }
   checked('Line, Bar, Pie and Tree options alter actual geometry');
 
+  report.combinations = [];
+  for(const {slug,variants,controls:allControls} of catalog) {
+    const controls=allControls.filter(c=>c.group==='Layout');
+    assert(variants.length >= 2, slug+' exposes layout options');
+    if(slug!=='bump') assert.equal(controls.length,2,slug+' has two independent chart controls');
+    await select(slug);
+    const seed = (await snapshot()).seed;
+    const exported = new Set();
+    await page.locator('#renderer-canvas').click();
+    await settle();
+    const painted = new Set();
+    for(const {value} of variants) {
+      await page.locator('#variant-select').selectOption(value);
+      const state = await settle();
+      assert.equal(state.variant,value);
+      assert.equal(state.seed,seed);
+      const defaultSvg = await page.evaluate(()=>window.kartisExplorer.targetSvg());
+      const defaultPixels = (await paint()).sha256;
+      exported.add(defaultSvg);
+      painted.add(defaultPixels);
+      if(!controls.length) continue;
+      const [a,b] = controls;
+      const svgStates = new Set([sha(defaultSvg)]);
+      const canvasStates = new Set([defaultPixels]);
+      // Walk both independent switches separately, together, then back to baseline.
+      for(const [control,index] of [[a,1],[b,1],[a,0],[b,0]]) {
+        await page.locator('#chart-option-'+control.key).selectOption(control.choices[index][0]);
+        const updated = await settle();
+        assert.equal(updated.seed,seed);
+        assert.equal(updated.variant,value);
+        const svg = await page.evaluate(()=>window.kartisExplorer.targetSvg());
+        const pixels = (await paint()).sha256;
+        svgStates.add(sha(svg));
+        canvasStates.add(pixels);
+        if(control===b && index===0) {
+          assert.equal(sha(svg),sha(defaultSvg),slug+' restores the original SVG');
+          assert.equal(pixels,defaultPixels,slug+' restores the original Canvas');
+        }
+      }
+      assert.equal(svgStates.size,4,slug+'/'+value+' distinct SVG control combinations');
+      assert.equal(canvasStates.size,4,slug+'/'+value+' distinct Canvas control combinations');
+      report.combinations.push({slug,variant:value,count:4});
+    }
+    assert.equal(exported.size,variants.length,slug+' exports a distinct scene for each configuration');
+    assert.equal(painted.size,variants.length,slug+' paints each configuration on Canvas');
+  }
+  checked('Every chart exposes distinct exported SVG and Canvas pixels for each configuration with the same dataset');
+  checked('Independent controls combine and restore across every preset in SVG and Canvas');
+
+  await select('bump');
+  await page.locator('#variant-select').selectOption('linear');
+  await settle();
+  const initialInk = (await paint()).sha256;
+  await page.locator('#bump-width').press('ArrowRight');
+  await settle();
+  const wideInk = (await paint()).sha256;
+  assert.notEqual(initialInk,wideInk);
+  await page.locator('#bump-labels').uncheck(); await settle();
+  assert.notEqual((await paint()).sha256,wideInk);
+  assert.match(await page.locator('#code-output').textContent(),/options.style.width = 2\.5;[\s\S]*options.labels.end = false/);
+  assert(await page.locator('#replay-entrance').isDisabled());
+  await page.locator('#bump-width').press('ArrowLeft');
+  await page.locator('#bump-labels').check();
+  await settle();
+  checked('Independent Bump line width and end labels alter actual paint and Rust code');
+
+  report.visualControls=await checkVisualControls(page,catalog,select,settle,paint);
+  checked('Axis, grid, palette and label controls change real SVG and Canvas output and restore it exactly');
   await select('line');
   await page.locator('#renderer-svg').click(); await settle();
   const download = page.waitForEvent('download'); await page.locator('#download-svg').click();
@@ -178,6 +251,38 @@ try {
   // Restore normal OS motion, then observe actual Rust spring frames in both backends.
   await page.emulateMedia({reducedMotion:'no-preference'});
   await page.locator('#animation-enabled').check();
+  for(const renderer of ['svg','canvas']) {
+    await select('bump');
+    await page.locator('#renderer-'+renderer).click();
+    await settle();
+    const slider = page.locator('#spring-damping');
+    await slider.focus();
+    await slider.press('ArrowRight');
+    const before = await settle();
+    assert.match(before.preset,/^custom\//);
+    const variants = await page.locator('#variant-select option').evaluateAll(nodes=>nodes.map(node=>node.value));
+    const next = variants.find(value=>value!==before.variant);
+    const ink = () => renderer==='svg'
+      ? page.locator('#chart-stage .kartis-surface > svg').evaluate(node=>node.innerHTML).then(sha)
+      : paint().then(result=>result.sha256);
+    for(const effect of ['layout','margins','entrance']) {
+      const start = await ink();
+      if(effect==='layout') await page.locator('#variant-select').selectOption(next);
+      if(effect==='margins') await page.locator('#plot-spacing').press('ArrowLeft');
+      if(effect==='entrance') await page.locator('#replay-entrance').click();
+      await page.waitForFunction(()=>window.kartisExplorer.snapshot().animating);
+      const frames = new Set([start]);
+      for(let i=0;i<5;i++) {
+        await page.evaluate(()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done))));
+        frames.add(await ink());
+      }
+      const end = await settle();
+      frames.add(await ink());
+      assert.equal(end.seed,before.seed);
+      assert(frames.size>=3,renderer+' paints intermediate '+effect+' frames');
+    }
+  }
+  checked('Bump layout, margin and entrance springs produce live SVG and Canvas frames with custom damping');
   for(const renderer of ['svg','canvas']) for(const slug of ['line','bar','pie','tree','funnel','circle-packing']) {
     await select(slug); await page.locator(`#renderer-${renderer}`).click(); await settle();
     await page.locator('#spring-preset').selectOption('gentle'); await settle();
@@ -206,6 +311,24 @@ try {
   const retargeted=await settle();
   assert.equal(retargeted.seed,retargetSeed+2,'an active spring accepts a second real dataset');
   checked('retargeting a running spring preserves the newest authored dataset');
+  report.interleaved = await checkRetargeting(page,select,settle,paint,catalog.map(chart=>chart.slug));
+  checked('Config and data changes retarget in both orders and settle on the exact rendered target');
+  report.paletteMotion=await checkRetargeting(page,select,settle,paint,catalog.map(chart=>chart.slug),'palette');
+  checked('Palette and data changes interrupt active springs and settle on identical direct renders');
+  report.decorationMotion=[];
+  for(const [setting,slugs] of [
+    ['axis-x',['line','bar','heatmap']], ['grid-x',['area']], ['grid-visible',['radar','geo-map']],
+    ['label-mode',['pie','tree','sankey']], ['label-size',['bump']]
+  ]) {
+    report.decorationMotion.push(...await checkRetargeting(page,select,settle,paint,slugs,setting));
+  }
+  checked('Axis, grid and label updates retarget while data is moving');
+  report.browserPresentation=await checkBrowserPresentation(page,select,settle);
+  checked('Native legend and tooltip settings respond to real pointer input in both renderers');
+  report.hoverPainting=await checkHoverPainting(page,select,settle);
+  checked('Moving between data marks updates outlines and tooltips with no base SVG mutations or Canvas draws');
+  report.changePainting=await checkChangePainting(page);
+  checked('Configuration, sparse and animated data updates retain unchanged plot ink and match complete independent renders');
 
   await select('bar'); await page.locator('#renderer-svg').click(); await settle();
   await page.locator('#auto-demo').click();

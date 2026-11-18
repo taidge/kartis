@@ -57,6 +57,8 @@ fn adapter(
         },
         patterns: Default::default(),
         blend: None,
+        damage: None,
+        clip_damage: false,
     })
 }
 

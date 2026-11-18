@@ -500,6 +500,15 @@ pub fn draw_with_blends(
     target: &mut impl Canvas,
     blends: &crate::blend::MarkBlends,
 ) -> Result<()> {
+    draw_filtered(scene, target, blends, |_| true)
+}
+
+fn draw_filtered(
+    scene: &Scene,
+    target: &mut impl Canvas,
+    blends: &crate::blend::MarkBlends,
+    include: impl Fn(DrawItem) -> bool,
+) -> Result<()> {
     scene.validate()?;
     blends.validate(scene)?;
     crate::blend::validate_opacity_group_layers(scene, blends)?;
@@ -581,6 +590,10 @@ pub fn draw_with_blends(
     let mut skipped_group = false;
     let painted = (|| {
         for (position, item) in scene.draw_items().into_iter().enumerate() {
+            // Retained passes include or omit each opacity group as a unit.
+            if !include(item) {
+                continue;
+            }
             if let Some(&index) = group_starts.get(&position) {
                 let group = &scene.opacity_groups[index];
                 skipped_group = group.opacity == 0.;
@@ -1212,7 +1225,7 @@ mod blend_script;
 #[cfg(all(feature = "canvas", target_arch = "wasm32"))]
 mod browser;
 #[cfg(all(feature = "web", target_arch = "wasm32"))]
-pub(crate) use browser::{PreparedCanvas, prepare_canvas};
+pub(crate) use browser::{PreparedCanvas, RetainedCanvas, prepare_canvas};
 #[cfg(all(feature = "canvas", target_arch = "wasm32"))]
 pub use browser::{
     draw_canvas, draw_canvas_with_blends, draw_canvas_with_transform,

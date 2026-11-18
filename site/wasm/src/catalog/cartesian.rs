@@ -48,15 +48,24 @@ fn lines(seed: u32) -> Vec<Series> {
         })
         .collect()
 }
-pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> Result<Sample> {
+pub(super) fn sample(
+    kind: &str,
+    c: &ChartConfig,
+    seed: u32,
+    variant: &str,
+    bump: BumpControls,
+    settings: &Settings,
+) -> Result<Sample> {
     let p = phase(seed);
-    let (scene, data, code) = match kind {
+    let (mut scene, data, code) = match kind {
         "line" | "area" => {
             let source = lines(seed);
             let data=json!(source.iter().map(|s|json!({"id":s.id,"data":s.data.iter().map(|p|json!({"x":p.x,"y":p.y})).collect::<Vec<_>>()})).collect::<Vec<_>>());
             let curve = match variant {
                 "linear" => Curve::Linear,
                 "step" => Curve::Step,
+                "basis" => Curve::Basis,
+                "natural" => Curve::Natural,
                 _ => Curve::MonotoneX,
             };
             (
@@ -66,12 +75,26 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                     &LineOptions {
                         curve,
                         area: kind == "area",
+                        points: settings.get("points") != "off",
+                        y_scale: cart_controls::scale(settings.get("y-scale")),
                         y_domain: Some([0., 75.]),
                         ..Default::default()
                     },
                 )?,
                 data,
                 match (kind, variant) {
+                    ("area", "basis") => {
+                        "line(&config, &series, &LineOptions { curve: Curve::Basis, area: true, ..Default::default() })?"
+                    }
+                    ("area", "natural") => {
+                        "line(&config, &series, &LineOptions { curve: Curve::Natural, area: true, ..Default::default() })?"
+                    }
+                    (_, "basis") => {
+                        "line(&config, &series, &LineOptions { curve: Curve::Basis, area: false, ..Default::default() })?"
+                    }
+                    (_, "natural") => {
+                        "line(&config, &series, &LineOptions { curve: Curve::Natural, area: false, ..Default::default() })?"
+                    }
                     ("area", "linear") => {
                         "line(&config, &series, &LineOptions { curve: Curve::Linear, area: true, ..Default::default() })?"
                     }
@@ -104,18 +127,30 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                         &categories,
                         &source,
                         &BarOptions {
-                            corner_radius: 3.,
-                            layout: if variant == "stacked" {
+                            corner_radius: if settings.get("corners") == "square" {
+                                0.
+                            } else {
+                                3.
+                            },
+                            padding: if settings.get("padding") == "wide" {
+                                0.5
+                            } else {
+                                0.2
+                            },
+                            layout: if matches!(variant, "stacked" | "horizontal-stacked") {
                                 BarLayout::Stacked
                             } else {
                                 BarLayout::Grouped
                             },
-                            horizontal: variant == "horizontal",
+                            horizontal: matches!(variant, "horizontal" | "horizontal-stacked"),
                             ..Default::default()
                         },
                     )?,
                     data,
                     match variant {
+                        "horizontal-stacked" => {
+                            "bar(&config, &categories, &series, &BarOptions { layout: BarLayout::Stacked, horizontal: true, corner_radius: 3., ..Default::default() })?"
+                        }
                         "stacked" => {
                             "bar(&config, &categories, &series, &BarOptions { layout: BarLayout::Stacked, horizontal: false, corner_radius: 3., ..Default::default() })?"
                         }
@@ -128,6 +163,20 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                     },
                 )
             } else if kind == "stream" {
+                macro_rules! stream_offset {
+                    ($offset:ident) => {
+                        (
+                            stack::StackOffset::$offset,
+                            concat!("stream_layout(&config, &categories, &series, &StreamLayoutOptions { stack: stack::StackOptions { order: stack::StackOrder::InsideOut, offset: stack::StackOffset::", stringify!($offset), " }, curve: Curve::Basis, legend: true, ..Default::default() })?.scene"),
+                        )
+                    };
+                }
+                let (offset, code) = match variant {
+                    "silhouette" => stream_offset!(Silhouette),
+                    "expand" => stream_offset!(Expand),
+                    "zero" => stream_offset!(Zero),
+                    _ => stream_offset!(Wiggle),
+                };
                 (
                     stream_layout(
                         c,
@@ -139,22 +188,46 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                         &StreamLayoutOptions {
                             stack: stack::StackOptions {
                                 order: stack::StackOrder::InsideOut,
-                                offset: stack::StackOffset::Wiggle,
+                                offset,
                             },
-                            curve: Curve::Basis,
+                            curve: if settings.get("curve") == "linear" {
+                                Curve::Linear
+                            } else {
+                                Curve::Basis
+                            },
+                            dots: (settings.get("dots") == "on").then(StreamDotOptions::default),
                             legend: true,
                             ..Default::default()
                         },
                     )?
                     .scene,
                     data,
-                    "stream_layout(&config, &categories, &series, &StreamLayoutOptions::default())?.scene",
+                    code,
                 )
             } else {
                 (
-                    marimekko(c, &categories, &source, &MarimekkoOptions::default())?,
+                    marimekko(
+                        c,
+                        &categories,
+                        &source,
+                        &MarimekkoOptions {
+                            horizontal: variant == "horizontal",
+                            padding: if variant == "spaced" { 6. } else { 0. },
+                            labels: settings.get("labels") == "on",
+                        },
+                    )?,
                     data,
-                    "marimekko(&config, &categories, &series, &MarimekkoOptions::default())?",
+                    match variant {
+                        "horizontal" => {
+                            "marimekko(&config, &categories, &series, &MarimekkoOptions { horizontal: true, ..Default::default() })?"
+                        }
+                        "spaced" => {
+                            "marimekko(&config, &categories, &series, &MarimekkoOptions { padding: 6., ..Default::default() })?"
+                        }
+                        _ => {
+                            "marimekko(&config, &categories, &series, &MarimekkoOptions::default())?"
+                        }
+                    },
                 )
             }
         }
@@ -187,14 +260,30 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                     c,
                     &source,
                     &ScatterOptions {
-                        radius: 4.5,
+                        radius: match variant {
+                            "small" => 2.5,
+                            "large" => 8.,
+                            _ => 4.5,
+                        },
+                        x_scale: cart_controls::scale(settings.get("x-scale")),
+                        y_scale: cart_controls::scale(settings.get("y-scale")),
                         x_domain: Some([0., 100.]),
                         y_domain: Some([0., 100.]),
                         ..Default::default()
                     },
                 )?,
                 data,
-                "scatter(&config, &series, &ScatterOptions { radius: 4.5, ..Default::default() })?",
+                match variant {
+                    "small" => {
+                        "scatter(&config, &series, &ScatterOptions { radius: 2.5, ..Default::default() })?"
+                    }
+                    "large" => {
+                        "scatter(&config, &series, &ScatterOptions { radius: 8., ..Default::default() })?"
+                    }
+                    _ => {
+                        "scatter(&config, &series, &ScatterOptions { radius: 4.5, ..Default::default() })?"
+                    }
+                },
             )
         }
         "radar" => {
@@ -215,12 +304,43 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
             ];
             let data = json!({"dimensions":dimensions,"series":source.iter().map(|s|json!({"id":s.id,"values":s.values})).collect::<Vec<_>>()});
             (
-                radar(c, &dimensions, &source, &RadarOptions::default())?,
+                radar(
+                    c,
+                    &dimensions,
+                    &source,
+                    &RadarOptions {
+                        levels: if variant == "coarse" { 3 } else { 5 },
+                        fill_opacity: if settings.get("fill-opacity") == "strong" {
+                            0.65
+                        } else {
+                            0.2
+                        },
+                        max_value: (settings.get("maximum") == "fixed").then_some(120.),
+                        rotation: if variant == "rotated" {
+                            36_f64.to_radians()
+                        } else {
+                            0.
+                        },
+                    },
+                )?,
                 data,
-                "radar(&config, &dimensions, &series, &RadarOptions::default())?",
+                match variant {
+                    "coarse" => {
+                        "radar(&config, &dimensions, &series, &RadarOptions { levels: 3, ..Default::default() })?"
+                    }
+                    "rotated" => {
+                        "radar(&config, &dimensions, &series, &RadarOptions { rotation: 36_f64.to_radians(), ..Default::default() })?"
+                    }
+                    _ => "radar(&config, &dimensions, &series, &RadarOptions::default())?",
+                },
             )
         }
         "bump" => {
+            if !(1. ..=12.).contains(&bump.line_width) {
+                return Err(ChartError(
+                    "Bump line width must be between 1 and 12 pixels".into(),
+                ));
+            }
             let source = ["North", "South", "West"]
                 .into_iter()
                 .enumerate()
@@ -239,11 +359,48 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                 })
                 .collect::<Vec<_>>();
             let data=json!(source.iter().map(|s|json!({"id":s.id,"data":s.data.iter().map(|d|json!({"x":key_json(&d.x),"rank":d.rank})).collect::<Vec<_>>()})).collect::<Vec<_>>());
-            (
-                bump_layout(c, &source, &BumpLayoutOptions::default())?.scene,
-                data,
-                "bump_layout(&config, &rank_series, &BumpLayoutOptions::default())?.scene",
-            )
+            macro_rules! bump_options {
+                ($options:expr) => {
+                    (
+                        $options,
+                        concat!("let mut options = ", stringify!($options), ";"),
+                    )
+                };
+            }
+            let (mut options, code) = match variant {
+                "linear" => bump_options!(BumpLayoutOptions {
+                    interpolation: BumpInterpolation::Linear,
+                    ..Default::default()
+                }),
+                "no-plateau" => bump_options!(BumpLayoutOptions {
+                    x_padding: 0.,
+                    ..Default::default()
+                }),
+                "large-points" => bump_options!(BumpLayoutOptions {
+                    style: BumpSeriesStyle {
+                        point: BumpPointStyle {
+                            size: 14.,
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                }),
+                "line-only" => bump_options!(BumpLayoutOptions {
+                    style: BumpSeriesStyle {
+                        point: BumpPointStyle {
+                            size: 0.,
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                }),
+                _ => bump_options!(BumpLayoutOptions::default()),
+            };
+            options.style.width = bump.line_width;
+            options.labels.end = bump.end_labels;
+            (bump_layout(c, &source, &options)?.scene, data, code)
         }
         "area-bump" => {
             let source = ["Search", "Direct", "Partners"]
@@ -269,7 +426,27 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                     c,
                     &source,
                     &AreaBumpOptions {
+                        align: if variant == "start" {
+                            AreaBumpAlign::Start
+                        } else {
+                            AreaBumpAlign::Middle
+                        },
+                        interpolation: if variant == "linear" {
+                            AreaBumpInterpolation::Linear
+                        } else {
+                            AreaBumpInterpolation::Smooth
+                        },
+                        spacing: if variant == "spaced" { 8. } else { 0. },
+                        style: AreaBumpSeriesStyle {
+                            fill_opacity: if settings.get("fill-opacity") == "light" {
+                                0.35
+                            } else {
+                                0.8
+                            },
+                            ..Default::default()
+                        },
                         start_labels: AreaBumpLabels {
+                            enabled: settings.get("start-labels") != "off",
                             padding: 4.,
                             size: Some(10.),
                             ..Default::default()
@@ -283,7 +460,20 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                     },
                 )?,
                 data,
-                "area_bump(&config, &series, &AreaBumpOptions::default())?",
+                match variant {
+                    "start" => {
+                        "area_bump(&config, &series, &AreaBumpOptions { align: AreaBumpAlign::Start, ..Default::default() })?"
+                    }
+                    "linear" => {
+                        "area_bump(&config, &series, &AreaBumpOptions { interpolation: AreaBumpInterpolation::Linear, ..Default::default() })?"
+                    }
+                    "spaced" => {
+                        "area_bump(&config, &series, &AreaBumpOptions { spacing: 8., ..Default::default() })?"
+                    }
+                    _ => {
+                        "area_bump(&config, &series, &AreaBumpOptions { align: AreaBumpAlign::Middle, ..Default::default() })?"
+                    }
+                },
             )
         }
         "parallel-coordinates" => {
@@ -297,11 +487,41 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                 })
                 .collect::<Vec<_>>();
             let data = json!({"dimensions":dimensions,"records":source.iter().map(|r|json!({"id":r.id,"values":r.values})).collect::<Vec<_>>()});
-            (
-                parallel_coordinates(c, &dimensions, &source)?,
-                data,
-                "parallel_coordinates(&config, &dimensions, &records)?",
-            )
+            if variant == "horizontal" {
+                (
+                    parallel_coordinates(c, &dimensions, &source)?,
+                    data,
+                    "parallel_coordinates(&config, &dimensions, &records)?",
+                )
+            } else {
+                let dimensions = dimensions.map(ParallelDimension::new);
+                let rows = source
+                    .into_iter()
+                    .map(ParallelDatum::from)
+                    .collect::<Vec<_>>();
+                let (options, code) = if variant == "vertical" {
+                    (
+                        ParallelCoordinatesOptions {
+                            layout: ParallelLayout::Vertical,
+                            ..Default::default()
+                        },
+                        "parallel_coordinates_with_options(&config, &dimensions, &rows, &ParallelCoordinatesOptions { layout: ParallelLayout::Vertical, ..Default::default() })?",
+                    )
+                } else {
+                    (
+                        ParallelCoordinatesOptions {
+                            curve: Curve::Basis,
+                            ..Default::default()
+                        },
+                        "parallel_coordinates_with_options(&config, &dimensions, &rows, &ParallelCoordinatesOptions { curve: Curve::Basis, ..Default::default() })?",
+                    )
+                };
+                (
+                    parallel_coordinates_with_options(c, &dimensions, &rows, &options)?,
+                    data,
+                    code,
+                )
+            }
         }
         "heatmap" => {
             let source = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -328,15 +548,31 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                     c,
                     &source,
                     &HeatmapOptions {
-                        padding: 0.1,
+                        padding: if variant == "spaced" { 0.4 } else { 0.1 },
+                        square: variant == "square",
                         domain: Some([0., 64.]),
                         low: Color(234, 244, 236, 255),
-                        high: Color(34, 126, 119, 255),
+                        high: if settings.get("highColor") == "berry" {
+                            Color(160, 58, 106, 255)
+                        } else {
+                            Color(34, 126, 119, 255)
+                        },
+                        labels: settings.get("cellLabels") == "show",
                         ..Default::default()
                     },
                 )?,
                 data,
-                "heatmap(&config, &cells, &HeatmapOptions::default())?",
+                match variant {
+                    "square" => {
+                        "heatmap(&config, &cells, &HeatmapOptions { square: true, padding: 0.1, ..options })?"
+                    }
+                    "spaced" => {
+                        "heatmap(&config, &cells, &HeatmapOptions { padding: 0.4, ..options })?"
+                    }
+                    _ => {
+                        "heatmap(&config, &cells, &HeatmapOptions { square: false, padding: 0.1, ..options })?"
+                    }
+                },
             )
         }
         "boxplot" => {
@@ -362,7 +598,44 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                     .map(|s| json!({"id":s.id,"values":s.values}))
                     .collect::<Vec<_>>()
             );
-            (boxplot(c, &source)?, data, "boxplot(&config, &samples)?")
+            let observations: Vec<_> = source
+                .iter()
+                .flat_map(|series| {
+                    series.values.iter().enumerate().map(move |(i, &value)| {
+                        BoxObservation::new(
+                            format!("{}-{i}", series.id),
+                            &series.id,
+                            "",
+                            Some(value),
+                        )
+                    })
+                })
+                .collect();
+            let mut options = BoxPlotLayoutOptions::default();
+            if settings.get("medianWidth") == "bold" {
+                options.median.width = 4.;
+            }
+            if settings.get("whiskerCaps") == "full" {
+                options.cap_size = 1.;
+            }
+            let code = match variant {
+                "horizontal" => {
+                    options.orientation = StatisticsOrientation::Horizontal;
+                    "boxplot_layout(&config, &observations, &BoxPlotLayoutOptions { orientation: StatisticsOrientation::Horizontal, ..Default::default() })?.scene"
+                }
+                "extrema" => {
+                    options.whiskers = BoxWhiskers::Extrema;
+                    "boxplot_layout(&config, &observations, &BoxPlotLayoutOptions { whiskers: BoxWhiskers::Extrema, ..Default::default() })?.scene"
+                }
+                _ => {
+                    "boxplot_layout(&config, &observations, &BoxPlotLayoutOptions::default())?.scene"
+                }
+            };
+            (
+                boxplot_layout(c, &observations, &options)?.scene,
+                data,
+                code,
+            )
         }
         "bullet" => {
             let source = ["Revenue", "Profit", "Customers"]
@@ -376,7 +649,34 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                 })
                 .collect::<Vec<_>>();
             let data=json!(source.iter().map(|s|json!({"id":s.id,"ranges":s.ranges,"measures":s.measures,"markers":s.markers})).collect::<Vec<_>>());
-            (bullet(c, &source)?, data, "bullet(&config, &rows)?")
+            let mut options = BulletLayoutOptions {
+                spacing: 8.,
+                measure_size: if settings.get("measureSize") == "wide" {
+                    0.7
+                } else {
+                    0.4
+                },
+                marker_width: if settings.get("markerWidth") == "bold" {
+                    5.
+                } else {
+                    2.
+                },
+                ..Default::default()
+            };
+            let code = match variant {
+                "vertical" => {
+                    options.orientation = StatisticsOrientation::Vertical;
+                    "bullet_layout(&config, &rows, &BulletLayoutOptions { orientation: StatisticsOrientation::Vertical, spacing: 8., ..Default::default() })?.scene"
+                }
+                "reverse" => {
+                    options.reverse = true;
+                    "bullet_layout(&config, &rows, &BulletLayoutOptions { reverse: true, spacing: 8., ..Default::default() })?.scene"
+                }
+                _ => {
+                    "bullet_layout(&config, &rows, &BulletLayoutOptions { spacing: 8., ..Default::default() })?.scene"
+                }
+            };
+            (bullet_layout(c, &source, &options)?.scene, data, code)
         }
         "calendar" => {
             let source = (1..=12)
@@ -389,11 +689,36 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                 })
                 .collect::<Vec<_>>();
             let data = json!({"year":2026,"days":source.iter().map(|d|json!({"month":d.month,"day":d.day,"value":d.value})).collect::<Vec<_>>()});
-            (
-                calendar(c, 2026, &source)?,
-                data,
-                "calendar(&config, 2026, &daily_values)?",
-            )
+            let days: Vec<_> = source
+                .iter()
+                .map(|d| CalendarCell::new((2026, d.month, d.day), Some(d.value)))
+                .collect();
+            let mut options = CalendarLayoutOptions {
+                mode: CalendarLayoutMode::FullYears,
+                day_spacing: 0.5,
+                weekday_space: 12.,
+                ..Default::default()
+            };
+            if settings.get("dayBorders") == "off" {
+                options.day_border = None;
+            }
+            if settings.get("monthBorders") == "off" {
+                options.month_border = None;
+            }
+            let code = match variant {
+                "monday" => {
+                    options.first_weekday = CalendarWeekday::Monday;
+                    "calendar_layout(&config, &days, &CalendarLayoutOptions { mode: CalendarLayoutMode::FullYears, first_weekday: CalendarWeekday::Monday, ..options })?.scene"
+                }
+                "vertical" => {
+                    options.orientation = CalendarOrientation::Vertical;
+                    "calendar_layout(&config, &days, &CalendarLayoutOptions { mode: CalendarLayoutMode::FullYears, orientation: CalendarOrientation::Vertical, ..options })?.scene"
+                }
+                _ => {
+                    "calendar_layout(&config, &days, &CalendarLayoutOptions { mode: CalendarLayoutMode::FullYears, ..options })?.scene"
+                }
+            };
+            (calendar_layout(c, &days, &options)?.scene, data, code)
         }
         "time-range" => {
             let source = (1..=3)
@@ -414,8 +739,26 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                     &CalendarLayoutOptions {
                         start: Some((2026, 1, 1)),
                         end: Some((2026, 3, 31)),
-                        day_radius: 2.,
-                        first_weekday: CalendarWeekday::Monday,
+                        day_radius: if settings.get("dayCorners") == "square" {
+                            0.
+                        } else {
+                            2.
+                        },
+                        day_opacity: if settings.get("dayOpacity") == "muted" {
+                            0.55
+                        } else {
+                            1.
+                        },
+                        orientation: if variant == "vertical" {
+                            CalendarOrientation::Vertical
+                        } else {
+                            CalendarOrientation::Horizontal
+                        },
+                        first_weekday: if variant == "sunday" {
+                            CalendarWeekday::Sunday
+                        } else {
+                            CalendarWeekday::Monday
+                        },
                         colors: ColorScaleOptions {
                             colors: vec![Color(234, 244, 236, 255), Color(34, 126, 119, 255)],
                             ..Default::default()
@@ -425,32 +768,74 @@ pub(super) fn sample(kind: &str, c: &ChartConfig, seed: u32, variant: &str) -> R
                 )?
                 .scene,
                 data,
-                "calendar_layout(&config, &days, &CalendarLayoutOptions { start: Some((2026, 1, 1)), end: Some((2026, 3, 31)), ..Default::default() })?.scene",
+                match variant {
+                    "sunday" => {
+                        "calendar_layout(&config, &days, &CalendarLayoutOptions { first_weekday: CalendarWeekday::Sunday, ..options })?.scene"
+                    }
+                    "vertical" => {
+                        "calendar_layout(&config, &days, &CalendarLayoutOptions { orientation: CalendarOrientation::Vertical, first_weekday: CalendarWeekday::Monday, ..options })?.scene"
+                    }
+                    _ => {
+                        "calendar_layout(&config, &days, &CalendarLayoutOptions { first_weekday: CalendarWeekday::Monday, ..options })?.scene"
+                    }
+                },
             )
         }
         "swarm" => {
+            let radius = (c.inner_width().min(c.inner_height()) / 48.).clamp(2., 4.);
             let source = (0..48)
-                .map(|i| {
-                    SwarmDatum::new(
-                        format!("sample-{i}"),
-                        if i < 24 { "North" } else { "South" },
-                        30. + (f64::from(i) * 1.9 + p).sin() * 19.,
-                    )
+                .map(|i| SwarmDatum {
+                    id: format!("sample-{i}"),
+                    group: if i < 24 { "North" } else { "South" }.into(),
+                    value: 30. + (f64::from(i) * 1.9 + p).sin() * 19.,
+                    radius,
                 })
                 .collect::<Vec<_>>();
             let data = json!(
                 source
                     .iter()
-                    .map(|d| json!({"id":d.id,"group":d.group,"value":d.value}))
+                    .map(|d| json!({"id":d.id,"group":d.group,"value":d.value,"radius":d.radius}))
                     .collect::<Vec<_>>()
             );
+            let mut scene = swarmplot(
+                c,
+                &source,
+                &SwarmOptions {
+                    horizontal: variant != "vertical",
+                    gap: if variant == "compact" { 0. } else { 1. },
+                    ..Default::default()
+                },
+            )?;
+            let outlined = settings.get("nodeBorder") == "outline";
+            let muted = settings.get("nodeOpacity") == "muted";
+            for node in &mut scene.marks {
+                if outlined {
+                    node.stroke = Some(glory::render::GraphicStroke {
+                        color: Color(36, 58, 70, 255),
+                        width: 1.5,
+                        cap: glory::render::StrokeCap::Butt,
+                    });
+                }
+                if muted {
+                    node.opacity = 0.55;
+                }
+            }
             (
-                swarmplot(c, &source, &SwarmOptions::default())?,
+                scene,
                 data,
-                "swarmplot(&config, &observations, &SwarmOptions::default())?",
+                match variant {
+                    "vertical" => {
+                        "swarmplot(&config, &observations, &SwarmOptions { horizontal: false, ..Default::default() })?"
+                    }
+                    "compact" => {
+                        "swarmplot(&config, &observations, &SwarmOptions { gap: 0., ..Default::default() })?"
+                    }
+                    _ => "swarmplot(&config, &observations, &SwarmOptions::default())?",
+                },
             )
         }
         _ => return Err(ChartError(format!("Unknown Cartesian chart: {kind}"))),
     };
+    cart_controls::style_marks(kind, &mut scene, settings);
     Ok(Sample { scene, data, code })
 }
