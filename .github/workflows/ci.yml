@@ -70,6 +70,35 @@ jobs:
       - name: Test release verification gates
         run: python scripts/test_release.py
 
+  native-chart-scroll:
+    name: Native chart trackpad gestures
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          path: kartis
+          persist-credentials: false
+      - name: Check out the coordinated native stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          checkout_engine() {
+            git init --quiet "$1"
+            git -C "$1" fetch --quiet --depth 1 "https://github.com/glory-rs/$1" "$2"
+            git -C "$1" -c core.symlinks=true checkout --quiet --detach FETCH_HEAD
+          }
+          checkout_engine glory 3d459530336ed725db22058aee6544e3cfbce7dc
+          checkout_engine apace 7db3ab0e4a46e6a6be95faa3b1ac270632d6bad9
+          checkout_engine takia bad353c780cef9caf002eeee2ead432ee91e80f4
+          checkout_engine wingy ba2e202cbdddbc6e1bab11421b500c4a9f08d621
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+        with:
+          toolchain: '1.95.0'
+      - run: cargo test --locked --test trackpad
+        working-directory: kartis/tests/native-scroll
+
   native:
     name: Native (${{ matrix.os }}, ${{ matrix.features }})
     runs-on: ${{ matrix.os }}

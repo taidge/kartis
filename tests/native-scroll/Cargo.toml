@@ -1,0 +1,22 @@
+[package]
+name = "kartis-native-scroll-tests"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.95"
+publish = false
+
+[workspace]
+resolver = "3"
+
+[[test]]
+name = "trackpad"
+path = "trackpad.rs"
+
+[dev-dependencies]
+kartis = { path = "../.." }
+glory = { path = "../../../glory/crates/glory", default-features = false, features = ["apace-shell-cpu"] }
+apace-dom = { path = "../../../apace/packages/apace-dom", default-features = false }
+apace-traits = { path = "../../../apace/packages/apace-traits", default-features = false }
+
+[patch.crates-io]
+glory = { path = "../../../glory/crates/glory" }
