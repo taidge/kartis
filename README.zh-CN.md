@@ -57,8 +57,8 @@ Kartis 要求 Rust 1.95 或更新版本。根据数据创建图表布局，再�
 
 ```toml
 [dependencies]
-kartis = "0.2.0"
-glory = { version = "0.8.0", default-features = false }
+kartis = "0.3.0"
+glory = { version = "0.9.0", default-features = false }
 ```
 
 浏览器控件和 Canvas 启用 `web`，CPU 渲染启用 `raster`，双向文字位图渲染启用

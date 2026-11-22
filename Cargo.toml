@@ -1,6 +1,6 @@
 [package]
 name = "kartis"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 rust-version = "1.95"
 license = "Apache-2.0"
@@ -47,7 +47,7 @@ raster-bidi = ["raster", "dep:unicode-bidi"]
 web = ["canvas", "glory/web", "web-sys/Window", "web-sys/ImageData", "web-sys/Document", "web-sys/Node", "web-sys/Element", "web-sys/HtmlElement", "web-sys/ShadowRoot", "web-sys/HtmlSlotElement", "web-sys/Event", "web-sys/EventTarget", "web-sys/PointerEvent", "web-sys/WheelEvent", "web-sys/KeyboardEvent", "web-sys/MouseEvent", "web-sys/DomRect", "web-sys/CssStyleDeclaration", "web-sys/FontFaceSet", "web-sys/FontFaceSetLoadStatus", "web-sys/ResizeObserver", "web-sys/ResizeObserverEntry", "web-sys/AddEventListenerOptions", "web-sys/Performance", "web-sys/MediaQueryList"]
 
 [dependencies]
-glory = { version = "0.8.0", default-features = false }
+glory = { version = "0.9.0", default-features = false }
 serde_json = {version="1",optional=true,features=["float_roundtrip"]}
 jiff = { version = "0.2.41", default-features = false, features = ["alloc"], optional = true }
 jiff-tzdb = { version = "0.1.9", default-features = false, optional = true }
@@ -67,7 +67,7 @@ wasm-bindgen = { version = "=0.2.130", optional = true }
 web-sys = { version = "=0.3.107", optional = true, features = ["HtmlCanvasElement", "CanvasRenderingContext2d", "CanvasGradient", "CanvasPattern", "CanvasWindingRule", "DomMatrix2dInit", "SvgMatrix", "Document", "TextMetrics"] }
 
 [dev-dependencies]
-glory = { version = "0.8.0", default-features = false, features = ["ssr"] }
+glory = { version = "0.9.0", default-features = false, features = ["ssr"] }
 
 [lints.rust]
 unsafe_code = "forbid"

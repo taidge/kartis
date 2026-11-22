@@ -14,7 +14,11 @@ thread_local! {
     static CONFIGURATION: RefCell<Option<(WebApp, WebApp)>> = const { RefCell::new(None) };
 }
 
-const DOCS: &str = "https://docs.rs/kartis/0.2.0/kartis/";
+const DOCS: &str = concat!(
+    "https://docs.rs/kartis/",
+    env!("CARGO_PKG_VERSION"),
+    "/kartis/"
+);
 const REPO: &str = "https://github.com/taidge/kartis";
 const SPRINGS: &[(&str, &str)] = &[
     ("default", "Default · 170 / 26"),
@@ -115,7 +119,7 @@ fn toolbar() -> impl Widget {
                 ui::image().source("/favicon.svg").decorative(),
                 text("", "Kartis"),
             )),
-            text("", "v0.2.0").class("version"),
+            text("", concat!("v", env!("CARGO_PKG_VERSION"))).class("version"),
         )),
         ui::view()
             .role(Role::Navigation)

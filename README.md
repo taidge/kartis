@@ -59,8 +59,8 @@ Add the crates.io dependencies to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-kartis = "0.2.0"
-glory = { version = "0.8.0", default-features = false }
+kartis = "0.3.0"
+glory = { version = "0.9.0", default-features = false }
 ```
 
 Enable `web` for browser widgets and Canvas, `raster` for CPU rendering,

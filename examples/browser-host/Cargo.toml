@@ -13,7 +13,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 kartis = { path = "../..", features = ["web", "timezone"] }
-glory = { version = "0.8.0", default-features = false }
+glory = { version = "0.9.0", default-features = false }
 serde_json = { version = "1", features = ["float_roundtrip"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.3.0 — 2026-11-22
+
+- Kartis widgets and examples use Glory 0.9. Native chart tests exercise independent trackpad gestures against Apace 0.4.
+- Chart family transitions preserve partial Canvas frames. The Glory showcase retains unchanged SVG and Canvas marks.
+
 ## 0.2.0 — 2026-11-17
 
 - A public 35-family chart playground adds categorized navigation and search, real Rust SVG previews, SVG/Canvas switching, configurable layouts, author data and core Rust call panels, theme switching and SVG export. Rust property springs animate dataset updates with presets, interruption, autoplay and reduced-motion support. The world-map examples use 175 explicitly documented non-Antarctic regions from the attributed Nivo dataset.
