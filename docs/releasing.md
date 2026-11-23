@@ -20,7 +20,7 @@ publication while the remaining groups continue collecting evidence.
 Publishing uses Rust/Cargo 1.95.0 so local and CI packages use the same Cargo
 version. Keep this toolchain pin aligned with the release workflow.
 
-The first publication can use `cargo +1.95.0 publish --locked --all-features` with an authenticated
+The first publication can use `cargo +1.95.0 publish --locked --all-features --no-verify` with an authenticated
 crates.io account after CI passes. Configure a crates.io Trusted Publisher for
 owner `taidge`, repository `kartis`, workflow `release.yml` to enable subsequent
 publishing from GitHub Actions without storing a long-lived registry token.
@@ -34,11 +34,11 @@ git push origin v0.2.0
 ```
 
 The release workflow runs CI again on that tag, verifies that its version matches
-the manifest, and packages the crate. If the version is already published, its
+the manifest, and packages the tested source for checksum verification. If the version is already published, its
 SHA-256 checksum must exactly match the local package. Otherwise the workflow
-authenticates with crates.io through OIDC and publishes it. Only after registry
-verification does it create the GitHub Release and attach the crate and
-`SHA256SUMS`. An existing mismatched or yanked version fails the release.
+authenticates with crates.io through OIDC and runs `cargo publish --no-verify`.
+After registry verification, it attaches the release manifest (`release.json`)
+and `SHA256SUMS` to the GitHub Release. An existing mismatched or yanked version fails the release.
 
 If a run fails after publication, rerun the failed jobs or dispatch the release
 workflow with the same tag. Keep the tag unchanged: crates.io versions are

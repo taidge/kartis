@@ -56,6 +56,11 @@ def verify(tag, require_published=False):
             raise ValueError("The crates.io checksum differs from the release package")
         if published["yanked"]:
             raise ValueError("The published version is yanked")
+    manifest_path = crate.parent / "release.json"
+    if require_published:
+        record = {"name": package["name"], "version": version, "checksum": checksum, "source_commit": head}
+        manifest_path.write_text(json.dumps({"tag": tag, "packages": [record]}, indent=2) + "\n",
+                                 encoding="utf-8", newline="\n")
     result = {
         "exists": str(published is not None).lower(),
         "crate_path": str(crate),
@@ -66,6 +71,8 @@ def verify(tag, require_published=False):
     }
     (crate.parent / "SHA256SUMS").write_text(f"{checksum}  {crate.name}\n", encoding="utf-8", newline="\n")
     output = os.environ.get("GITHUB_OUTPUT")
+    if require_published:
+        result["manifest_path"] = str(manifest_path)
     if output:
         with open(output, "a", encoding="utf-8") as stream:
             for key, value in result.items():

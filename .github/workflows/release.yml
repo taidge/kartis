@@ -50,8 +50,8 @@ jobs:
         run: |
           test "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")" = "$(git rev-parse HEAD)"
           git merge-base --is-ancestor HEAD origin/main
-      - name: Build and verify release package
-        run: cargo package --locked --all-features
+      - name: Package the tested source for checksum verification
+        run: cargo package --locked --all-features --no-verify
       - name: Check version and published package identity
         id: package
         run: python scripts/release.py verify --tag "$RELEASE_TAG"
@@ -65,7 +65,7 @@ jobs:
         if: steps.package.outputs.exists != 'true'
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
-        run: cargo publish --locked --all-features
+        run: cargo publish --locked --all-features --no-verify
       - name: Verify crates.io checksum
         id: published
         run: python scripts/release.py verify --tag "$RELEASE_TAG" --require-published
@@ -73,11 +73,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          CRATE_PATH: ${{ steps.published.outputs.crate_path }}
+          MANIFEST_PATH: ${{ steps.published.outputs.manifest_path }}
           CHECKSUM_PATH: ${{ steps.published.outputs.checksum_path }}
         shell: bash
         run: |
           if ! gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
             gh release create "$RELEASE_TAG" --verify-tag --title "Kartis $RELEASE_TAG" --generate-notes
           fi
-          gh release upload "$RELEASE_TAG" "$CRATE_PATH" "$CHECKSUM_PATH" --clobber
+          gh release upload "$RELEASE_TAG" "$MANIFEST_PATH" "$CHECKSUM_PATH" --clobber

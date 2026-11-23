@@ -67,6 +67,11 @@ class ReleaseTests(unittest.TestCase):
             release.verify("v0.2.0", True)
         self.assertIn("exists=true\n", output.read_text())
         self.assertIn(f"crate_path={self.crate}\n", output.read_text())
+        manifest = self.crate.parent / "release.json"
+        self.assertIn(f"manifest_path={manifest}\n", output.read_text())
+        self.assertEqual(json.loads(manifest.read_text()), {
+            "tag": "v0.2.0", "packages": [{"name": "kartis", "version": "0.2.0",
+                                            "checksum": self.checksum, "source_commit": "abc"}]})
         self.assertIn(f"checksum_path={self.crate.parent / 'SHA256SUMS'}\n", output.read_text())
         self.assertEqual((self.crate.parent / "SHA256SUMS").read_text(), f"{self.checksum}  {self.crate.name}\n")
         self.assertEqual((self.crate.parent / "SHA256SUMS").read_bytes(), f"{self.checksum}  {self.crate.name}\n".encode())
